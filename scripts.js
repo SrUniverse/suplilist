@@ -25,6 +25,19 @@ function mlAff(url){
   }catch(e){return url;}
 }
 
+function getBestDeal(it) {
+  const p = it.pm || 20;
+  const mlp = mlPrice(it);
+  const azp = azPrice(it);
+  const shopee = it.linkShopee || it.shopee || '';
+  const amazon = it.linkAmazon || it.az || '';
+  const ml = it.linkML || it.ml || '';
+
+  if (p <= mlp && p <= azp) return { name: 'Shopee', price: p, url: shopee, src: 'shopee' };
+  if (mlp <= p && mlp <= azp) return { name: 'Mercado Livre', price: mlp, url: mlAff(ml), src: 'mercadolivre' };
+  return { name: 'Amazon', price: azp, url: amazonAff(amazon), src: 'amazon' };
+}
+
 function mlPrice(i){return i.mlp||Math.round((i.pm||20)*1.08);}
 function azPrice(i){return i.azp||Math.round((i.pm||20)*1.18);}
 function bestMarketplacePrice(i){return Math.min(mlPrice(i),azPrice(i));}
@@ -274,12 +287,6 @@ function mktPanel(it,pos){
   const pd=pdose(it);
   return`<div class="mkt-panel">
   <div class="mkt-title">🏪 Onde comprar — <span>${it.name}</span></div>
-  ${it.coupon?`<div class="coupon" onclick="copyCoupon('${it.coupon}',${it.id})">
-    <span class="coupon-lbl">Cupom:</span>
-    <span class="coupon-code" id="cpn-${it.id}">${it.coupon}</span>
-    <span style="font-size:10px;color:var(--tx3)">${it.couponDiscount}</span>
-    <button class="coupon-copy" id="cpnbtn-${it.id}">📋 Copiar</button>
-  </div>`:''}
   <div class="mkt-cards">${cards.map(c=>`<div class="mkt-card ${c.cls}${c.url?'':' link-dead'}">
     ${c.best?'<div class="mkt-best">✓ Melhor custo</div>':''}
     <div class="mkt-ico">${c.ico}</div>
@@ -295,6 +302,7 @@ function itemHTML(it,idx){
   const done=S.checked[it.id],open=S.open[it.id],isX=it.pr==='extra';
   const cc=CAT[it.cat]?.cls||'cV',ico=CAT[it.cat]?.ico||'🌿';
   const pd=pdose(it);
+  const bestDeal = getBestDeal(it);
   const badgeHTML=it.badge==='hot'?'<span class="badge badge-hot">🔥 Popular</span>':it.badge==='best'?'<span class="badge badge-best">★ Melhor C/B</span>':it.badge==='val'?'<span class="badge badge-val">💰 Econômico</span>':'';
   const activeImg=(typeof SUPP_IMGS !== 'undefined' && SUPP_IMGS[it.id])||'';
   const imgHTML=activeImg
@@ -335,6 +343,17 @@ function itemHTML(it,idx){
     <div class="dbox">
       <div class="aff-block">${renderAffiliateButtons(it)}</div>
       ${mktPanel(it,idx)}
+      <div class="cta-container" style="margin-bottom:20px">
+        <a class="cta-primary" style="width:100%;justify-content:center;height:60px;font-size:16px" 
+           href="${utm(bestDeal.url, bestDeal.src, 'affiliate', 'suplilist_cta', idx)}" 
+           target="_blank" rel="sponsored noopener" onclick="event.stopPropagation()">
+           🛒 Comprar na ${bestDeal.name} — R$ ${bestDeal.price} ↗
+        </a>
+        <div style="display:flex;justify-content:center;gap:15px;margin-top:10px">
+           <button class="btn" style="height:32px;font-size:11px" onclick="event.stopPropagation();shareSupplement({name:'${it.name}', description:'${it.desc}'})">📤 Compartilhar</button>
+        </div>
+      </div>
+
       <div class="dtitle">${it.name}</div>
       <div class="dtext">${it.desc}</div>
       <div class="dtags" aria-label="Tags">${(it.tags||[]).map(t=>`<span class="dtag">${t}</span>`).join('')}</div>
@@ -533,7 +552,7 @@ function resetAll(){
 function openAll(){
   const pend=IT.filter(i=>!S.checked[i.id]&&i.pr!=='extra');
   if(!pend.length){toast('✔','Todos os itens já foram comprados!','success',{duration:2800});return;}
-  pend.forEach((it,i)=>setTimeout(()=>window.open(utm(it.shopee,'shopee','affiliate','suplilist',i+1),'_blank'),i*S.cfg.delay));
+  pend.forEach((it,i)=>setTimeout(()=>window.open(utm(it.linkShopee||it.shopee,'shopee','affiliate','suplilist',i+1),'_blank'),i*S.cfg.delay));
   toast('↗',`Abrindo ${pend.length} links…`,'info',{duration:3000});
 }
 
@@ -637,21 +656,16 @@ function closeRef(){
 }
 
 
-// ══════════════ COUPON & STICKY BAR ══════════════
-function copyCoupon(code,id){
-  navigator.clipboard?.writeText(code).catch(()=>{});
-  const btn=document.getElementById('cpnbtn-'+id);
-  if(btn){btn.textContent='✔ Copiado!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);}
-  toast('📋',`Cupom "${code}" copiado!`,'success',{duration:2400,progress:false});
-}
-
+// ══════════════ STICKY BAR ══════════════
 function showSticky(id){
   const it=IT.find(i=>i.id===id);if(!it) return;
   _stickyItem=it;
   const sp=it.pm||20,mlp=mlPrice(it),azp=azPrice(it);
-  const best=sp<=mlp&&sp<=azp?{name:'Shopee',price:sp,url:it.shopee,src:'shopee'}
-    :mlp<=sp&&mlp<=azp?{name:'Mercado Livre',price:mlp,url:mlAff(it.ml),src:'mercadolivre'}
-    :{name:'Amazon',price:azp,url:amazonAff(it.az),src:'amazon'};
+  const best=sp<=mlp&&sp<=azp
+    ?{name:'Shopee',price:sp,url:it.linkShopee||it.shopee,src:'shopee'}
+    :mlp<=sp&&mlp<=azp
+      ?{name:'Mercado Livre',price:mlp,url:it.linkML||(it.ml?mlAff(it.ml):''),src:'mercadolivre'}
+      :{name:'Amazon',price:azp,url:it.linkAmazon||(it.az?amazonAff(it.az):''),src:'amazon'};
   document.getElementById('sb-name').textContent=it.name;
   document.getElementById('sb-price').textContent=`~R$${best.price} · Melhor: ${best.name}`;
   document.getElementById('sb-btn').onclick=()=>window.open(utm(best.url,best.src,'sticky','suplilist',0),'_blank');
@@ -1742,7 +1756,11 @@ function exportTxt(){
   ['alta','media','baixa','extra'].forEach(p=>{
     const g=IT.filter(i=>i.pr===p);if(!g.length) return;
     t+=`\n[${PLBL[p].toUpperCase()}]\n`;
-    g.forEach(i=>{t+=`  ${S.checked[i.id]?'[✔]':'[ ]'} ${i.name}  ~R$${bestMarketplacePrice(i)}\n  Mercado Livre: ${mlAff(i.ml)}\n  Amazon: ${amazonAff(i.az)}\n\n`;});
+    g.forEach(i=>{
+      const mlLink = i.linkML || (i.ml ? mlAff(i.ml) : '');
+      const azLink = i.linkAmazon || (i.az ? amazonAff(i.az) : '');
+      t+=`  ${S.checked[i.id]?'[✔]':'[ ]'} ${i.name}  ~R$${bestMarketplacePrice(i)}\n  Mercado Livre: ${mlLink}\n  Amazon: ${azLink}\n\n`;
+    });
   });
   dl(t,'suplilist.txt','text/plain');toast('⬇','Lista exportada como .txt','success',{duration:2600});
 }
@@ -1776,7 +1794,11 @@ function handleImport(input){
 }
 
 function copyList(){
-  const lines=IT.map(i=>`${S.checked[i.id]?'✔':'○'} ${i.name}  ~R$${bestMarketplacePrice(i)}${S.wishlist[i.id]?' ❤️':''}\nMercado Livre: ${mlAff(i.ml)}\nAmazon: ${amazonAff(i.az)}`);
+  const lines=IT.map(i=>{
+    const mlLink = i.linkML || (i.ml ? mlAff(i.ml) : '');
+    const azLink = i.linkAmazon || (i.az ? amazonAff(i.az) : '');
+    return `${S.checked[i.id]?'✔':'○'} ${i.name}  ~R$${bestMarketplacePrice(i)}${S.wishlist[i.id]?' ❤️':''}\nMercado Livre: ${mlLink}\nAmazon: ${azLink}`;
+  });
   navigator.clipboard?.writeText(lines.join('\n')).then(()=>toast('📋','Lista copiada!','success',{duration:2400,progress:false}));
 }
 

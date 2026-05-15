@@ -1,41 +1,11 @@
 // ══════════════ MAPEAMENTOS E REGRAS DE NEGÓCIO ══════════════
 
-function amazonAff(url){
-  try{
-    const u=new URL(url);
-    if(u.hostname.includes('amazon.')){
-      u.searchParams.set('tag',AFF.amazonTag);
-      u.searchParams.set('linkCode','ll2');
-      u.searchParams.set('ref_','as_li_ss_tl');
-    }
-    return u.toString();
-  }catch(e){return url;}
-}
-
-function mlAff(url){
-  try{
-    const u=new URL(url);
-    if(u.hostname.includes('meli.la')) return u.toString();
-    u.searchParams.set('utm_source','suplilistpro');
-    u.searchParams.set('utm_medium','affiliate');
-    u.searchParams.set('utm_campaign','mercadolivre');
-    u.searchParams.set('utm_content',AFF.mlLabel);
-    u.searchParams.set('label',AFF.mlLabel);
-    return u.toString();
-  }catch(e){return url;}
-}
-
-function mlPrice(i){return i.mlp||Math.round((i.pm||20)*1.08);}
-function azPrice(i){return i.azp||Math.round((i.pm||20)*1.18);}
-function bestMarketplacePrice(i){return Math.min(mlPrice(i),azPrice(i));}
-
-
 // ══════════════ STATE ══════════════
 let S={
   checked:{},open:{},notes:{},wishlist:{},stack:{},imgs:{},
   tab:'lista',cat:'Todos',goal:'',showDone:true,showExtra:true,goalFilter:'',priceFilter:'',
   cmpSel:[],rSel:[],history:[],cycleStart:{},cycleNote:{},cyclePause:{},
-  cfg:{showStars:true,showPdose:true,confetti:true,theme:'dark',delay:280,
+  cfg:{isAdmin:false,showStars:true,showPdose:true,confetti:true,theme:'dark',delay:280,
        alertInteractions:true,alertCycles:true,toasts:true,
        expandOnClick:true,confirmUncheck:false,autoSync:true,defaultSort:'priority'},
   lastSave:null
@@ -144,6 +114,54 @@ function syncCfgThemeGrid(){
 
 function toggleCfgExtra(){S.showExtra=!S.showExtra;applyCfg();renderList();save();}
 function toggleCfgDone(){S.showDone=!S.showDone;applyCfg();renderList();save();}
+
+function toggleAdminMode() {
+  // Solicita senha apenas se estiver tentando ATIVAR o modo admin
+  if (!S.cfg.isAdmin) {
+    const pw = prompt("Digite a senha de administrador para acessar as ferramentas mestre:");
+    if (pw !== "admin123") { // Você pode alterar "admin123" para a senha que desejar
+      toast('🚫', 'Acesso negado: Senha incorreta', 'error');
+      return;
+    }
+  }
+
+  S.cfg.isAdmin = !S.cfg.isAdmin;
+  const sec = document.getElementById('admin-section');
+  if (sec) {
+    if (S.cfg.isAdmin) {
+      sec.style.setProperty('display', 'block', 'important');
+    } else {
+      sec.style.setProperty('display', 'none', 'important');
+    }
+  }
+  save();
+  const msg = S.cfg.isAdmin ? 'Modo Administrador Ativado' : 'Modo Administrador Desativado';
+  toast(S.cfg.isAdmin ? '🛠️' : '🔒', msg, 'info');
+}
+
+function runDatabaseAudit() {
+  if (!S.cfg.isAdmin) return;
+
+  const total = IT.length;
+  const manualLinks = IT.filter(i => PRODUCT_LINKS[i.id]).length;
+  const missingManual = IT.filter(i => !PRODUCT_LINKS[i.id]);
+  const withImages = IT.filter(i => SUPP_IMGS[i.id]).length;
+
+  console.group("📊 Relatório de Auditoria - SupliList");
+  console.log(`Total de Itens: ${total}`);
+  console.log(`Links Manuais: ${manualLinks} (${Math.round(manualLinks/total*100)}%)`);
+  console.log(`Imagens Mapeadas: ${withImages} (${Math.round(withImages/total*100)}%)`);
+  
+  if (missingManual.length > 0) {
+    console.warn("⚠️ Itens operando apenas com busca automática (sem link direto no links.js):");
+    missingManual.forEach(i => console.log(`- ID ${i.id}: ${i.name}`));
+  } else {
+    console.log("✅ Todos os itens possuem links manuais!");
+  }
+  console.groupEnd();
+
+  toast('📊', `Auditoria: ${manualLinks}/${total} links manuais. Veja o console (F12).`, 'info', {duration: 5000});
+}
 
 function copyToClipboard(){
   const checked=IT.filter(i=>S.checked[i.id]).map(i=>'✅ '+i.name);
@@ -260,35 +278,42 @@ function starsHTML(n){
   return`<div class="stars">${[...Array(5)].map((_,i)=>`<div class="star${i<n?' on':''}"></div>`).join('')}</div>`;
 }
 
-function mktPanel(it,pos){
-  const p=it.pm||20;
-  const mlp=mlPrice(it),azp=azPrice(it);
-  const shopee=it.linkShopee||it.shopee||'';
-  const amazon=it.linkAmazon||it.az||'';
-  const ml=it.linkML||it.ml||'';
-  const cards=[
-    {cls:'mc-sp',ico:'🛍️',name:'Shopee',price:p,url:shopee,best:p<=mlp&&p<=azp},
-    {cls:'mc-ml',ico:'🛒',name:'Merc. Livre',price:mlp,url:ml,best:mlp<=p&&mlp<=azp},
-    {cls:'mc-az',ico:'📦',name:'Amazon',price:azp,url:amazon,best:azp<p&&azp<mlp},
-  ];
-  const pd=pdose(it);
-  return`<div class="mkt-panel">
-  <div class="mkt-title">🏪 Onde comprar — <span>${it.name}</span></div>
-  ${it.coupon?`<div class="coupon" onclick="copyCoupon('${it.coupon}',${it.id})">
-    <span class="coupon-lbl">Cupom:</span>
-    <span class="coupon-code" id="cpn-${it.id}">${it.coupon}</span>
-    <span style="font-size:10px;color:var(--tx3)">${it.couponDiscount}</span>
-    <button class="coupon-copy" id="cpnbtn-${it.id}">📋 Copiar</button>
-  </div>`:''}
-  <div class="mkt-cards">${cards.map(c=>`<div class="mkt-card ${c.cls}${c.url?'':' link-dead'}">
-    ${c.best?'<div class="mkt-best">✓ Melhor custo</div>':''}
-    <div class="mkt-ico">${c.ico}</div>
-    <div class="mkt-name">${c.name}</div>
-    <div class="mkt-price"><sup>R$</sup>${c.price}</div>
-    ${c.url?`<a class="mkt-buy-btn ${c.cls}" href="${utm(c.url,c.name==='Amazon'?'amazon':c.name==='Merc. Livre'?'mercadolivre':'shopee','affiliate','suplilist',pos)}" target="_blank" rel="sponsored noopener" onclick="event.stopPropagation()">Comprar no ${c.name}</a>`:''}
-    ${pd?`<div class="mkt-pdose">~R$${pd}/dose</div>`:''}
-  </div>`).join('')}</div>
-</div>`;
+function renderBuySection(it, idx) {
+  // links.js já aplicou amazonAff() + mlAff() + utm() — usar direto, sem re-processar
+  const azUrl   = it.linkAmazon || '';
+  const spUrl   = it.linkShopee || '';
+  const mlUrl   = it.linkML    || '';
+  const spPrice = it.pm || 20;
+  const mlp     = mlPrice(it);
+  const azp     = azPrice(it);
+  const pd      = pdose(it);
+
+  const markets = [
+    { cls:'mc-sp', url: spUrl, ico: '🛍️', name: 'Shopee',      price: spPrice, cta: 'Comprar no Shopee'      },
+    { cls:'mc-ml', url: mlUrl, ico: '🛒', name: 'Merc. Livre',  price: mlp,    cta: 'Comprar no Merc. Livre'  },
+    { cls:'mc-az', url: azUrl, ico: '📦', name: 'Amazon',       price: azp,    cta: 'Comprar no Amazon'       },
+  ].filter(m => m.url);
+
+  if (!markets.length) return '';
+
+  const bestPrice = Math.min(...markets.map(m => m.price));
+
+  const cardsHtml = markets.map(m => {
+    const isBest = m.price === bestPrice;
+    return `<a class="mkt-card ${m.cls}" href="${m.url}" target="_blank" rel="sponsored noopener" onclick="event.stopPropagation()">
+      ${isBest ? `<span class="mkt-best">✓ Melhor custo</span>` : ''}
+      <div class="mkt-ico">${m.ico}</div>
+      <div class="mkt-name">${m.name}</div>
+      <div class="mkt-price"><sup>R$</sup>${m.price}</div>
+      <span class="mkt-cta">${m.cta}</span>
+      ${pd ? `<div class="mkt-pdose">~R$${pd}/dose</div>` : ''}
+    </a>`;
+  }).join('');
+
+  return `<div class="mkt-panel">
+    <div class="mkt-title">🏪 ONDE COMPRAR — <span>${it.name.toUpperCase()}</span></div>
+    <div class="mkt-cards">${cardsHtml}</div>
+  </div>`;
 }
 
 function itemHTML(it,idx){
@@ -333,15 +358,14 @@ function itemHTML(it,idx){
   </div>
   <div class="dpanel" id="dp-${it.id}" role="region" aria-label="Detalhes de ${it.name}">
     <div class="dbox">
-      <div class="aff-block">${renderAffiliateButtons(it)}</div>
-      ${mktPanel(it,idx)}
+      ${renderBuySection(it,idx)}
+
       <div class="dtitle">${it.name}</div>
       <div class="dtext">${it.desc}</div>
       <div class="dtags" aria-label="Tags">${(it.tags||[]).map(t=>`<span class="dtag">${t}</span>`).join('')}</div>
       ${it.dose?`<div class="ddose" role="note">💊 ${it.dose}</div>`:''}
       ${it.warn?`<div class="dwarn" role="alert">⚠️ ${it.warn}</div>`:''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn bg" style="height:32px;font-size:11px" onclick="event.stopPropagation();showSticky(${it.id})" aria-label="Ver melhor preço para ${it.name}">🛒 Ver melhor preço</button>
         <button class="btn" style="height:32px;font-size:11px;background:var(--rosedim);color:var(--rose);border-color:rgba(244,114,182,.25)" onclick="event.stopPropagation();addToStack(${it.id})" aria-label="Adicionar ${it.name} à stack">💪 Adicionar à stack</button>
         <button class="ref-btn" onclick="event.stopPropagation();openRef(${it.id})" aria-label="Ver referências científicas para ${it.name}">🔬 Estudos Científicos</button>
       </div>
@@ -533,7 +557,7 @@ function resetAll(){
 function openAll(){
   const pend=IT.filter(i=>!S.checked[i.id]&&i.pr!=='extra');
   if(!pend.length){toast('✔','Todos os itens já foram comprados!','success',{duration:2800});return;}
-  pend.forEach((it,i)=>setTimeout(()=>window.open(utm(it.shopee,'shopee','affiliate','suplilist',i+1),'_blank'),i*S.cfg.delay));
+  pend.forEach((it,i)=>setTimeout(()=>window.open(utm(it.linkShopee||it.shopee,'shopee','affiliate','suplilist',i+1),'_blank'),i*S.cfg.delay));
   toast('↗',`Abrindo ${pend.length} links…`,'info',{duration:3000});
 }
 
@@ -637,21 +661,11 @@ function closeRef(){
 }
 
 
-// ══════════════ COUPON & STICKY BAR ══════════════
-function copyCoupon(code,id){
-  navigator.clipboard?.writeText(code).catch(()=>{});
-  const btn=document.getElementById('cpnbtn-'+id);
-  if(btn){btn.textContent='✔ Copiado!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);}
-  toast('📋',`Cupom "${code}" copiado!`,'success',{duration:2400,progress:false});
-}
-
+// ══════════════ STICKY BAR ══════════════
 function showSticky(id){
   const it=IT.find(i=>i.id===id);if(!it) return;
   _stickyItem=it;
-  const sp=it.pm||20,mlp=mlPrice(it),azp=azPrice(it);
-  const best=sp<=mlp&&sp<=azp?{name:'Shopee',price:sp,url:it.shopee,src:'shopee'}
-    :mlp<=sp&&mlp<=azp?{name:'Mercado Livre',price:mlp,url:mlAff(it.ml),src:'mercadolivre'}
-    :{name:'Amazon',price:azp,url:amazonAff(it.az),src:'amazon'};
+  const best = getBestDeal(it);
   document.getElementById('sb-name').textContent=it.name;
   document.getElementById('sb-price').textContent=`~R$${best.price} · Melhor: ${best.name}`;
   document.getElementById('sb-btn').onclick=()=>window.open(utm(best.url,best.src,'sticky','suplilist',0),'_blank');
@@ -1738,11 +1752,15 @@ function applyCfg(){
 }
 
 function exportTxt(){
-  let t='SUPLILIST PRO v3\n'+'═'.repeat(50)+'\n';
+  let t='SUPLILIST v15\n'+'═'.repeat(50)+'\n';
   ['alta','media','baixa','extra'].forEach(p=>{
     const g=IT.filter(i=>i.pr===p);if(!g.length) return;
     t+=`\n[${PLBL[p].toUpperCase()}]\n`;
-    g.forEach(i=>{t+=`  ${S.checked[i.id]?'[✔]':'[ ]'} ${i.name}  ~R$${bestMarketplacePrice(i)}\n  Mercado Livre: ${mlAff(i.ml)}\n  Amazon: ${amazonAff(i.az)}\n\n`;});
+    g.forEach(i=>{
+      const mlLink = i.linkML || (i.ml ? mlAff(i.ml) : '');
+      const azLink = i.linkAmazon || (i.az ? amazonAff(i.az) : '');
+      t+=`  ${S.checked[i.id]?'[✔]':'[ ]'} ${i.name}  ~R$${bestMarketplacePrice(i)}\n  Mercado Livre: ${mlLink}\n  Amazon: ${azLink}\n\n`;
+    });
   });
   dl(t,'suplilist.txt','text/plain');toast('⬇','Lista exportada como .txt','success',{duration:2600});
 }
@@ -1775,8 +1793,62 @@ function handleImport(input){
   reader.readAsText(file);
 }
 
+function testAffiliateLinks() {
+    if (!S.cfg.isAdmin) {
+        console.warn("Acesso negado: Modo administrador necessário.");
+        return;
+    }
+
+    // Usando Creatina Monohidratada (ID 11) como produto de amostra para teste
+    const testProduct = IT.find(i => i.id === 11);
+
+    if (!testProduct) {
+        toast('⚠️', 'Produto de teste (Creatina) não encontrado. Verifique o data.js.', 'error', { duration: 5000 });
+        return;
+    }
+
+    // Os links já foram processados por applyProductLinks em links.js
+    // Usamos as propriedades linkAmazon, linkShopee, linkML que já contêm as tags de afiliado e UTMs.
+
+    const amazonTestUrl = testProduct.linkAmazon;
+    if (amazonTestUrl) {
+        window.open(amazonTestUrl, '_blank');
+        console.log('Amazon Test URL:', amazonTestUrl);
+    } else {
+        toast('⚠️', 'Link da Amazon para Creatina não disponível.', 'warn', { duration: 3000 });
+    }
+
+    const mlTestUrl = testProduct.linkML;
+    if (mlTestUrl) {
+        window.open(mlTestUrl, '_blank');
+        console.log('Mercado Livre Test URL:', mlTestUrl);
+    } else {
+        toast('⚠️', 'Link do Mercado Livre para Creatina não disponível.', 'warn', { duration: 3000 });
+    }
+
+    const shopeeTestUrl = testProduct.linkShopee;
+    if (shopeeTestUrl) {
+        window.open(shopeeTestUrl, '_blank');
+        console.log('Shopee Test URL:', shopeeTestUrl);
+    } else {
+        toast('⚠️', 'Link da Shopee para Creatina não disponível.', 'warn', { duration: 3000 });
+    }
+
+    toast('🔗', 'Abrindo links de teste em novas abas. Verifique os parâmetros de afiliado.', 'info', { duration: 6000 });
+}
+
 function copyList(){
-  const lines=IT.map(i=>`${S.checked[i.id]?'✔':'○'} ${i.name}  ~R$${bestMarketplacePrice(i)}${S.wishlist[i.id]?' ❤️':''}\nMercado Livre: ${mlAff(i.ml)}\nAmazon: ${amazonAff(i.az)}`);
+  const lines=IT.map(i=>{
+    const p = bestMarketplacePrice(i);
+    let text = `${S.checked[i.id]?'✔':'○'} ${i.name} (~R$${p})`;
+    if(S.wishlist[i.id]) text += ' ❤️';
+    
+    const ml = i.linkML || "";
+    const az = i.linkAmazon || "";
+    const sh = i.linkShopee || "";
+    
+    return `${text}\n   🛒 ML: ${ml}\n   🛒 Amazon: ${az}\n   🛒 Shopee: ${sh}`;
+  });
   navigator.clipboard?.writeText(lines.join('\n')).then(()=>toast('📋','Lista copiada!','success',{duration:2400,progress:false}));
 }
 
@@ -2312,14 +2384,30 @@ function clearSearch(){
 })();
 
 // Version Label
-(()=>{
-  document.querySelectorAll('.setsec .setrow').forEach(row=>{
-    const lbl=row.querySelector('.setlabel');
-    if(lbl&&lbl.textContent==='Versão'){
-      const ctl=row.querySelector('.setctl span');
-      if(ctl)ctl.textContent='v15.0';
+(() => {
+  const versionEl = document.getElementById('version-trigger');
+  if (versionEl) {
+    let clicks = 0;
+    versionEl.addEventListener('click', () => {
+      clicks++;
+      if (clicks === 7) {
+        toggleAdminMode();
+        clicks = 0;
+      }
+      // Feedback visual sutil (opcional)
+      versionEl.style.opacity = 0.5 + (clicks * 0.07);
+    });
+  }
+  
+  // Verifica se deve mostrar a seção ao carregar
+  setTimeout(() => {
+    const sec = document.getElementById('admin-section');
+    if (sec) {
+      if (S.cfg.isAdmin) {
+        sec.style.setProperty('display', 'block', 'important');
+      }
     }
-  });
+  }, 500);
 })();
 
 // Smooth scroll nav

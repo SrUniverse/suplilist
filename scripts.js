@@ -263,10 +263,13 @@ function starsHTML(n){
 function mktPanel(it,pos){
   const p=it.pm||20;
   const mlp=mlPrice(it),azp=azPrice(it);
+  const shopee=it.linkShopee||it.shopee||'';
+  const amazon=it.linkAmazon||it.az||'';
+  const ml=it.linkML||it.ml||'';
   const cards=[
-    {cls:'mc-sp',ico:'🛍️',name:'Shopee',price:p,url:it.shopee,best:p<=mlp&&p<=azp},
-    {cls:'mc-ml',ico:'🛒',name:'Merc. Livre',price:mlp,url:mlAff(it.ml),best:mlp<=p&&mlp<=azp},
-    {cls:'mc-az',ico:'📦',name:'Amazon',price:azp,url:amazonAff(it.az),best:azp<p&&azp<mlp},
+    {cls:'mc-sp',ico:'🛍️',name:'Shopee',price:p,url:shopee,best:p<=mlp&&p<=azp},
+    {cls:'mc-ml',ico:'🛒',name:'Merc. Livre',price:mlp,url:ml,best:mlp<=p&&mlp<=azp},
+    {cls:'mc-az',ico:'📦',name:'Amazon',price:azp,url:amazon,best:azp<p&&azp<mlp},
   ];
   const pd=pdose(it);
   return`<div class="mkt-panel">
@@ -277,14 +280,14 @@ function mktPanel(it,pos){
     <span style="font-size:10px;color:var(--tx3)">${it.couponDiscount}</span>
     <button class="coupon-copy" id="cpnbtn-${it.id}">📋 Copiar</button>
   </div>`:''}
-  <div class="mkt-cards">${cards.map(c=>`<a class="mkt-card ${c.cls}" href="${utm(c.url,c.name==='Amazon'?'amazon':c.name==='Merc. Livre'?'mercadolivre':'shopee','affiliate','suplilist',pos)}" target="_blank" rel="sponsored noopener" onclick="event.stopPropagation()">
+  <div class="mkt-cards">${cards.map(c=>`<div class="mkt-card ${c.cls}${c.url?'':' link-dead'}">
     ${c.best?'<div class="mkt-best">✓ Melhor custo</div>':''}
     <div class="mkt-ico">${c.ico}</div>
     <div class="mkt-name">${c.name}</div>
     <div class="mkt-price"><sup>R$</sup>${c.price}</div>
+    ${c.url?`<a class="mkt-buy-btn ${c.cls}" href="${utm(c.url,c.name==='Amazon'?'amazon':c.name==='Merc. Livre'?'mercadolivre':'shopee','affiliate','suplilist',pos)}" target="_blank" rel="sponsored noopener" onclick="event.stopPropagation()">Comprar no ${c.name}</a>`:''}
     ${pd?`<div class="mkt-pdose">~R$${pd}/dose</div>`:''}
-    <div class="mkt-cta">Ver oferta ↗</div>
-  </a>`).join('')}</div>
+  </div>`).join('')}</div>
 </div>`;
 }
 
@@ -330,6 +333,7 @@ function itemHTML(it,idx){
   </div>
   <div class="dpanel" id="dp-${it.id}" role="region" aria-label="Detalhes de ${it.name}">
     <div class="dbox">
+      <div class="aff-block">${renderAffiliateButtons(it)}</div>
       ${mktPanel(it,idx)}
       <div class="dtitle">${it.name}</div>
       <div class="dtext">${it.desc}</div>

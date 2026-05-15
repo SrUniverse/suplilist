@@ -521,6 +521,11 @@ input[type=text]::placeholder{color:var(--tx3)}
 }
 .mkt-cta{font-size:12px;font-weight:800;padding:7px 16px;border-radius:100px;color:#fff;margin-top:3px;transition:opacity .15s,transform .15s;letter-spacing:.03em}
 .mkt-card:hover .mkt-cta{opacity:.88;transform:scale(1.04)}
+.mkt-buy-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;color:#fff;text-decoration:none;transition:transform .18s,filter .18s;box-shadow:0 12px 28px rgba(0,0,0,.08);margin:8px 0 4px}
+.mkt-buy-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.mc-sp .mkt-buy-btn{background:#ee4d2d;box-shadow:0 10px 24px rgba(238,77,45,.18)}
+.mc-ml .mkt-buy-btn{background:#1a56db;box-shadow:0 10px 24px rgba(26,86,219,.18)}
+.mc-az .mkt-buy-btn{background:#ff9900;box-shadow:0 10px 24px rgba(255,153,0,.18)}
 .mkt-best{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;padding:4px 12px;border-radius:100px;white-space:nowrap;letter-spacing:.04em;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.35)}
 .mc-sp{border-color:rgba(238,77,45,.4);background:rgba(238,77,45,.09)}.mc-sp .mkt-name{color:#ff6b55}.mc-sp .mkt-cta{background:#ee4d2d}.mc-sp .mkt-best{background:#ee4d2d}
 .mc-ml{border-color:rgba(52,131,250,.4);background:rgba(52,131,250,.09)}.mc-ml .mkt-name{color:#6ba8ff}.mc-ml .mkt-cta{background:#1a56db}.mc-ml .mkt-best{background:#1a56db}
@@ -4444,4 +4449,47 @@ input[type=range].weight-slider:focus{background:var(--bg5)}
   .hp-stat-n{font-size:30px}
   .hp-art-card{position:static;margin-top:10px}
   .hp-art-pill{font-size:8px;right:12px;top:12px}
+}
+/* ── Seção de Afiliados ── */
+.aff-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--bg3);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+.aff-title {
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.aff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+.aff-btn {
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    transition: transform 0.2s;
+}
+.aff-btn:active { transform: scale(0.95); }
+
+.btn-amazon { background: #FF9900; color: #000; }
+.btn-shopee { background: #EE4D2D; }
+.btn-ml { background: #FFF159; color: #000; }
+
+.aff-disclaimer {
+    font-size: 9px;
+    color: var(--tx3);
+    margin-top: 10px;
+    text-align: center;
+    opacity: 0.7;
 }

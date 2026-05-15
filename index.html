@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="dark light">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Suplilist — Suplementos com Eficácia Científica</title>
+<meta name="robots" content="index, follow">
+<meta name="description" content="Marketplace inteligente de suplementos. Compare preços, doses e eficácia científica em um só lugar.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Suplilist — Suplementos com Eficácia Científica">
+<meta property="og:description" content="Marketplace inteligente de suplementos. Compare preços, doses e eficácia científica em um só lugar.">
+<meta property="og:url" content="https://suplilistpro.com/">
+<meta property="og:site_name" content="SupliList Pro">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Suplilist — Suplementos com Eficácia Científica">
+<meta name="twitter:description" content="Compare preços, doses e eficácia científica em um só lugar.">
+<meta name="theme-color" content="#050608" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f0f2f8" media="(prefers-color-scheme: light)">
+<link rel="dns-prefetch" href="//shopee.com.br">
+<link rel="dns-prefetch" href="//mercadolivre.com.br">
+<link rel="dns-prefetch" href="//amazon.com.br">
+<link rel="canonical" href="https://suplilistpro.com/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body data-theme="dark">
+<a href="#main-content" class="skip-link">Ir para o conteúdo principal</a>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3" style="width:500px;height:500px;background:rgba(167,139,250,.022);top:45%;left:35%;filter:blur(200px);pointer-events:none;z-index:0;position:fixed;animation:orbFloat3 26s ease-in-out infinite"></div>
+<div class="toast-area" id="toasts"></div>
+
+<div class="ref-modal-overlay" id="ref-overlay" onclick="if(event.target===this)closeRef()" role="dialog" aria-modal="true" aria-labelledby="ref-modal-name" aria-hidden="true">
+  <div class="ref-modal">
+    <div class="ref-modal-head">
+      <div>
+        <div class="ref-modal-title" id="ref-modal-name">—</div>
+        <div class="ref-modal-cat" id="ref-modal-cat">—</div>
+      </div>
+      <button class="ref-modal-close" onclick="closeRef()" aria-label="Fechar modal de referências">✕</button>
+    </div>
+    <div class="ref-modal-body">
+      <div class="stab-row" id="ref-tabs">
+        <button class="stab on" onclick="switchStudyTab('resumo')">📋 Resumo</button>
+        <button class="stab" onclick="switchStudyTab('estudos')">🔬 Estudos</button>
+        <button class="stab" onclick="switchStudyTab('mecanismo')">⚙️ Mecanismo</button>
+        <button class="stab" onclick="switchStudyTab('seguranca')">🛡 Segurança</button>
+      </div>
+      <div id="ref-modal-body"></div>
+    </div>
+    <div style="padding:12px 24px 16px;border-top:1px solid var(--border);flex-shrink:0">
+      <p style="font-size:10px;color:var(--tx3);line-height:1.55">⚠️ Informações para fins educacionais. Consulte um profissional de saúde antes de iniciar suplementação.</p>
+    </div>
+  </div>
+</div>
+
+<div class="sticky-bar" id="sticky-bar">
+  <div class="sticky-info">
+    <div class="sticky-name" id="sb-name">—</div>
+    <div class="sticky-price" id="sb-price">—</div>
+  </div>
+  <button class="sticky-buy" id="sb-btn">🛒 Ver Melhor Preço ↗</button>
+  <button class="sticky-close" onclick="closeSticky()" aria-label="Fechar barra de preço">✕</button>
+</div>
+
+<div class="theme-popover" id="theme-pop">
+  <div class="theme-label">Escolher tema</div>
+  <div class="th-opt on" id="th-dark" onclick="setTheme('dark')"><span class="th-dot" style="background:#07090e;border:1px solid #4edd9a"></span>Dark</div>
+  <div class="th-opt" id="th-light" onclick="setTheme('light')"><span class="th-dot" style="background:#f0f2f8;border:1px solid #555"></span>Light</div>
+  <div class="th-opt" id="th-midnight" onclick="setTheme('midnight')"><span class="th-dot" style="background:#000005;border:1px solid #818cf8"></span>Midnight</div>
+  <div class="th-opt" id="th-forest" onclick="setTheme('forest')"><span class="th-dot" style="background:#050f08;border:1px solid #4ade80"></span>Forest</div>
+  <div class="th-opt" id="th-sunset" onclick="setTheme('sunset')"><span class="th-dot" style="background:#0f070a;border:1px solid #fb923c"></span>Sunset</div>
+  <div class="th-opt" id="th-ocean" onclick="setTheme('ocean')"><span class="th-dot" style="background:#020c14;border:1px solid #38bdf8"></span>Ocean</div>
+  <div class="th-opt" id="th-rose" onclick="setTheme('rose')"><span class="th-dot" style="background:#0f050a;border:1px solid #f472b6"></span>Rose</div>
+  <div class="th-opt" id="th-volcano" onclick="setTheme('volcano')"><span class="th-dot" style="background:#0f0600;border:1px solid #ff6b2b"></span>Volcano</div>
+  <div class="th-opt" id="th-neon" onclick="setTheme('neon')"><span class="th-dot" style="background:#000000;border:1px solid #39ff14"></span>Neon</div>
+  <div class="th-opt" id="th-aurora" onclick="setTheme('aurora')"><span class="th-dot" style="background:#020810;border:1px solid #a78bfa"></span>Aurora</div>
+</div>
+
+<div class="shell" id="main-shell"><main id="main-content" aria-label="Conteúdo principal">
+
+<nav class="sidebar" id="sidebar" aria-label="Navegação principal">
+  <div class="sb-header">
+    <div class="nav-brand" aria-label="SupliList Pro"><span class="bp" aria-hidden="true"></span>SupliList Pro</div>
+    <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Recolher menu" aria-label="Recolher menu">◀</button>
+  </div>
+  <div class="sb-nav" role="tablist" aria-label="Seções">
+    <button class="nt" id="nt-home" role="tab" aria-selected="false" aria-controls="p-home" onclick="go('home')"><span class="nt-ico">🏠</span><span class="nt-lbl">Início</span></button>
+    <button class="nt on" id="nt-lista" role="tab" aria-selected="true" aria-controls="p-lista" onclick="go('lista')"><span class="nt-ico">🌿</span><span class="nt-lbl">Lista</span><span class="nb" id="nb-lista" aria-label="pendentes">0</span></button>
+    <button class="nt" id="nt-stack" role="tab" aria-selected="false" aria-controls="p-stack" onclick="go('stack')"><span class="nt-ico">💪</span><span class="nt-lbl">Minha Stack</span><span class="nb" id="nb-stack">0</span></button>
+    <button class="nt" id="nt-wishlist" role="tab" aria-selected="false" aria-controls="p-wishlist" onclick="go('wishlist')"><span class="nt-ico">❤️</span><span class="nt-lbl">Favoritos</span><span class="nb" id="nb-wl">0</span></button>
+    <button class="nt" id="nt-recipe" role="tab" aria-selected="false" aria-controls="p-recipe" onclick="go('recipe')"><span class="nt-ico">⚗️</span><span class="nt-lbl">Receita</span></button>
+    <button class="nt" id="nt-dose" role="tab" aria-selected="false" aria-controls="p-dose" onclick="go('dose')"><span class="nt-ico">💊</span><span class="nt-lbl">Dosagem</span></button>
+    <button class="nt" id="nt-compare" role="tab" aria-selected="false" aria-controls="p-compare" onclick="go('compare')"><span class="nt-ico">⚖️</span><span class="nt-lbl">Comparar</span></button>
+    <button class="nt" id="nt-history" role="tab" aria-selected="false" aria-controls="p-history" onclick="go('history')"><span class="nt-ico">📊</span><span class="nt-lbl">Histórico</span></button>
+    <button class="nt" id="nt-interact" role="tab" aria-selected="false" aria-controls="p-interact" onclick="go('interact')"><span class="nt-ico">⚠️</span><span class="nt-lbl">Interações</span></button>
+    <button class="nt" id="nt-faq" role="tab" aria-selected="false" aria-controls="p-faq" onclick="go('faq')"><span class="nt-ico">❓</span><span class="nt-lbl">FAQ</span></button>
+    <button class="nt" id="nt-terms" role="tab" aria-selected="false" aria-controls="p-terms" onclick="go('terms')"><span class="nt-ico">📄</span><span class="nt-lbl">Termos</span></button>
+    <button class="nt" id="nt-config" role="tab" aria-selected="false" aria-controls="p-config" onclick="go('config')"><span class="nt-ico">⚙️</span><span class="nt-lbl">Config</span></button>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-save" id="ls2"><span class="sync-dot done" id="sync-indicator"></span><span>—</span></div>
+    <button class="theme-btn" onclick="toggleThemePop()" id="theme-toggle-btn" aria-label="Escolher tema" aria-haspopup="true" aria-expanded="false">
+      <span class="theme-btn-ico">🎨</span><span class="theme-btn-lbl">Tema</span>
+    </button>
+  </div>
+</nav>
+
+<nav class="bottom-nav" id="bottom-nav" aria-label="Navegação móvel">
+  <div class="bn-primary">
+    <button class="bn-tab" id="bn-home" onclick="go('home');bnSelect('home')" aria-label="Início">
+      <span class="bn-ico">🏠</span>
+      <span class="bn-lbl">Início</span>
+    </button>
+    <button class="bn-tab on" id="bn-lista" onclick="go('lista');bnSelect('lista')" aria-label="Lista">
+      <span class="bn-ico">🌿</span>
+      <span class="bn-lbl">Lista</span>
+      <span class="bn-badge" id="bn-badge-lista">0</span>
+    </button>
+    <button class="bn-tab" id="bn-stack" onclick="go('stack');bnSelect('stack')" aria-label="Stack">
+      <span class="bn-ico">💪</span>
+      <span class="bn-lbl">Stack</span>
+      <span class="bn-badge" id="bn-badge-stack">0</span>
+    </button>
+    <button class="bn-tab" id="bn-wishlist" onclick="go('wishlist');bnSelect('wishlist')" aria-label="Favoritos">
+      <span class="bn-ico">❤️</span>
+      <span class="bn-lbl">Favoritos</span>
+      <span class="bn-badge" id="bn-badge-wl">0</span>
+    </button>
+    <button class="bn-tab" id="bn-dose" onclick="go('dose');bnSelect('dose')" aria-label="Dosagem">
+      <span class="bn-ico">💊</span>
+      <span class="bn-lbl">Dose</span>
+    </button>
+    <button class="bn-more-btn" id="bn-more-btn" onclick="toggleBnDrawer()" aria-label="Mais opções" aria-expanded="false">
+      <span class="bn-ico">⋯</span>
+      <span class="bn-lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em">Mais</span>
+    </button>
+  </div>
+  <div class="bn-drawer" id="bn-drawer" role="tablist">
+    <div class="bn-swipe-hint" aria-hidden="true"></div>
+    <button class="bn-drawer-tab" id="bnd-recipe" onclick="go('recipe');bnSelect('recipe')" aria-label="Receita"><span class="bn-drawer-ico">⚗️</span><span class="bn-drawer-lbl">Receita</span></button>
+    <button class="bn-drawer-tab" id="bnd-compare" onclick="go('compare');bnSelect('compare')" aria-label="Comparar"><span class="bn-drawer-ico">⚖️</span><span class="bn-drawer-lbl">Comparar</span></button>
+    <button class="bn-drawer-tab" id="bnd-history" onclick="go('history');bnSelect('history')" aria-label="Histórico"><span class="bn-drawer-ico">📊</span><span class="bn-drawer-lbl">Histórico</span></button>
+    <button class="bn-drawer-tab" id="bnd-interact" onclick="go('interact');bnSelect('interact')" aria-label="Interações"><span class="bn-drawer-ico">⚠️</span><span class="bn-drawer-lbl">Interações</span></button>
+    <button class="bn-drawer-tab" id="bnd-faq" onclick="go('faq');bnSelect('faq')" aria-label="FAQ"><span class="bn-drawer-ico">❓</span><span class="bn-drawer-lbl">FAQ</span></button>
+    <button class="bn-drawer-tab" id="bnd-terms" onclick="go('terms');bnSelect('terms')" aria-label="Termos"><span class="bn-drawer-ico">📄</span><span class="bn-drawer-lbl">Termos</span></button>
+    <button class="bn-drawer-tab" id="bnd-config" onclick="go('config');bnSelect('config')" aria-label="Config"><span class="bn-drawer-ico">⚙️</span><span class="bn-drawer-lbl">Config</span></button>
+    <button class="bn-drawer-tab" onclick="toggleThemePop()" aria-label="Tema"><span class="bn-drawer-ico">🎨</span><span class="bn-drawer-lbl">Tema</span></button>
+  </div>
+</nav>
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+<div id="kb-hint">/ buscar &nbsp;·&nbsp; ESC fechar &nbsp;·&nbsp; ⌘K abrir lista</div>
+
+<div id="p-home" class="page">
+
+<section class="hp-hero">
+  <div class="hp-copy">
+    <div class="hp-eyebrow"><span class="ep"></span>Agregador de links afiliados</div>
+    <h1 class="hp-h1">
+      Compare.
+      <span class="hl2">Escolha.</span>
+      <span class="hl3">Compre fora.</span>
+    </h1>
+    <p class="hp-desc">O SupliList organiza suplementos por objetivo, mostra dose e custo por uso, e leva você direto para ofertas na Shopee, Mercado Livre e Amazon. Aqui você decide; a compra acontece no marketplace.</p>
+    <div class="hp-actions">
+      <button class="hp-btn-p" onclick="go('lista')">Montar Minha Lista</button>
+      <button class="hp-btn-s" onclick="go('dose')">Calcular Dosagem</button>
+    </div>
+    <div class="hp-stats">
+      <div class="hp-stat"><div class="hp-stat-n">56<span>+</span></div><div class="hp-stat-l">Suplementos</div></div>
+      <div class="hp-stat"><div class="hp-stat-n">3<span>×</span></div><div class="hp-stat-l">Marketplaces</div></div>
+      <div class="hp-stat"><div class="hp-stat-n">100<span>%</span></div><div class="hp-stat-l">Embasamento científico</div></div>
+      <div class="hp-stat"><div class="hp-stat-n">R$0</div><div class="hp-stat-l">Gratuito</div></div>
+    </div>
+  </div>
+  <div class="hp-art" aria-label="Visual do agregador SupliList">
+    <div class="hp-art-frame">
+      <span class="hp-art-pill">Não é checkout</span>
+      <svg viewBox="0 0 520 320" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;border-radius:16px" role="img" aria-label="Interface SupliList mostrando comparação de preços">
+        <defs>
+          <linearGradient id="bg-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0a0c10"/><stop offset="100%" stop-color="#141926"/></linearGradient>
+          <linearGradient id="acc-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00ff87"/><stop offset="100%" stop-color="#00e07a"/></linearGradient>
+          <linearGradient id="prog-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00ff87"/><stop offset="70%" stop-color="#4da6ff"/></linearGradient>
+        </defs>
+        <rect width="520" height="320" fill="url(#bg-g)"/>
+        <line x1="0" y1="80" x2="520" y2="80" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="160" x2="520" y2="160" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="0" y1="240" x2="520" y2="240" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <rect x="16" y="14" width="488" height="44" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <circle cx="36" cy="36" r="6" fill="#00ff87" opacity="0.9"/>
+        <text x="50" y="40" font-family="monospace" font-size="11" font-weight="700" fill="#00ff87" letter-spacing="1">SUPLILIST PRO</text>
+        <rect x="380" y="21" width="60" height="22" rx="6" fill="rgba(0,255,135,0.1)" stroke="rgba(0,255,135,0.2)" stroke-width="1"/>
+        <text x="410" y="36" font-family="sans-serif" font-size="9" font-weight="700" fill="#00ff87" text-anchor="middle">LISTA</text>
+        <rect x="448" y="21" width="44" height="22" rx="6" fill="rgba(255,255,255,0.05)"/>
+        <text x="470" y="36" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.4)" text-anchor="middle">STACK</text>
+        <rect x="16" y="70" width="488" height="62" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(0,255,135,0.2)" stroke-width="1"/>
+        <rect x="16" y="70" width="3" height="62" rx="2" fill="#00ff87"/>
+        <rect x="28" y="90" width="20" height="20" rx="5" fill="rgba(0,255,135,0.15)" stroke="#00ff87" stroke-width="1.5"/>
+        <text x="38" y="104" font-size="11" fill="#00ff87" text-anchor="middle">✓</text>
+        <text x="60" y="97" font-size="22">💊</text>
+        <text x="90" y="93" font-family="sans-serif" font-size="13" font-weight="700" fill="rgba(255,255,255,0.92)">Creatina Monohidratada 300g</text>
+        <rect x="90" y="97" width="52" height="15" rx="7" fill="rgba(0,255,135,0.1)"/>
+        <text x="116" y="108" font-family="sans-serif" font-size="8" font-weight="700" fill="#00ff87" text-anchor="middle">ESSENCIAL</text>
+        <rect x="150" y="97" width="38" height="15" rx="7" fill="rgba(77,166,255,0.1)"/>
+        <text x="169" y="108" font-family="sans-serif" font-size="8" fill="#4da6ff" text-anchor="middle">5g/dia</text>
+        <rect x="300" y="80" width="60" height="42" rx="8" fill="rgba(238,77,45,0.12)" stroke="rgba(238,77,45,0.25)" stroke-width="1"/>
+        <text x="330" y="96" font-family="sans-serif" font-size="8" fill="#ee4d2d" text-anchor="middle" font-weight="700">Shopee</text>
+        <text x="330" y="111" font-family="monospace" font-size="12" font-weight="700" fill="rgba(255,255,255,0.9)" text-anchor="middle">R$89</text>
+        <rect x="370" y="80" width="60" height="42" rx="8" fill="rgba(52,131,250,0.12)" stroke="rgba(52,131,250,0.25)" stroke-width="1"/>
+        <text x="400" y="96" font-family="sans-serif" font-size="8" fill="#3483fa" text-anchor="middle" font-weight="700">Merc.Livre</text>
+        <text x="400" y="111" font-family="monospace" font-size="12" font-weight="700" fill="rgba(255,255,255,0.9)" text-anchor="middle">R$94</text>
+        <rect x="440" y="80" width="56" height="42" rx="8" fill="rgba(255,153,0,0.12)" stroke="rgba(255,153,0,0.25)" stroke-width="1"/>
+        <text x="468" y="96" font-family="sans-serif" font-size="8" fill="#ff9900" text-anchor="middle" font-weight="700">Amazon</text>
+        <text x="468" y="111" font-family="monospace" font-size="12" font-weight="700" fill="rgba(255,255,255,0.9)" text-anchor="middle">R$97</text>
+        <rect x="16" y="143" width="488" height="62" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <rect x="28" y="163" width="20" height="20" rx="5" fill="transparent" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <text x="60" y="170" font-size="22">☀️</text>
+        <text x="90" y="166" font-family="sans-serif" font-size="13" font-weight="700" fill="rgba(255,255,255,0.92)">Vitamina D3 5000UI + K2</text>
+        <rect x="90" y="170" width="52" height="15" rx="7" fill="rgba(255,182,39,0.1)"/>
+        <text x="116" y="181" font-family="sans-serif" font-size="8" font-weight="700" fill="#ffb627" text-anchor="middle">ALTA PRIO</text>
+        <text x="300" y="178" font-family="monospace" font-size="12" fill="rgba(255,255,255,0.6)">R$32</text>
+        <text x="370" y="178" font-family="monospace" font-size="12" fill="rgba(255,255,255,0.6)">R$35</text>
+        <rect x="440" y="156" width="56" height="42" rx="8" fill="rgba(255,153,0,0.12)" stroke="rgba(255,153,0,0.3)" stroke-width="1.5"/>
+        <text x="468" y="172" font-family="sans-serif" font-size="8" fill="#ff9900" text-anchor="middle" font-weight="700">Amazon</text>
+        <text x="468" y="187" font-family="monospace" font-size="12" font-weight="700" fill="#00ff87" text-anchor="middle">R$29</text>
+        <rect x="16" y="216" width="488" height="62" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <rect x="28" y="236" width="20" height="20" rx="5" fill="transparent" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <text x="60" y="243" font-size="22">🐟</text>
+        <text x="90" y="239" font-family="sans-serif" font-size="13" font-weight="700" fill="rgba(255,255,255,0.92)">Ômega-3 EPA+DHA 120caps</text>
+        <rect x="90" y="243" width="52" height="15" rx="7" fill="rgba(74,222,128,0.08)"/>
+        <text x="116" y="254" font-family="sans-serif" font-size="8" font-weight="700" fill="#4ade80" text-anchor="middle">CARDIO</text>
+        <text x="90" y="265" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.3)">R$/dose: </text>
+        <text x="130" y="265" font-family="monospace" font-size="9" font-weight="700" fill="#00ff87">R$0,97</text>
+        <rect x="16" y="288" width="488" height="5" rx="2.5" fill="rgba(255,255,255,0.05)"/>
+        <rect x="16" y="288" width="162" height="5" rx="2.5" fill="url(#prog-g)"/>
+        <text x="16" y="302" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.3)">1 de 3 comprados</text>
+        <text x="504" y="302" font-family="monospace" font-size="8" fill="rgba(0,255,135,0.6)" text-anchor="end">33%</text>
+      </svg>
+    </div>
+    <div class="hp-art-card"><strong>R$/dose</strong><span>priorize o custo real de uso</span></div>
+  </div>
+</section>
+
+<div class="hp-marquee">
+  <div class="hp-mtrack">
+    <span class="hp-mitem"><span class="md">·</span>Creatina Monohidratada</span><span class="hp-mitem"><span class="md">·</span>Vitamina D3 + K2</span><span class="hp-mitem"><span class="md">·</span>Ômega-3 EPA+DHA</span><span class="hp-mitem"><span class="md">·</span>Magnésio Glicinato</span><span class="hp-mitem"><span class="md">·</span>Whey Protein</span><span class="hp-mitem"><span class="md">·</span>Ashwagandha KSM-66</span><span class="hp-mitem"><span class="md">·</span>Beta-Alanina</span><span class="hp-mitem"><span class="md">·</span>Lion's Mane</span><span class="hp-mitem"><span class="md">·</span>Bacopa Monnieri</span><span class="hp-mitem"><span class="md">·</span>Alpha-GPC</span><span class="hp-mitem"><span class="md">·</span>Coenzima Q10</span><span class="hp-mitem"><span class="md">·</span>Tongkat Ali</span>
+    <span class="hp-mitem"><span class="md">·</span>Creatina Monohidratada</span><span class="hp-mitem"><span class="md">·</span>Vitamina D3 + K2</span><span class="hp-mitem"><span class="md">·</span>Ômega-3 EPA+DHA</span><span class="hp-mitem"><span class="md">·</span>Magnésio Glicinato</span><span class="hp-mitem"><span class="md">·</span>Whey Protein</span><span class="hp-mitem"><span class="md">·</span>Ashwagandha KSM-66</span><span class="hp-mitem"><span class="md">·</span>Beta-Alanina</span><span class="hp-mitem"><span class="md">·</span>Lion's Mane</span><span class="hp-mitem"><span class="md">·</span>Bacopa Monnieri</span><span class="hp-mitem"><span class="md">·</span>Alpha-GPC</span><span class="hp-mitem"><span class="md">·</span>Coenzima Q10</span><span class="hp-mitem"><span class="md">·</span>Tongkat Ali</span>
+  </div>
+</div>
+
+<section class="hp-section">
+  <div class="hp-reveal">
+    <div class="hp-stag">Funcionalidades</div>
+    <h2 class="hp-sh">Tudo que você<br>precisa, junto.</h2>
+    <p class="hp-sp">Do planejamento à compra, passando pela ciência. Sem abas abertas, sem planilha.</p>
+  </div>
+  <div class="hp-feat-grid hp-reveal">
+    <div class="hp-fc"><div class="hp-fc-ico">⚖️</div><h3 class="hp-fc-h">Comparação de Preços</h3><p class="hp-fc-p">Shopee, Mercado Livre e Amazon lado a lado. Veja o melhor custo por dose, não só o menor preço total.</p><span class="hp-fc-tag">3 Marketplaces</span></div>
+    <div class="hp-fc"><div class="hp-fc-ico">🔬</div><h3 class="hp-fc-h">Dosagens Científicas</h3><p class="hp-fc-p">Cada suplemento com doses baseadas em estudos e calibradas pelo seu peso corporal. Sem achismo.</p><span class="hp-fc-tag">Baseado em evidências</span></div>
+    <div class="hp-fc"><div class="hp-fc-ico">📋</div><h3 class="hp-fc-h">Lista Inteligente</h3><p class="hp-fc-p">Prioridades definidas (Alta, Média, Extra). Marque o que comprou, anote, acompanhe seu progresso.</p><span class="hp-fc-tag">Personalizável</span></div>
+    <div class="hp-fc"><div class="hp-fc-ico">🧪</div><h3 class="hp-fc-h">Stack Personalizado</h3><p class="hp-fc-p">Monte e gerencie os suplementos que você já usa. Veja o custo mensal do stack completo em tempo real.</p><span class="hp-fc-tag">Em Uso</span></div>
+    <div class="hp-fc"><div class="hp-fc-ico">⚠️</div><h3 class="hp-fc-h">Interações & Sinergias</h3><p class="hp-fc-p">Alertas de combinações perigosas e combos que potencializam os resultados. Saiba o que misturar.</p><span class="hp-fc-tag">Segurança</span></div>
+    <div class="hp-fc"><div class="hp-fc-ico">💾</div><h3 class="hp-fc-h">Exportação</h3><p class="hp-fc-p">Exporte sua lista em .txt ou .JSON. Copie para o clipboard e envie para o grupo da academia.</p><span class="hp-fc-tag">TXT · JSON · Clipboard</span></div>
+  </div>
+</section>
+
+<section class="hp-section alt">
+  <div class="hp-reveal">
+    <div class="hp-stag">Como Funciona</div>
+    <h2 class="hp-sh">3 passos para<br>comprar certo.</h2>
+    <p class="hp-sp">Sem cadastro, sem complicação. Abre, monta, compra.</p>
+  </div>
+  <div class="hp-how-grid hp-reveal">
+    <div class="hp-steps">
+      <div class="hp-step"><div class="hp-snum">1</div><div><div class="hp-step-h">Defina seus Objetivos</div><p class="hp-step-p">Filtre por objetivo — Hipertrofia, Energia, Saúde Geral, Libido — e veja os suplementos mais relevantes pra você.</p></div></div>
+      <div class="hp-step"><div class="hp-snum">2</div><div><div class="hp-step-h">Compare Preços e Doses</div><p class="hp-step-p">Cada item mostra o preço nos 3 marketplaces e o custo por dose diária. Escolha o melhor custo-benefício.</p></div></div>
+      <div class="hp-step"><div class="hp-snum">3</div><div><div class="hp-step-h">Marque e Compre</div><p class="hp-step-p">Check nos que você comprou, exporte a lista ou copie pra compartilhar. Dados salvos automaticamente.</p></div></div>
+    </div>
+    <div class="hp-vis">
+      <div class="hp-vis-hdr"><span class="hp-vis-t">Minha Lista · Agosto</span><span class="hp-vis-b">● Ativo</span></div>
+      <div class="hp-vis-items">
+        <div class="hp-vi"><div class="hp-vi-chk done">✓</div><div class="hp-vi-name">💊 Creatina Mono 300g</div><span class="hp-vi-tag sp">Shopee</span><span class="hp-vi-price">R$89</span></div>
+        <div class="hp-vi"><div class="hp-vi-chk done">✓</div><div class="hp-vi-name">☀️ Vitamina D3 5000UI</div><span class="hp-vi-tag ml">ML</span><span class="hp-vi-price">R$32</span></div>
+        <div class="hp-vi"><div class="hp-vi-chk pend"></div><div class="hp-vi-name">🐟 Ômega-3 EPA+DHA</div><span class="hp-vi-tag az">Amazon</span><span class="hp-vi-price" style="color:var(--tx3)">R$58</span></div>
+        <div class="hp-vi"><div class="hp-vi-chk pend"></div><div class="hp-vi-name">🌙 Magnésio Glicinato</div><span class="hp-vi-tag sp">Shopee</span><span class="hp-vi-price" style="color:var(--tx3)">R$67</span></div>
+        <div class="hp-vi" style="cursor:pointer;opacity:.6" onclick="go('lista')"><div class="hp-vi-chk" style="border-color:var(--tx3)">+</div><div class="hp-vi-name" style="color:var(--tx3);font-style:italic">Ver todos os 56 suplementos →</div></div>
+      </div>
+      <div class="hp-vis-ftr"><div class="hp-vis-tot">Total: <strong>R$246</strong></div><div class="hp-vis-prg"><div class="hp-vis-bar"><div class="hp-vis-fill"></div></div><span class="hp-vis-pct">50%</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="hp-section" style="text-align:center">
+  <div class="hp-reveal">
+    <div class="hp-stag" style="justify-content:center">Integrado com</div>
+    <h2 class="hp-sh">Compare nos maiores<br>marketplaces do Brasil.</h2>
+    <p class="hp-sp" style="margin:0 auto 0;text-align:center">Preços atualizados, link direto para compra. Sem redirecionamentos suspeitos.</p>
+  </div>
+  <div class="hp-mkt-row hp-reveal">
+    <div class="hp-mkt-card"><div class="hp-mkt-icon" style="color:#ee4d2d">🛍️</div><div class="hp-mkt-name" style="color:#ee4d2d">Shopee</div><div class="hp-mkt-sub">Melhor custo</div></div>
+    <div class="hp-mkt-card"><div class="hp-mkt-icon" style="color:#3483fa">🏪</div><div class="hp-mkt-name" style="color:#3483fa">Mercado Livre</div><div class="hp-mkt-sub">Entrega rápida</div></div>
+    <div class="hp-mkt-card"><div class="hp-mkt-icon" style="color:#ff9900">📦</div><div class="hp-mkt-name" style="color:#ff9900">Amazon</div><div class="hp-mkt-sub">Prime disponível</div></div>
+  </div>
+  <div class="hp-agg hp-reveal">
+      <svg viewBox="0 0 440 260" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto;border-radius:20px" role="img" aria-label="Fluxo do SupliList como agregador entre marketplaces">
+        <defs>
+          <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0a0c10"/><stop offset="100%" stop-color="#0f1520"/></linearGradient>
+          <linearGradient id="lineG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(0,255,135,0.7)"/><stop offset="100%" stop-color="rgba(0,255,135,0.1)"/></linearGradient>
+        </defs>
+        <rect width="440" height="260" fill="url(#bg2)"/>
+        <circle cx="220" cy="130" r="52" fill="rgba(0,255,135,0.06)" stroke="rgba(0,255,135,0.3)" stroke-width="1.5"/>
+        <circle cx="220" cy="130" r="38" fill="rgba(0,255,135,0.08)" stroke="rgba(0,255,135,0.2)" stroke-width="1"/>
+        <text x="220" y="122" font-family="monospace" font-size="9" font-weight="700" fill="#00ff87" text-anchor="middle" letter-spacing="1">SUPLILIST</text>
+        <text x="220" y="136" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.4)" text-anchor="middle">organiza &amp; compara</text>
+        <circle cx="58" cy="130" r="32" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+        <text x="58" y="125" font-size="18" text-anchor="middle">🧑</text>
+        <text x="58" y="142" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.5)" text-anchor="middle">Usuário</text>
+        <path d="M92 130 L178 130" stroke="rgba(0,255,135,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polygon points="178,126 186,130 178,134" fill="rgba(0,255,135,0.5)"/>
+        <circle cx="360" cy="50" r="32" fill="rgba(238,77,45,0.08)" stroke="rgba(238,77,45,0.25)" stroke-width="1.5"/>
+        <text x="360" y="44" font-size="18" text-anchor="middle">🛍️</text>
+        <text x="360" y="60" font-family="sans-serif" font-size="9" fill="#ee4d2d" text-anchor="middle" font-weight="700">Shopee</text>
+        <path d="M262 110 L330 60" stroke="rgba(238,77,45,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polygon points="325,57 334,56 330,65" fill="rgba(238,77,45,0.5)"/>
+        <circle cx="382" cy="130" r="32" fill="rgba(52,131,250,0.08)" stroke="rgba(52,131,250,0.25)" stroke-width="1.5"/>
+        <text x="382" y="124" font-size="18" text-anchor="middle">🏪</text>
+        <text x="382" y="140" font-family="sans-serif" font-size="9" fill="#3483fa" text-anchor="middle" font-weight="700">Merc. Livre</text>
+        <path d="M272 130 L350 130" stroke="rgba(52,131,250,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polygon points="350,126 358,130 350,134" fill="rgba(52,131,250,0.5)"/>
+        <circle cx="360" cy="210" r="32" fill="rgba(255,153,0,0.08)" stroke="rgba(255,153,0,0.25)" stroke-width="1.5"/>
+        <text x="360" y="204" font-size="18" text-anchor="middle">📦</text>
+        <text x="360" y="220" font-family="sans-serif" font-size="9" fill="#ff9900" text-anchor="middle" font-weight="700">Amazon</text>
+        <path d="M262 150 L330 200" stroke="rgba(255,153,0,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polygon points="325,195 334,204 326,202" fill="rgba(255,153,0,0.5)"/>
+        <text x="220" y="250" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.2)" text-anchor="middle">A compra acontece no marketplace — o SupliList só encaminha</text>
+      </svg>
+    <div class="hp-agg-panel">
+      <h3>Agregador, não loja.</h3>
+      <p>O foco da interface é comparar opções e encaminhar para o marketplace certo. O usuário continua comprando em Shopee, Mercado Livre ou Amazon, com transparência de preço, dose e prioridade.</p>
+      <div class="hp-agg-list">
+        <span>✓ Links externos destacados por marketplace</span>
+        <span>✓ Custo por dose antes do clique</span>
+        <span>✓ Lista prática para decidir mais rápido</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hp-cta">
+  <div class="hp-cta-bg">SUPLILIST</div>
+  <div style="position:relative;z-index:1">
+    <div class="hp-stag hp-reveal" style="justify-content:center">Comece agora</div>
+    <h2 class="hp-sh hp-reveal" style="text-align:center">Pronto pra<br><span style="color:var(--accent)">suplementar</span><br>com cabeça?</h2>
+    <p class="hp-sp hp-reveal" style="margin:0 auto 36px;text-align:center">Gratuito, sem cadastro, sem pegadinha.<br>Abre no navegador e já funciona.</p>
+    <div class="hp-cta-row hp-reveal">
+      <button class="hp-btn-p" onclick="go('lista')">🚀 Abrir a Lista Agora</button>
+      <button class="hp-btn-s" onclick="go('dose')">💊 Calcular Dosagem</button>
+      <button class="hp-btn-s" onclick="go('compare')">⚖️ Comparar Ingredientes</button>
+    </div>
+    <p class="hp-cta-note hp-reveal">✓ 100% gratuito · ✓ Sem cadastro · ✓ Dados salvos localmente</p>
+  </div>
+</section>
+
+</div><div id="p-lista" class="page on">
+
+  <section class="hero">
+
+    <h2>Suplementos com <em>Eficácia</em><br>Científica Comprovada</h2>
+    <p class="hero-sub">Compare preços em tempo real na Shopee, Mercado Livre e Amazon. Encontre a melhor dose, ciclo ideal e onde comprar com a melhor relação custo-benefício.</p>
+    <div class="hero-ctas">
+      <button class="cta-primary" onclick="openAll()">↗ Ver Melhores Preços</button>
+      <button class="cta-sec" onclick="go('compare')">⚖️ Comparar Ingredientes</button>
+      <button class="cta-sec" onclick="go('dose')">💊 Calcular Dose</button>
+    </div>
+    <div class="hero-cats">
+      <button class="hcat on" id="hcat-all" onclick="setGoal('all')">🌐 Todos</button>
+      <button class="hcat" id="hcat-hipertrofia" onclick="setGoal('hipertrofia')">🏋️ Hipertrofia</button>
+      <button class="hcat" id="hcat-gordura" onclick="setGoal('gordura')">🔥 Queima de Gordura</button>
+      <button class="hcat" id="hcat-energia" onclick="setGoal('energia')">⚡ Energia & Foco</button>
+      <button class="hcat" id="hcat-saude" onclick="setGoal('saude')">❤️ Saúde Geral</button>
+      <button class="hcat" id="hcat-libido" onclick="setGoal('libido')">🌿 Libido & Testo</button>
+      <button class="hcat" id="hcat-sono" onclick="setGoal('sono')">🌙 Sono</button>
+      <button class="hcat" id="hcat-mulher" onclick="setGoal('mulher')">♀️ Mulher</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hs"><div class="hs-n" id="hs-total">56</div><div class="hs-l">Suplementos</div></div>
+      <div class="hs"><div class="hs-n" id="hs-cats">0</div><div class="hs-l">Categorias</div></div>
+      <div class="hs"><div class="hs-n">3</div><div class="hs-l">Marketplaces</div></div>
+      <div class="hs"><div class="hs-n">500+</div><div class="hs-l">Estudos</div></div>
+    </div>
+  </section>
+
+  <div class="affiliate-strip" aria-label="Como o SupliList funciona">
+    <div class="aff-box"><strong>Você compra no marketplace.</strong><span>O SupliList só organiza, compara e encaminha para ofertas externas com link afiliado.</span></div>
+    <div class="aff-box market"><div class="aff-logo" style="color:#ee4d2d">🛍️</div><strong>Shopee</strong><span>preço agressivo</span></div>
+    <div class="aff-box market"><div class="aff-logo" style="color:#3483fa">🏪</div><strong>Mercado Livre</strong><span>entrega rápida</span></div>
+    <div class="aff-box market"><div class="aff-logo" style="color:#ff9900">📦</div><strong>Amazon</strong><span>marcas e Prime</span></div>
+  </div>
+
+  <div class="stats">
+    <div class="sc sv"><div class="sc-l">Total</div><div class="sc-v" id="s-tot">0</div></div>
+    <div class="sc sa"><div class="sc-l">Pendentes</div><div class="sc-v" id="s-pend">0</div></div>
+    <div class="sc sg"><div class="sc-l">Comprados</div><div class="sc-v" id="s-done">0</div></div>
+    <div class="sc sr"><div class="sc-l">Urgentes</div><div class="sc-v" id="s-urg">0</div></div>
+  </div>
+
+  <div class="prog">
+    <div class="prog-meta"><span>Progresso</span><b id="pct">0%</b></div>
+    <div class="prog-track"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+  </div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+    <div class="togw" onclick="toggleDone()"><div class="tog on" id="tsw"></div><span>Mostrar comprados</span></div>
+    <div class="togw" onclick="toggleExtra()"><div class="tog on" id="tesw"></div><span style="color:var(--rose)">Mostrar extras</span></div>
+  </div>
+
+  <div class="affiliate-banner" id="af-banner">
+    <span class="af-ico">💼</span>
+    <span>Este site contém <b>links de afiliados</b>. Ao comprar via nossos links, recebemos uma comissão sem custo adicional para você. Os preços e a disponibilidade são exibidos para fins comparativos — verifique sempre o site do vendedor antes de finalizar a compra. <a href="#" onclick="go('config');return false">Saiba mais ↗</a></span>
+    <button class="af-dismiss" onclick="dismissAffiliate()" title="Fechar">✕</button>
+  </div>
+
+  <div class="price-cache-bar" id="price-cache-bar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="price-fresh live"><span class="dot"></span> Cache ativo</span>
+      <span id="cache-time-label">Preços atualizados há <b id="cache-age">0 min</b> · TTL: 60min</span>
+    </div>
+    <button id="refresh-btn" onclick="refreshPrices()" title="Atualizar preços">⟳ Atualizar</button>
+  </div>
+
+  <div class="facets">
+    <div class="sw"><span class="sw-i" aria-hidden="true">🔍</span><input type="text" id="search" placeholder="Buscar suplemento, benefício, categoria… (tecle /)" oninput="onSearchInput()" aria-label="Buscar suplementos"><button class="sw-clear" id="search-clear" onclick="clearSearch()" title="Limpar busca">✕</button></div>
+    <select class="fsel" id="sort" onchange="renderList()" aria-label="Ordenar por">
+      <option value="priority">Prioridade</option>
+      <option value="name">A – Z</option>
+      <option value="cat">Categoria</option>
+      <option value="score">Eficácia ★</option>
+      <option value="cost">Menor preço</option>
+      <option value="pdose">Preço/dose ↑</option>
+    </select>
+    <select class="fsel" id="f-goal" onchange="renderList()" aria-label="Filtrar por objetivo">
+      <option value="">Todos objetivos</option>
+      <option value="hipertrofia">💪 Hipertrofia</option>
+      <option value="gordura">🔥 Queima gordura</option>
+      <option value="energia">⚡ Energia</option>
+      <option value="saude">❤️ Saúde Geral</option>
+      <option value="libido">🌿 Libido/Testo</option>
+      <option value="sono">🌙 Sono</option>
+      <option value="mulher">♀️ Mulher</option>
+      <option value="digestao">🦠 Digestão</option>
+      <option value="articulacoes">🦴 Articulações</option>
+      <option value="metabolismo">🔥 Metabolismo</option>
+      <option value="longevidade">⏳ Longevidade</option>
+    </select>
+    <select class="fsel" id="f-price" onchange="renderList()" aria-label="Filtrar por faixa de preço">
+      <option value="">Qualquer preço</option>
+      <option value="0-50">Até R$ 50</option>
+      <option value="50-100">R$ 50–100</option>
+      <option value="100+">R$ 100+</option>
+    </select>
+    <span class="filter-count" id="filter-count"></span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn bg" onclick="checkAll()">✔ Todos</button>
+    <button class="btn" onclick="uncheckAll()">↺ Limpar</button>
+    <button class="btn br" onclick="resetAll()">🗑</button>
+    <button class="btn" onclick="exportTxt()">⬇ .txt</button>
+    <button class="btn" onclick="exportJSON()">⬇ .json</button>
+    <button class="btn" onclick="copyList()">📋 Copiar</button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+  <div class="tip"><span style="font-size:15px;flex-shrink:0">💡</span><span>Compare preços nos <b style="color:var(--accent)">3 marketplaces</b> em cada item. O preço por dose é o indicador mais justo. Itens em <b style="color:var(--rose)">rosa</b> são extras opcionais.</span></div>
+  <button class="oab" onclick="openAll()">↗ Abrir todos os pendentes na Shopee</button>
+  <div id="list" role="list" aria-label="Lista de suplementos"></div>
+
+  <footer class="foot">
+    <div class="foot-txt">SupliList Pro v7 · Dados salvos localmente · <span id="ls">—</span></div>
+  </footer>
+</div>
+
+<div id="p-stack" class="page">
+  <div class="ptitle">💪 Minha Stack</div>
+  <p class="psub">Suplementos em uso — acompanhe duração, recompra e ciclos</p>
+  <div class="stack-card">
+    <h3>⚡ Em Uso Agora</h3>
+    <div id="stack-list"></div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <select class="fsel" id="stack-sel" style="flex:1" aria-label="stack sel"></select>
+      <input class="finput" type="number" id="stack-qty" placeholder="Qtd (g ou caps)" style="width:140px">
+      <button class="btn bg" onclick="addStack()">+ Adicionar</button>
+    </div>
+  </div>
+  <div id="cyc-wrap" class="cyc-section">
+    <div class="cyc-section-head">
+      <div>
+        <div class="cyc-section-title">⏱ Ciclos de Suplementação</div>
+        <div class="cyc-section-sub">Acompanhe uso, pausas e alertas científicos de cada ciclo</div>
+      </div>
+      <div class="cyc-legend">
+        <div class="cyc-legend-item"><div class="cyc-legend-dot" style="background:var(--accent)"></div>Ativo</div>
+        <div class="cyc-legend-item"><div class="cyc-legend-dot" style="background:var(--amber)"></div>Pausar em breve</div>
+        <div class="cyc-legend-item"><div class="cyc-legend-dot" style="background:var(--red)"></div>Pausa necessária</div>
+        <div class="cyc-legend-item"><div class="cyc-legend-dot" style="background:var(--blue)"></div>Em pausa</div>
+      </div>
+    </div>
+    <div class="cyc-summary" id="cyc-summary"></div>
+    <div class="cyc-grid" id="cyc-grid"></div>
+    <div class="cyc-add-row">
+      <div class="cyc-add-title">➕ Ciclo personalizado</div>
+      <input class="cyc-add-input" id="cyc-custom-name" type="text" placeholder="Nome do suplemento…" aria-label="Nome ciclo personalizado">
+      <input class="cyc-add-num" id="cyc-custom-max" type="number" value="90" min="7" max="365" aria-label="Dias máx">
+      <span class="cyc-add-lbl">dias uso</span>
+      <input class="cyc-add-num" id="cyc-custom-pausa" type="number" value="30" min="7" max="180" aria-label="Dias pausa">
+      <span class="cyc-add-lbl">dias pausa</span>
+      <button class="btn bg" style="height:36px;font-size:11px;flex-shrink:0" onclick="addCustomCyc()">+ Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div id="p-wishlist" class="page">
+  <div class="ptitle">❤️ Favoritos</div>
+  <p class="psub">Itens salvos. Persiste entre sessões.</p>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="btn br" onclick="clearWl()">🗑 Limpar</button>
+    <button class="btn bg" onclick="buyAllWl()">✔ Comprar todos</button>
+  </div>
+  <div id="wl-list"></div>
+</div>
+
+<div id="p-recipe" class="page">
+
+  <div class="recipe-hero">
+    <div class="recipe-hero-top">
+      <div>
+        <div class="recipe-hero-title">⚗️ Montar Receita</div>
+        <div class="recipe-hero-sub">Selecione os suplementos que você tem. Veja doses, horários e alertas de interação.</div>
+      </div>
+      <div class="recipe-counter">
+        <span class="recipe-counter-n" id="r-count">0</span>
+        <span class="recipe-counter-l">selecionados</span>
+      </div>
+    </div>
+    <div class="recipe-presets">
+      <span style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;align-self:center">Preset:</span>
+      <button class="rpreset" id="rp-hipertrofia" onclick="applyPreset('hipertrofia',this)">💪 Hipertrofia</button>
+      <button class="rpreset" id="rp-energia" onclick="applyPreset('energia',this)">⚡ Energia</button>
+      <button class="rpreset" id="rp-sono" onclick="applyPreset('sono',this)">🌙 Sono</button>
+      <button class="rpreset" id="rp-saude" onclick="applyPreset('saude',this)">❤️ Saúde</button>
+      <button class="rpreset" id="rp-libido" onclick="applyPreset('libido',this)">🌿 Libido</button>
+      <button class="rpreset" id="rp-mulher" onclick="applyPreset('mulher',this)">♀️ Mulher</button>
+      <button class="rpreset" id="rp-longevidade" onclick="applyPreset('longevidade',this)">⏳ Longevidade</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+    <button class="btn bg" onclick="selAllR()">✔ Todos</button>
+    <button class="btn" onclick="clearR()">↺ Limpar</button>
+    <button class="btn" style="background:var(--rosedim);color:var(--rose);border-color:rgba(244,114,182,.25)" onclick="selBought()">🛒 Comprados</button>
+    <div style="flex:1"></div>
+    <span id="r-filtered-count" style="font-size:11px;color:var(--tx3);font-family:var(--fm)"></span>
+  </div>
+  <div class="recipe-search-row">
+    <div class="recipe-search-wrap">
+      <span class="recipe-search-ico">🔍</span>
+      <input class="recipe-search" type="text" id="r-search" placeholder="Buscar suplemento…" oninput="filterRecipeSel()" aria-label="Buscar suplemento">
+    </div>
+    <select class="recipe-cat-filter" id="r-cat-filter" onchange="filterRecipeSel()" aria-label="Filtrar por categoria">
+      <option value="">Todas categorias</option>
+      <option value="Adaptógeno">🌿 Adaptógeno</option>
+      <option value="Aminoácido">⚡ Aminoácido</option>
+      <option value="Antioxidante">🛡 Antioxidante</option>
+      <option value="Articulações">🦴 Articulações</option>
+      <option value="Digestão">🦠 Digestão</option>
+      <option value="Hormônio">🧬 Hormônio</option>
+      <option value="Longevidade">⏳ Longevidade</option>
+      <option value="Metabolismo">🔥 Metabolismo</option>
+      <option value="Mineral">💎 Mineral</option>
+      <option value="Mulher">♀️ Mulher</option>
+      <option value="Sono">🌙 Sono</option>
+      <option value="Vegetal">🌱 Vegetal</option>
+      <option value="Vitamina">☀️ Vitamina</option>
+    </select>
+  </div>
+
+  <div class="rsel-grid" id="rsel-grid"></div>
+
+  <div id="r-alerts"></div>
+
+  <div class="recipe-view-tabs" id="r-view-tabs" style="display:none">
+    <button class="rvtab on" id="rvt-protocol" onclick="setRecipeView('protocol',this)">📋 Protocolo</button>
+    <button class="rvtab" id="rvt-timeline" onclick="setRecipeView('timeline',this)">🕐 Cronograma</button>
+  </div>
+
+  <div id="rout"></div>
+</div>
+
+<div id="p-dose" class="page">
+  <div class="dose-hero">
+    <h3>💊 Calculadora de Dosagem Personalizada</h3>
+    <p>Doses calibradas pelo seu peso, sexo, atividade e objetivo. Todas as variáveis afetam os valores calculados em tempo real.</p>
+  </div>
+
+  <div class="profile-panel">
+    <h3>👤 Seu Perfil de Saúde</h3>
+    <div class="profile-grid">
+      <div class="prof-field" style="grid-column:1/-1">
+        <label class="prof-label">Peso corporal</label>
+        <div class="weight-slider-wrap">
+          <div class="weight-slider-row">
+            <input type="range" class="weight-slider" id="prof-weight-slider" min="40" max="200" value="80" oninput="syncWeightSlider(this.value)">
+            <div style="display:flex;align-items:baseline;gap:2px">
+              <span class="weight-slider-val" id="weight-display">80</span>
+              <span class="weight-slider-unit">kg</span>
+            </div>
+            <input class="prof-input" type="number" id="prof-weight" value="80" min="40" max="200" oninput="syncWeightInput(this.value)" style="width:80px;flex-shrink:0">
+          </div>
+          <div class="weight-slider-labels"><span>40 kg</span><span>120 kg</span><span>200 kg</span></div>
+        </div>
+      </div>
+      <div class="prof-field">
+        <label class="prof-label">Altura (cm)</label>
+        <input class="prof-input" type="number" id="prof-height" value="175" min="120" max="230" oninput="renderDose()">
+      </div>
+      <div class="prof-field">
+        <label class="prof-label">Sexo</label>
+        <select class="prof-select" id="prof-sex" onchange="renderDose()" aria-label="prof sex">
+          <option value="masculino">Masculino</option>
+          <option value="feminino">Feminino</option>
+        </select>
+      </div>
+      <div class="prof-field">
+        <label class="prof-label">Objetivo</label>
+        <select class="prof-select" id="prof-goal" onchange="renderDose()" aria-label="prof goal">
+          <option value="saude">❤️ Saúde Geral</option>
+          <option value="hipertrofia">💪 Hipertrofia</option>
+          <option value="gordura">🔥 Queima de Gordura</option>
+          <option value="energia">⚡ Energia & Foco</option>
+          <option value="libido">🌿 Libido & Testo</option>
+          <option value="sono">🌙 Sono</option>
+          <option value="mulher">♀️ Mulher</option>
+          <option value="digestao">🦠 Digestão</option>
+          <option value="articulacoes">🦴 Articulações</option>
+          <option value="metabolismo">🔥 Metabolismo</option>
+          <option value="longevidade">⏳ Longevidade</option>
+        </select>
+      </div>
+      <div class="prof-field">
+        <label class="prof-label">Condições de saúde</label>
+        <select class="prof-select" id="prof-condition" onchange="renderDose()" aria-label="prof condition">
+          <option value="">Nenhuma</option>
+          <option value="hipertensao">Hipertensão</option>
+          <option value="diabetes">Diabetes</option>
+          <option value="hipotireoidismo">Hipotireoidismo</option>
+          <option value="anticoagulante">Uso de anticoagulantes</option>
+          <option value="imao">Uso de IMAO/antidepressivos</option>
+        </select>
+      </div>
+      <div class="prof-field">
+        <label class="prof-label">Nível de atividade</label>
+        <select class="prof-select" id="prof-activity" onchange="renderDose()" aria-label="prof activity">
+          <option value="sedentario">Sedentário</option>
+          <option value="moderado" selected>Moderado</option>
+          <option value="ativo">Ativo (4–5x/sem)</option>
+          <option value="atleta">Atleta (6–7x/sem)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <input type="hidden" id="wt" value="80">
+
+  <div class="safety-legend">
+    <div class="sleg"><div class="sleg-dot" style="background:var(--accent)"></div> Seguro</div>
+    <div class="sleg"><div class="sleg-dot" style="background:var(--amber)"></div> Atenção — próximo ao limite</div>
+    <div class="sleg"><div class="sleg-dot" style="background:var(--red)"></div> Risco — acima do limite seguro</div>
+  </div>
+
+  <div id="dose-out"></div>
+</div>
+
+<div id="p-compare" class="page">
+  <div class="ptitle">⚖️ Comparar Ingredientes</div>
+  <p class="psub">Selecione até 4 ingredientes</p>
+  <div class="cmp-grid" id="cmp-grid"></div>
+  <div id="cmp-out"></div>
+</div>
+
+<div id="p-history" class="page">
+  <div class="ptitle">📊 Histórico de Compras</div>
+  <p class="psub">Registre e acompanhe seu investimento</p>
+  <div class="hist-chart">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;font-weight:600;color:var(--tx)">Gastos mensais</span>
+      <span id="ht-top" style="font-family:var(--fm);color:var(--accent);font-size:14px">R$ 0,00</span>
+    </div>
+    <div class="bars" id="bars"></div>
+  </div>
+  <div class="hform">
+    <div class="fgrp"><label class="flabel">Ingrediente</label><select class="finput" id="hsel" aria-label="hsel"></select></div>
+    <div class="fgrp"><label class="flabel">Preço (R$)</label><input class="finput" type="number" id="hprice" placeholder="0.00" step="0.01"></div>
+    <div class="fgrp"><label class="flabel">Data</label><input class="finput" type="date" id="hdate"></div>
+    <button class="btn bg" onclick="addHist()" style="height:38px;align-self:flex-end">+ Registrar</button>
+  </div>
+  <div id="hlist"></div>
+  <div class="htotal" id="htotal" style="display:none"><span style="font-size:12px;color:var(--tx2)">Total investido</span><b id="htval">R$ 0,00</b></div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;margin-top:12px">
+    <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🏆 Maiores Gastos por Suplemento</div>
+    <div id="htop-supps"></div>
+  </div>
+</div>
+
+<div id="p-interact" class="page">
+  <div class="ptitle">⚠️ Interações & Alertas</div>
+  <p class="psub">Combinações a evitar, precauções e sinergias</p>
+  <div id="ilist"></div>
+</div>
+
+<div id="p-faq" class="page">
+  <div class="faq-hero">
+    <h2>Perguntas Frequentes</h2>
+    <p>Tudo que você precisa saber sobre suplementação, uso da plataforma e como interpretar os dados.</p>
+  </div>
+  <div class="faq-search">
+    <span class="faq-si">🔍</span>
+    <input type="text" id="faq-search-inp" placeholder="Buscar pergunta…" oninput="filterFaq()" aria-label="Buscar no FAQ">
+  </div>
+  <div class="faq-cats">
+    <button class="faq-cat on" onclick="filterFaqCat('all',this)">🌐 Todas</button>
+    <button class="faq-cat" onclick="filterFaqCat('plataforma',this)">💻 Plataforma</button>
+    <button class="faq-cat" onclick="filterFaqCat('suplementos',this)">💊 Suplementos</button>
+    <button class="faq-cat" onclick="filterFaqCat('compras',this)">🛒 Compras</button>
+    <button class="faq-cat" onclick="filterFaqCat('seguranca',this)">🛡 Segurança</button>
+    <button class="faq-cat" onclick="filterFaqCat('dados',this)">💾 Dados</button>
+  </div>
+  <div id="faq-list"></div>
+</div>
+
+<div id="p-terms" class="page">
+  <div class="terms-updated">Última atualização: Janeiro de 2025</div>
+  <div class="terms-layout">
+    <nav class="terms-nav" aria-label="Navegação dos termos">
+      <div class="terms-nav-item active" onclick="scrollToSection('t-intro')">📋 Introdução</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-uso')">✅ Uso da Plataforma</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-medico')">⚕️ Aviso Médico</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-afiliados')">💼 Afiliados</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-dados')">🔒 Dados & Privacidade</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-ip')">📝 Propriedade Intelectual</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-responsabilidade')">⚖️ Responsabilidade</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-alteracoes')">🔄 Alterações</div>
+      <div class="terms-nav-item" onclick="scrollToSection('t-contato')">📬 Contato</div>
+    </nav>
+    <div class="terms-body">
+      <div class="terms-hero">
+        <h2>Termos de Uso</h2>
+        <p>SupliList Pro · suplilistpro.com · Última revisão: 15/01/2025</p>
+      </div>
+      <div class="terms-section" id="t-intro">
+        <h3>📋 Introdução <span>Cláusula 1</span></h3>
+        <p class="terms-p">Bem-vindo ao <strong>SupliList Pro</strong> ("Plataforma", "nós", "nosso"). Ao acessar ou utilizar esta plataforma, você ("Usuário") concorda com os presentes Termos de Uso em sua totalidade.</p>
+        <p class="terms-p">O SupliList Pro é uma plataforma de <strong>informação educacional</strong> sobre suplementos alimentares. Nosso objetivo é centralizar dados científicos, comparar preços em marketplaces e auxiliar na organização pessoal de rotinas de suplementação.</p>
+        <div class="terms-highlight"><strong>⚠️ Leia com atenção</strong>Estes termos contêm limitações importantes de responsabilidade. O uso continuado da plataforma implica aceite integral destes termos.</div>
+      </div>
+      <div class="terms-section" id="t-uso">
+        <h3>✅ Uso da Plataforma <span>Cláusula 2</span></h3>
+        <p class="terms-p">Você pode utilizar o SupliList Pro para:</p>
+        <ul class="terms-list">
+          <li>Consultar informações educativas sobre suplementos alimentares</li>
+          <li>Comparar preços em plataformas de e-commerce parceiras</li>
+          <li>Organizar listas pessoais de suplementação</li>
+          <li>Calcular dosagens sugeridas com base em parâmetros pessoais</li>
+          <li>Exportar e compartilhar sua lista pessoal</li>
+        </ul>
+        <p class="terms-p">É <strong>expressamente proibido</strong>:</p>
+        <ul class="terms-list">
+          <li>Utilizar a plataforma para fins comerciais sem autorização prévia por escrito</li>
+          <li>Reproduzir, redistribuir ou modificar o conteúdo sem licença</li>
+          <li>Realizar engenharia reversa, scraping automatizado ou acesso não autorizado</li>
+          <li>Utilizar os dados para criar serviços concorrentes</li>
+        </ul>
+      </div>
+      <div class="terms-section" id="t-medico">
+        <h3>⚕️ Aviso Médico <span>Cláusula 3</span></h3>
+        <div class="terms-highlight"><strong>⚠️ Importante — Leia antes de suplementar</strong>As informações disponibilizadas têm caráter EXCLUSIVAMENTE EDUCACIONAL e NÃO substituem consulta com médico, nutricionista ou profissional de saúde habilitado.</div>
+        <p class="terms-p">As dosagens são baseadas em estudos científicos e representam médias populacionais. <strong>Cada indivíduo possui necessidades únicas</strong> que variam em função de:</p>
+        <ul class="terms-list">
+          <li>Condições de saúde preexistentes (diabetes, hipertensão, doenças autoimunes, etc.)</li>
+          <li>Medicamentos em uso (anticoagulantes, antidepressivos, hormônios, etc.)</li>
+          <li>Alergias e intolerâncias alimentares</li>
+          <li>Faixa etária, sexo biológico e composição corporal</li>
+          <li>Gravidez, amamentação e planejamento familiar</li>
+        </ul>
+        <p class="terms-p">O SupliList Pro não se responsabiliza por quaisquer efeitos adversos decorrentes do uso de suplementos com base nas informações desta plataforma.</p>
+      </div>
+      <div class="terms-section" id="t-afiliados">
+        <h3>💼 Programa de Afiliados <span>Cláusula 4</span></h3>
+        <p class="terms-p">O SupliList Pro participa de programas de afiliados com <strong>Shopee, Mercado Livre e Amazon</strong>. Ao clicar em links e realizar uma compra, podemos receber uma comissão do vendedor — <strong>sem custo adicional para você</strong>. Os preços exibidos são informativos e podem variar. Nossa curadoria é baseada em critérios científicos, não em comissões.</p>
+        <ul class="terms-list">
+          <li>Preços são atualizados periodicamente — verifique o valor final no marketplace</li>
+          <li>Não garantimos disponibilidade, qualidade ou entrega dos produtos listados</li>
+          <li>Links contêm parâmetros UTM para rastreamento de desempenho — nenhum dado pessoal é coletado</li>
+        </ul>
+      </div>
+      <div class="terms-section" id="t-dados">
+        <h3>🔒 Dados &amp; Privacidade <span>Cláusula 5</span></h3>
+        <p class="terms-p">O SupliList Pro foi projetado com <strong>privacidade por design</strong>:</p>
+        <ul class="terms-list">
+          <li>Todos os seus dados são armazenados <strong>exclusivamente no seu dispositivo</strong> via <code>localStorage</code></li>
+          <li><strong>Não coletamos, transmitimos ou armazenamos</strong> dados pessoais em servidores</li>
+          <li>Não há cadastro, login ou conta de usuário</li>
+          <li>Não utilizamos cookies de rastreamento de terceiros</li>
+        </ul>
+        <p class="terms-p">Esta plataforma está em conformidade com a <strong>LGPD (Lei 13.709/2018)</strong> na medida em que não coleta dados pessoais dos usuários.</p>
+      </div>
+      <div class="terms-section" id="t-ip">
+        <h3>📝 Propriedade Intelectual <span>Cláusula 6</span></h3>
+        <p class="terms-p">Todo o conteúdo do SupliList Pro — textos, design, código-fonte, base de dados e curadoria científica — é de propriedade exclusiva da plataforma e está protegido por leis de direitos autorais. Os estudos citados pertencem aos seus respectivos autores e publicações (PubMed/NCBI).</p>
+        <ul class="terms-list">
+          <li>Você pode compartilhar sua lista exportada para uso não comercial</li>
+          <li>Reprodução parcial ou total exige autorização prévia por escrito</li>
+        </ul>
+      </div>
+      <div class="terms-section" id="t-responsabilidade">
+        <h3>⚖️ Limitação de Responsabilidade <span>Cláusula 7</span></h3>
+        <p class="terms-p">A plataforma é fornecida <strong>"no estado em que se encontra"</strong>. O SupliList Pro não se responsabiliza por: imprecisões científicas, variações de preço, qualidade de produtos adquiridos via afiliados, perda de dados locais, efeitos adversos de suplementos, ou interrupções no serviço.</p>
+        <div class="terms-highlight"><strong>⚠️ Responsabilidade do Usuário</strong>O usuário é inteiramente responsável pelas decisões de saúde tomadas com base nas informações desta plataforma. Sempre consulte um profissional habilitado.</div>
+      </div>
+      <div class="terms-section" id="t-alteracoes">
+        <h3>🔄 Alterações dos Termos <span>Cláusula 8</span></h3>
+        <p class="terms-p">O SupliList Pro reserva-se o direito de modificar estes Termos a qualquer momento. O uso continuado após publicação de alterações constitui aceite das novas condições. A versão vigente está sempre disponível nesta seção.</p>
+      </div>
+      <div class="terms-section" id="t-contato">
+        <h3>📬 Contato <span>Cláusula 9</span></h3>
+        <ul class="terms-list">
+          <li>E-mail: <strong>contato@suplilistpro.com</strong></li>
+          <li>Assunto: "[Termos de Uso]" ou "[Privacidade]"</li>
+          <li>Prazo de resposta: até 5 dias úteis</li>
+        </ul>
+        <p class="terms-p" style="margin-top:16px;font-size:11px;color:var(--tx3)">© 2026 SupliList Pro. Todos os direitos reservados. Brasil.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="p-config" class="page">
+  <div class="ptitle">⚙️ Configurações</div>
+  <p class="psub">Personalize o SupliList Pro</p>
+
+  <div class="setsec">
+    <h3>🎨 Tema Visual</h3>
+    <div class="cfg-themes" id="cfg-theme-grid">
+      <div class="cfg-th on" id="cfgth-dark" onclick="setTheme('dark')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#07090e,#0a0c10);box-shadow:inset 0 0 0 2px #4edd9a"></div>
+        <div class="cfg-th-name">Dark</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-light" onclick="setTheme('light')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#f0f2f8,#e8ebf4);box-shadow:inset 0 0 0 2px #555"></div>
+        <div class="cfg-th-name">Light</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-midnight" onclick="setTheme('midnight')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#000005,#05050f);box-shadow:inset 0 0 0 2px #818cf8"></div>
+        <div class="cfg-th-name">Midnight</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-forest" onclick="setTheme('forest')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#050f08,#081a0c);box-shadow:inset 0 0 0 2px #4ade80"></div>
+        <div class="cfg-th-name">Forest</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-sunset" onclick="setTheme('sunset')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#0f070a,#1a080d);box-shadow:inset 0 0 0 2px #fb923c"></div>
+        <div class="cfg-th-name">Sunset</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-ocean" onclick="setTheme('ocean')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#020c14,#041525);box-shadow:inset 0 0 0 2px #38bdf8"></div>
+        <div class="cfg-th-name">Ocean</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-rose" onclick="setTheme('rose')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#0f050a,#1a0812);box-shadow:inset 0 0 0 2px #f472b6"></div>
+        <div class="cfg-th-name">Rose</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-volcano" onclick="setTheme('volcano')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#0f0600,#1a0a00);box-shadow:inset 0 0 0 2px #ff6b2b"></div>
+        <div class="cfg-th-name">Volcano</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-neon" onclick="setTheme('neon')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#000,#0d0d0d);box-shadow:inset 0 0 0 2px #39ff14"></div>
+        <div class="cfg-th-name">Neon</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+      <div class="cfg-th" id="cfgth-aurora" onclick="setTheme('aurora')">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#020810,#040e1c);box-shadow:inset 0 0 0 2px #a78bfa"></div>
+        <div class="cfg-th-name">Aurora</div>
+        <div class="cfg-th-check">✓</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="setsec">
+    <h3>👁 Visual</h3>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Estrelas de eficácia</div><div class="setdesc">Exibe avaliação científica em cada suplemento</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('showStars')"><div class="tog on" id="cfg-showStars"></div></div></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Preço por dose</div><div class="setdesc">Mostra custo diário calculado por dose</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('showPdose')"><div class="tog on" id="cfg-showPdose"></div></div></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Confete ao completar</div><div class="setdesc">Animação ao marcar todos os itens</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('confetti')"><div class="tog on" id="cfg-confetti"></div></div></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Itens extras na lista</div><div class="setdesc">Mostra suplementos de prioridade Extra</div></div><div class="setctl"><div class="togw" onclick="toggleCfgExtra()"><div class="tog on" id="cfg-showExtra"></div></div></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Itens comprados</div><div class="setdesc">Oculta suplementos já marcados como comprados</div></div><div class="setctl"><div class="togw" onclick="toggleCfgDone()"><div class="tog on" id="cfg-showDone"></div></div></div></div>
+  </div>
+
+  <div class="setsec">
+    <h3>🔔 Notificações & Alertas</h3>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Alertas de interação</div><div class="setdesc">Avisa sobre combinações perigosas no stack</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('alertInteractions')"><div class="tog on" id="cfg-alertInteractions"></div></div></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Alertas de ciclo</div><div class="setdesc">Lembra quando pausar suplementos ciclados</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('alertCycles')"><div class="tog on" id="cfg-alertCycles"></div></div></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Toast de ações</div><div class="setdesc">Notificações rápidas no canto da tela</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('toasts')"><div class="tog on" id="cfg-toasts"></div></div></div></div>
+  </div>
+
+  <div class="setsec">
+    <h3>📋 Comportamento da Lista</h3>
+    <div class="setrow">
+      <div class="setinfo"><div class="setlabel">Ordenação padrão</div><div class="setdesc">Como os suplementos aparecem por padrão</div></div>
+      <div class="setctl">
+        <select class="prof-select" style="width:130px" onchange="S.cfg.defaultSort=this.value;save()" id="cfg-defaultSort" aria-label="Ordenação padrão">
+          <option value="priority">Prioridade</option>
+          <option value="name">Nome A–Z</option>
+          <option value="price">Menor preço</option>
+          <option value="score">Eficácia</option>
+        </select>
+      </div>
+    </div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Expandir ao clicar</div><div class="setdesc">Abre detalhes ao clicar no suplemento</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('expandOnClick')"><div class="tog on" id="cfg-expandOnClick"></div></div></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Confirmar ao desmarcar</div><div class="setdesc">Pede confirmação antes de desmarcar comprado</div></div><div class="setctl"><div class="togw" onclick="toggleCfg('confirmUncheck')"><div class="tog" id="cfg-confirmUncheck"></div></div></div></div>
+  </div>
+
+  <div class="setsec">
+    <h3>💾 Dados & Exportação</h3>
+    <div class="setrow">
+  <div class="setinfo">
+    <div class="setlabel">Salvamento automático</div>
+    <div class="setdesc">Salva localmente no dispositivo a cada alteração</div>
+  </div>
+  <div class="setctl"><div class="togw" onclick="toggleCfg('autoSync')"><div class="tog on" id="cfg-autoSync"></div></div></div>
+</div>
+
+<div class="setrow">
+  <div class="setinfo">
+    <div class="setlabel">Salvar agora</div>
+    <div class="setdesc">Salva imediatamente no dispositivo sem aguardar</div>
+  </div>
+  <div class="setctl">
+    <button class="btn bg" onclick="syncNow()" style="height:34px;font-size:11px">💾 Salvar Localmente</button>
+  </div>
+</div>
+
+  <div class="setsec">
+    <h3>ℹ️ Sobre o SupliList Pro</h3>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Versão</div></div><div class="setctl"><span style="font-family:var(--fm);font-size:11px;color:var(--tx3)">v13.0</span></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Armazenamento usado</div></div><div class="setctl"><span style="font-family:var(--fm);font-size:11px;color:var(--tx3)" id="storage-size">—</span></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Suplementos disponíveis</div></div><div class="setctl"><span id="cfg-total-supps" style="font-family:var(--fm);font-size:11px;color:var(--accent)">56</span></div></div>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Última sincronização</div></div><div class="setctl"><span style="font-family:var(--fm);font-size:11px;color:var(--tx3)" id="last-save">—</span></div></div>
+  </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script src="data.js"></script>
+<script src="scripts.js"></script>
+</body>
+</html>

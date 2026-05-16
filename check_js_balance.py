@@ -1,4 +1,4 @@
-﻿import pathlib
+﻿﻿import pathlib
 files=['data.js','scripts.js']
 for fname in files:
     p=pathlib.Path(fname).read_text(encoding='utf-8')

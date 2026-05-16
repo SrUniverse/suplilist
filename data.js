@@ -1,15 +1,11 @@
 // ══════════════ DATA ══════════════
-
 // ─────────────── APP VERSION ───────────────
 const APP_VERSION = '15.0';
 // ───────────────────────────────────────────
 
 // ─────────────── TERMS DATES ───────────────
 function getTermsUpdatedDate() {
-  const date = new Date();
-  const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-  return `${months[date.getMonth()]} de ${date.getFullYear()}`;
+  return "Maio de 2024"; // Data fixa da última revisão real do documento
 }
 
 function getTermsRevisionDate() {
@@ -114,14 +110,6 @@ function bestMarketplacePrice(i){return Math.min(mlPrice(i),azPrice(i));}
 // URL base apontando para o seu repositório no GitHub (versão Raw)
 const BASE_URL = "https://raw.githubusercontent.com/SrUniverse/suplilist/main/assets/";
 
-// Criamos o objeto vazio
-const SUPP_IMGS = {};
-
-// Como seus IDs vão de 1 a 56, o loop preenche tudo automaticamente
-for (let i = 1; i <= 56; i++) {
-  SUPP_IMGS[i] = `${BASE_URL}suplemento_${i}.png`;
-}
-
 // O restante do seu código (SUPPLEMENTS_DATA, etc) continua igual abaixo...
 const IT=[
 {id:1,name:'Maca Peruana Preta em pó',qty:'150g',buy:'1kg',cat:'Adaptógeno',pr:'alta',sc:5,pm:45,doses:30,tags:['libido','energia','fertilidade','hormônio'],goals:['libido'],dm:'2g',dn:null,dc:true,dp:false,cy:null,badge:'best',desc:'A Maca Preta é a variedade mais rara e potente. Rica em glucosinolatos e aminoácidos, atua no eixo hipotálamo-hipófise-gonadal. Aumenta libido sem alterar diretamente a testosterona. Melhora qualidade espermática e reduz fadiga adrenal.',warn:'Evitar em hipotireoidismo sem acompanhamento.',dose:'2–3g/dia com comida. Efeito em 2–4 semanas.',shopee:'https://shopee.com.br/search?keyword=maca+peruana+preta+po',ml:'https://lista.mercadolivre.com.br/maca-peruana-po-1-kg',az:'https://www.amazon.com.br/s?k=maca+peruana+preta+po'},
@@ -181,6 +169,12 @@ const IT=[
 {id:55,name:'Tirosina em pó',qty:'100g',buy:'200g',cat:'Aminoácido',pr:'media',sc:4,pm:45,doses:100,tags:['dopamina','foco','estresse','tireoide'],goals:['energia','metabolismo'],dm:'500mg',dn:null,dc:false,dp:true,cy:null,badge:null,desc:'Precursora de dopamina, noradrenalina e hormônios tireoidianos. Ajuda desempenho cognitivo sob estresse, privação de sono ou frio.',warn:'Evitar com IMAO e cautela em hipertireoidismo.',dose:'500mg–2g antes de demanda mental ou treino.',shopee:'https://shopee.com.br/search?keyword=l+tirosina+po',ml:'https://lista.mercadolivre.com.br/l-tirosina-po',az:'https://www.amazon.com.br/s?k=l+tyrosine+powder'},
 {id:56,name:'Curcumina Fitossomada',qty:'—',buy:'60caps',cat:'Antioxidante',pr:'media',sc:5,pm:75,doses:60,tags:['inflamação','articulação','antioxidante'],goals:['articulacoes','saude','longevidade'],dm:'500mg',dn:null,dc:true,dp:false,cy:null,badge:'best',desc:'Forma de curcumina com maior biodisponibilidade. Apoia controle inflamatório, conforto articular e defesa antioxidante.',warn:'Evitar com anticoagulantes ou antes de cirurgias sem orientação.',dose:'500–1000mg/dia com refeição.',shopee:'https://shopee.com.br/search?keyword=curcumina+fitossomada',ml:'https://lista.mercadolivre.com.br/curcumina-fitossomada',az:'https://www.amazon.com.br/s?k=curcumin+phytosome'},
 ];
+
+// Criamos o objeto de imagens dinamicamente baseado nos itens existentes
+const SUPP_IMGS = {};
+IT.forEach(item => {
+  SUPP_IMGS[item.id] = `${BASE_URL}suplemento_${item.id}.png`;
+});
 
 const INTERACT=[
 {type:'danger',ico:'🚫',title:'Mucuna Pruriens + Antidepressivos IMAO',desc:'Pode causar síndrome serotoninérgica e crise hipertensiva. Evitar absolutamente.'},

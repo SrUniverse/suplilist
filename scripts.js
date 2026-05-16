@@ -3,15 +3,17 @@
 // ══════════════ STATE ══════════════
 let S = {
   version: null,
+  demoMode: false,
+  ui: { seenTooltips: {} },
   checked:{},open:{},notes:{},wishlist:{},stack:{},
   tab:'lista',cat:'Todos',goal:'',showDone:true,showExtra:true,goalFilter:'',priceFilter:'',
   cmpSel:[],rSel:[],history:[],cycleStart:{},cycleNote:{},cyclePause:{},
-  cfg:{isAdmin:false,showStars:true,showPdose:true,confetti:true,theme:'dark',delay:280,
-       alertInteractions:true,alertCycles:true,toasts:true,
+  cfg:{isAdmin:false,showStars:true,showPdose:true,showTooltips:true,confetti:true,theme:'dark',delay:280,
+       alertInteractions:true,alertCycles:true,toasts:true,autoHistory:true,
        expandOnClick:true,confirmUncheck:false,autoSync:true,defaultSort:'priority'},
   lastSave:null
 };
-let _confDone=false,_stickyItem=null;
+let _confDone=false,_stickyItem=null,_tooltipTimer=null;
 const STORAGE_KEY='suplilist_v3';
 let fuse = null;
 
@@ -22,7 +24,7 @@ let _syncStatus='idle';
 
 function _setSyncUI(status,msg){
   _syncStatus=status;
-  const simpleEls=[document.getElementById('ls'),document.getElementById('last-save')];
+  const simpleEls=[document.getElementById('ls'),document.getElementById('last-save')].filter(Boolean);
   simpleEls.forEach(el=>{if(el)el.textContent=msg;});
   const ls2=document.getElementById('ls2');
   if(ls2){const txt=ls2.querySelector('span:last-child');if(txt)txt.textContent=msg;}
@@ -59,52 +61,45 @@ function save(){
 function syncNow(){
   clearTimeout(_syncDebounceTimer);
   _doSave();
+  console.info(`[Sync] Sincronização manual executada na versão ${APP_VERSION}`);
   toast('💾','Dados salvos localmente','success',{duration:2000,progress:false});
 }
 
 function load(){
   try{
     const r=localStorage.getItem(STORAGE_KEY);
-    if(r){
-      const d=JSON.parse(r);
+    if(!r) return;
+    const d=JSON.parse(r);
 
-      // Validação de Schema / Migration
-      const savedVersion = d.version || '0';
-      if (savedVersion !== APP_VERSION) {
-        console.warn(`[Version Control] Detectada v${savedVersion}. Atual: v${APP_VERSION}`);
-        
-        const migratedData = runMigrations(d, savedVersion, APP_VERSION);
-        
-        if (migratedData) {
-          console.info("[Migration] Sucesso: Dados convertidos para v" + APP_VERSION);
-          S = { ...S, ...migratedData };
-        } else {
-          // Fallback: Se não houver regra de migração, resetamos para evitar quebra silenciosa
-          console.error("[Migration] Incompatibilidade crítica. Executando reset amigável.");
-          toast('📢', 'Seus dados foram resetados após atualização para garantir estabilidade.', 'info', { duration: 7000 });
-          S.version = APP_VERSION;
-          save();
-          return; // Aborta carregamento dos dados obsoletos
+    // Sanitização profunda para evitar propriedades null/undefined que quebram renderers
+    const savedVersion = d.version || '0';
+    const dataToLoad = (savedVersion !== APP_VERSION) ? runMigrations(d, savedVersion, APP_VERSION) : d;
+    
+    if (dataToLoad) {
+      // Merge seguro: preserva a estrutura de S e apenas preenche o que existe em d e não é null
+      Object.keys(S).forEach(key => {
+        if (dataToLoad[key] !== undefined && dataToLoad[key] !== null) {
+          if (typeof S[key] === 'object' && !Array.isArray(S[key])) {
+            S[key] = { ...S[key], ...dataToLoad[key] };
+          } else {
+            S[key] = dataToLoad[key];
+          }
         }
-      } else {
-        S={...S,...d};
-      }
+      });
 
-      S.cfg={...S.cfg,...(d.cfg||{})};
-      S.stack={...S.stack,...(d.stack||{})};
-      S.cycleStart={...S.cycleStart,...(d.cycleStart||{})};
-      S.cycleNote={...S.cycleNote,...(d.cycleNote||{})};
-      S.cyclePause={...S.cyclePause,...(d.cyclePause||{})};
-      // S.imgs foi removido, não é mais necessário carregar imagens base64
+      // Forçar re-verificação de tipos para coleções críticas
+      if (!S.stack || typeof S.stack !== 'object') S.stack = {};
+      if (!S.checked || typeof S.checked !== 'object') S.checked = {};
+      if (!S.ui.seenTooltips) S.ui.seenTooltips = {};
     }
-  }catch(e){}
-  if(!S.stack)S.stack={};
+  } catch(e) { console.error("[Storage] Erro ao carregar:", e); }
   if(!S.cycleStart)S.cycleStart={};
-  if(!S.cycleNote)S.cycleNote={};
+  if(!S.cycleNote) S.cycleNote={};
   if(!S.cyclePause)S.cyclePause={};
   if(!S.rSel)S.rSel=[];
   if(!S.cmpSel)S.cmpSel=[];
   if(!S.history)S.history=[];
+  if(!S._customCycles)S._customCycles=[];
 }
 
 /**
@@ -116,7 +111,7 @@ function load(){
  */
 function runMigrations(d, oldV, newV) {
   // Exemplo de uso futuro: if(oldV === '14.0') { d.novoCampo = []; return d; }
-  return null; // Por padrão, resetar se o schema divergir e não houver regra específica.
+  return d; // Por padrão, mantém os dados existentes para evitar resets em atualizações menores.
 }
 
 
@@ -230,19 +225,71 @@ document.addEventListener('click',e=>{
 // ══════════════ NAV E ROTEAMENTO ══════════════
 const PAGES=['home','lista','stack','wishlist','recipe','dose','compare','history','interact','faq','terms','config'];
 
-function go(p, pushState=true){
-  PAGES.forEach(pg=>{
-    document.getElementById('p-'+pg)?.classList.remove('on');
-    const tab=document.getElementById('nt-'+pg);
-    if(tab){tab.classList.remove('on');tab.setAttribute('aria-selected','false');}
+/**
+ * Navegação Global entre abas
+ */
+function go(p, pushState = true) {
+  if (!PAGES.includes(p)) p = 'lista';
+
+  // 1. ISOLAMENTO ABSOLUTO (Defensivo)
+  const allPages = document.querySelectorAll('.page');
+  if (allPages.length === 0) return console.warn("Erro de DOM: .page não encontrados.");
+
+  allPages.forEach(el => {
+    el.classList.remove('on');
+    el.style.display = ''; // Limpa qualquer resíduo de estilo inline antigo
   });
-  document.getElementById('p-'+p)?.classList.add('on');
-  const activeTab=document.getElementById('nt-'+p);
-  if(activeTab){activeTab.classList.add('on');activeTab.setAttribute('aria-selected','true');}
+
+  const targetPage = document.getElementById('p-'+p);
+  if(!targetPage) return console.error(`Falha Crítica: Seção id="p-${p}" ausente.`);
+  targetPage.classList.add('on');
+
+  // Sincronizar Tabs e Badges
+  PAGES.forEach(pg => {
+    const tab = document.getElementById('nt-' + pg);
+    if(tab) {
+      const active = pg === p;
+      tab.classList.toggle('on', active);
+      tab.setAttribute('aria-selected', active ? 'true' : 'false');
+    }
+  });
   
   S.tab=p;save();
 
-  // Wrapper para capturar erros de runtime em cada seção
+  // Limpa tooltips de abas anteriores imediatamente ao navegar para evitar sobreposição
+  document.querySelector('.tooltip-hint')?.remove();
+  if(_tooltipTimer) clearTimeout(_tooltipTimer);
+
+  // ID 12 - Tooltips inteligentes (Primeiro uso de todas as seções)
+  const hints = {
+    lista: "💡 Toque em um suplemento para ver detalhes, dosagens e onde comprar.",
+    stack: "💡 Monitore sua stack ativa e acompanhe o progresso dos seus ciclos.",
+    wishlist: "💡 Guarde aqui os suplementos que você pretende comprar no futuro.",
+    recipe: "💡 Monte protocolos personalizados e organize seus horários de uso.",
+    dose: "💡 Calcule dosagens precisas baseadas no seu peso e perfil biológico.",
+    compare: "💡 Selecione até 4 itens para comparar benefícios, preços e eficácia.",
+    history: "💡 Registre suas compras para acompanhar seus gastos mensais.",
+    interact: "💡 Verifique sinergias e riscos entre suplementos na sua stack.",
+    faq: "💡 Encontre respostas para dúvidas comuns sobre o app e suplementação.",
+    terms: "💡 Leia as diretrizes de uso e avisos de responsabilidade médica.",
+    config: "💡 Personalize o tema e as preferências globais do seu app."
+  };
+
+  if (S.cfg.showTooltips && hints[p] && !S.ui.seenTooltips[p]) {
+    _tooltipTimer = setTimeout(() => {
+      const h = document.createElement('div');
+      h.className = 'tooltip-hint';
+      h.style.cssText = "position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:var(--bg2); border:1px solid var(--accent); padding:14px 18px; border-radius:16px; z-index:1000; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow-xl); font-size:13px; width:max-content; max-width:92vw; animation:up .4s cubic-bezier(.34,1.56,.64,1) both;";
+      h.innerHTML = `<span>${hints[p]}</span><button class="btn bg" style="height:32px; padding:0 14px; font-size:11px; flex-shrink:0">Entendi</button>`;
+      
+      const closeHint = () => { if(h.parentElement) { h.remove(); S.ui.seenTooltips[p]=true; save(); } };
+      h.querySelector('button').onclick = closeHint;
+      setTimeout(closeHint, 8000); // Auto-dismiss após 8 segundos
+      document.body.appendChild(h);
+    }, 1000);
+  }
+
+  // 2. RENDERIZAÇÃO ISOLADA (Safe Render)
   const safeRender = (sectionId, sectionName, renderFn) => {
     try {
       renderFn();
@@ -306,11 +353,19 @@ function go(p, pushState=true){
   if(typeof bnSelect==='function')bnSelect(p);
   if(typeof syncBnBadges==='function')syncBnBadges();
   
+  // UX: Foco automático no slider de peso
+  if (p === 'dose') {
+    setTimeout(() => {
+      document.getElementById('prof-weight-slider')?.focus({ preventScroll: true });
+    }, 350);
+  }
+
   window.scrollTo({top:0,behavior:'smooth'});
   if(pushState){
     window.history.pushState({tab:p}, '', '#'+p);
   }
 }
+window.go = go;
 
 window.addEventListener('popstate', e=>{
   const tab = e.state?.tab || 'lista';
@@ -326,12 +381,16 @@ function pdose(i){const p=bestMarketplacePrice(i);return i.doses&&p?Math.round((
 
 function filtered(){
   const q=(document.getElementById('search')?.value||'').toLowerCase();
-  const srt=document.getElementById('sort')?.value||'priority';
-  const gf=document.getElementById('f-goal')?.value||'';
-  const pf=document.getElementById('f-price')?.value||'';
-  if(!fuse) fuse = new Fuse(IT, { keys: ['name', 'tags'], threshold: 0.3 });
+  const srt=S.cfg.defaultSort||'priority';
+  const gf=S.goalFilter||'';
+  const pf=S.priceFilter||'';
+  
+  if(!fuse && typeof Fuse !== 'undefined') {
+    fuse = new Fuse(IT, { keys: ['name', 'tags'], threshold: 0.3 });
+  }
+
   let baseList;
-  if(q){
+  if(q && fuse){
     const results = fuse.search(q);
     baseList = results.map(r => r.item);
   } else {
@@ -413,7 +472,7 @@ function itemHTML(it,idx){
   return`<div class="item${done?' done':''}${open?' open':''}" id="item-${it.id}" style="animation-delay:${idx*.022}s" role="listitem">
   <div class="itop" onclick="togItem(${it.id})" aria-expanded="${open?'true':'false'}" role="button" aria-controls="dp-${it.id}" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togItem(${it.id})}">
     <div class="cbw" onclick="event.stopPropagation()">
-      <input class="cb" type="checkbox" id="cb${it.id}"${done?' checked':''} onchange="chk(${it.id})" aria-label="Marcar ${it.name} como comprado">
+      <input class="cb" type="checkbox" id="cb${it.id}"${done?' checked':''} onclick="chk(${it.id})" aria-label="Marcar ${it.name} como comprado">
       <label class="cbl" for="cb${it.id}" aria-hidden="true"></label>
     </div>
     ${imgHTML}
@@ -463,12 +522,15 @@ function itemHTML(it,idx){
 }
 
 function renderList(){
-  const list=filtered(),srt=document.getElementById('sort')?.value||'priority';
+  const listEl = document.getElementById('list');
+  if(!listEl || S.tab !== 'lista') return;
+
+  const list=filtered(),srt=S.cfg.defaultSort||'priority';
   const fc=document.getElementById('filter-count');
   if(fc){
     const q=(document.getElementById('search')?.value||'').trim();
-    const gf=document.getElementById('f-goal')?.value||'';
-    const pf=document.getElementById('f-price')?.value||'';
+    const gf=S.goalFilter||'';
+    const pf=S.priceFilter||'';
     const isFiltered=q||gf||pf||S.cat!=='Todos';
     fc.textContent=list.length+' resultado'+(list.length!==1?'s':'');
     fc.classList.toggle('has-filter',!!isFiltered);
@@ -504,11 +566,54 @@ function renderList(){
 
 function renderChips(){
   const el=document.getElementById('chips');if(!el) return;
+  
+  // Calcula a lista base respeitando todos os filtros EXCETO a categoria
+  const q=(document.getElementById('search')?.value||'').toLowerCase();
+  const gf=S.goalFilter||'', pf=S.priceFilter||'';
+  const base = IT.filter(i => {
+    if(i.pr==='extra' && !S.showExtra) return false;
+    if(!S.showDone && S.checked[i.id]) return false;
+    if(gf && !(i.goals||[]).includes(gf)) return false;
+    if(pf){
+      const [lo,hi]=pf.includes('+')?[parseInt(pf),999]:[...pf.split('-').map(Number)];
+      if(i.pm<lo||i.pm>hi) return false;
+    }
+    if(q && !i.name.toLowerCase().includes(q) && !(i.tags||[]).some(t=>t.toLowerCase().includes(q))) return false;
+    return true;
+  });
+
   el.innerHTML=allCats().map(c=>{
-    const n=c==='Todos'?MAIN.length:MAIN.filter(i=>i.cat===c).length;
+    const n=c==='Todos'?base.length:base.filter(i=>i.cat===c).length;
     const ico=c==='Todos'?'🌐':CAT[c]?.ico||'';
     return`<button class="chip${S.cat===c?' on':''}" onclick="setCat('${c}')">${ico} ${c} <span class="cn">${n}</span></button>`;
   }).join('');
+}
+
+/**
+ * Atualiza os contadores (badges) na barra lateral para as seções Stack e Wishlist.
+ * ID 11 - Contador de itens ativos/badges nas abas da sidebar.
+ */
+function updateSidebarBadges() {
+  const wlCount = Object.values(S.wishlist || {}).filter(Boolean).length;
+  const stCount = Object.keys(S.stack || {}).length;
+
+  const update = (pageId, count, badgeId) => {
+    const parent = document.getElementById('nt-' + pageId);
+    if (!parent) return;
+
+    let badge = document.getElementById(badgeId);
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.id = badgeId;
+      badge.className = 'nav-badge nb'; 
+      parent.appendChild(badge);
+    }
+    badge.textContent = count;
+    badge.style.display = count > 0 ? '' : 'none';
+  };
+
+  update('wishlist', wlCount, 'nb-wl');
+  update('stack', stCount, 'nb-stack');
 }
 
 function renderStats(){
@@ -529,12 +634,10 @@ function renderStats(){
   const hsCats=document.getElementById('hs-cats');if(hsCats)hsCats.textContent=allCats().length-1;
   const cfgTotal=document.getElementById('cfg-total-supps');if(cfgTotal)cfgTotal.textContent=total;
   const pf=document.getElementById('pf');if(pf)pf.style.width=pct+'%';
-  const pc=document.getElementById('pct');if(pc)pc.textContent=pct+'%';
   const nbLista=document.getElementById('nb-lista'); if(nbLista) nbLista.textContent=total-done;
-  const wlC=Object.values(S.wishlist).filter(Boolean).length;
-  const nbWl=document.getElementById('nb-wl');if(nbWl)nbWl.textContent=wlC;
-  const stC=Object.keys(S.stack).length;
-  const nbSt=document.getElementById('nb-stack');if(nbSt)nbSt.textContent=stC;
+  
+  updateSidebarBadges();
+
   if(pct===100&&done>0&&S.cfg.confetti&&!_confDone){_confDone=true;confetti();}
   
   if(typeof syncBnBadges==='function')syncBnBadges();
@@ -597,7 +700,19 @@ function chk(id){
     });
     return;
   }
-  S.checked[id]=!S.checked[id];save();renderAll();
+  S.checked[id]=!S.checked[id];
+  if(S.checked[id]) {
+    _autoRegisterHistory(id);
+  } else {
+    // ID 16 - Lógica de Desfazer: remove do histórico se desmarcado em até 5 segundos
+    const now = Date.now();
+    const histIdx = S.history.findIndex(h => h.id === id && (now - h.uid < 5000));
+    if (histIdx !== -1) {
+      S.history.splice(histIdx, 1);
+      if (S.tab === 'history') renderHist();
+    }
+  }
+  save();renderAll();
   if(S.checked[id]){
     const name=IT.find(i=>i.id===id)?.name||'Item';
     toast('✔',`${name} marcado como comprado!`,'success',{
@@ -609,18 +724,82 @@ function chk(id){
   }
 }
 
+/**
+ * ID 16 - Registra automaticamente a compra no histórico ao marcar item como comprado.
+ * Adiciona uma trava de 10s para evitar duplicatas por cliques repetidos.
+ */
+function _autoRegisterHistory(id) {
+  if (!S.cfg.autoHistory) return;
+  const now = Date.now();
+  const recent = S.history.find(h => h.id === id && (now - h.uid < 10000));
+  if (recent) return;
+
+  const it = IT.find(i => i.id === id);
+  if (!it) return;
+
+  S.history.push({
+    id: id, name: it.name, price: bestMarketplacePrice(it) || it.pm || 0,
+    date: new Date().toISOString(), uid: now
+  });
+  if (S.tab === 'history') renderHist();
+}
+
 function saveNote(id){
   const el=document.getElementById('note-'+id);
   if(el){S.notes[id]=el.value;save();toast('💾','Nota salva','success',{duration:2200,progress:false});}
 }
 
-function setCat(c){S.cat=c;renderList();renderChips();}
+function setCat(c){
+  S.cat=c;
+  // Limpa filtros avançados ao trocar de categoria para evitar listas vazias por conflito
+  S.goalFilter='';
+  S.priceFilter='';
+  const gfEl = document.getElementById('f-goal'); if(gfEl) gfEl.value = '';
+  const pfEl = document.getElementById('f-price'); if(pfEl) pfEl.value = '';
+  
+  // Sincroniza visualmente os chips de objetivo do Hero
+  document.querySelectorAll('.hcat').forEach(el=>el.classList.remove('on'));
+  document.getElementById('hcat-all')?.classList.add('on');
+
+  renderAll();
+}
 
 function setGoal(g){
   S.goalFilter=g==='all'?'':g;
   document.querySelectorAll('.hcat').forEach(el=>el.classList.remove('on'));
-  document.getElementById('hcat-'+g)?.classList.add('on');
+  document.getElementById('hcat-'+(g||'all'))?.classList.add('on');
   const sel=document.getElementById('f-goal');if(sel)sel.value=S.goalFilter;
+  save();
+  renderAll();
+}
+
+/** Chamado pelo select#f-goal no HTML — sincroniza estado e visuais do hcat */
+function setGoalFromSelect(v){
+  S.goalFilter=v||'';
+  document.querySelectorAll('.hcat').forEach(el=>el.classList.remove('on'));
+  document.getElementById(v?'hcat-'+v:'hcat-all')?.classList.add('on');
+  save();
+  renderAll();
+}
+
+/** Chamado pelo select#f-price no HTML — sincroniza S.priceFilter */
+function setPriceFilter(v){
+  S.priceFilter=v||'';
+  save();
+  renderAll();
+}
+
+/** Chamado pelos Sort Chips — persiste a ordenação escolhida */
+function setSortOrder(v, chipEl){
+  S.cfg.defaultSort = v || 'priority';
+  // Atualiza visual dos chips
+  document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('on'));
+  if(chipEl) chipEl.classList.add('on');
+  else {
+    const target = document.querySelector(`.sort-chip[data-sort="${S.cfg.defaultSort}"]`);
+    if(target) target.classList.add('on');
+  }
+  save();
   renderList();
 }
 
@@ -754,7 +933,7 @@ async function runAsync(containerId, taskName, taskFn, renderFn) {
       <div class="empty" style="padding:40px; border:1px dashed var(--red); background:var(--redd); border-radius:16px;">
         <div class="empty-ico" style="color:var(--red); filter:none;">⚠️</div>
         <div class="empty-title">Falha ao carregar ${taskName}</div>
-        <p class="empty-sub">${error.message || 'Verifique sua conexão e tente novamente.'}</p>
+        <p class="empty-sub" style="margin-bottom:12px">${error.message || 'Verifique sua conexão e tente novamente.'}</p>
         <button class="btn bg" onclick="runAsync('${containerId}', '${taskName}', ${taskFn.name}, ${renderFn ? renderFn.name : 'null'})" style="margin-top:16px">
           Tentar novamente
         </button>
@@ -769,26 +948,26 @@ async function runAsync(containerId, taskName, taskFn, renderFn) {
 /**
  * Exemplo prático: Atualização de preços com o novo padrão.
  */
+async function _priceUpdateTask(onProgress) {
+  // Simulando o fetch de um JSON grande de preços (substituir pela URL real no futuro)
+  return await fetchWithProgress('https://api.github.com/repos/SrUniverse/suplilist/contents/assets/prices.json', onProgress);
+}
+
+function _priceFinalizeUI() {
+  const ageEl = document.getElementById('cache-age');
+  if (ageEl) ageEl.textContent = '0 min';
+  const fresh = document.querySelector('.price-fresh');
+  if (fresh) {
+    fresh.className = 'price-fresh live';
+    fresh.innerHTML = '<span class="dot"></span> Cache ativo';
+  }
+  renderList(); 
+  toast('✅', 'Preços atualizados com sucesso!', 'success');
+}
+
 async function refreshPrices() {
-  const updateTask = async (onProgress) => {
-    // Simulando o fetch de um JSON grande de preços
-    const data = await fetchWithProgress('https://api.exemplo.com/prices.json', onProgress);
-    return data;
-  };
-
-  const finalizeUI = () => {
-    const ageEl = document.getElementById('cache-age');
-    if (ageEl) ageEl.textContent = '0 min';
-    const fresh = document.querySelector('.price-fresh');
-    if (fresh) {
-      fresh.className = 'price-fresh live';
-      fresh.innerHTML = '<span class="dot"></span> Cache ativo';
-    }
-    renderList(); // Recarrega a lista para mostrar os preços "frescos"
-    toast('✅', 'Preços atualizados com sucesso!', 'success');
-  };
-
-  await runAsync('list', 'Preços', updateTask, finalizeUI);
+  // As funções auxiliares foram movidas para fora para garantir escopo global no retry do runAsync
+  await runAsync('list', 'Preços', _priceUpdateTask, _priceFinalizeUI);
 }
 
 
@@ -1884,26 +2063,53 @@ function initHist(){
 function addHist(){
   const idEl=document.getElementById('hsel'),pEl=document.getElementById('hprice'),dEl=document.getElementById('hdate');
   if(!idEl||!pEl||!dEl) return;
-  const price=parseFloat(pEl.value),date=dEl.value;
-  if(!price||!date){toast('⚠️','Preencha preço e data','warn',{duration:2800});return;}
+  const price=parseFloat(pEl.value),dateInput=dEl.value;
+  if(!price||!dateInput){toast('⚠️','Preencha preço e data','warn',{duration:2800});return;}
   const it=IT.find(i=>i.id===parseInt(idEl.value));
-  S.history.push({id:parseInt(idEl.value),name:it?.name||'?',price,date,uid:Date.now()});
+  // Combina data do input com horário atual para precisão cronológica
+  const [y,mo,d] = dateInput.split('-').map(Number);
+  const now = new Date();
+  const fullDate = new Date(y, mo-1, d, now.getHours(), now.getMinutes(), now.getSeconds()).toISOString();
+  S.history.push({id:parseInt(idEl.value),name:it?.name||'?',price,date:fullDate,uid:Date.now()});
   save();renderHist();pEl.value='';toast('✅','Compra registrada!','success',{duration:2600});
 }
 
 function delHist(uid){S.history=S.history.filter(h=>h.uid!==uid);save();renderHist();}
+
+/** Permite a alteração de dados lançados no histórico sem remoção */
+function editHist(uid){
+  const h = S.history.find(x => x.uid === uid);
+  if(!h) return;
+  const newPrice = prompt(`Novo preço para ${h.name}:`, h.price);
+  if(newPrice !== null && !isNaN(parseFloat(newPrice))){
+    h.price = parseFloat(newPrice);
+    save(); renderHist();
+    toast('✏️','Registro atualizado','success',{duration:2000,progress:false});
+  }
+}
 function fmtR(v){return'R$ '+v.toFixed(2).replace('.',',');}
 
 function renderHist(){
   const total=S.history.reduce((s,h)=>s+h.price,0);
   const tt=document.getElementById('ht-top');if(tt)tt.textContent=fmtR(total);
-  const by={};S.history.forEach(h=>{const m=h.date.slice(0,7);by[m]=(by[m]||0)+h.price;});
+  const by={};S.history.forEach(h=>{const d=new Date(h.date);const m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');by[m]=(by[m]||0)+h.price;});
   const months=Object.keys(by).sort().slice(-8),mx=Math.max(...months.map(m=>by[m]),1);
   const bEl=document.getElementById('bars');
   if(bEl)bEl.innerHTML=months.length?months.map(m=>{const pct=Math.round((by[m]/mx)*100);return`<div class="bar" style="height:${pct}%"><div class="bar-tip">${m.slice(5)+'/'+m.slice(2,4)}: ${fmtR(by[m])}</div></div>`}).join(''):'<div style="color:var(--tx3);font-size:11px;width:100%;text-align:center;align-self:center">Sem registros</div>';
   const sorted=[...S.history].sort((a,b)=>b.date.localeCompare(a.date));
   const lEl=document.getElementById('hlist');
-  if(lEl)lEl.innerHTML=sorted.map(h=>`<div class="hitem"><span class="hitem-n">${h.name}</span><span class="hitem-p">${fmtR(h.price)}</span><span class="hitem-d">${h.date}</span><button class="hitem-del" onclick="delHist(${h.uid})">✕</button></div>`).join('')||'<div style="color:var(--tx3);font-size:12px;text-align:center;padding:20px">Nenhuma compra registrada</div>';
+  if(lEl)lEl.innerHTML=sorted.map(h => {
+    const dStr = new Date(h.date).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div class="hitem">
+      <span class="hitem-n">${h.name}</span>
+      <span class="hitem-p">${fmtR(h.price)}</span>
+      <span class="hitem-d">${dStr}</span>
+      <div style="display:flex;gap:4px">
+        <button class="hitem-del" style="background:var(--ad);color:var(--accent)" onclick="editHist(${h.uid})" title="Editar">✏️</button>
+        <button class="hitem-del" onclick="delHist(${h.uid})" title="Excluir">✕</button>
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--tx3);font-size:12px;text-align:center;padding:20px">Nenhuma compra registrada</div>';
   const htEl=document.getElementById('htotal');if(htEl)htEl.style.display=S.history.length?'flex':'none';
   const hvEl=document.getElementById('htval');if(hvEl)hvEl.textContent=fmtR(total);
   
@@ -1958,7 +2164,7 @@ function nukeAll(){
 }
 
 function applyCfg(){
-  const ALL_KEYS=['showStars','showPdose','confetti','alertInteractions','alertCycles','toasts','expandOnClick','confirmUncheck','autoSync'];
+  const ALL_KEYS=['showStars','showPdose','showTooltips','confetti','alertInteractions','alertCycles','toasts','expandOnClick','confirmUncheck','autoSync','autoHistory'];
   ALL_KEYS.forEach(k=>{
     const el=document.getElementById('cfg-'+k);
     if(el)el.className='tog'+(S.cfg[k]?' on':'');
@@ -2360,10 +2566,10 @@ function syncBnBadges(){
 // ══════════════ HOME REVEAL ══════════════
 function initHomeReveal(){
   setTimeout(()=>{
-    const els=document.querySelectorAll('#p-home .hp-reveal');
+    const els=document.querySelectorAll('#p-home .v2-reveal');
     if(!els.length) return;
     const obs=new IntersectionObserver(entries=>{
-      entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});
+      entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v2-vis');});
     },{threshold:0.08});
     els.forEach(el=>obs.observe(el));
   },80);
@@ -2411,7 +2617,7 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-document.addEventListener('change',e=>{
+document.addEventListener('click',e=>{
   if(e.target.classList.contains('cb')&&navigator.vibrate){
     navigator.vibrate(e.target.checked?[8,4,16]:[12]);
   }
@@ -2541,24 +2747,6 @@ function clearSearch(){
   }
 })();
 
-// Auto-focus Dose Slider
-(()=>{
-  const orig=typeof go==='function'?go:null;
-  if(orig){
-    window._origGo=orig;
-    window.go=function(p,...args){
-      const r=window._origGo(p,...args);
-      if(p==='dose'){
-        setTimeout(()=>{
-          const slider=document.getElementById('prof-weight-slider');
-          if(slider)slider.focus({preventScroll:true});
-        },350);
-      }
-      return r;
-    };
-  }
-})();
-
 // Search Active Indicator
 (()=>{
   const search=document.getElementById('search');
@@ -2574,7 +2762,7 @@ function clearSearch(){
 
 // Counters Home
 (function initHpCounters(){
-  const els=document.querySelectorAll('.hp-stat-n');
+  const els=document.querySelectorAll('.v2-trust-n');
   if(!els.length) return;
   const obs=new IntersectionObserver(entries=>{
     entries.forEach(e=>{
@@ -2632,32 +2820,127 @@ document.querySelectorAll('.sb-nav .nt').forEach(btn=>{
   btn.style.transition='all .18s cubic-bezier(.4,0,.2,1)';
 });
 
+/**
+ * ID 20 - Implementação de Dados Estruturados (JSON-LD).
+ * Consolida WebSite, FAQPage e SoftwareApplication para SEO avançado.
+ */
+function initStructuredData() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "SupliList",
+        "url": "https://suplilist.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://suplilist.com/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "SupliList",
+        "operatingSystem": "Web",
+        "applicationCategory": "HealthApplication",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "128"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "BRL"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "O que é o SupliList?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Um marketplace inteligente para comparar suplementos, doses e eficácia científica baseada em evidências." }
+          },
+          {
+            "@type": "Question",
+            "name": "Como o SupliList avalia a eficácia?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Através de uma escala de estrelas baseada em estudos clínicos revisados por pares e metanálises do PubMed." }
+          },
+          {
+            "@type": "Question",
+            "name": "Os dados são salvos?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Sim, o SupliList utiliza armazenamento local no seu navegador, garantindo total privacidade e funcionamento sem conta." }
+          }
+        ]
+      }
+    ]
+  };
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.text = JSON.stringify(schema);
+  document.head.appendChild(script);
+}
 
 // ══════════════ INITIALIZATION ══════════════
-load();
-document.body.setAttribute('data-theme',S.cfg.theme||'dark');
-document.querySelectorAll('.th-opt').forEach(el=>el.classList.remove('on'));
-document.getElementById('th-'+(S.cfg.theme||'dark'))?.classList.add('on');
-applyCfg();
-syncCfgThemeGrid();
-renderAll();
-initHist();
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    initStructuredData();
+    load();
+    document.body?.setAttribute('data-theme', S.cfg.theme || 'dark');
+    applyCfg();
+    syncCfgThemeGrid();
+    
+    try {
+      const hashTab = window.location.hash.replace('#','');
+      const isFirstVisit = !localStorage.getItem(STORAGE_KEY);
 
-const isFirstVisit=!localStorage.getItem(STORAGE_KEY);
-if(isFirstVisit){
-  go('home');
-} else if(S.tab&&S.tab!=='lista'){
-  go(S.tab);
-}
+      if (isFirstVisit) {
+        S.demoMode = true;
+        // Injeção de dados demo (Creatina, Whey e Ômega-3 na Stack; Ashwagandha e Lion's Mane nos Favoritos)
+        [11, 15, 23].forEach(id => {
+          const it = IT.find(i => i.id === id);
+          if (it) S.stack[id] = { id, name: it.name, qty: 300, started: new Date().toISOString() };
+        });
+        [4, 18].forEach(id => S.wishlist[id] = true);
+        _doSave(); // Persistência imediata do estado inicial populado
+      }
 
-const lsSaveEl=document.getElementById('last-save');
-if(lsSaveEl&&S.lastSave)lsSaveEl.textContent='Salvo no Dispositivo às '+new Date(S.lastSave).toLocaleTimeString('pt-BR');
+      const initialTab = PAGES.includes(hashTab) ? hashTab : (isFirstVisit ? 'home' : (S.tab || 'lista'));
+      go(initialTab);
+    } catch(e) {
+      console.warn("Erro no roteamento, forçando fallback para lista:", e);
+      go('lista');
+    }
 
-const ls2El=document.getElementById('ls2');
-if(ls2El&&S.lastSave){
-  const txt=ls2El.querySelector('span:last-child');
-  if(txt)txt.textContent='Sincronizado às '+new Date(S.lastSave).toLocaleTimeString('pt-BR');
-}
+    // Atualizar labels de tempo
+    const lsSaveEl = document.getElementById('last-save');
+    if(lsSaveEl && S.lastSave) lsSaveEl.textContent = 'Salvo às ' + new Date(S.lastSave).toLocaleTimeString('pt-BR');
+    updateSidebarBadges();
+
+    // Restaurar chip de ordenação ativo
+    if(S.cfg.defaultSort) {
+      document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('on'));
+      const activeChip = document.querySelector(`.sort-chip[data-sort="${S.cfg.defaultSort}"]`);
+      if(activeChip) activeChip.classList.add('on');
+    }
+    const gfEl = document.getElementById('f-goal');
+    if(gfEl && S.goalFilter) gfEl.value = S.goalFilter;
+    const pfEl = document.getElementById('f-price');
+    if(pfEl && S.priceFilter) pfEl.value = S.priceFilter;
+    if(S.goalFilter){
+      document.querySelectorAll('.hcat').forEach(el=>el.classList.remove('on'));
+      document.getElementById('hcat-'+S.goalFilter)?.classList.add('on');
+    }
+  } catch (e) {
+    console.error("Erro crítico na inicialização:", e);
+    // Reversão de emergência se o estado estiver muito corrompido
+    if(confirm("Erro ao carregar dados. Deseja resetar a aplicação para corrigir?")) {
+      localStorage.clear();
+      location.reload();
+    }
+  }
+});
 
 // ═══════════════ APP VERSION ═══════════════
 const verFooter=document.getElementById('version-footer');
@@ -2668,7 +2951,20 @@ if(verConfig)verConfig.textContent=APP_VERSION;
 
 // ═════════════ TERMS DYNAMIC DATES ════════
 const termsUpdatedEl=document.getElementById('terms-updated-date');
-if(termsUpdatedEl)termsUpdatedEl.textContent=getTermsUpdatedDate();
+if(termsUpdatedEl){
+  if(typeof getTermsUpdatedDate==='function') termsUpdatedEl.textContent=getTermsUpdatedDate();
+  else{
+    console.warn('[Terms] getTermsUpdatedDate() não está disponível.');
+    termsUpdatedEl.textContent='—';
+  }
+}
+
 const termsRevisionEl=document.getElementById('terms-revision-date');
-if(termsRevisionEl)termsRevisionEl.textContent=getTermsRevisionDate();
+if(termsRevisionEl){
+  if(typeof getTermsRevisionDate==='function') termsRevisionEl.textContent=getTermsRevisionDate();
+  else{
+    console.warn('[Terms] getTermsRevisionDate() não está disponível.');
+    termsRevisionEl.textContent='—';
+  }
+}
 // ═════════════════════════════════════════

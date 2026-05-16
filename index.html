@@ -41,7 +41,7 @@
 <body data-theme="dark">
 <a href="#main-content" class="skip-link">Ir para o conteúdo principal</a>
 <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3" style="width:500px;height:500px;background:rgba(167,139,250,.022);top:45%;left:35%;filter:blur(200px);pointer-events:none;z-index:0;position:fixed;animation:orbFloat3 26s ease-in-out infinite"></div>
-<div class="toast-area" id="toasts"></div>
+<div id="toast-container"></div>
 
 <div class="ref-modal-overlay" id="ref-overlay" onclick="if(event.target===this)closeRef()" role="dialog" aria-modal="true" aria-labelledby="ref-modal-name" aria-hidden="true">
   <div class="ref-modal">
@@ -125,44 +125,23 @@
 
 <nav class="bottom-nav" id="bottom-nav" aria-label="Navegação móvel">
   <div class="bn-primary">
+    <div class="nav-indicator" id="bn-indicator"></div>
     <button class="bn-tab on" id="bn-home" onclick="window.go('home')" aria-label="Início">
       <span class="bn-ico">🏠</span>
-      <span class="bn-lbl">Início</span>
-    </button>
-    <button class="bn-tab" id="bn-lista" onclick="window.go('lista')" aria-label="Lista">
-      <span class="bn-ico">🌿</span>
-      <span class="bn-lbl">Lista</span>
-      <span class="bn-badge" id="bn-badge-lista">0</span>
-    </button>
-    <button class="bn-tab" id="bn-stack" onclick="window.go('stack')" aria-label="Stack">
-      <span class="bn-ico">💪</span>
-      <span class="bn-lbl">Stack</span>
-      <span class="bn-badge" id="bn-badge-stack">0</span>
+      <span class="bn-lbl">Home</span>
     </button>
     <button class="bn-tab" id="bn-wishlist" onclick="window.go('wishlist')" aria-label="Favoritos">
       <span class="bn-ico">❤️</span>
       <span class="bn-lbl">Favoritos</span>
-      <span class="bn-badge" id="bn-badge-wl">0</span>
     </button>
-    <button class="bn-tab" id="bn-dose" onclick="window.go('dose')" aria-label="Dosagem">
-      <span class="bn-ico">💊</span>
-      <span class="bn-lbl">Dose</span>
+    <button class="bn-tab" id="bn-history" onclick="window.go('history')" aria-label="Histórico">
+      <span class="bn-ico">📊</span>
+      <span class="bn-lbl">Histórico</span>
     </button>
-    <button class="bn-more-btn" id="bn-more-btn" onclick="toggleBnDrawer()" aria-label="Mais opções" aria-expanded="false">
-      <span class="bn-ico">⋯</span>
-      <span class="bn-lbl" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em">Mais</span>
+    <button class="bn-tab" id="bn-config" onclick="window.go('config')" aria-label="Perfil e Configurações">
+      <span class="bn-ico">⚙️</span>
+      <span class="bn-lbl">Config</span>
     </button>
-  </div>
-  <div class="bn-drawer" id="bn-drawer" role="tablist">
-    <div class="bn-swipe-hint" aria-hidden="true"></div>
-    <button class="bn-drawer-tab" id="bnd-recipe" onclick="window.go('recipe')" aria-label="Receita"><span class="bn-drawer-ico">⚗️</span><span class="bn-drawer-lbl">Receita</span></button>
-    <button class="bn-drawer-tab" id="bnd-compare" onclick="window.go('compare')" aria-label="Comparar"><span class="bn-drawer-ico">⚖️</span><span class="bn-drawer-lbl">Comparar</span></button>
-    <button class="bn-drawer-tab" id="bnd-history" onclick="window.go('history')" aria-label="Histórico"><span class="bn-drawer-ico">📊</span><span class="bn-drawer-lbl">Histórico</span></button>
-    <button class="bn-drawer-tab" id="bnd-interact" onclick="window.go('interact')" aria-label="Interações"><span class="bn-drawer-ico">⚠️</span><span class="bn-drawer-lbl">Interações</span></button>
-    <button class="bn-drawer-tab" id="bnd-faq" onclick="window.go('faq')" aria-label="FAQ"><span class="bn-drawer-ico">❓</span><span class="bn-drawer-lbl">FAQ</span></button>
-    <button class="bn-drawer-tab" id="bnd-terms" onclick="window.go('terms')" aria-label="Termos"><span class="bn-drawer-ico">📄</span><span class="bn-drawer-lbl">Termos</span></button>
-    <button class="bn-drawer-tab" id="bnd-config" onclick="window.go('config')" aria-label="Config"><span class="bn-drawer-ico">⚙️</span><span class="bn-drawer-lbl">Config</span></button>
-    <button class="bn-drawer-tab" onclick="toggleThemePop()" aria-label="Tema"><span class="bn-drawer-ico">🎨</span><span class="bn-drawer-lbl">Tema</span></button>
   </div>
 </nav>
 
@@ -178,7 +157,7 @@
   <div class="v2-hero-inner">
     <div class="v2-eyebrow">
       <span class="v2-ew-dot"></span>
-      <span class="v2-ew-mono">SUPLILIST v2.0</span>
+      <span class="v2-ew-mono">SUPLILIST v<span id="app-version-display">--</span></span>
       <span class="v2-ew-divider">|</span>
       <span class="v2-ew-label">Marketplace de Suplementos com Eficácia Científica</span>
     </div>
@@ -203,7 +182,7 @@
       </button>
     </div>
     <div class="v2-trust v2-h1-fade" style="--d:.68s">
-      <div class="v2-trust-item"><span class="v2-trust-n">56<span class="v2-trust-sup">+</span></span><span class="v2-trust-l">Suplementos</span></div>
+      <div class="v2-trust-item"><span class="v2-trust-n"><strong id="total-supplements-count">--</strong><span class="v2-trust-sup">+</span></span><span class="v2-trust-l">Suplementos</span></div>
       <div class="v2-trust-sep"></div>
       <div class="v2-trust-item"><span class="v2-trust-n">3</span><span class="v2-trust-l">Marketplaces</span></div>
       <div class="v2-trust-sep"></div>
@@ -470,15 +449,22 @@
       <button class="cta-sec" onclick="go('compare')">⚖️ Comparar Ingredientes</button>
       <button class="cta-sec" onclick="go('dose')">💊 Calcular Dose</button>
     </div>
-    <div class="hero-cats">
-      <button class="hcat on" id="hcat-all" onclick="setGoal('all')">🌐 Todos</button>
-      <button class="hcat" id="hcat-hipertrofia" onclick="setGoal('hipertrofia')">🏋️ Hipertrofia</button>
-      <button class="hcat" id="hcat-gordura" onclick="setGoal('gordura')">🔥 Queima de Gordura</button>
-      <button class="hcat" id="hcat-energia" onclick="setGoal('energia')">⚡ Energia & Foco</button>
-      <button class="hcat" id="hcat-saude" onclick="setGoal('saude')">❤️ Saúde Geral</button>
-      <button class="hcat" id="hcat-libido" onclick="setGoal('libido')">🌿 Libido & Testo</button>
-      <button class="hcat" id="hcat-sono" onclick="setGoal('sono')">🌙 Sono</button>
-      <button class="hcat" id="hcat-mulher" onclick="setGoal('mulher')">♀️ Mulher</button>
+    <div class="filter-row-goals" aria-label="Filtrar por objetivo">
+      <button class="f-chip on" id="hcat-all" onclick="setGoal('all')">🌐 Todos <small>(56)</small></button>
+      <button class="f-chip" id="hcat-hipertrofia" onclick="setGoal('hipertrofia')">🏋️ Músculo <small>(12)</small></button>
+      <button class="f-chip" id="hcat-gordura" onclick="setGoal('gordura')">🔥 Secar <small>(9)</small></button>
+      <button class="f-chip" id="hcat-energia" onclick="setGoal('energia')">⚡ Foco <small>(11)</small></button>
+      <button class="f-chip" id="hcat-saude" onclick="setGoal('saude')">❤️ Saúde <small>(14)</small></button>
+      <button class="f-chip" id="hcat-libido" onclick="setGoal('libido')">🌿 Testo <small>(8)</small></button>
+      <button class="f-chip" id="hcat-sono" onclick="setGoal('sono')">🌙 Sono <small>(7)</small></button>
+    </div>
+    <div class="filter-row-types" aria-label="Filtrar por tipo" style="margin-top: 12px">
+      <button class="f-chip on" onclick="setCat('Todos')">🌐 Ver Tudo <small>(56)</small></button>
+      <button class="f-chip" onclick="setCat('Adaptógeno')">🌿 Ervas <small>(5)</small></button>
+      <button class="f-chip" onclick="setCat('Aminoácido')">⚡ Amino <small>(7)</small></button>
+      <button class="f-chip" onclick="setCat('Vitamina')">☀️ Vit <small>(3)</small></button>
+      <button class="f-chip" onclick="setCat('Mineral')">💎 Minerais <small>(4)</small></button>
+      <button class="f-chip" onclick="setCat('Hormônio')">🧬 Hormonal <small>(2)</small></button>
     </div>
     <div class="hero-stats">
       <div class="hs"><div class="hs-n" id="hs-total">56</div><div class="hs-l">Suplementos</div></div>
@@ -1124,23 +1110,28 @@
 <script>
 /* ── v2 Home: canvas particles + reveal ── */
 (function(){
+  let animId = null;
   /* Canvas particles */
   function initCanvas(){
     const canvas=document.getElementById('v2-canvas');
-    if(!canvas||canvas._v2init)return;
-    canvas._v2init=true;
+    if(!canvas) return;
     const ctx=canvas.getContext('2d');
     let P=[],W,H;
     function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight}
     window.addEventListener('resize',resize);resize();
     for(let i=0;i<55;i++)P.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+.3,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,o:Math.random()*.4+.1});
     function draw(){
+      if(S.tab !== 'home') {
+        cancelAnimationFrame(animId);
+        animId = null;
+        return;
+      }
       ctx.clearRect(0,0,W,H);
       P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(0,255,135,'+p.o+')';ctx.fill()});
       for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(P[i].x,P[i].y);ctx.lineTo(P[j].x,P[j].y);ctx.strokeStyle='rgba(0,255,135,'+(1-d/100)*.07+')';ctx.lineWidth=.5;ctx.stroke()}}
-      requestAnimationFrame(draw);
+      animId = requestAnimationFrame(draw);
     }
-    draw();
+    if(!animId) draw();
   }
 
   /* Reveal: força visibilidade de todos os .v2-reveal dentro da home */

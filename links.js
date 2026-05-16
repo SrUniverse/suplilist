@@ -368,15 +368,16 @@ const PRODUCT_LINKS = {
  * - Preenche com busca automática onde o link está vazio
  * - Sobrescreve pm (preço) se informado
  */
-function applyProductLinks() {
-  if (typeof IT === 'undefined') {
+function applyProductLinks(targetArray = null) {
+  const listToProcess = targetArray || (typeof IT !== 'undefined' ? IT : null);
+  if (!listToProcess) {
     console.warn('[links.js] IT não encontrado — certifique que data.js carrega antes de links.js');
     return;
   }
 
   let applied = 0;
 
-  IT.forEach(item => {
+  listToProcess.forEach(item => {
     const entry = PRODUCT_LINKS[item.id];
 
     // Shopee: link direto ou busca, com parâmetros de afiliado

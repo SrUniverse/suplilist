@@ -102,7 +102,7 @@ body{
    Até a migração, o fallback inline é mantido. */
 body::before{
   content:'';position:fixed;inset:0;
-  background-image:url('/assets/noise.png');
+  background-image:url('assets/noise.png');
   background-repeat:repeat;
   background-size:256px 256px;
   /* fallback: se /assets/noise.png não existir, usar o data URI abaixo
@@ -312,102 +312,35 @@ body::before{
 
 /* ── BOTTOM NAV (mobile) ── */
 .bottom-nav{
-  display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;
-  background:linear-gradient(to top,rgba(5,6,8,.98),rgba(5,6,8,.95));
-  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
-  border-top:1.5px solid rgba(0,255,135,.08);
-  padding-bottom:env(safe-area-inset-bottom,0);
-  box-shadow:0 -8px 32px rgba(0,0,0,.4);
+  display:none; position:fixed; bottom:0; left:0; right:0; z-index:500;
+  background:rgba(10, 12, 16, 0.8); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--border); padding-bottom:env(safe-area-inset-bottom, 0);
+  box-shadow:0 -4px 30px rgba(0,0,0,.4);
 }
-[data-theme="light"] .bottom-nav{background:linear-gradient(to top,rgba(240,242,248,.98),rgba(240,242,248,.95))}
+[data-theme="light"] .bottom-nav{background:rgba(255,255,255,0.85); border-top-color:rgba(0,0,0,0.06)}
 
-/* primary row */
-.bottom-nav .bn-primary{
-  display:flex;align-items:stretch;height:58px;
-  padding:0;margin:0;list-style:none;
+.bottom-nav .bn-primary{ display:flex; position:relative; width:100%; height:64px; }
+
+.nav-indicator{
+  position:absolute; top:8px; height:48px; background:var(--ad);
+  box-shadow:0 0 15px var(--ad); border-radius:12px; z-index:0;
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* each primary tab */
 .bottom-nav .bn-tab{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  border:none;outline:none;background:transparent;cursor:pointer;padding:8px 2px;
-  color:var(--tx3);font-family:var(--fb);position:relative;transition:color .2s;
-  -webkit-tap-highlight-color:transparent;font-weight:700;letter-spacing:.03em;
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  border:none; outline:none; background:transparent; cursor:pointer; padding:10px 2px;
+  color:var(--tx2); font-family:var(--fb); position:relative; z-index:1;
+  transition:transform 0.2s, color 0.2s; -webkit-tap-highlight-color:transparent;
 }
-.bottom-nav .bn-tab.on{
-  color:var(--accent);animation:tabBounce .3s cubic-bezier(.34,1.56,.64,1) both;
-}
-/* @keyframes tabBounce: consolidado — ver declaração única abaixo */
-.bottom-nav .bn-tab.on::before{
-  content:'';position:absolute;top:0;left:20%;right:20%;height:3px;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  border-radius:0 0 4px 4px;animation:slideDown .25s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes slideDown{from{height:0}to{height:3px}}
-.bottom-nav .bn-tab .bn-ico{
-  font-size:24px;line-height:1;display:block;transition:transform .2s;
-}
-.bottom-nav .bn-tab.on .bn-ico{filter:drop-shadow(0 0 6px var(--accent))}
+.bottom-nav .bn-tab.on{ color:var(--accent); }
+.bottom-nav .bn-tab:active{ transform:scale(0.9); }
+
+.bottom-nav .bn-tab .bn-ico{ font-size:22px; line-height:1; display:block; transition:transform 0.2s; }
+.bottom-nav .bn-tab.on .bn-ico{ transform:translateY(-2px); }
 .bottom-nav .bn-tab .bn-lbl{
-  font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;
-  white-space:nowrap;display:block;color:inherit;font-family:var(--fm);
-}
-
-/* badge */
-.bottom-nav .bn-badge{
-  position:absolute;top:4px;right:calc(50% - 18px);
-  background:var(--accent);color:#000;
-  font-size:10px;font-weight:700;font-family:var(--fm);
-  min-width:18px;height:18px;border-radius:100px;
-  display:none;align-items:center;justify-content:center;padding:0 4px;
-  line-height:1;
-}
-.bottom-nav .bn-badge.vis{display:flex}
-
-/* more button */
-.bottom-nav .bn-more-btn{
-  flex:1;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;
-  border:none;outline:none;background:transparent;
-  cursor:pointer;padding:6px 2px;
-  color:var(--tx3);font-family:var(--fb);
-  transition:color .18s;
-  -webkit-tap-highlight-color:transparent;
-}
-.bottom-nav .bn-more-btn .bn-ico{font-size:22px;line-height:1;display:block}
-.bottom-nav .bn-more-btn .bn-lbl{
-  font-size:9px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.04em;white-space:nowrap;display:block;color:inherit;
-}
-.bottom-nav .bn-more-btn.on{color:var(--accent)}
-
-/* drawer */
-.bottom-nav .bn-drawer{
-  display:none;
-  border-top:1px solid var(--border);
-  background:var(--bg1);
-  grid-template-columns:repeat(3,1fr);
-  gap:4px;padding:10px 8px;
-}
-.bottom-nav .bn-drawer.on{display:grid}
-
-/* drawer tabs */
-.bottom-nav .bn-drawer-tab{
-  display:flex;flex-direction:column;align-items:center;
-  gap:5px;padding:12px 6px;
-  border-radius:12px;border:none;outline:none;
-  background:transparent;cursor:pointer;
-  transition:background .16s,color .16s;
-  color:var(--tx3);font-family:var(--fb);
-  -webkit-tap-highlight-color:transparent;
-}
-.bottom-nav .bn-drawer-tab:active{background:transparent!important}
-.bottom-nav .bn-drawer-tab.on{background:var(--ad);color:var(--accent)}
-.bottom-nav .bn-drawer-tab .bn-drawer-ico{font-size:24px;line-height:1;display:block}
-.bottom-nav .bn-drawer-tab .bn-drawer-lbl{
-  font-size:9px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.03em;text-align:center;display:block;color:inherit;
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  white-space:nowrap; display:block; color:inherit; font-family:var(--fb);
 }
 
 /* Theme Switcher - see .theme-btn in sidebar section above */
@@ -545,9 +478,9 @@ body::before{
 }
 .buy-secondary:active{transform:scale(.96)!important}
 
-.hero-cats{display:flex;gap:10px;flex-wrap:wrap}
-.hcat{height:38px;padding:0 18px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--tx3);font-family:var(--fb);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.05em}
-.hcat:hover,.hcat.on{border-color:var(--accent);color:var(--accent);background:var(--ad)}
+/* Flat Filters (ID 21) */
+.filter-row-goals, .filter-row-types { display: flex; overflow-x: auto; gap: 8px; padding: 4px 0; scrollbar-width: none; -ms-overflow-style: none; width: 100%; }
+.filter-row-goals::-webkit-scrollbar, .filter-row-types::-webkit-scrollbar { display: none; }
 .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:48px;background:var(--border)}
 .hs{background:var(--bg1);padding:24px 28px;position:relative;overflow:hidden}
 .hs::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
@@ -1011,9 +944,9 @@ input[type=text]::placeholder{color:var(--tx3)}
 
 /* ── PAGE ── */
 .page{
-  display:none;animation:pageIn .32s cubic-bezier(.34,1.56,.64,1) both;padding-top:32px;
+  display:none;padding-top:32px;
 }
-.page.on{display:block}
+.page.on{display:block;animation:pageIn .32s cubic-bezier(.34,1.56,.64,1) both}
 
 /* ── MY STACK (Em Uso) ── */
 .stack-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:12px}
@@ -1669,6 +1602,8 @@ input[type=text]::placeholder{color:var(--tx3)}
 .sticky-buy:hover{filter:brightness(1.08)}
 .sticky-close{background:none;border:none;color:var(--tx3);cursor:pointer;padding:4px;font-size:18px;transition:color .18s}
 .sticky-close:hover{color:var(--tx)}
+/* Hitbox 44px para mobile */
+@media(max-width:700px){ .sticky-close, .toast-close, .ref-modal-close { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; } }
 
 /* ── WISHLIST ── */
 .wl-empty{text-align:center;padding:48px;color:var(--tx3);font-size:12px}
@@ -1951,6 +1886,19 @@ input[type=text]::placeholder{color:var(--tx3)}
 }
 .btn.bg:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 4px 18px var(--ag)}
 .btn:active{transform:scale(.96)!important}
+/* Feedback de profundidade nos botões */
+.btn:active, .cta-primary:active, .cta-sec:active, .note-btn:active, .mkt-cta:active {
+  transform: translateY(2px) scale(0.98) !important;
+  box-shadow: var(--shadow-inner) !important;
+}
+/* Animação de erro */
+@keyframes btnShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+.btn-error { animation: btnShake 0.3s ease-in-out; border-color: var(--red) !important; }
 
 /* ── Chips de categoria: upgrade ── */
 .chip{
@@ -2009,46 +1957,41 @@ input[type=text]::placeholder{color:var(--tx3)}
   box-shadow:0 0 0 1.5px var(--accent),0 4px 18px rgba(0,255,135,.15);
 }
 
-/* ── Toast v29 — sistema completo ── */
-.toast{
-  /* backdrop-filter removido: custo GPU alto em elemento transitório */
-  border-radius:14px;
-  font-weight:500;
-  display:flex;align-items:center;gap:10px;
-  padding:12px 16px;font-size:13px;
-  border:1px solid var(--border);
-  background:var(--bg3);
-  box-shadow:0 8px 32px rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.3);
-  min-width:200px;max-width:340px;
-  position:relative;overflow:hidden;
-  /* Swipe-to-dismiss: JS deve escutar touchstart/touchend e aplicar
-     translateX + opacity. touch-action:pan-y garante que o scroll
-     vertical da página não seja bloqueado durante o gesto. */
-  touch-action:pan-y;
-  user-select:none;
+/* ── Novo Motor de Toasts (v30) ── */
+#toast-container {
+  position: fixed;
+  bottom: 85px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
 }
-/* shimmer line on top */
-.toast::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  border-radius:14px 14px 0 0;
-  background:var(--toast-accent,var(--accent));
-  opacity:.7;
+.toast {
+  pointer-events: auto;
+  min-width: 280px;
+  padding: 14px 20px;
+  background: rgba(15, 18, 26, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  animation: toast-in 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
 }
-.toast.toast-success{
-  background:linear-gradient(135deg,rgba(0,255,135,.06),var(--bg3));
-  border-color:rgba(0,255,135,.25);
-  --toast-accent:var(--accent);
-}
-.toast.toast-error{
-  background:linear-gradient(135deg,rgba(255,68,85,.07),var(--bg3));
-  border-color:rgba(255,68,85,.28);
-  --toast-accent:var(--red);
-}
-.toast.toast-warn{
-  background:linear-gradient(135deg,rgba(255,182,39,.07),var(--bg3));
-  border-color:rgba(255,182,39,.28);
-  --toast-accent:var(--amber);
-}
+.toast.success { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 135, 0.2); }
+.toast.error   { border-color: var(--red); box-shadow: 0 0 15px rgba(255, 68, 85, 0.2); }
+.toast.warning { border-color: var(--amber); box-shadow: 0 0 15px rgba(255, 182, 39, 0.2); }
+@keyframes toast-in { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes toast-out { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+.toast.hide { animation: toast-out 0.4s ease forwards; }
 .toast.toast-info{
   background:linear-gradient(135deg,rgba(77,166,255,.07),var(--bg3));
   border-color:rgba(77,166,255,.25);
@@ -2373,13 +2316,7 @@ input[type=text]::placeholder{color:var(--tx3)}
 @keyframes skelPulse{0%{background-position:100% 0}100%{background-position:-100% 0}}
 
 /* ── Input search icon ── */
-.sw::before{
-  content:'⌕';
-  position:absolute;left:13px;top:50%;
-  transform:translateY(-50%);
-  font-size:18px;color:var(--tx3);
-  pointer-events:none;z-index:1;
-}
+/* Removido seletor .sw duplicado que causava conflito com a linha 297 */
 #search{padding-left:40px}
 
 /* ── Filter count pill ── */
@@ -2600,7 +2537,6 @@ input[type=text]::placeholder{color:var(--tx3)}
 }
 
 /* ── Transition de páginas: upgrade ── */
-.page.on{animation:pageIn .32s cubic-bezier(.22,1,.36,1) both}
 @keyframes pageIn{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* ── Summary bar do recipe output: upgrade ── */
@@ -2879,9 +2815,6 @@ input[type=range].weight-slider::-webkit-slider-thumb{
 
 /* ══════════════ UX IMPROVEMENTS v25 ══════════════ */
 
-/* ── Page transitions ── */
-.page{transition:opacity .18s ease,transform .18s ease}
-.page.on{animation:pageIn .28s cubic-bezier(.22,1,.36,1) both}
 /* @keyframes pageIn: consolidado — ver declaração acima */
 
 /* ── Search bar: clear button & focus glow ── */
@@ -4018,6 +3951,7 @@ input[type=range].weight-slider:focus{background:var(--bg5)}
 .v2-cta-banner{
   position:relative;
   margin:0 clamp(24px,5vw,64px) clamp(40px,6vh,64px);
+  max-width: 100%;
   border-radius:20px;
   overflow:hidden;
   cursor:pointer;
@@ -4034,7 +3968,8 @@ input[type=range].weight-slider:focus{background:var(--bg5)}
 }
 .v2-cta-banner-bg{
   position:absolute;inset:0;
-  width:100%;height:100%;
+  width:100%;max-width: 100%;
+  height:auto; min-height: 100%;
   object-fit:cover;
   object-position:center;
   transition:transform .6s cubic-bezier(.22,1,.36,1);
@@ -4433,6 +4368,7 @@ input[type=range].weight-slider:focus{background:var(--bg5)}
 #p-home{
   position:relative;
   background:var(--bg0);
+  overflow-x: hidden; /* Isolamento total de overflow horizontal */
 }
 #p-home::before{
   content:'';
@@ -5512,37 +5448,16 @@ input[type=range].weight-slider:focus{background:var(--bg5)}
   letter-spacing: .06em;
 }
 
-/* ── Categorias: pill design moderno ── */
-.hero-cats {
-  gap: 6px;
-  margin-top: 24px;
-  margin-bottom: 0;
-}
-.hcat {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 100px;
-  font-size: 11px;
-  letter-spacing: .04em;
-  border: 1.5px solid var(--border);
-  background: var(--bg2);
-  color: var(--tx2);
-  transition: all .15s;
-  gap: 5px;
-}
-.hcat:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--ad);
-  transform: translateY(-1px);
-}
-.hcat.on {
-  background: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-  font-weight: 900;
-  box-shadow: 0 2px 10px var(--ag);
-}
+/* Flat Chips UI */
+.f-chip { flex: 0 0 auto; height: 34px; padding: 0 14px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: .03em; border: 1.5px solid var(--border); background: var(--bg3); color: var(--tx2); cursor: pointer; white-space: nowrap; transition: all .18s cubic-bezier(.4,0,.2,1); display: flex; align-items: center; gap: 6px; text-transform: uppercase; font-family: var(--fb); }
+.f-chip small { opacity: 0.6; font-family: var(--fm); font-size: 10px; margin-left: 2px; }
+.f-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--ad); transform: translateY(-1px); }
+.f-chip.on { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 900; box-shadow: 0 2px 10px var(--ag); }
+.f-chip.on small { opacity: 0.8; }
+
+/* Light theme fixes */
+[data-theme="light"] .f-chip { background: #fff; border-color: rgba(0,0,0,.1); color: var(--tx2); }
+[data-theme="light"] .f-chip.on { color: #fff; }
 
 /* ── Stats grid: cards mais limpos ── */
 .hero-stats {
@@ -5828,6 +5743,7 @@ input[type=range].weight-slider:focus{background:var(--bg5)}
   gap: 4px;
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 /* shimmer overlay on hover */
 .sort-chip::before {
@@ -5890,3 +5806,396 @@ input[type=range].weight-slider:focus{background:var(--bg5)}
   border-color: var(--accent);
   color: var(--accent);
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   ID-23 UPGRADE — Calculadora de Dosagem: UX/UI Completo
+   Sobrescreve os estilos anteriores via especificidade / cascade
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── HERO ─────────────────────────────────────────────────────── */
+#p-dose .dose-hero {
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  border-radius: 16px;
+  padding: 28px 30px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+#p-dose .dose-hero::after {
+  content: '💊';
+  position: absolute; right: 24px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 88px; opacity: .05;
+  pointer-events: none;
+  line-height: 1;
+}
+#p-dose .dose-hero h3 {
+  font-family: var(--fh);
+  font-size: clamp(20px, 3vw, 26px);
+  letter-spacing: .05em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+#p-dose .dose-hero p {
+  font-size: 13.5px;
+  color: var(--tx2);
+  line-height: 1.7;
+  max-width: 520px;
+}
+
+/* ── PERFIL: painel compacto e elegante ───────────────────────── */
+#p-dose .profile-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 26px;
+  margin-bottom: 20px;
+}
+#p-dose .profile-panel h3 {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#p-dose .profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+#p-dose .prof-field { display: flex; flex-direction: column; gap: 6px; }
+#p-dose .prof-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--tx3);
+}
+#p-dose .prof-input,
+#p-dose .prof-select {
+  height: 40px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--tx);
+  font-family: var(--fm);
+  font-size: 13px;
+  padding: 0 12px;
+  outline: none;
+  width: 100%;
+  transition: border-color .2s, box-shadow .2s;
+}
+#p-dose .prof-input:focus,
+#p-dose .prof-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--ad);
+  background: var(--bg2);
+}
+
+/* peso slider refinado */
+#p-dose .weight-slider-val {
+  font-family: var(--fh);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 56px;
+  text-align: center;
+  line-height: 1;
+  letter-spacing: .02em;
+}
+#p-dose .weight-slider-unit {
+  font-size: 13px;
+  color: var(--tx3);
+  margin-left: -4px;
+}
+
+/* ── LEGENDA DE SEGURANÇA ─────────────────────────────────────── */
+#p-dose .safety-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--tx3);
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  align-items: center;
+}
+#p-dose .sleg { display: flex; align-items: center; gap: 6px; }
+#p-dose .sleg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── RESUMO DO PERFIL (barra superior do output) ──────────────── */
+#p-dose .dose-summary {
+  display: flex;
+  align-items: stretch;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0;
+  margin-bottom: 20px;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+#p-dose .dose-sum-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 72px;
+  padding: 16px 10px;
+}
+#p-dose .dose-sum-item:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+#p-dose .dose-sum-n {
+  font-family: var(--fh);
+  font-size: 24px;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: .04em;
+}
+#p-dose .dose-sum-n small {
+  font-size: 11px;
+  font-family: var(--fb);
+  margin-left: 1px;
+  opacity: .75;
+}
+#p-dose .dose-sum-l {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--tx3);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  text-align: center;
+}
+#p-dose .dose-sum-sep { display: none; } /* removemos o sep, usamos border-right */
+
+/* ── CARDS DE PERÍODO ─────────────────────────────────────────── */
+#p-dose .dose-period-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  transition: border-color .2s;
+}
+#p-dose .dose-period-card:hover { border-color: var(--bh); }
+#p-dose .dose-period-card.pre {
+  border-top: 3px solid var(--accent);
+  background: linear-gradient(180deg, rgba(0,255,135,.03) 0%, var(--bg2) 60px);
+}
+#p-dose .proto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+#p-dose .proto-head {
+  padding: 14px 20px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tx2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#p-dose .proto-head .dose-head-sub {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--tx3);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: auto;
+  font-family: var(--fm);
+}
+#p-dose .proto-body { padding: 6px 20px 12px; }
+
+/* ── LINHAS DE DOSE ───────────────────────────────────────────── */
+#p-dose .dose-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 14px;
+  transition: background .15s;
+}
+#p-dose .dose-row:last-child { border-bottom: none; }
+#p-dose .dose-row:hover { background: rgba(255,255,255,.018); border-radius: 8px; }
+
+#p-dose .dose-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+#p-dose .dose-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx);
+  line-height: 1.3;
+  letter-spacing: -.01em;
+}
+#p-dose .dose-amt {
+  font-size: 17px;
+  color: var(--accent);
+  font-family: var(--fh);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: .03em;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* tags refinadas */
+#p-dose .dose-tags-row { display: flex; gap: 5px; flex-wrap: wrap; }
+#p-dose .dose-warn-tag  { font-size: 10px; font-weight: 700; background: var(--ambd); color: #fbbf24; border: 1px solid rgba(255,182,39,.3); border-radius: 5px; padding: 2px 8px; letter-spacing: .02em; }
+#p-dose .dose-cycle-tag { font-size: 10px; font-weight: 700; background: var(--blued); color: #7dc4ff; border: 1px solid rgba(77,166,255,.3); border-radius: 5px; padding: 2px 8px; }
+#p-dose .dose-food-tag  { font-size: 10px; font-weight: 700; background: var(--ad); color: var(--accent); border: 1px solid rgba(0,255,135,.25); border-radius: 5px; padding: 2px 8px; }
+#p-dose .dose-kg-badge  { font-size: 10px; font-weight: 700; background: rgba(77,166,255,.1); color: #7dc4ff; border: 1px solid rgba(77,166,255,.2); border-radius: 5px; padding: 2px 8px; vertical-align: middle; margin-left: 4px; }
+
+/* delta de mudança */
+#p-dose .dose-delta { font-size: 10px; font-family: var(--fm); padding: 2px 6px; border-radius: 100px; margin-left: 6px; font-weight: 700; }
+#p-dose .dose-delta.up { background: rgba(0,255,135,.1); color: var(--accent); border: 1px solid rgba(0,255,135,.2); }
+#p-dose .dose-delta.dn { background: rgba(255,68,85,.1); color: var(--red); border: 1px solid rgba(255,68,85,.2); }
+#p-dose .dose-delta.eq { display: none; }
+
+/* estado vazio */
+#p-dose .dose-empty {
+  font-size: 13px;
+  color: var(--tx3);
+  padding: 24px 20px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── TIMING HINT (ID-23) ──────────────────────────────────────── */
+.dose-timing-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 3px;
+}
+.dth-ideal {
+  font-size: 11px;
+  color: var(--tx3);
+  font-family: var(--fb);
+  line-height: 1.4;
+}
+.dth-warn {
+  font-size: 10px;
+  color: var(--amber);
+  font-family: var(--fb);
+}
+
+/* ── SEGURANÇA (ID-23) ────────────────────────────────────────── */
+.dose-row--unsafe { background: rgba(255,68,85,.05) !important; border-radius: 8px; }
+.dose-safety-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--red);
+  background: rgba(255,68,85,.08);
+  border: 1px solid rgba(255,68,85,.25);
+  border-radius: 5px;
+  padding: 2px 8px;
+  margin-top: 3px;
+  letter-spacing: .02em;
+}
+
+/* ── BARRA DE CUSTO MENSAL ────────────────────────────────────── */
+#p-dose .dose-cost-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--tx2);
+}
+#p-dose .dose-cost-bar strong {
+  font-family: var(--fh);
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: .03em;
+}
+
+/* ── DISCLAIMER ───────────────────────────────────────────────── */
+#p-dose .dose-disclaimer {
+  font-size: 11.5px;
+  color: var(--tx3);
+  margin-top: 6px;
+  padding: 12px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  line-height: 1.65;
+}
+
+/* ── IMC BADGES ───────────────────────────────────────────────── */
+#p-dose .imc-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 100px;
+  margin-left: 6px;
+  font-family: var(--fm);
+}
+#p-dose .imc-normal  { background: var(--ad);   color: var(--accent); border: 1px solid rgba(0,255,135,.25); }
+#p-dose .imc-over    { background: var(--ambd); color: #fbbf24;       border: 1px solid rgba(255,182,39,.3); }
+#p-dose .imc-obese   { background: var(--redd); color: #ff7070;       border: 1px solid rgba(255,68,85,.25); }
+#p-dose .imc-under   { background: var(--blued);color: #7dc4ff;       border: 1px solid rgba(77,166,255,.25); }
+
+/* ── RESPONSIVE ───────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  #p-dose .profile-grid { grid-template-columns: 1fr 1fr; }
+  #p-dose .proto-grid   { grid-template-columns: 1fr; }
+  #p-dose .dose-summary { flex-wrap: wrap; }
+  #p-dose .dose-sum-item {
+    min-width: calc(50% - 1px);
+    flex: none;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border);
+  }
+  #p-dose .dose-sum-item:nth-child(odd) { border-right: 1px solid var(--border) !important; }
+  #p-dose .dose-name { font-size: 13px; }
+  #p-dose .dose-amt  { font-size: 15px; }
+}
+@media (max-width: 460px) {
+  #p-dose .profile-grid { grid-template-columns: 1fr; }
+  #p-dose .profile-panel { padding: 18px 16px; }
+  #p-dose .dose-hero { padding: 20px 18px; }
+  #p-dose .proto-body { padding: 6px 14px 12px; }
+}
+
+/* ── LIGHT THEME ──────────────────────────────────────────────── */
+[data-theme="light"] #p-dose .dose-period-card { background: #fff; }
+[data-theme="light"] #p-dose .dose-period-card.pre { background: rgba(0,200,100,.03); }
+[data-theme="light"] #p-dose .dose-row:hover { background: rgba(0,0,0,.025); }
+[data-theme="light"] #p-dose .profile-panel,
+[data-theme="light"] #p-dose .dose-hero,
+[data-theme="light"] #p-dose .dose-summary { background: #fff; }
+[data-theme="light"] #p-dose .dose-cost-bar { background: linear-gradient(135deg,#fff,#f8fafb); }

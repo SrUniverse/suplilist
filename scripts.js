@@ -62,7 +62,7 @@ function syncNow(){
   clearTimeout(_syncDebounceTimer);
   _doSave();
   console.info(`[Sync] Sincronização manual executada na versão ${APP_VERSION}`);
-  toast('💾','Dados salvos localmente','success',{duration:2000,progress:false});
+  toast("Copiado com sucesso! ✅", "success");
 }
 
 function load(){
@@ -72,6 +72,15 @@ function load(){
     const d=JSON.parse(r);
 
     // Sanitização profunda para evitar propriedades null/undefined que quebram renderers
+    if (d.version === APP_VERSION) {
+      // Validação de IDs duplicados em tempo de carregamento
+      const ids = IT.map(i => i.id);
+      const uniqueIds = new Set(ids);
+      if (ids.length !== uniqueIds.size) {
+        console.error("🚨 [Data] IDs duplicados detectados no banco de dados!");
+      }
+    }
+
     const savedVersion = d.version || '0';
     const dataToLoad = (savedVersion !== APP_VERSION) ? runMigrations(d, savedVersion, APP_VERSION) : d;
     
@@ -197,9 +206,7 @@ function copyToClipboard(){
   const checked=IT.filter(i=>S.checked[i.id]).map(i=>'✅ '+i.name);
   const pending=IT.filter(i=>!S.checked[i.id]&&i.pr!=='extra').map(i=>'☐ '+i.name);
   const txt=[...checked,...pending].join('\n');
-  navigator.clipboard.writeText(txt)
-    .then(()=>toast('📋','Lista copiada para a área de transferência','success',{duration:2600}))
-    .catch(()=>toast('⚠️','Não foi possível copiar','error',{duration:2600}));
+  navigator.clipboard.writeText(txt).then(()=>toast("Copiado com sucesso! ✅", "success"));
 }
 
 function updateStorageSize(){
@@ -229,19 +236,22 @@ const PAGES=['home','lista','stack','wishlist','recipe','dose','compare','histor
  * Navegação Global entre abas
  */
 function go(p, pushState = true) {
+  const tabChanged = S.tab !== p;
   if (!PAGES.includes(p)) p = 'lista';
 
   // 1. ISOLAMENTO ABSOLUTO (Defensivo)
+  // Garante que todas as páginas estejam ocultas antes de mostrar a nova
   const allPages = document.querySelectorAll('.page');
   if (allPages.length === 0) return console.warn("Erro de DOM: .page não encontrados.");
 
   allPages.forEach(el => {
     el.classList.remove('on');
-    el.style.display = ''; // Limpa qualquer resíduo de estilo inline antigo
+    el.style.display = '';
   });
 
   const targetPage = document.getElementById('p-'+p);
   if(!targetPage) return console.error(`Falha Crítica: Seção id="p-${p}" ausente.`);
+  targetPage.style.display = '';
   targetPage.classList.add('on');
 
   // Sincronizar Tabs e Badges
@@ -286,6 +296,18 @@ function go(p, pushState = true) {
       h.querySelector('button').onclick = closeHint;
       setTimeout(closeHint, 8000); // Auto-dismiss após 8 segundos
       document.body.appendChild(h);
+
+      // Boundary Check: Garante que a tooltip não saia da tela lateralmente
+      const rect = h.getBoundingClientRect();
+      const margin = 16; // 1rem
+      if (rect.right > window.innerWidth) {
+        h.style.left = 'auto';
+        h.style.right = margin + 'px';
+        h.style.transform = 'none';
+      } else if (rect.left < 0) {
+        h.style.left = margin + 'px';
+        h.style.transform = 'none';
+      }
     }, 1000);
   }
 
@@ -360,7 +382,9 @@ function go(p, pushState = true) {
     }, 350);
   }
 
-  window.scrollTo({top:0,behavior:'smooth'});
+  if(tabChanged) {
+    window.scrollTo(0, 0);
+  }
   if(pushState){
     window.history.pushState({tab:p}, '', '#'+p);
   }
@@ -402,7 +426,7 @@ function filtered(){
     if(S.cat!=='Todos'&&i.cat!==S.cat) return false;
     if(gf&&!(i.goals||[]).includes(gf)) return false;
     if(pf){
-      const [lo,hi]=pf.includes('+')?[parseInt(pf),999]:[...pf.split('-').map(Number)];
+      const [lo,hi]=pf.includes('+')?[parseInt(pf),9999]:[...pf.split('-').map(Number)];
       if(i.pm<lo||i.pm>hi) return false;
     }
     return true;
@@ -410,8 +434,8 @@ function filtered(){
   if(srt==='name') list.sort((a,b)=>a.name.localeCompare(b.name,'pt'));
   else if(srt==='cat') list.sort((a,b)=>a.cat.localeCompare(b.cat,'pt'));
   else if(srt==='score') list.sort((a,b)=>b.sc-a.sc);
-  else if(srt==='cost') list.sort((a,b)=>(a.pm||0)-(b.pm||0));
-  else if(srt==='pdose') list.sort((a,b)=>(pdose(a)||99)-(pdose(b)||99));
+  else if(srt==='cost') list.sort((a,b)=>(a.pm||9999)-(b.pm||9999));
+  else if(srt==='pdose') list.sort((a,b)=>(pdose(a)||999)-(pdose(b)||999));
   else list.sort((a,b)=>PRIO[a.pr]-PRIO[b.pr]);
   return list;
 }
@@ -513,8 +537,8 @@ function itemHTML(it,idx){
         <button class="ref-btn" onclick="event.stopPropagation();openRef(${it.id})" aria-label="Ver referências científicas para ${it.name}">🔬 Estudos Científicos</button>
       </div>
       <div class="note-row">
-        <textarea class="note-ta" id="note-${it.id}" placeholder="Nota: marca, preço pago, lote…" rows="2" aria-label="Nota pessoal sobre ${it.name}" onblur="saveNote(${it.id})"></textarea>
-        <button class="note-btn" onclick="saveNote(${it.id})" aria-label="Salvar nota para ${it.name}">💾</button>
+        <textarea class="note-ta item-note" data-id="${it.id}" placeholder="Nota: marca, preço pago, lote…" rows="2" aria-label="Nota pessoal sobre ${it.name}" oninput="updateNote('${it.id}', this.value)">${S.notes[it.id] || ''}</textarea>
+        <button class="note-btn" onclick="saveNote('${it.id}')" aria-label="Salvar nota para ${it.name}" title="Salvar nota">💾</button>
       </div>
     </div>
   </div>
@@ -548,20 +572,18 @@ function renderList(){
     document.getElementById('list').innerHTML = emptyStateHTML('🌿', title, sub, btnLabel, btnFn);
     return;
   }
-  let html='',idx=0;
+  
+  const itemsHtml = [];
   if(srt==='priority'){
     const g={};list.forEach(i=>{if(!g[i.pr])g[i.pr]=[];g[i.pr].push(i);});
     ['alta','media','baixa','extra'].forEach(p=>{
       if(!g[p]?.length) return;
-      html+=`<div class="sec ${PCLS[p]}"><span class="sdot"></span>${PLBL[p]} (${g[p].length})</div>`;
-      g[p].forEach(it=>{html+=itemHTML(it,idx++);});
+      itemsHtml.push(`<div class="sec ${PCLS[p]}"><span class="sdot"></span>${PLBL[p]} (${g[p].length})</div>`);
+      g[p].forEach((it, idx) => itemsHtml.push(itemHTML(it, idx)));
     });
-  } else {list.forEach(it=>{html+=itemHTML(it,idx++);});}
-  document.getElementById('list').innerHTML=html;
-  list.forEach(it => {
-    const ta = document.getElementById(`note-${it.id}`);
-    if(ta) ta.value = S.notes[it.id] || '';
-  });
+  } else { list.forEach((it, idx) => itemsHtml.push(itemHTML(it, idx))); }
+
+  document.getElementById('list').innerHTML = itemsHtml.join('');
 }
 
 function renderChips(){
@@ -713,12 +735,8 @@ function chk(id){
     }
   }
   save();renderAll();
-  if(S.checked[id]){
-    const name=IT.find(i=>i.id===id)?.name||'Item';
-    toast('✔',`${name} marcado como comprado!`,'success',{
-      duration:3600,
-      undo:()=>{S.checked[id]=false;save();renderAll();}
-    });
+  if(S.checked[id]) {
+    toast("Compra registada no Histórico 🛒", "success");
     const el=document.getElementById('item-'+id);
     if(el){el.classList.add('just-checked');setTimeout(()=>el.classList.remove('just-checked'),600);}
   }
@@ -742,6 +760,11 @@ function _autoRegisterHistory(id) {
     date: new Date().toISOString(), uid: now
   });
   if (S.tab === 'history') renderHist();
+}
+
+function updateNote(id, value){
+  S.notes[id] = value;
+  if(S.cfg.autoSync) save();
 }
 
 function saveNote(id){
@@ -1055,7 +1078,12 @@ function closeRef(){
 function showSticky(id){
   const it=IT.find(i=>i.id===id);if(!it) return;
   _stickyItem=it;
-  const best = getBestDeal(it);
+  const best = {
+    price: bestMarketplacePrice(it),
+    name: it.pm <= mlPrice(it) && it.pm <= azPrice(it) ? 'Shopee' : (mlPrice(it) < azPrice(it) ? 'Mercado Livre' : 'Amazon'),
+    url: it.linkShopee || it.shopee,
+    src: 'shopee'
+  };
   document.getElementById('sb-name').textContent=it.name;
   document.getElementById('sb-price').textContent=`~R$${best.price} · Melhor: ${best.name}`;
   document.getElementById('sb-btn').onclick=()=>window.open(utm(best.url,best.src,'sticky','suplilist',0),'_blank');
@@ -1069,11 +1097,8 @@ function closeSticky(){document.getElementById('sticky-bar').classList.remove('s
 function togWl(id){
   S.wishlist[id]=!S.wishlist[id];save();renderAll();
   const name=IT.find(i=>i.id===id)?.name||'Item';
-  if(S.wishlist[id]){
-    toast('❤️',`${name} adicionado aos favoritos`,'success',{duration:2400,undo:()=>{S.wishlist[id]=false;save();renderAll();}});
-  } else {
-    toast('🤍',`${name} removido dos favoritos`,'info',{duration:2200,undo:()=>{S.wishlist[id]=true;save();renderAll();}});
-  }
+  if(S.wishlist[id]) toast("Adicionado aos Favoritos ⭐️", "success");
+  else toast(`${name} removido dos favoritos`, "info");
 }
 
 function renderWishlist(){
@@ -1783,6 +1808,84 @@ function renderRecipeAlerts(sel){
 
 
 // ══════════════ CALCULADORA DE DOSAGEM ══════════════
+// ID-23: Limites seguros por id
+const SAFE_DOSE_LIMITS = {
+  1:  { max: 30,    unit: 'g',  category: 'Forca' },
+  2:  { max: 600,   unit: 'mg', category: 'Estimulantes' },
+  3:  { max: 100,   unit: 'g',  category: 'Proteina' },
+  4:  { max: 30,    unit: 'g',  category: 'Recuperacao' },
+  5:  { max: 2000,  unit: 'mg', category: 'Vitaminas' },
+  6:  { max: 10000, unit: 'UI', category: 'Vitaminas' },
+  7:  { max: 400,   unit: 'mg', category: 'Minerais' },
+  8:  { max: 5000,  unit: 'mg', category: 'Gorduras Boas' },
+  9:  { max: 6400,  unit: 'mg', category: 'Estimulantes' },
+  10: { max: 20,    unit: 'g',  category: 'Recuperacao' },
+};
+
+const TIMING_MAP = {
+  'Estimulantes':  { ideal: '\u26a1 30\u201345 min antes do treino', warn: '\ud83c\udf19 Evitar ap�s as 18h' },
+  'For�a':         { ideal: '\ud83d\udcaa A qualquer hora \u2014 consist�ncia � chave', warn: '' },
+  'Prote�na':      { ideal: '\ud83e\udd5b Logo ap�s o treino ou ao acordar', warn: '' },
+  'Recupera��o':   { ideal: '\ud83d\udd01 P�s-treino ou antes de dormir', warn: '' },
+  'Vitaminas':     { ideal: '\u2600\ufe0f Junto com a refei��o principal', warn: '' },
+  'Minerais':      { ideal: '\ud83c\udf3f Com refei��o para melhor absor��o', warn: '' },
+  'Gorduras Boas': { ideal: '\ud83d\udc1f Com refei��es que contenham gordura', warn: '' },
+  'Adapt�geno':    { ideal: '\ud83c\udf3f Pela manh� ou ao acordar', warn: '' },
+  'Sono':          { ideal: '\ud83c\udf19 30\u201360 min antes de dormir', warn: '\u26a0\ufe0f N�o combinar com �lcool' },
+  'Metabolismo':   { ideal: '\ud83d\udd25 Com a primeira refei��o do dia', warn: '' },
+  'Longevidade':   { ideal: '\u23f3 Junto ao caf� da manh�', warn: '' },
+};
+
+function getTimingSuggestionForItem(item) {
+  if (!item) return null;
+  const cat = item.cat || '';
+  if (TIMING_MAP[cat]) return TIMING_MAP[cat];
+  for (const key of Object.keys(TIMING_MAP)) {
+    if (cat.includes(key) || key.includes(cat)) return TIMING_MAP[key];
+  }
+  if (item.tags) {
+    if (item.tags.some(t => ['estimulante','cafe�na'].includes(t))) return TIMING_MAP['Estimulantes'];
+    if (item.tags.some(t => ['sono','melatonina'].includes(t))) return TIMING_MAP['Sono'];
+    if (item.tags.some(t => ['adapt�geno'].includes(t))) return TIMING_MAP['Adapt�geno'];
+  }
+  return null;
+}
+
+function injectDoseEnhancements() {
+  const out = document.getElementById('dose-out');
+  if (!out) return;
+  out.querySelectorAll('.dose-row').forEach(row => {
+    if (row.dataset.enhanced) return;
+    row.dataset.enhanced = '1';
+    const nameEl = row.querySelector('.dose-name');
+    const amtEl  = row.querySelector('.dose-amt');
+    if (!nameEl || !amtEl) return;
+    const itemName = nameEl.textContent.replace(/\u2696\ufe0f\/kg/g, '').trim();
+    const item = IT.find(i => i.name === itemName);
+    if (!item) return;
+    const limit = SAFE_DOSE_LIMITS[item.id];
+    if (limit) {
+      const m = amtEl.textContent.replace(/,/g, '.').match(/([\d.]+)/);
+      if (m && parseFloat(m[1]) > limit.max) {
+        row.classList.add('dose-row--unsafe');
+        if (!row.querySelector('.dose-safety-badge')) {
+          const badge = document.createElement('span');
+          badge.className = 'dose-safety-badge';
+          badge.textContent = `\u26a0\ufe0f M�x. seguro: ${limit.max}\u00a0${limit.unit}`;
+          amtEl.insertAdjacentElement('afterend', badge);
+        }
+      }
+    }
+    const timing = getTimingSuggestionForItem(item);
+    if (timing && !row.querySelector('.dose-timing-hint')) {
+      const hint = document.createElement('div');
+      hint.className = 'dose-timing-hint';
+      hint.innerHTML = `<span class="dth-ideal">${timing.ideal}</span>${timing.warn ? `<span class="dth-warn">${timing.warn}</span>` : ''}`;
+      nameEl.closest('.dose-row-main').appendChild(hint);
+    }
+  });
+}
+
 let _lastDoses={};
 
 function syncWeightSlider(v){
@@ -2011,6 +2114,7 @@ function renderDose(){
 
   h+=`<p class="dose-disclaimer">⚠️ Protocolo educacional baseado em evidências científicas. Os valores com ⚖️/kg variam conforme seu perfil. Consulte um profissional de saúde antes de iniciar qualquer suplementação.</p>`;
   el.innerHTML=h;
+  requestAnimationFrame(injectDoseEnhancements);
 }
 
 
@@ -2075,6 +2179,14 @@ function addHist(){
 }
 
 function delHist(uid){S.history=S.history.filter(h=>h.uid!==uid);save();renderHist();}
+
+function clearHistory(){
+  confirmModal({title:'Limpar Histórico', msg:'Apagar todos os registros de compras?', danger:true}).then(ok=>{
+    if(!ok) return; S.history=[]; save(); renderHist(); toast('🗑','Histórico limpo','info');
+  });
+}
+
+function exportHistory(){ dl(JSON.stringify(S.history,null,2), 'historico-compras.json', 'application/json'); }
 
 /** Permite a alteração de dados lançados no histórico sem remoção */
 function editHist(uid){
@@ -2148,8 +2260,8 @@ function toggleCfg(k){S.cfg[k]=!S.cfg[k];save();applyCfg();renderList();}
 
 function nukeAll(){
   confirmModal({
-    title:'Apagar tudo',
-    msg:'<strong>APAGAR TODOS OS DADOS?</strong><br><br>Isso remove permanentemente sua lista, notas, histórico, stack e configurações. <strong>Irreversível.</strong>',
+    title:'Apagar todos os dados?',
+    msg:'Esta ação removerá permanentemente suas notas, histórico e stack. Irreversível.',
     ico:'🗑',
     okLabel:'Apagar tudo',
     cancelLabel:'Cancelar',
@@ -2158,7 +2270,7 @@ function nukeAll(){
     if(!ok) return;
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('sb_collapsed');
-    toast('🗑','Dados apagados. Recarregando…','error',{duration:1800,progress:false});
+    toast('🗑','Dados apagados. Recarregando…','error');
     setTimeout(()=>location.reload(),1800);
   });
 }
@@ -2185,12 +2297,12 @@ function exportTxt(){
       t+=`  ${S.checked[i.id]?'[✔]':'[ ]'} ${i.name}  ~R$${bestMarketplacePrice(i)}\n  Mercado Livre: ${mlLink}\n  Amazon: ${azLink}\n\n`;
     });
   });
-  dl(t,'suplilist.txt','text/plain');toast('⬇','Lista exportada como .txt','success',{duration:2600});
+  dl(t,'suplilist.txt','text/plain');toast("Copiado com sucesso! ✅", "success");
 }
 
 function exportJSON(){
   const data={date:new Date().toISOString(),items:IT.map(i=>({...i,comprado:!!S.checked[i.id],nota:S.notes[i.id]||''})),history:S.history};
-  dl(JSON.stringify(data,null,2),'suplilist.json','application/json');toast('⬇','Backup .json salvo','success',{duration:2600});
+  dl(JSON.stringify(data,null,2),'suplilist.json','application/json');toast("Copiado com sucesso! ✅", "success");
 }
 
 function importJSON(){document.getElementById('import-file')?.click();}
@@ -2272,7 +2384,7 @@ function copyList(){
     
     return `${text}\n   🛒 ML: ${ml}\n   🛒 Amazon: ${az}\n   🛒 Shopee: ${sh}`;
   });
-  navigator.clipboard?.writeText(lines.join('\n')).then(()=>toast('📋','Lista copiada!','success',{duration:2400,progress:false}));
+  navigator.clipboard?.writeText(lines.join('\n')).then(()=>toast("Copiado com sucesso! ✅", "success"));
 }
 
 function dl(c,fn,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=fn;a.click();}
@@ -2293,60 +2405,17 @@ function confetti(){
 
 
 // ══════════════ TOAST & MODAL ══════════════
-let _toastCount=0;
-function toast(ico, msg, type, opts={}){
-  const w=document.getElementById('toasts');
-  if(!w) return;
-  const t=document.createElement('div');
-  const typeClass=type?` toast-${type}`:'';
-  t.className=`toast in${typeClass}`;
-
-  const title=opts.title||'';
-  const duration=opts.duration||3400;
-  const undoFn=opts.undo||null;
-  const showProgress=opts.progress!==false;
-
-  let inner=`<span class="toast-ico">${ico}</span>
-  <span class="toast-body">
-    ${title?`<span class="toast-title">${title}</span>`:''}
-    <span class="${title?'toast-sub':'toast-title'}">${msg}</span>
-  </span>`;
-  if(undoFn){
-    inner+=`<button class="toast-undo" id="tu-${++_toastCount}">Desfazer</button>`;
-  }
-  inner+=`<button class="toast-close" aria-label="Fechar">✕</button>`;
-  if(showProgress){
-    inner+=`<div class="toast-progress" style="width:100%;transition-duration:${duration}ms"></div>`;
-  }
-  t.innerHTML=inner;
-
-  t.querySelector('.toast-close').addEventListener('click',()=>dismissToast(t));
-
-  if(undoFn){
-    t.querySelector('.toast-undo')?.addEventListener('click',()=>{
-      undoFn();
-      dismissToast(t);
-      toast('↩','Ação desfeita','info',{duration:2000,progress:false});
-    });
-  }
-
-  w.appendChild(t);
-
-  if(showProgress){
-    requestAnimationFrame(()=>{
-      const pb=t.querySelector('.toast-progress');
-      if(pb){pb.style.width='0%';}
-    });
-  }
-
-  const all=[...w.querySelectorAll('.toast')];
-  if(all.length>4) dismissToast(all[0]);
-
-  const timer=setTimeout(()=>dismissToast(t), duration);
-  t._timer=timer;
-  t.addEventListener('mouseenter',()=>clearTimeout(t._timer));
-  t.addEventListener('mouseleave',()=>{t._timer=setTimeout(()=>dismissToast(t),1200);});
-  return t;
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;cursor:pointer;margin-left:10px;opacity:0.6">✕</button>`;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('hide');
+    setTimeout(() => t.remove(), 400);
+  }, 3000);
 }
 
 function dismissToast(t){
@@ -2357,46 +2426,31 @@ function dismissToast(t){
   setTimeout(()=>t.remove(),250);
 }
 
-function confirmModal(opts={}){
-  return new Promise(resolve=>{
-    const {
-      title='Confirmar',
-      msg='Tem certeza?',
-      ico='⚠️',
-      okLabel='Confirmar',
-      cancelLabel='Cancelar',
-      danger=true,
-      okColor=null,
-    }=opts;
-    const color=okColor||(danger?'var(--red)':'var(--accent)');
-
-    const overlay=document.createElement('div');
-    overlay.className='confirm-overlay';
-    overlay.innerHTML=`<div class="confirm-box" style="--cf-color:${color}">
-      <span class="confirm-ico">${ico}</span>
-      <div class="confirm-title">${title}</div>
-      <div class="confirm-msg">${msg}</div>
-      <div class="confirm-actions">
-        <button class="confirm-cancel">${cancelLabel}</button>
-        <button class="confirm-ok" style="background:${color}">${okLabel}</button>
+function confirmModal(title, msg, onConfirm) {
+  if (typeof title === 'object') { // Compatibilidade com chamadas antigas via Promise
+    return new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.className = 'confirm-overlay';
+      overlay.innerHTML = `<div class="confirm-box"><div class="confirm-title">${title.title}</div><div class="confirm-msg">${title.msg}</div><div class="confirm-actions"><button class="btn" id="m-cancel">Cancelar</button><button class="btn bg" id="m-ok">Confirmar</button></div></div>`;
+      document.body.appendChild(overlay);
+      document.getElementById('m-ok').onclick = () => { overlay.remove(); resolve(true); };
+      document.getElementById('m-cancel').onclick = () => { overlay.remove(); resolve(false); };
+    });
+  }
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-box">
+      <div class="confirm-title" style="color:var(--red);margin-bottom:10px">${title}</div>
+      <div class="confirm-msg" style="margin-bottom:20px">${msg}</div>
+      <div class="confirm-actions" style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn" id="m-cancel">Cancelar</button>
+        <button class="btn bg" style="background:var(--red);color:#fff" id="m-ok">Confirmar</button>
       </div>
     </div>`;
-
-    const close=(val)=>{
-      overlay.style.animation='cfIn .18s ease reverse forwards';
-      setTimeout(()=>{overlay.remove();resolve(val);},160);
-    };
-
-    overlay.querySelector('.confirm-cancel').addEventListener('click',()=>close(false));
-    overlay.querySelector('.confirm-ok').addEventListener('click',()=>close(true));
-    overlay.addEventListener('click',e=>{if(e.target===overlay)close(false);});
-    document.addEventListener('keydown',function esc(e){
-      if(e.key==='Escape'){close(false);document.removeEventListener('keydown',esc);}
-      if(e.key==='Enter'){close(true);document.removeEventListener('keydown',esc);}
-    });
-    document.body.appendChild(overlay);
-    setTimeout(()=>overlay.querySelector('.confirm-ok')?.focus(),50);
-  });
+  document.body.appendChild(overlay);
+  document.getElementById('m-ok').onclick = () => { onConfirm(); overlay.remove(); };
+  document.getElementById('m-cancel').onclick = () => overlay.remove();
 }
 
 
@@ -2519,25 +2573,21 @@ function initTermsNav(){
 
 
 // ══════════════ BOTTOM NAV ══════════════
-const BN_PRIMARY=['home','lista','stack','wishlist','dose'];
-const BN_DRAWER=['recipe','compare','history','interact','faq','terms','config'];
+const BN_PRIMARY=['home','wishlist','history','config'];
 
 function bnSelect(p){
-  BN_PRIMARY.forEach(id=>{
-    const el=document.getElementById('bn-'+id);
-    if(el)el.classList.toggle('on',id===p);
+  const tabs = document.querySelectorAll('.bn-tab');
+  const indicator = document.getElementById('bn-indicator');
+  
+  tabs.forEach(btn => {
+    const active = btn.id === 'bn-' + p;
+    btn.classList.toggle('on', active);
+    
+    if (active && indicator) {
+      indicator.style.width = (btn.offsetWidth - 16) + 'px';
+      indicator.style.left = (btn.offsetLeft + 8) + 'px';
+    }
   });
-  BN_DRAWER.forEach(id=>{
-    const el=document.getElementById('bnd-'+id);
-    if(el)el.classList.toggle('on',id===p);
-  });
-  const moreBtn=document.getElementById('bn-more-btn');
-  if(moreBtn){
-    moreBtn.classList.toggle('on',BN_DRAWER.includes(p));
-    moreBtn.setAttribute('aria-expanded','false');
-  }
-  const drawer=document.getElementById('bn-drawer');
-  if(drawer)drawer.classList.remove('on');
 }
 
 function toggleBnDrawer(){
@@ -2560,6 +2610,20 @@ function syncBnBadges(){
   setBadge('bn-badge-lista',pend);
   setBadge('bn-badge-wl',wl);
   setBadge('bn-badge-stack',st);
+}
+
+function updateDynamicStrings() {
+  const totalCountEl = document.getElementById('total-supplements-count');
+  if (totalCountEl) totalCountEl.textContent = IT.length;
+
+  const versionDisplayEl = document.getElementById('app-version-display');
+  if (versionDisplayEl) versionDisplayEl.textContent = APP_VERSION;
+
+  const verFooter = document.getElementById('version-footer');
+  if (verFooter) verFooter.textContent = APP_VERSION;
+
+  const verConfig = document.getElementById('version-config');
+  if (verConfig) verConfig.textContent = APP_VERSION;
 }
 
 
@@ -2627,8 +2691,10 @@ document.addEventListener('click',e=>{
 // ══════════════ UX IMPROVEMENTS (IIFEs) ══════════════
 
 // Search Clear
+let _searchTimer;
 function onSearchInput(){
-  renderList();
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => renderList(), 150);
   const v=document.getElementById('search')?.value||'';
   const cl=document.getElementById('search-clear');
   if(cl)cl.classList.toggle('vis',v.length>0);
@@ -2672,6 +2738,15 @@ function clearSearch(){
     btn.addEventListener('mouseenter',()=>{
       const rect=btn.getBoundingClientRect();
       tt.style.top=(rect.top+rect.height/2-10)+'px';
+      
+      // Boundary check para tooltips da sidebar colapsada
+      requestAnimationFrame(() => {
+        const ttRect = tt.getBoundingClientRect();
+        if (ttRect.right > window.innerWidth) {
+          tt.style.left = 'auto';
+          tt.style.right = '10px';
+        }
+      });
     });
   });
 })();
@@ -2885,6 +2960,7 @@ function initStructuredData() {
 // ══════════════ INITIALIZATION ══════════════
 window.addEventListener('DOMContentLoaded', () => {
   try {
+    updateDynamicStrings();
     initStructuredData();
     load();
     document.body?.setAttribute('data-theme', S.cfg.theme || 'dark');
@@ -2894,6 +2970,7 @@ window.addEventListener('DOMContentLoaded', () => {
     try {
       const hashTab = window.location.hash.replace('#','');
       const isFirstVisit = !localStorage.getItem(STORAGE_KEY);
+      const isNewSession = !sessionStorage.getItem('visited_home');
 
       if (isFirstVisit) {
         S.demoMode = true;
@@ -2906,7 +2983,15 @@ window.addEventListener('DOMContentLoaded', () => {
         _doSave(); // Persistência imediata do estado inicial populado
       }
 
-      const initialTab = PAGES.includes(hashTab) ? hashTab : (isFirstVisit ? 'home' : (S.tab || 'lista'));
+      // Lógica de Redirecionamento: Forçar 'home' se for uma nova sessão (carregamento fresco)
+      let initialTab;
+      if (isNewSession) {
+        initialTab = 'home';
+        sessionStorage.setItem('visited_home', 'true');
+      } else {
+        initialTab = PAGES.includes(hashTab) ? hashTab : (S.tab || 'lista');
+      }
+      
       go(initialTab);
     } catch(e) {
       console.warn("Erro no roteamento, forçando fallback para lista:", e);
@@ -2941,13 +3026,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
-
-// ═══════════════ APP VERSION ═══════════════
-const verFooter=document.getElementById('version-footer');
-if(verFooter)verFooter.textContent=APP_VERSION;
-const verConfig=document.getElementById('version-config');
-if(verConfig)verConfig.textContent=APP_VERSION;
-// ═════════════════════════════════════════
 
 // ═════════════ TERMS DYNAMIC DATES ════════
 const termsUpdatedEl=document.getElementById('terms-updated-date');

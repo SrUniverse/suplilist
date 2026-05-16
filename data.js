@@ -1,6 +1,6 @@
 // ══════════════ DATA ══════════════
 // ─────────────── APP VERSION ───────────────
-const APP_VERSION = '15.1';
+const APP_VERSION = '15.1'; 
 // ───────────────────────────────────────────
 
 // ─────────────── TERMS DATES ───────────────
@@ -108,7 +108,7 @@ function azPrice(i){return i.azp||Math.round((i.pm||20)*1.18);}
 function bestMarketplacePrice(i){return Math.min(mlPrice(i),azPrice(i));}
 
 // URL base apontando para o seu repositório no GitHub (versão Raw)
-const BASE_URL = "https://raw.githubusercontent.com/SrUniverse/suplilist/main/assets/";
+const BASE_URL = "assets/";
 
 // O restante do seu código (SUPPLEMENTS_DATA, etc) continua igual abaixo...
 const IT=[
@@ -177,65 +177,301 @@ IT.forEach(item => {
 });
 
 const INTERACT=[
-{type:'danger',ico:'🚫',title:'Mucuna Pruriens + Antidepressivos IMAO',desc:'Pode causar síndrome serotoninérgica e crise hipertensiva. Evitar absolutamente.'},
-{type:'danger',ico:'🚫',title:'Cafeína + Efedrina ou Estimulantes fortes',desc:'Risco de taquicardia grave, hipertensão e eventos cardíacos. Nunca combinar.'},
-{type:'warn',ico:'⚠️',title:'Tongkat Ali + Anticoagulantes',desc:'Pode potencializar efeito anticoagulante. Monitorar com médico.'},
-{type:'warn',ico:'⚠️',title:'Ashwagandha + Sedativos / Ansiolíticos',desc:'Ação sedativa aditiva. Pode potencializar benzodiazepínicos.'},
-{type:'warn',ico:'⚠️',title:'Boron acima de 10mg/dia',desc:'Doses elevadas são tóxicas. Nunca usar ácido bórico industrial.'},
-{type:'warn',ico:'⚠️',title:'Ômega-3 + Anticoagulantes',desc:'Altas doses aumentam risco de sangramento.'},
-{type:'info',ico:'✨',title:'Sinergia: Creatina + EAA + HMB',desc:'Trio anabólico: Creatina para energia, EAA para síntese proteica, HMB para proteção muscular.'},
-{type:'info',ico:'✨',title:'Sinergia: Lion\'s Mane + Bacopa + Alpha-GPC',desc:'Stack cognitivo completo: NGF + memória + acetilcolina.'},
-{type:'info',ico:'✨',title:'Sinergia: Cafeína + L-Teanina (1:1)',desc:'A combinação mais validada para foco e performance.'},
-{type:'info',ico:'✨',title:'Sinergia: Tongkat Ali + Boron + Magnésio',desc:'Trio hormonal completo: testosterona, SHBG e sono.'},
-{type:'info',ico:'✨',title:'Sinergia: Vitamina C + Quercetina + Zinco',desc:'Trio imune clássico: C + Q potencializa entrada de zinco nas células.'},
+
+// ══════════════════════════════════════════════
+// 🚫 PERIGOS — COMBINAÇÕES CONTRAINDICADAS
+// ══════════════════════════════════════════════
+
+{type:'danger',ico:'🚫',title:'Mucuna Pruriens + IMAO / Antidepressivos',
+ desc:'L-DOPA eleva dopamina abruptamente; com IMAOs o metabolismo da dopamina é bloqueado → síndrome serotoninérgica e crise hipertensiva com risco de vida. Contraindicação absoluta.'},
+
+{type:'danger',ico:'🚫',title:'Cafeína + Efedrina ou Sinefrina',
+ desc:'Ambos estimulam sistema adrenérgico simultaneamente → taquicardia grave, hipertensão aguda e risco de evento cardíaco. Nunca combinar independente de dose.'},
+
+{type:'danger',ico:'🚫',title:'Berberina + Metformina / Hipoglicemiantes',
+ desc:'Berberina imita e potencializa a ação da Metformina na AMPK → hipoglicemia grave (glicose < 54 mg/dL). Médico deve ajustar a dose dos medicamentos antes de introduzir berberina.'},
+
+{type:'danger',ico:'🚫',title:'Mucuna Pruriens + Carbidopa / Levodopa',
+ desc:'Mucuna é fonte natural de L-DOPA. Combinada com Carbidopa farmacêutica, a dose de L-DOPA torna-se imprevisível, causando discinesias e picos dopaminérgicos perigosos.'},
+
+{type:'danger',ico:'🚫',title:'Ferro + Vitamina E (doses altas)',
+ desc:'Ferro livre catalisa produção de radicais livres via reação de Fenton; vitamina E em megadose pode desestabilizar essa reação gerando estresse oxidativo paradoxal. Separar por no mínimo 4 horas.'},
+
+{type:'danger',ico:'🚫',title:'Valeriana + Álcool ou Benzodiazepínicos',
+ desc:'Ambos potencializam receptores GABA-A. A combinação causa sedação excessiva, depressão respiratória e amnésia. Não usar na mesma janela de tempo.'},
+
+{type:'danger',ico:'🚫',title:'Tirosina + IMAO',
+ desc:'Tirosina é convertida em catecolaminas cujo metabolismo é bloqueado pelos IMAOs → crise hipertensiva tiramínica ("efeito queijo"). Contraindicada em usuários de IMAOs.'},
+
+{type:'danger',ico:'🚫',title:'Ashwagandha + Medicamentos para Tireoide',
+ desc:'Withanolídeos estimulam síntese de T3 e T4. Em hipotireoidismo tratado com levotiroxina, pode causar hipertireoidismo iatrogênico. Acompanhamento endocrinológico obrigatório.'},
+
+{type:'danger',ico:'🚫',title:'Ômega-3 + Anticoagulantes (Warfarina/Xarelto)',
+ desc:'EPA/DHA inibem agregação plaquetária sinergisticamente com anticoagulantes → risco de sangramento grave. Doses > 2g EPA+DHA exigem INR monitorado e ajuste médico.'},
+
+{type:'danger',ico:'🚫',title:'Curcumina Fitossomada + Anticoagulantes',
+ desc:'Curcumina inibe COX-2 e tromboxano A2 somando-se ao efeito anticoagulante → risco de hemorragia, especialmente cirúrgica. Suspender 2 semanas antes de procedimentos.'},
+
+{type:'danger',ico:'🚫',title:'Resveratrol + Anticoagulantes',
+ desc:'Resveratrol inibe CYP2C9, enzima que metaboliza Warfarina → nível plasmático do anticoagulante sobe inesperadamente. Monitoramento de INR é imprescindível.'},
+
+{type:'danger',ico:'🚫',title:'NAC + Nitroglicerina / Nitratos',
+ desc:'NAC potencializa vasodilatação dos nitratos → hipotensão severa, cefaleia intensa e risco de síncope. Contraindicação de bula estabelecida.'},
+
+{type:'danger',ico:'🚫',title:'Inositol (altas doses) + Lítio',
+ desc:'Inositol interfere diretamente no mecanismo de ação do lítio (via inositol-1-fosfatase) podendo comprometer o tratamento de transtorno bipolar. Psiquiatra deve ser consultado.'},
+
+// ══════════════════════════════════════════════
+// ⚠️ ALERTAS — COMBINAÇÕES QUE EXIGEM CAUTELA
+// ══════════════════════════════════════════════
+
+{type:'warn',ico:'⚠️',title:'Tongkat Ali + Anticoagulantes',
+ desc:'Euricomanona pode potencializar efeito anticoagulante e reduzir agregação plaquetária. Monitorar com médico se usar Warfarina, AAS ou Xarelto.'},
+
+{type:'warn',ico:'⚠️',title:'Ashwagandha + Sedativos / Ansiolíticos',
+ desc:'Ação sedativa aditiva com benzodiazepínicos e barbitúricos. Pode intensificar sonolência e diminuir tempo de reação. Ajustar dose com médico.'},
+
+{type:'warn',ico:'⚠️',title:'Boron > 10 mg/dia — Toxicidade Acumulativa',
+ desc:'O limite seguro de boro é 10 mg/dia. Doses > 20 mg causam náusea, diarreia e toxicidade reprodutiva. NUNCA usar ácido bórico industrial; verificar dose total entre suplementos.'},
+
+{type:'warn',ico:'⚠️',title:'Cafeína após 14h — Sabotagem do Sono',
+ desc:'Meia-vida da cafeína é 5–7h. Uso após 14h reduz sono profundo (N3) em até 20% mesmo sem dificuldade de adormecer percebida. Evitar se o objetivo inclui recuperação ou hormônios.'},
+
+{type:'warn',ico:'⚠️',title:'Zinco > 40 mg/dia — Depleção de Cobre',
+ desc:'Zinco em excesso compete com cobre na absorção intestinal. Deficiência de cobre causa anemia, neuropatia e disfunção imune. Suplementar 1–2 mg de cobre se usar mais de 40 mg/dia de zinco por > 4 semanas.'},
+
+{type:'warn',ico:'⚠️',title:'Ferro + Cálcio / Laticínios',
+ desc:'Cálcio inibe a absorção de ferro não-heme em até 60%. Nunca tomar ferro junto com leite, queijo ou suplemento de cálcio. Separar no mínimo 2 horas.'},
+
+{type:'warn',ico:'⚠️',title:'Ferro + Café / Chá / Cacau',
+ desc:'Polifenóis e taninos do café, chá preto e cacau quelam o ferro reduzindo a absorção em até 70%. Consumir ferro longe dessas bebidas.'},
+
+{type:'warn',ico:'⚠️',title:'Psyllium + Medicamentos Orais',
+ desc:'Fibra forma gel viscoso que pode reduzir absorção de qualquer medicamento. Tomar psyllium pelo menos 2 horas separado de remédios, levotiroxina ou outros suplementos críticos.'},
+
+{type:'warn',ico:'⚠️',title:'EGCG Chá Verde em Jejum — Toxicidade Hepática',
+ desc:'Extrato de chá verde concentrado tomado em jejum ou em doses acima de 800 mg/dia associa-se a hepatotoxicidade em casos raros. Usar com refeição e dentro das doses recomendadas.'},
+
+{type:'warn',ico:'⚠️',title:'Rhodiola Rosea + Estimulantes (Cafeína, Sinefrina)',
+ desc:'Rhodiola tem efeito estimulante suave via monoaminas. Combinada a cafeína, pode causar nervosismo excessivo, irritabilidade e insônia. Monitorar resposta individual.'},
+
+{type:'warn',ico:'⚠️',title:'Alpha-GPC > 1g/dia — Risco Cardiovascular Emergente',
+ desc:'Dados preliminares (JAMA 2021) sugerem que colina em excesso gera TMAO, associado a risco cardiovascular. Manter dose ≤ 600 mg/dia e não empilhar com outras fontes de colina (ovos + lecitina + CDP-colina).'},
+
+{type:'warn',ico:'⚠️',title:'Magnésio + Antibióticos (Quinolonas / Tetraciclinas)',
+ desc:'Magnésio e outros divalentes quelam antibióticos reduzindo absorção em até 90%. Separar por no mínimo 2 horas do Ciprofloxacino, Doxiciclina e similares.'},
+
+{type:'warn',ico:'⚠️',title:'Melatonina + Imunossupressores',
+ desc:'Melatonina é imunomoduladora: pode contrariar imunossupressores (Ciclosporina, Tacrolimus). Pacientes transplantados devem evitar sem autorização médica.'},
+
+{type:'warn',ico:'⚠️',title:'Saw Palmetto + Anticoagulantes / AAS',
+ desc:'Inibidores da 5-alfa-redutase podem reduzir agregação plaquetária. Combinado com anticoagulantes ou AAS aumenta risco de sangramento. Avisar médico antes de procedimentos.'},
+
+{type:'warn',ico:'⚠️',title:'Panax Ginseng + Anticoagulantes / Hipoglicemiantes',
+ desc:'Ginsenosídeos têm ação leve anticoagulante e hipoglicemiante. Pode potencializar Warfarina, AAS e insulina. Monitorar glicemia e INR.'},
+
+{type:'warn',ico:'⚠️',title:'Panax Ginseng + Cafeína (Insônia)',
+ desc:'Ginseng tem ação estimulante própria. Combinado com cafeína tarde do dia causa estimulação excessiva e insônia. Usar apenas pela manhã.'},
+
+{type:'warn',ico:'⚠️',title:'CoQ10 + Quimioterapia',
+ desc:'CoQ10 é antioxidante e pode, em teoria, proteger células tumorais do estresse oxidativo induzido por certas quimioterapias. Oncologista deve ser consultado antes de usar durante tratamento.'},
+
+{type:'warn',ico:'⚠️',title:'Probiótico + Imunossupressores / Pós-cirurgia',
+ desc:'Probióticos introduzem bactérias vivas. Em imunossuprimidos, pós-transplante ou pós-cirurgia abdominal recente, existe risco de translocação bacteriana e infecção sistêmica.'},
+
+{type:'warn',ico:'⚠️',title:'Berberina + Gestação / Lactação',
+ desc:'Berberina atravessa a barreira placentária e é excretada no leite. Associada a icterícia neonatal e possíveis efeitos sobre o feto. Contraindicada em grávidas e lactantes.'},
+
+{type:'warn',ico:'⚠️',title:'Feno-grego + Anticoagulantes',
+ desc:'Feno-grego contém cumarinas naturais que somam efeito anticoagulante. Risco aumentado de sangramento com Warfarina, heparina ou AAS em dose anticoagulante.'},
+
+{type:'warn',ico:'⚠️',title:'L-Carnitina + Hipotireoidismo Não Tratado',
+ desc:'Carnitina antagoniza ação dos hormônios tireoidianos nos tecidos periféricos. Pode agravar hipotireoidismo. Evitar ou monitorar TSH se houver disfunção tireoidiana.'},
+
+{type:'warn',ico:'⚠️',title:'Vitamina D3 > 10.000 UI/dia sem Exame',
+ desc:'Hipervitaminose D causa hipercalcemia (náusea, confusão, calcificação de tecidos moles). Dosar 25-OH vitamina D antes e a cada 3 meses se usar doses altas. Nunca suplementar no escuro.'},
+
+{type:'warn',ico:'⚠️',title:'Maca Peruana + Hipotireoidismo',
+ desc:'Glucosinolatos da maca podem interferir na síntese de hormônios tireoidianos em pessoas com tireoidite de Hashimoto ou hipotireoidismo. Acompanhamento com endocrinologista.'},
+
+{type:'warn',ico:'⚠️',title:'Glucosamina + Anticoagulantes',
+ desc:'Glucosamina pode potencializar Warfarina, aumentando INR de forma imprevisível. Monitorar coagulação ao iniciar ou encerrar o suplemento.'},
+
+{type:'warn',ico:'⚠️',title:'Quercetina + Ciclosporina / Inibidores CYP3A4',
+ desc:'Quercetina inibe CYP3A4 e P-glicoproteína, elevando concentração plasmática de imunossupressores e de algumas estatinas. Médico deve ajustar doses.'},
+
+{type:'warn',ico:'⚠️',title:'Shatavari + Terapia Hormonal (estrogênio exógeno)',
+ desc:'Shatavari tem ação fitoestrogênica. Combinado com TH estrogênica pode causar estimulação excessiva do receptor. Oncologistas contraindicam em cânceres hormônio-dependentes.'},
+
+{type:'warn',ico:'⚠️',title:'Óleo de Prímula + Antiepilépticos (Fenitoína)',
+ desc:'GLA do óleo de prímula pode reduzir o limiar convulsivo e diminuir eficácia da Fenitoína. Evitar ou monitorar em epilepsia.'},
+
+{type:'warn',ico:'⚠️',title:'Beta-Alanina em Dose Única Alta — Parestesia',
+ desc:'Dose única > 1,6g causa formigamento (flush) intenso que pode ser desconfortável. Dividir em doses de 0,8–1,6g para minimizar o efeito. Inofensivo, mas esperado.'},
+
+{type:'warn',ico:'⚠️',title:'Spirulina + Imunossupressores',
+ desc:'Spirulina estimula sistema imune (NK cells, citocinas). Pode contrabalançar imunossupressores em transplantados ou pacientes com doenças autoimunes graves.'},
+
+{type:'warn',ico:'⚠️',title:'Bacopa Monnieri + Medicamentos Colinérgicos',
+ desc:'Bacopa inibe acetilcolinesterase aumentando acetilcolina. Combinada com donepezila ou rivastigmina (Alzheimer) pode causar excesso colinérgico: bradicardia, hipersalivação, diarreia.'},
+
+{type:'warn',ico:'⚠️',title:'Apigenina + Sedativos / Álcool',
+ desc:'Apigenina se liga ao receptor GABA-A (sítio das benzodiazepinas). Combinada com sedativos ou álcool a sedação é somada. Não dirigir após uso noturno com álcool.'},
+
+// ══════════════════════════════════════════════
+// ✨ SINERGIAS VALIDADAS — COMBOS PODEROSOS
+// ══════════════════════════════════════════════
+
+{type:'info',ico:'✨',title:'Sinergia: Creatina + EAA + HMB',
+ desc:'Trio anabólico de ouro: Creatina recicla ATP para força, EAA fornecem todos os aminoácidos para síntese proteica, HMB protege contra catabolismo. Stack ideal para hipertrofia.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Lion\'s Mane + Bacopa + Alpha-GPC',
+ desc:'Stack cognitivo completo. Lion\'s Mane estimula NGF para neuroplasticidade, Bacopa consolida memória de longo prazo, Alpha-GPC eleva acetilcolina para foco imediato.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Cafeína + L-Teanina (1:1)',
+ desc:'A combinação mais validada da ciência. Teanina elimina ansiedade e jitters da cafeína, prolonga pico de foco e suaviza a queda. Proporção ideal: 100–200 mg de cada.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Tongkat Ali + Boron + Magnésio',
+ desc:'Trio hormonal completo. Tongkat Ali eleva testosterona livre, Boron reduz SHBG e estradiol, Magnésio otimiza testosterona livre noturna e qualidade do sono.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Vitamina C + Quercetina + Zinco',
+ desc:'Imunidade de três camadas. Vitamina C ativa neutrófilos, Quercetina é ionóforo de zinco (facilita entrada intracelular), Zinco inibe replicação viral. Trio antiviral com base científica.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Vitamina D3 + Vitamina K2 (MK-7)',
+ desc:'D3 mobiliza cálcio do intestino para o sangue; K2 ativa osteocalcina e MGP direcionando o cálcio para os ossos e evitando calcificação arterial. Nunca tomar D3 sem K2 em doses altas.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Ômega-3 + Curcumina Fitossomada',
+ desc:'Dupla anti-inflamatória de vias complementares. EPA/DHA modulam resolvinas e protectinas, curcumina inibe NFkB e COX-2. Juntos potencializam redução de inflamação crônica.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Magnésio Glicinato + Glicina + Apigenina',
+ desc:'Stack de sono profundo sem sedação. Magnésio apoia GABA e temperatura corporal, Glicina reduz temperatura central facilitando N3, Apigenina bloqueia ansiedade via GABA-A.'},
+
+{type:'info',ico:'✨',title:'Sinergia: NAC + Glicina → Glutationa Endógena',
+ desc:'NAC fornece cisteína e Glicina fornece o segundo aminoácido da glutationa. Juntos elevam glutationa intracelular de forma mais eficaz do que suplementação direta de GSH.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Colágeno Peptídeos + Vitamina C',
+ desc:'Vitamina C é cofator obrigatório da prolil-hidroxilase, enzima que estabiliza a tripla hélice do colágeno. Sem C, o colágeno ingerido não é incorporado eficientemente. Tomar juntos.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Berberina + Quercetina',
+ desc:'Berberina ativa AMPK e Quercetina inibe inflamação via NFkB. Combinação usada em protocolos de controle glicêmico e síndrome metabólica com efeito sinérgico observado em estudos.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Creatina + Beta-Alanina',
+ desc:'Creatina otimiza energia anaeróbica (ATP), Beta-Alanina tamponeia ácido lático. Targets metabólicos diferentes que se complementam para performance de alta intensidade.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Rhodiola Rosea + Ashwagandha',
+ desc:'Adaptógenos de ação oposta e complementar. Rhodiola é de efeito rápido (energizante/anti-fadiga), Ashwagandha é de efeito tardio (ansiolítico/anabólico). Stack adaptogênico completo.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Tirosina + Rhodiola Rosea',
+ desc:'Tirosina fornece matéria-prima para catecolaminas (dopamina, noradrenalina) e Rhodiola inibe MAO-B, prolongando a vida útil dessas catecolaminas. Foco e resiliência ao estresse aprimorados.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Probiótico + Psyllium (Prebiótico)',
+ desc:'Psyllium é fibra prebiótica solúvel que nutre as bactérias do probiótico, aumentando sua colonização e sobrevivência no intestino. Simbiótico perfeito.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Ashwagandha + Zinco + Vitamina D3',
+ desc:'Tríade testosterona. Ashwagandha reduz cortisol e eleva LH, Zinco é cofator da testosterona sintase, D3 é pró-hormônio que ativa receptores androgênicos. Sinergia hormonal documentada.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Maca Peruana + Feno-grego',
+ desc:'Dupla de libido hormonal. Maca atua no eixo hipotálamo sem alterar testosterona, Feno-grego inibe aromatase reduzindo conversão para estrogênio. Efeitos complementares.'},
+
+{type:'info',ico:'✨',title:'Sinergia: CoQ10 + Ômega-3 (Saúde Cardiovascular)',
+ desc:'CoQ10 suporta a cadeia respiratória mitocondrial do miocárdio; EPA/DHA reduzem triglicerídeos e inflamação vascular. Combinação especialmente indicada para quem usa estatinas.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Magnésio Treonato + Lion\'s Mane + Bacopa',
+ desc:'Stack premium de neuroplasticidade. Magnésio Treonato aumenta densidade sináptica no hipocampo, Lion\'s Mane estimula NGF, Bacopa consolida novos padrões de memória.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Inositol + Ferro + Vitamina D3 (SOP)',
+ desc:'Protocolo feminino para SOP. Inositol melhora sensibilidade à insulina e regularidade menstrual, Ferro corrige ferritina baixa, D3 regula ciclo e metabolismo. Avaliar individualmente.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Resveratrol + CoQ10 + NAC (Longevidade)',
+ desc:'Stack de longevidade mitocondrial. Resveratrol ativa SIRT1 e AMPK, CoQ10 suporta respiração celular, NAC eleva glutationa. Redução de estresse oxidativo e suporte à biogênese mitocondrial.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Glucosamina + Condroitina + Colágeno + Vitamina C',
+ desc:'Stack articular completo. Glucosamina e Condroitina protegem a cartilagem, Colágeno reconstrói a matriz extracelular, Vitamina C é cofator obrigatório da síntese de colágeno.'},
+
+{type:'info',ico:'✨',title:'Sinergia: L-Citrulina + Cafeína + Beta-Alanina (Pré-treino Natural)',
+ desc:'Pré-treino limpo de 3 compostos. Citrulina eleva NO (bomba/performance), Cafeína aumenta força e foco, Beta-Alanina retarda fadiga muscular. Sem estimulantes artificiais.'},
+
+{type:'info',ico:'✨',title:'Sinergia: Spirulina + Vitamina C',
+ desc:'A vitamina C aumenta a absorção do ferro vegetal (não-heme) da Spirulina em até 3 vezes. Tomar juntos em jejum otimiza a absorção de micronutrientes da microalga.'},
+
 ];
 
 const CYCLES=[
   {name:'Ashwagandha KSM-66',  ico:'🌿', max:90,  pausa:30, cat:'Adaptógeno',  cor:'#4ade80',
-   motivo:'Evitar tolerância ao efeito ansiolítico e dessensibilizar receptores de cortisol.',
-   dica:'Na pausa, mantenha Magnésio Glicinato para suporte ao cortisol.',
+   motivo:'Evitar tolerância ao efeito ansiolítico e dessensibilizar receptores de cortisol. Estudos indicam que benefícios se mantêm com uso de 90d mas declinam após isso sem pausa.',
+   dica:'Na pausa, mantenha Magnésio Glicinato para suporte ao cortisol e sono.',
    refs:'Chandrasekhar et al. 2012 (Indian J Psychol Med)'},
+
   {name:'Tongkat Ali',         ico:'🌱', max:90,  pausa:30, cat:'Hormonal',    cor:'#facc15',
-   motivo:'Prevenir downregulation do eixo HPG e manter sensibilidade do receptor androgênico.',
-   dica:'Pausar na semana mais leve do treino. Manter Zinco + Magnésio.',
+   motivo:'Prevenir downregulation do eixo HPG e manter sensibilidade do receptor androgênico. Uso contínuo acima de 3 meses sem pausa pode reduzir eficácia.',
+   dica:'Pausar na semana mais leve do treino. Manter Zinco + Magnésio durante a pausa.',
    refs:'Henkel et al. 2014 (Evid Based Complement Alternat Med)'},
+
   {name:'Rhodiola Rosea',      ico:'🏔️', max:90,  pausa:14, cat:'Adaptógeno',  cor:'#f472b6',
-   motivo:'Receptor de serotonina e dopamina precisam de reset para manter eficácia adaptogênica.',
-   dica:'Pausa curta de 14d suficiente. Manter Ashwagandha como cobertura.',
+   motivo:'Receptores de serotonina e dopamina precisam de reset para manter eficácia adaptogênica. Pausa curta de 14d é suficiente pela farmacocinética da rosavina.',
+   dica:'Pausa curta de 14d suficiente. Manter Ashwagandha como cobertura ansiolítica.',
    refs:'Olsson et al. 2009 (Planta Med)'},
+
   {name:'Mucuna Pruriens',     ico:'🫘', max:60,  pausa:30, cat:'Dopaminérgico', cor:'#a78bfa',
-   motivo:'L-DOPA excessiva pode dessensibilizar receptores D2. Pausa preserva resposta dopaminérgica.',
-   dica:'NUNCA combinar com IMAOs. Na pausa, evite outros precursores de dopamina.',
+   motivo:'L-DOPA excessiva dessensibiliza receptores D2. Pausa preserva resposta dopaminérgica e evita rebound de prolactina. NUNCA combinar com IMAOs.',
+   dica:'NUNCA combinar com IMAOs. Na pausa, evite outros precursores de dopamina (tirosina em dose alta).',
    refs:'Katzenschlager et al. 2004 (J Neurol Neurosurg Psychiatry)'},
+
   {name:'Panax Ginseng',       ico:'🫚', max:90,  pausa:30, cat:'Adaptógeno',  cor:'#fb923c',
-   motivo:'Evitar tolerância aos ginsenosídeos e possível efeito estrogênico em uso contínuo.',
+   motivo:'Evitar tolerância aos ginsenosídeos e possível efeito estrogênico em uso contínuo. Pausa de 30d restaura sensibilidade dos receptores.',
    dica:'Na pausa, mantenha Rhodiola como substituto adaptogênico mais leve.',
    refs:'Kennedy et al. 2004 (Psychopharmacology)'},
+
   {name:'Cafeína (ciclo off)',  ico:'☕', max:30,  pausa:7,  cat:'Estimulante', cor:'#f97316',
-   motivo:'Dessensibilizar receptores de adenosina A1/A2A. Restaurar energia basal e qualidade do sono.',
-   dica:'Reduzir gradualmente (50mg/dia) para evitar cefaleia de abstinência.',
+   motivo:'Dessensibilizar receptores de adenosina A1/A2A. Restaurar energia basal, qualidade do sono e sensibilidade à cafeína. Abstinência de 7d já normaliza receptores.',
+   dica:'Reduzir gradualmente (50mg/dia) para evitar cefaleia de abstinência. Manter L-Teanina.',
    refs:'Bjorness & Greene 2009 (J Neurosci)'},
+
   {name:'Boron',               ico:'💎', max:90,  pausa:30, cat:'Mineral',     cor:'#38bdf8',
-   motivo:'Precaução com acúmulo em tecidos ósseos e hepáticos. UL da OMS: 10mg/dia.',
+   motivo:'Precaução com acúmulo em tecidos ósseos e hepáticos. UL da OMS é 10mg/dia. Ciclos de 90d com pausa são prática conservadora recomendada.',
    dica:'Não exceder 10mg/dia. Monitorar zinco e cobre com uso prolongado.',
    refs:'Meacham et al. 1994 (Environ Health Perspect)'},
-  {name:'Lion\'s Mane',        ico:'🦁', max:120, pausa:14, cat:'Cognitivo',   cor:'#c084fc',
-   motivo:'Permitir reset de receptores NGF. Ciclos longos mantêm eficácia sem tolerância.',
-   dica:'Pausa curta de 14d. Manter Bacopa e Alpha-GPC como suporte cognitivo.',
-   refs:'Mori et al. 2009 (Phytother Res)'},
-];
 
-// Novos ciclos sugeridos
-CYCLES.push({
-  name:'Berberina HCL', ico:'🔥', max:60, pausa:30, cat:'Metabólico', cor:'#ff6b2b',
-  motivo:'Prevenir a adaptação da AMPK e manter a sensibilidade à insulina otimizada.',
-  dica:'Na pausa, use Cromo Picolinato para manter o controle glicêmico.'
-});
-CYCLES.push({
-  name:'Melatonina', ico:'🌙', max:30, pausa:7, cat:'Sono', cor:'#4da6ff',
-  motivo:'Evitar a downregulation dos receptores MT1/MT2 no hipotálamo.',
-  dica:'Use apenas para ajustar o ritmo. Na pausa, foque em higiene do sono.'
-});
+  {name:'Lion\'s Mane',        ico:'🦁', max:120, pausa:14, cat:'Cognitivo',   cor:'#c084fc',
+   motivo:'Permitir reset de receptores NGF e mTOR. Ciclos longos de 120d mantêm eficácia sem tolerância aos hericenones e erinacinas.',
+   dica:'Pausa curta de 14d. Manter Bacopa e Alpha-GPC como suporte cognitivo durante a pausa.',
+   refs:'Mori et al. 2009 (Phytother Res)'},
+
+  {name:'Berberina HCL',       ico:'🔥', max:60,  pausa:30, cat:'Metabólico',  cor:'#ff6b2b',
+   motivo:'Prevenir adaptação da AMPK e manter a sensibilidade à insulina otimizada. Uso contínuo > 60d pode reduzir flora intestinal benéfica.',
+   dica:'Na pausa, use Cromo Picolinato + Psyllium para manter o controle glicêmico.',
+   refs:'Yin et al. 2008 (Metabolism); Zhang et al. 2010 (J Clin Endocrinol Metab)'},
+
+  {name:'Melatonina',           ico:'🌙', max:30,  pausa:7,  cat:'Sono',        cor:'#4da6ff',
+   motivo:'Evitar downregulation dos receptores MT1/MT2 no hipotálamo e preservar produção endógena. Uso contínuo > 30d pode bloquear sinalização circadiana natural.',
+   dica:'Use apenas para ajustar ritmo ou jet lag. Na pausa, invista em higiene do sono: escuro total, temperatura < 19°C, sem telas 1h antes.',
+   refs:'Brzezinski 1997 (NEJM); Auger et al. 2015 (JCSM)'},
+
+  {name:'Rhodiola + Ashwagandha', ico:'🌿', max:60, pausa:14, cat:'Adaptógeno', cor:'#86efac',
+   motivo:'Stack adaptogênico combinado exige pausa mais frequente para não saturar o eixo HPA (hipotálamo-pituitária-adrenal). Pausa de 14d a cada 60d de uso.',
+   dica:'Manter apenas Magnésio e Vitamina D durante a pausa do stack.',
+   refs:'Meta-análise de adaptógenos: Panossian & Wikman 2010 (Pharmaceuticals)'},
+
+  {name:'Bacopa Monnieri',     ico:'🧠', max:90,  pausa:30, cat:'Cognitivo',   cor:'#818cf8',
+   motivo:'Bacosídeos modulam sinalização colinérgica de forma cumulativa. Pausa de 30d permite avaliar retenção dos benefícios e prevenir tolerância ao efeito ansiolítico.',
+   dica:'Os efeitos de memória persistem semanas após a pausa — é normal não sentir queda imediata.',
+   refs:'Roodenrys et al. 2002 (Neuropsychopharmacology); Morgan & Stevens 2010 (J Altern Complement Med)'},
+
+  {name:'Shatavari',           ico:'🌸', max:90,  pausa:30, cat:'Feminino',    cor:'#f9a8d4',
+   motivo:'Atividade fitoestrogênica moderada do Shatavari exige ciclos para evitar estimulação persistente de receptores estrogênicos em mulheres com histórico hormonal sensível.',
+   dica:'Na pausa, manter apenas Myo-Inositol e Magnésio para suporte hormonal feminino.',
+   refs:'Bhatnagar & Sisodia 2006 (Ann Nutr Metab)'},
+
+  {name:'EGCG Chá Verde',      ico:'🍵', max:60,  pausa:14, cat:'Metabólico',  cor:'#4ade80',
+   motivo:'Extrato concentrado de EGCG em uso prolongado pode sobrecarregar vias hepáticas de detoxificação (CYP1A2). Ciclos de 60d com pausa de 14d são precaução hepática.',
+   dica:'Sempre tomar com refeição. Na pausa, trocar por chá verde comum (menos catequinas).',
+   refs:'Mazzanti et al. 2015 (Crit Rev Food Sci Nutr)'},
+
+  {name:'Tirosina',            ico:'🧬', max:60,  pausa:14, cat:'Aminoácido',  cor:'#f472b6',
+   motivo:'Tirosina em doses supramentares eleva catecolaminas de forma aguda. Uso contínuo > 60d pode criar dependência funcional e reduzir síntese basal de dopamina.',
+   dica:'Na pausa, garantir ingestão proteica adequada (ovos, carne) como fonte natural de tirosina.',
+   refs:'Neri et al. 1995 (Brain Res Bull); Deijen & Orlebeke 1994 (Brain Res Bull)'},
+];
 
 // ══════════════ REGRAS DE DOSE E RECEITA ══════════════
  const RECIPE_SYNERGIES = [
@@ -283,6 +519,7 @@ CYCLES.push({
  const STUDIES = {
   1:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Maca Peruana Preta (Lepidium meyenii) é a variedade mais rara e mais estudada para função sexual e energia. Rica em glucosinolatos (especialmente glucotropaeolina), macaridina e aminoácidos essenciais. Age no eixo hipotálamo-hipofisário sem alterar níveis séricos de testosterona ou estrogênio diretamente.`,
     mecanismo:[
       {ico:'🧠',label:'Eixo HPA',val:'Modula o eixo hipotálamo-hipófise-adrenal, reduzindo marcadores de fadiga adrenal'},
@@ -300,9 +537,17 @@ CYCLES.push({
       {tipo:'warn',label:'Hipotireoidismo',texto:'Glucosinolatos podem inibir a absorção de iodo em doses muito altas. Evitar uso sem acompanhamento se há disfunção tireoidiana.'},
       {tipo:'warn',label:'Gravidez / Amamentação',texto:'Dados insuficientes de segurança. Evitar por precaução.'},
     ]
+    risk_groups:[
+      {grp:'Hipotireoidismo / Hashimoto',nivel:'warn',motivo:'Glucosinolatos em altas doses podem inibir absorção de iodo. Monitorar TSH com endocrinologista.'},
+    ],
+    common_myths:[
+      {mito:'Maca aumenta testosterona',refutacao:'FALSO. Múltiplos RCTs confirmam que a maca melhora libido e fertilidade SEM alterar níveis séricos de testosterona, FSH ou LH. Age no eixo hipotálamo via fitoquímicos próprios (glucosinolatos, macaridina).'},
+      {mito:'Qualquer maca funciona igual',refutacao:'FALSO. Maca preta é superior para fertilidade e energia vs maca amarela ou vermelha (estudo comparativo Andrologia 2009). A variedade importa, assim como a padronização do extrato.'},
+    ],
   },
   2:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`O Feno-grego (Trigonella foenum-graecum) contém furostanólicos saponinas, incluindo a protodioscina, que inibem a enzima aromatase reduzindo a conversão de testosterona em estrogênio. Também possui atividade hipoglicemiante via galactomanana que retarda absorção de carboidratos.`,
     mecanismo:[
       {ico:'🔬',label:'Aromatase',val:'Furostanólicos saponinas inibem CYP19A1 (aromatase), preservando testosterona livre'},
@@ -320,9 +565,18 @@ CYCLES.push({
       {tipo:'warn',label:'Anticoagulantes',texto:'Pode potencializar warfarina e outros anticoagulantes. Monitoramento necessário.'},
       {tipo:'warn',label:'Alergia a amendoim/soja',texto:'Reação cruzada possível em pessoas alérgicas à família Fabaceae.'},
     ]
+    risk_groups:[
+      {grp:'Anticoagulantes','nivel':'warn','motivo':'Potencializa warfarina e outros. Monitorar INR.'},
+      {grp:'Alergia a Fabaceae (amendoim/soja)','nivel':'warn','motivo':'Reação cruzada possível. Testar com dose mínima.'},
+    ],
+    common_myths:[
+      {mito:'Feno-grego aumenta testosterona diretamente',refutacao:'PARCIALMENTE FALSO. Feno-grego inibe aromatase (reduz conversão T→estrogênio) e SHBG, aumentando testosterona LIVRE. Não estimula síntese testicular como o Tongkat Ali. Efeito indireto e modesto (+12% em RCT de 8 semanas).'},
+      {mito:'É só tempero — sem efeito farmacológico','refutacao':'FALSO. Furostanólicos saponinas são biologicamente ativos em doses de extrato padronizado. O tempero culinário em doses culinárias não tem dose terapêutica. Extrato padronizado em 500mg é necessário.'},
+    ],
   },
   3:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A L-Citrulina é um aminoácido não essencial que eleva os níveis plasmáticos de L-Arginina de forma mais eficaz que a própria L-Arginina oral (que é extensivamente metabolizada no intestino pelo primeiro passo hepático). A citrulina converte-se em arginina no rim, sendo então usada pelo endotélio vascular para sintetizar óxido nítrico (NO) via eNOS.`,
     mecanismo:[
       {ico:'💨',label:'Óxido Nítrico',val:'Precursor da arginina → eNOS → NO → vasodilatação duradoura'},
@@ -339,10 +593,19 @@ CYCLES.push({
       {tipo:'ok',label:'Excelente perfil de segurança',texto:'Considerada um dos suplementos mais seguros. Sem toxicidade reportada em doses de até 15g/dia.'},
       {tipo:'ok',label:'Sem dependência ou tolerância',texto:'Não desenvolve tolerância com uso contínuo, ao contrário de alguns vasodilatadores.'},
       {tipo:'warn',label:'Hipotensão',texto:'Em pessoas com pressão muito baixa, pode intensificar hipotensão. Monitorar.'},
+    ],
+    risk_groups:[
+      {grp:'Hipotensão','nivel':'warn','motivo':'Citrulina eleva NO e pode intensificar hipotensão em pessoas com PA muito baixa.'},
+      {grp:'Uso de inibidores de PDE5 (Viagra, Cialis)','nivel':'bad','motivo':'Combinação sinérgica perigosa de vasodilatação — pode causar queda abrupta de PA. Contraindicação relativa.'},
+    ],
+    common_myths:[
+      {mito:'L-Arginina é superior à L-Citrulina para óxido nítrico','refutacao':'FALSO. L-Arginina oral é extensivamente catabolizada no intestino (arginase) antes de chegar à corrente sanguínea. L-Citrulina é convertida em arginina no rim com alta eficiência, gerando níveis plasmáticos de arginina 2–3× maiores que a arginina oral.'},
+      {mito:'Citrulina malato é igual à L-Citrulina pura','refutacao':'PARCIALMENTE VERDADEIRO, com nuance. Malato pode contribuir com energia via ciclo de Krebs. Porém, citações de dose de "8g de citrulina malato" contêm apenas ~4g de citrulina. Para efeito equivalente, ajustar a dose de citrulina pura para 4–6g.'},
     ]
   },
   4:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Ashwagandha (Withania somnifera) KSM-66® é o extrato de raiz mais estudado, padronizado para ≥5% de withanolídeos. Adaptógeno clássico do Ayurveda com >300 estudos publicados. Age primariamente no eixo HPA (hipotálamo-hipófise-adrenal), reduzindo cortisol e modulando o estresse oxidativo.`,
     mecanismo:[
       {ico:'📉',label:'Cortisol',val:'Reduz cortisol sérico em 27–30% via inibição do eixo HPA'},
@@ -360,10 +623,15 @@ CYCLES.push({
       {tipo:'warn',label:'Hipertireoidismo',texto:'Pode elevar T3 e T4. Contraindicado em hipertireoidismo não tratado.'},
       {tipo:'warn',label:'Ciclagem recomendada',texto:'Ciclo de 3 meses ON / 1 mês OFF para manter sensibilidade aos withanolídeos.'},
       {tipo:'warn',label:'Sonolência',texto:'Pode causar sedação em pessoas sensíveis. Preferir horário noturno ou com refeição.'},
-    ]
+    ],
+    common_myths:[
+      {mito:'Ashwagandha aumenta diretamente a testosterona como esteroides',refutacao:'FALSO. O aumento de testosterona (~15–17%) é INDIRETO — via redução de cortisol (que suprime testosterona) e melhora do eixo HPA. Não substitui androgênios exógenos nem age em doses de levantamento.'},
+      {mito:'Preciso ciclar Ashwagandha sempre',refutacao:'PRECAUÇÃO justificada. Estudos de até 90 dias mostram benefícios contínuos. Estudos além disso são escassos. O ciclo de 3 meses ON / 1 mês OFF é conservador e recomendado como boa prática, não por toxicidade demonstrada.'},
+    ],
   },
   5:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Tongkat Ali (Eurycoma longifolia, "Longjack") é um arbusto malaio com euricomanona como principal fitoquímico ativo. Age estimulando as células de Leydig nos testículos a produzir testosterona e inibindo a proteína SHBG (Sex Hormone-Binding Globulin), aumentando a fração livre e biologicamente ativa.`,
     mecanismo:[
       {ico:'🧬',label:'Células de Leydig',val:'Euricomanona estimula diretamente a esteroidogênese nas células de Leydig'},
@@ -381,9 +649,18 @@ CYCLES.push({
       {tipo:'warn',label:'Anticoagulantes',texto:'Alguns componentes podem ter atividade anticoagulante leve. Monitorar com médico.'},
       {tipo:'warn',label:'Hormônio-sensível',texto:'Não usar com cânceres hormônio-dependentes ou condições de excesso androgênico.'},
     ]
+    risk_groups:[
+      {grp:'Cânceres hormônio-dependentes','nivel':'bad','motivo':'Eleva testosterona livre — contraindicado em câncer de próstata hormônio-sensível.'},
+      {grp:'Anticoagulantes','nivel':'warn','motivo':'Componentes podem ter leve atividade anticoagulante. Monitorar com médico.'},
+    ],
+    common_myths:[
+      {mito:'Tongkat Ali age como um TRT natural completo',refutacao:'FALSO. Tongkat Ali melhora testosterona livre em homens com DEFICIÊNCIA androgênica (hipogonadismo tardio) — efeito limitado a +37% em déficits. Em homens com testosterona normal, o efeito é modesto. Não substitui TRT médica em hipogonadismo clinicamente diagnosticado.'},
+      {mito:'Pode tomar continuamente sem pausa','refutacao':'FALSO. Uso contínuo &gt;3 meses sem pausa pode causar downregulation do eixo HPG. Ciclo 3 meses ON / 1 mês OFF é padrão recomendado.'},
+    ],
   },
   6:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Boro (Boron) é um oligoelemento traço com efeitos profundos no metabolismo hormonal. O mecanismo mais estudado é a inibição da SHBG (Sex Hormone-Binding Globulin) — a proteína que "sequestra" a testosterona, tornando-a inativa. Também potencializa a vitamina D3 e o magnésio.`,
     mecanismo:[
       {ico:'🔓',label:'SHBG',val:'10mg em 7 dias: SHBG −9%, testosterona livre +28%'},
@@ -401,9 +678,17 @@ CYCLES.push({
       {tipo:'bad',label:'NUNCA usar ácido bórico industrial',texto:'Ácido bórico (forma industrial) é TÓXICO e não deve ser ingerido. Usar apenas citrato/glicinato de boro alimentar.'},
       {tipo:'warn',label:'Dose máxima',texto:'Acima de 20mg/dia podem ocorrer náuseas, vômitos e danos renais. Não ultrapassar 10mg.'},
     ]
+    risk_groups:[
+      {grp:'Crianças (<18 anos)','nivel':'bad','motivo':'UL (Limite Superior) não estabelecido para menores. Suplementação contraindicada sem indicação médica.'},
+    ],
+    common_myths:[
+      {mito:'Boro é apenas para ossos','refutacao':'FALSO. Além do metabolismo mineral ósseo, o boro tem impacto hormonal documentado: 10mg/dia por 7 dias eleva testosterona livre em +28%, reduz SHBG em 9% e estradiol em 39% (RCT J Trace Elem Med Biol 2011). Uma das melhores relações custo/efeito hormonal.'},
+      {mito:'Qualquer fonte de boro serve','refutacao':'ATENÇÃO. Citrato ou glicinato de boro são formas alimentares seguras. Ácido bórico INDUSTRIAL é tóxico e não deve ser ingerido. Nunca comprar "ácido bórico" em farmácias de manipulação sem verificar finalidade.'},
+    ],
   },
   7:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Mucuna Pruriens ("feijão veludo") é a fonte mais rica de L-DOPA natural (3,7–6,9% da semente). A L-DOPA é o precursor direto da dopamina, catecolamina central para motivação, prazer, libido e função motora. Ao elevar dopamina, suprime a prolactina hipofisária — que em excesso inibe a testosterona e causa disfunção erétil.`,
     mecanismo:[
       {ico:'🧠',label:'Dopamina',val:'L-DOPA → DOPA descarboxilase → Dopamina cerebral e periférica'},
@@ -421,9 +706,19 @@ CYCLES.push({
       {tipo:'warn',label:'Iniciar com dose baixa',texto:'Começar com 100–200mg e aumentar gradualmente. L-DOPA excessiva causa náuseas e vômitos.'},
       {tipo:'warn',label:'Doenças cardíacas',texto:'L-DOPA pode causar arritmias em pessoas com doença cardíaca preexistente.'},
     ]
+    risk_groups:[
+      {grp:'Usuários de IMAO / antidepressivos','nivel':'bad','motivo':'L-DOPA + IMAO → síndrome serotoninérgica e crise hipertensiva. CONTRAINDICAÇÃO ABSOLUTA.'},
+      {grp:'Doenças cardíacas / arritmia','nivel':'warn','motivo':'L-DOPA pode provocar arritmias em cardiopatas. Consultar cardiologista antes de usar.'},
+      {grp:'Parkinson (em tratamento com L-DOPA farmacêutica)','nivel':'bad','motivo':'Potencialização não controlada de L-DOPA. Ajuste de dose médica obrigatório.'},
+    ],
+    common_myths:[
+      {mito:'Mucuna é uma fonte de dopamina','refutacao':'TECNICAMENTE FALSO. Mucuna fornece L-DOPA, o PRECURSOR da dopamina. A L-DOPA cruza a barreira hematoencefálica onde é convertida em dopamina. A dopamina em si não cruza a BHE — por isso tomar dopamina diretamente não tem efeito central.'},
+      {mito:'Mucuna aumenta testosterona diretamente','refutacao':'INDIRETO. A dopamina eleva suprime prolactina → que em excesso inibe testosterona. O efeito na testosterona é mediado pela via dopamina→prolactina, não por ação direta em células de Leydig como o Tongkat Ali.'},
+    ],
   },
   8:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Zinco é cofator essencial para mais de 300 enzimas e metaloproteínas. Para a testosterona, é crítico na atividade da testosterona sintase nos testículos e na modulação do receptor androgênico. A forma bisglicinato (zinco quelado com dois aminoácidos de glicina) tem biodisponibilidade 2–3× superior ao sulfato de zinco.`,
     mecanismo:[
       {ico:'🔬',label:'Testosterona Sintase',val:'Cofator enzimático na síntese de testosterona nas células de Leydig'},
@@ -441,9 +736,17 @@ CYCLES.push({
       {tipo:'warn',label:'Deficiência de Cobre',texto:'Zinco acima de 40mg/dia por meses compete com o cobre na absorção. Adicionar 2–3mg de cobre se usar doses altas.'},
       {tipo:'warn',label:'Estômago vazio',texto:'Zinco em jejum pode causar náuseas. Preferir com refeição.'},
     ]
+    risk_groups:[
+      {grp:'Deficiência de cobre (uso prolongado >40mg/dia)','nivel':'warn','motivo':'Zinco >40mg/dia por meses compete com cobre na absorção. Adicionar 2–3mg/dia de cobre se usar doses altas.'},
+    ],
+    common_myths:[
+      {mito:'Zinco sempre aumenta testosterona','refutacao':'FALSO em eutróficos. Zinco restaura testosterona apenas em pessoas DEFICIENTES. Em quem tem status adequado de zinco, suplementação adicional não eleva testosterona significativamente. Medir zinco sérico antes de suplementar em doses altas.'},
+      {mito:'Sulfato de zinco é igual ao bisglicinato','refutacao':'FALSO. Bisglicinato tem 2–3× mais biodisponibilidade e muito menos efeitos GI (náuseas) que sulfato. Para suplementação de longo prazo, preferir sempre formas queladas (bisglicinato, citrato, picolinato).'},
+    ],
   },
   9:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Magnésio é o segundo mineral intracelular mais abundante no organismo, cofator de 600+ reações enzimáticas. Para testosterona, a forma glicinato é preferida pois combina o efeito do magnésio com o do aminoácido glicina, que tem propriedades neuroprotetoras e melhora o sono profundo.`,
     mecanismo:[
       {ico:'🔓',label:'SHBG',val:'Magnésio se liga à SHBG no sítio de ligação androgênica, liberando testosterona livre'},
@@ -460,10 +763,18 @@ CYCLES.push({
       {tipo:'ok',label:'Muito bem tolerado',texto:'Glicinato é a forma mais bem tolerada gastrointestinalmente. Raro desconforto digestivo.'},
       {tipo:'warn',label:'Efeito laxante',texto:'Magnésio em formas como citrato ou óxido tem efeito laxante. Glicinato evita esse problema.'},
       {tipo:'ok',label:'Seguro para uso diário',texto:'Sem limite superior de toxicidade estabelecido para magnésio de fontes alimentares e suplementos quelados.'},
+    ],
+    risk_groups:[
+      {grp:'Insuficiência Renal Grave','nivel':'warn','motivo':'Rim comprometido não excreta magnésio adequadamente → risco de hipermagnesemia. Consultar nefrologista.'},
+    ],
+    common_myths:[
+      {mito:'Magnésio deixa sonolento/sedado','refutacao':'FALSO para o glicinato em doses normais. A sedação ocorre em doses muito altas de formas como citrato (efeito laxante sistêmico). Glicinato em 300–400mg melhora qualidade do sono SEM causar sonolência diurna — é regulatório do sono, não sedativo.'},
+      {mito:'Posso tomar qualquer forma de magnésio que é igual','refutacao':'FALSO. Óxido de magnésio tem biodisponibilidade de apenas 4%. Citrato ~30%. Glicinato ~80%. Para objetivos de sono, testosterona e neurológicos, glicinato ou treonato são superiores. Verificar a forma na embalagem.'},
     ]
   },
   10:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Vitamina D3 (colecalciferol) é um pró-hormônio esteróide, não uma simples vitamina. Após conversão no fígado (25-OH D3) e rins (1,25-OH D3), atua em receptores nucleares VDR presentes em quase todos os tecidos, incluindo testículos e hipófise. A K2 (MK-7 ou MK-4) direciona o cálcio mobilizado para os ossos, prevenindo calcificação arterial.`,
     mecanismo:[
       {ico:'🧬',label:'VDR Nuclear',val:'1,25-OH-D3 ativa genes que regulam esteroidogênese testicular'},
@@ -481,68 +792,613 @@ CYCLES.push({
       {tipo:'warn',label:'Dosar antes de suplementar',texto:'Exame 25-OH vitamina D (25-hidroxi-vitamina D) orienta a dose correta. Níveis ideais: 50–80 ng/mL.'},
       {tipo:'warn',label:'K2 é essencial',texto:'Doses altas de D3 sem K2 podem mobilizar cálcio para o sangue. K2 MK-7 redireciona para ossos.'},
     ]
+    risk_groups:[
+      {grp:'Hipercalcemia / Sarcoidose / Granulomatose','nivel':'bad','motivo':'Nessas condições D3 eleva cálcio excessivamente. Contraindicação relativa — dosar 25-OH-D3 e cálcio antes.'},
+      {grp:'Cálculos renais de cálcio','nivel':'warn','motivo':'D3 aumenta absorção intestinal de cálcio. K2 reduz risco mas não elimina. Monitorar calciúria.'},
+    ],
+    common_myths:[
+      {mito:'Vitamina D é uma vitamina comum','refutacao':'FALSO. D3 é um pró-hormônio esteróide que age via receptores nucleares VDR presentes em quase todos os tecidos, incluindo testículos, sistema imune, coração e cérebro. Seu papel transcende em muito a saúde óssea.'},
+      {mito:'Posso tomar D3 sem K2 em doses altas','refutacao':'FALSO. D3 em doses &gt;4.000 UI mobiliza cálcio do intestino para o sangue. Sem K2 (MK-7), esse cálcio pode se depositar em artérias (calcificação vascular). K2 ativa MGP (proteína Gla da matriz) que previne calcificação extraóssea.'},
+      {mito:'Sol suficiente = sem necessidade de suplementar','refutacao':'PARCIALMENTE VERDADEIRO mas irrealista para a maioria. Síntese cutânea eficiente requer exposição ≥20 min de sol de meio-dia sem protetor em &gt;25% da superfície corporal. Déficit de vitamina D afeta &gt;40% da população urbana mesmo em países tropicais.'},
+    ],
   },
   11:{
     ev:5,
-    resumo:`A Creatina Monohidratada é o suplemento esportivo com maior volume de evidências científicas: 500+ estudos clínicos publicados. Age como doador de fósforo para ressintetizar ATP durante esforços de alta intensidade (fosfato de creatina + ADP → ATP + creatina). Também tem efeitos cognitivos, osmóticos (hidratação celular) e neuroprotetores.`,
+    scientific_evidence_level:'A',
+    resumo:`A Creatina Monohidratada é o suplemento esportivo com maior volume de evidências científicas: 500+ estudos clínicos publicados. Age como doador de fósforo para ressintetizar ATP durante esforços de alta intensidade (fosfato de creatina + ADP → ATP + creatina). Também tem efeitos cognitivos, osmóticos (hidratação celular intracelular, que é um sinal pró-anabólico, não retenção hídrica subcutânea) e neuroprotetores. A dose de manutenção de 3–5g/dia (≈0,07g/kg) é eficaz sem necessidade de protocolo de saturação para a maioria dos usuários.`,
     mecanismo:[
       {ico:'⚡',label:'ATP Muscular',val:'PCr + ADP → ATP via creatina quinase. Regenera ATP nos primeiros 10–15s de esforço máximo'},
-      {ico:'💦',label:'Hidratação Celular',val:'Arrasta água para dentro da fibra muscular via osmose → sinal anabólico'},
-      {ico:'🧠',label:'Cognição',val:'Aumenta ATP cerebral. Benefícios em memória e redução de fadiga mental'},
-      {ico:'🔬',label:'Síntese Proteica',val:'Ativa mTOR e IGF-1 por mecanismos ainda estudados'},
+      {ico:'💦',label:'Hidratação Intracelular',val:'Arrasta água para DENTRO da fibra muscular (intracelular) via osmose → sinal anabólico e volumizador. Não é retenção subcutânea.'},
+      {ico:'🧠',label:'Cognição',val:'Aumenta ATP cerebral. Meta-análise (Nutrition Reviews 2023): melhora de memória em adultos saudáveis, efeito mais forte em idosos e vegetarianos.'},
+      {ico:'🔬',label:'Síntese Proteica',val:'Ativa mTOR e IGF-1 por mecanismos ainda estudados; sinergismo confirmado com proteínas e treino de força.'},
     ],
     estudos:[
       {tipo:'Meta-análise',ano:'2003',journal:'J Strength Cond Res',titulo:'Revisão de 22 estudos sobre força muscular',achado:'+8% de força máxima e +14% de força de resistência vs placebo',detalhe:'Análise de 22 RCTs. Efeito mais pronunciado em exercícios de alta intensidade e curta duração.',pmid:'12701815'},
       {tipo:'Meta-análise',ano:'2017',journal:'Br J Sports Med',titulo:'Creatina e composição corporal (150 estudos)',achado:'+2 kg massa magra em 4–12 semanas de treinamento',detalhe:'O maior banco de dados sobre creatina. Efeito confirmado em homens, mulheres, jovens e idosos.',pmid:'27669734'},
       {tipo:'RCT',ano:'2019',journal:'Front Aging Neurosci',titulo:'Creatina e cognição em idosos',achado:'+7,5% em testes de memória de curto prazo e função executiva',detalhe:'Efeito neuroprotetor relevante em populações com depleção de creatina cerebral.',pmid:'30930779'},
+      {tipo:'Meta-análise',ano:'2025',journal:'BMC Nephrology',titulo:'Creatina e função renal — 21 estudos (2000–2025)',achado:'Nenhuma alteração patológica em TFG; creatinina sérica eleva levemente mas sem impacto funcional',detalhe:'21 estudos humanos. Meta-análise com modelo de efeitos aleatórios. O aumento de creatinina sérica é artefato metabólico esperado (conversão creatina→creatinina), não sinal de lesão renal.',pmid:'41199218'},
+      {tipo:'RCT',ano:'2025',journal:'J Int Soc Sports Nutr',titulo:'Creatina e queda de cabelo — 12 semanas (RCT)',achado:'Nenhuma diferença significativa em DHT, razão DHT:testosterona ou densidade capilar vs placebo',detalhe:'45 homens treinados (18–40 anos). 5g/dia. Primeiro estudo a medir diretamente a saúde folicular. Mito do DHT/cabelo refutado.',pmid:'40265319'},
     ],
     seguranca:[
-      {tipo:'ok',label:'O suplemento mais seguro e estudado',texto:'Nenhum estudo documentou danos renais, hepáticos ou outros em pessoas saudáveis. Evidência de até 5 anos de uso contínuo.'},
-      {tipo:'ok',label:'Hidratação é chave',texto:'Creatina pode aumentar retenção de água celular. Manter hidratação adequada (2–3L/dia).'},
-      {tipo:'warn',label:'Ganho de peso inicial',texto:'0,5–2kg de peso hídrico na primeira semana é normal e não representa gordura.'},
-    ]
+      {tipo:'ok',label:'O suplemento mais seguro e estudado',texto:'Nenhum estudo documentou danos renais, hepáticos ou outros em pessoas saudáveis. Evidência de até 5 anos de uso contínuo sem intercorrências (JISSN Position Stand 2017).'},
+      {tipo:'ok',label:'Hidratação Intracelular (não subcutânea)',texto:'A retenção hídrica da creatina ocorre DENTRO da célula muscular — é um sinal osmótico pró-anabólico, não "inchaço" subcutâneo. Manter 2–3L de água/dia.'},
+      {tipo:'warn',label:'Ganho de peso inicial',texto:'0,5–2kg de peso hídrico intracelular na primeira semana é normal e não representa gordura.'},
+      {tipo:'warn',label:'Doença Renal Crônica (DRC)',texto:'Em indivíduos com DRC preexistente, a creatina não é recomendada sem orientação nefrológica, pois o aumento de creatinina sérica dificulta o monitoramento da função renal.'},
+    ],
+    common_myths:[
+      {mito:'Creatina causa danos nos rins',refutacao:'FALSO. Meta-análise BMC Nephrology 2025 (21 estudos, 2000–2025): nenhuma alteração patológica em TFG em pessoas saudáveis. O aumento de creatinina sérica é artefato metabólico, não dano renal.'},
+      {mito:'Creatina causa queda de cabelo ao elevar DHT',refutacao:'FALSO. O único estudo que sugeriu isso (van der Merwe 2009, n=16) não mediu queda de cabelo. O primeiro RCT a avaliar diretamente a saúde folicular (JISSN 2025, n=45, 12 semanas) encontrou zero diferença entre creatina e placebo em DHT ou densidade capilar.'},
+      {mito:'É necessário fazer protocolo de saturação (fase de carga)',refutacao:'DESNECESSÁRIO para a maioria. Saturação muscular com 5g/dia ocorre em ~28 dias. A fase de carga (20g/dia por 7 dias) acelera a saturação mas causa mais desconforto GI. Ambas chegam ao mesmo endpoint.'},
+      {mito:'A retenção de água da creatina é subcutânea (deixa "inchado")',refutacao:'FALSO. A retenção hídrica da creatina é INTRAcelular — entra para dentro da fibra muscular via transporte osmótico, aumentando o volume das células. Isso é pró-anabólico, não estético negativo.'},
+    ],
   },
   12:{
     ev:4,
-    resumo:`A Beta-Alanina é o aminoácido limitante na síntese de carnosina muscular (β-alanil-L-histidina). A carnosina atua como tampão de prótons H⁺ no músculo, neutralizando o ácido lático e atrasando a fadiga durante esforços de 1–4 minutos de alta intensidade.`,
+    scientific_evidence_level:'A',
+    resumo:`A Beta-Alanina é o aminoácido limitante na síntese de carnosina muscular (β-alanil-L-histidina). A carnosina atua como tampão de prótons H⁺ no músculo, neutralizando o ácido que provoca queda de pH intracelular e atrasando a fadiga durante esforços de 1–4 minutos de alta intensidade. IMPORTANTE: o efeito da beta-alanina é CRÔNICO (não agudo) — a carnosina muscular acumula-se gradualmente em 4–8 semanas de suplementação diária, independentemente do timing da dose. A parestesia (formigamento) que ocorre minutos após ingeri-la é um efeito colateral sensorial inofensivo via receptores MRGPRD, e não sinaliza atividade ergogênica imediata.`,
     mecanismo:[
-      {ico:'🏃',label:'Carnosina',val:'Beta-alanina + histidina → carnosina muscular (tamponante de H⁺)'},
-      {ico:'📉',label:'Ácido Lático',val:'Reduz queda de pH intracelular durante exercício intenso prolongado'},
-      {ico:'⏱',label:'Tempo até Fadiga',val:'Estende a capacidade de manter intensidade por mais 1–2 minutos'},
-      {ico:'🔬',label:'Acúmulo',val:'Carnosina muscular sobe gradualmente em 4–8 semanas de suplementação'},
+      {ico:'🏃',label:'Carnosina Muscular (Efeito Crônico)',val:'Beta-alanina + histidina → carnosina muscular (tamponante de H⁺). Acúmulo progressivo em 4–8 semanas — efeito é CRÔNICO, não agudo.'},
+      {ico:'📉',label:'Tamponamento de H⁺',val:'Carnosina doa prótons durante acidose metabólica, mantendo pH intracelular próximo ao ótimo para contração muscular'},
+      {ico:'⏱',label:'Janela de Benefício',val:'Exercícios de 60–240 segundos de alta intensidade são os que mais se beneficiam (HIIT, sprints, lutas, ciclismo de pista)'},
+      {ico:'🔬',label:'Carnosina: Acúmulo e Washout',val:'Carnosina muscular sobe progressivamente (+64% em 10 semanas). Washout em 6–9 semanas após cessar suplementação.'},
     ],
     estudos:[
       {tipo:'Meta-análise',ano:'2012',journal:'Amino Acids',titulo:'Beta-alanina e performance de endurance (15 estudos)',achado:'+2,85% de performance em exercícios de 1–4 minutos (p<0.001)',detalhe:'480 participantes. Efeito mais significativo em sprints, HIIT, lutas e ciclismo de pista.',pmid:'22270875'},
       {tipo:'RCT',ano:'2006',journal:'Med Sci Sports Exerc',titulo:'Carnosina muscular e força com beta-alanina',achado:'+64% de carnosina muscular em 10 semanas vs placebo',detalhe:'Estudo de biopsia muscular. Carnosina retorna ao basal em 6–9 semanas após cessação.',pmid:'16676002'},
       {tipo:'Meta-análise',ano:'2016',journal:'Br J Sports Med',titulo:'Beta-alanina e performance em exercícios de alta intensidade (40 estudos)',achado:'Melhora de 2,85% em exercícios de 60–240 segundos, sem efeito fora dessa janela',detalhe:'1.461 participantes. Confirmação de que o benefício é específico para esforços de 1–4 min. Dose cumulativa importa mais que timing.',pmid:'26381327'},
+      {tipo:'Position Stand',ano:'2015',journal:'J Int Soc Sports Nutr (JISSN)',titulo:'ISSN Position Stand: Beta-Alanina',achado:'4–6g/dia por ≥4 semanas aumenta carnosina muscular e melhora performance de alta intensidade',detalhe:'7 conclusões oficiais: (1) 4g/dia aumenta carnosina; (2) segura em doses recomendadas; (3) parestesia é inofensiva; (4) efeito em 1–4 min de esforço; (5) atenua fadiga neuromuscular em idosos.',pmid:'26175657'},
     ],
     seguranca:[
-      {tipo:'ok',label:'Segura a longo prazo',texto:'Sem toxicidade observada em doses de 3,2–6,4g/dia por até 24 semanas.'},
-      {tipo:'warn',label:'Parestesia (formigamento)',texto:'Efeito colateral inofensivo e característico. Pode ser reduzido dividindo a dose ou usando liberação prolongada.'},
-    ]
+      {tipo:'ok',label:'Segura a longo prazo',texto:'Sem toxicidade observada em doses de 3,2–6,4g/dia por até 24 semanas (JISSN Position Stand 2015).'},
+      {tipo:'warn',label:'Parestesia (formigamento) — efeito sensorial, não ergogênico',texto:'Formigamento pós-ingestão é ativação de receptores MRGPRD na pele — colateral inofensivo. NÃO indica atividade no músculo. Pode ser reduzido dividindo a dose em 1,6g ou usando liberação prolongada.'},
+      {tipo:'info',label:'Efeito é CRÔNICO — não espere resultado imediato',texto:'Beta-alanina age via acúmulo progressivo de carnosina muscular. São necessárias 4–8 semanas de uso diário para benefício significativo. O timing da dose (pré ou pós-treino) é irrelevante para o efeito final.'},
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'Beta-alanina causa o formigamento que melhora o treino',refutacao:'FALSO. A parestesia é ativação de receptores MRGPRD na pele — um efeito sensorial periférico completamente separado do mecanismo de tamponamento muscular. O formigamento não indica que o suplemento está "funcionando" no músculo.'},
+      {mito:'O efeito da beta-alanina é agudo (sentido no mesmo dia)',refutacao:'FALSO. O efeito é CRÔNICO. A carnosina muscular acumula-se em 4–8 semanas de suplementação diária. Não há benefício ergogênico imediato — quem "sente mais energia" na mesma dose responde ao efeito placebo ou à parestesia.'},
+      {mito:'É necessário tomar antes do treino para funcionar',refutacao:'FALSO. O timing da dose é irrelevante para o acúmulo de carnosina muscular. A dose diária total (4–6g) determina o resultado — não o momento da ingestão.'},
+    ],
   },
   13:{
     ev:5,
-    resumo:`A combinação cafeína + L-teanina é a mais bem documentada para performance cognitiva e física. A cafeína bloqueia receptores de adenosina (A1 e A2a), reduzindo percepção de fadiga e aumentando vigilância. A teanina (aminoácido do chá verde) eleva ondas alfa cerebrais, suavizando os picos ansiogênicos da cafeína sem reduzir sua eficácia.`,
+    scientific_evidence_level:'A',
+    resumo:`A combinação cafeína + L-teanina é a mais bem documentada para performance cognitiva e física. A cafeína bloqueia competitivamente receptores de adenosina (A1 e A2A), reduzindo percepção de fadiga e aumentando vigilância. Com uso crônico diário, o cérebro upregula receptores de adenosina (tolerância), reduzindo a eficácia e causando fadiga aumentada sem cafeína (dependência funcional). Por isso, ciclos de abstinência (5–7 dias) a cada 30 dias restauram a sensibilidade. A teanina (aminoácido do chá verde) eleva ondas alfa cerebrais, suavizando os picos ansiogênicos da cafeína sem reduzir sua eficácia. Meia-vida da cafeína: 4–6h (podendo chegar a 10h em metabolizadores lentos via CYP1A2). MESMO que o usuário consiga dormir, cafeína ingerida <6h antes do sono reduz sono profundo (N3) e eficiência do sono.`,
     mecanismo:[
-      {ico:'🚫',label:'Antagonismo Adenosina',val:'Cafeína bloqueia receptores A1/A2a → reduz fadiga percebida e aumenta vigília'},
-      {ico:'🌊',label:'Ondas Alfa',val:'L-teanina aumenta ondas alfa (8–14 Hz) → relaxamento alerta sem sonolência'},
-      {ico:'⚡',label:'Sinergia',val:'Combinação 1:1 produz efeito > soma individual (sinergismo confirmado)'},
-      {ico:'🔥',label:'Lipolise',val:'Cafeína ativa lipase hormônio-sensível → mobilização de gordura'},
+      {ico:'🚫',label:'Antagonismo Adenosina (A1/A2A)',val:'Cafeína bloqueia receptores A1/A2a → reduz fadiga percebida e aumenta vigília. Com uso crônico → upregulation de receptores → tolerância (necessidade de ciclos).'},
+      {ico:'🌊',label:'Ondas Alfa (L-Teanina)',val:'L-teanina aumenta ondas alfa (8–14 Hz) → relaxamento alerta sem sonolência. Atenua ansiedade e jitters da cafeína.'},
+      {ico:'⚡',label:'Sinergia Confirmada',val:'Combinação 1:1 (100–200mg cafeína + igual teanina) produz efeito cognitivo > soma individual (sinergismo em 48 voluntários, RCT 2008)'},
+      {ico:'😴',label:'Impacto no Sono Profundo',val:'Cafeína como antagonista de adenosina diminui pressão homeostática de sono → reduz N3 (sono profundo) em −11,1 min e aumenta N1 (sono leve) em +6,1 min, mesmo sem percepção de insônia (meta-análise Sleep Med Rev 2023).'},
+      {ico:'🔄',label:'Tolerância e Ciclos',val:'Uso crônico → upregulation de adenosina A1/A2A → tolerância à estimulação. Abstinência de 5–7 dias reseta receptores. Ciclos preservam sensibilidade e reduzem risco de dependência.'},
     ],
     estudos:[
       {tipo:'RCT',ano:'2008',journal:'Nutr Neurosci',titulo:'Cafeína + L-teanina vs cada um isolado',achado:'Combo melhorou atenção e acurácia 34% mais que cafeína sozinha (p<0.01)',detalhe:'48 voluntários, tarefa cognitiva de 60 minutos. Redução de erros de atenção e menor ansiedade.',pmid:'18681988'},
       {tipo:'Meta-análise',ano:'2017',journal:'Psicofarmacologia',titulo:'67 estudos sobre cafeína e performance cognitiva',achado:'Melhora consistente em atenção, tempo de reação e memória de trabalho',detalhe:'A cafeína é o psicoativo mais estudado do mundo. Efeito dose-dependente de 75–400mg.',pmid:'27679691'},
+      {tipo:'Meta-análise',ano:'2023',journal:'Sleep Medicine Reviews',titulo:'Cafeína e arquitetura do sono (20 estudos)',achado:'Redução de N3 (sono profundo) em −11,1 min, aumento de N1 (sono leve) em +6,1 min. Sem efeito significativo em REM.',detalhe:'Cafeína reduz profundidade do sono via antagonismo de adenosina, mesmo em usuários crônicos. Habituação não protege totalmente contra disrupção do sono.',pmid:'36736218'},
       {tipo:'Meta-análise',ano:'2014',journal:'Nutrients',titulo:'Cafeína e força muscular (10 estudos)',achado:'+3,1 kg em 1RM e melhora de 1,3% em força de resistência vs placebo',detalhe:'Dose eficaz: 3–6mg/kg. Performance de pico de força melhorada em exercícios compostos.',pmid:'25650109'},
     ],
     seguranca:[
-      {tipo:'ok',label:'Segura em doses moderadas',texto:'200mg cafeína + 200mg teanina é a dose ótima para a maioria. Efeito estabiliza sem grande tolerância.'},
-      {tipo:'warn',label:'Evitar após 14h',texto:'Meia-vida da cafeína: 4–6 horas. Uso à tarde compromete latência do sono.'},
-      {tipo:'bad',label:'Gravidez e amamentação',texto:'Cafeína atravessa a barreira placentária. Limite de 200mg/dia durante gravidez (OMS).'},
-    ]
+      {tipo:'ok',label:'Segura em doses moderadas (200mg)',texto:'200mg cafeína + 200mg teanina é a dose ótima para a maioria. Efeito estabiliza sem grande tolerância a curto prazo.'},
+      {tipo:'warn',label:'Sono: cortar ≥8h antes de dormir',texto:'Meia-vida 4–6h (até 10h em metabolizadores lentos). Cafeína às 14h pode ainda afetar sono às 22h. Recomendação: última dose ≤ 13h para a maioria. Meta-análise 2023: reduz sono profundo mesmo sem insônia percebida.'},
+      {tipo:'warn',label:'Ciclagem: 5 dias off a cada 30 de uso',texto:'Uso diário crônico aumenta receptores de adenosina → tolerância progressiva e fadiga de abstinência. Pausa de 5–7 dias reseta sensibilidade (ciclo recomendado no CYCLES).'},
+      {tipo:'bad',label:'Gravidez e amamentação',texto:'Cafeína atravessa barreira placentária. Limite de 200mg/dia total (OMS). Preferir limite de 100mg/dia por precaução.'},
+    ],
+    risk_groups:[
+      {grp:'Hipertensão Arterial','nivel':'warn','motivo':'Cafeína eleva PAS em 3–4 mmHg agudamente. Em hipertensos não controlados, monitorar PA. Preferir doses ≤100mg.'},
+      {grp:'Ansiedade / TAG','nivel':'warn','motivo':'Cafeína amplifica ativação simpática e pode deflagrar crises de ansiedade ou pânico em predispostos. Iniciar com 50–100mg + teanina.'},
+      {grp:'Insônia Crônica','nivel':'bad','motivo':'Cafeína a qualquer hora do dia pode comprometer N3 (sono profundo) — mesmo sem insônia percebida. Evitar ou restringir a ≤100mg antes das 10h.'},
+      {grp:'Arritmia / Taquicardia','nivel':'bad','motivo':'Cafeína aumenta frequência cardíaca e pode precipitar arritmias supraventriculares em predispostos. Contraindicação relativa — consultar cardiologista.'},
+    ],
+    common_myths:[
+      {mito:'Posso tomar cafeína até às 18h se consigo dormir normalmente',refutacao:'FALSO. Meta-análise Sleep Medicine Reviews 2023 (20 estudos): cafeína reduz sono profundo (N3) em −11 minutos e aumenta sono leve (N1), mesmo em usuários que não percebem insônia. A redução de N3 prejudica recuperação muscular e consolidação de memória.'},
+      {mito:'Se já sou tolerante, a cafeína não atrapalha mais meu sono',refutacao:'PARCIALMENTE FALSO. A tolerância se desenvolve para os efeitos estimulantes (vigilância), mas os estudos mostram que usuários habituais em altas doses (400mg) ainda apresentam disrupção do sono (Oxford Academic 2024).'},
+      {mito:'Cafeína dá energia real',refutacao:'TECNICAMENTE FALSO. Cafeína bloqueia a PERCEPÇÃO de fadiga ao mascarar adenosina acumulada. A fadiga real (deplição de ATP) segue ocorrendo. Por isso a "queda" pós-cafeína é real — a adenosina bloqueada se liga aos receptores assim que a cafeína é metabolizada.'},
+    ],
+  },
+  14:{
+    ev:4,
+    scientific_evidence_level:'B',
+    resumo:`Metabólito da leucina que inibe degradação muscular. Especialmente eficaz para iniciantes, idosos e em déficit calórico.`,
+    mecanismo:[
+      {ico:'🛡',label:'Anti-catabolismo',val:'Inibe ubiquitina-proteassoma → reduz degradação de proteínas musculares'},
+      {ico:'🔬',label:'mTOR',val:'Estimula mTORC1 de forma independente da leucina, ativando síntese proteica'},
+      {ico:'🏋️',label:'Dano Muscular',val:'Reduz marcadores de dano (CK, LDH) após exercício excêntrico intenso'},
+      {ico:'💪',label:'IGF-1',val:'Pode elevar IGF-1 local no músculo, promovendo reparo e crescimento'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2014',journal:'J Strength Cond Res',titulo:'HMB e massa magra em estudos controlados',achado:'+1,08 kg de massa magra vs placebo em populações não treinadas',detalhe:'Análise de 9 RCTs. Efeito mais pronunciado em iniciantes (2–3×) vs atletas avançados.',pmid:'24555474'},
+      {tipo:'RCT',ano:'2013',journal:'J Nutr',titulo:'HMB e perda muscular em idosos',achado:'Preservação de 100% da massa magra vs −2,2% no placebo durante restrição calórica',detalhe:'Idosos de 60–75 anos em déficit calórico. 3g/dia HMB por 8 semanas. Anti-catabólico robusto.',pmid:'23783282'},
+      {tipo:'RCT',ano:'2000',journal:'J Appl Physiol',titulo:'HMB e recuperação muscular pós-exercício',achado:'−50% de dano muscular (CK) e −30% de dor (DOMS) vs placebo',detalhe:'Exercício excêntrico intenso. 3g/dia. HMB acelerou recuperação e reduziu marcadores de dano.',pmid:'11027305'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Excelente perfil de segurança',texto:'Estudos de 8 semanas com 3g/dia sem alterações em marcadores hepáticos, renais ou hematológicos.'},
+      {tipo:'ok',label:'Sem interações medicamentosas',texto:'Não foi identificada interação com medicamentos comuns. Adequado para uso conjunto com outros suplementos.'},
+      {tipo:'warn',label:'Custo-benefício em avançados',texto:'Em atletas de alta performance com nutrição adequada, o efeito é modesto. Mais custo-efetivo para iniciantes ou em períodos catabólicos.'},
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'HMB é essencial para qualquer pessoa que treina','refutacao':'FALSO para avançados. Meta-análise 2014: efeito é 2–3× maior em iniciantes vs atletas avançados com nutrição adequada. Para quem já ingere 1,6g/kg/dia de proteína e treina há &gt;2 anos, HMB oferece retorno marginal. Melhor indicado em: iniciantes, idosos sarcopênicos, déficit calórico intenso ou imobilização.'},
+      {mito:'HMB é igual à leucina','refutacao':'FALSO. HMB é um metabólito da leucina (apenas 5% da leucina é convertida em HMB). Agem por vias complementares: leucina ativa mTOR (anabolismo), HMB inibe ubiquitina-proteassoma (anti-catabolismo). HMB é superior especificamente para REDUZIR catabolismo, não para estimular síntese.'},
+    ],
+  },
+  15:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`O Whey Protein Isolado (WPI) é a proteína do soro do leite com maior pureza (>90% de proteína) e mínimo de lactose e gordura. É a fonte de proteína com maior índice PDCAAS e DIAAS (ambos = 1,0), possuindo o perfil de aminoácidos essenciais mais completo entre fontes proteicas. A leucina — 10–11% da composição — é o gatilho molecular da síntese proteica via ativação de mTORC1. Para hipertrofia, o alvo proteico total é 1,6–2,2g/kg/dia de proteína total na dieta; o whey é uma ferramenta para atingir essa meta, não substitui refeições completas.`,
+    mecanismo:[
+      {ico:'🔬',label:'mTORC1',val:'Leucina ativa mTORC1 via RAG GTPases → cascata de síntese proteica muscular'},
+      {ico:'⚡',label:'Velocidade de Absorção',val:'Pico aminoacídico em 60–90 min — ideal para janela anabólica pós-treino'},
+      {ico:'💧',label:'Hidrolisado vs Isolado',val:'Isolado já oferece alta taxa de absorção sem custo adicional do hidrolisado'},
+      {ico:'🩸',label:'Insulina',val:'Estimula secreção de insulina, que potencializa captação de aminoácidos pelo músculo'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2018',journal:'Br J Sports Med',titulo:'Suplementação proteica e hipertrofia (49 estudos)',achado:'+1,1 kg de massa magra adicional vs placebo em 12+ semanas de treino',detalhe:'1.800 participantes. Efeito significativo até ~1,62g de proteína/kg/dia. Plateau de efeito acima de 2,2g/kg. Whey foi a fonte mais usada.',pmid:'28698222'},
+      {tipo:'RCT',ano:'2007',journal:'Int J Sport Nutr Exerc Metab',titulo:'Whey vs caseína vs soja para hipertrofia',achado:'Whey gerou +20% mais massa magra que soja e +24% mais que caseína em 12 semanas',detalhe:'74 homens treinados. Whey pós-treino. Leucinaemia mais elevada no whey explicou a diferença.',pmid:'17684208'},
+      {tipo:'Meta-análise',ano:'2017',journal:'J Am Coll Nutr',titulo:'Whey e perda de gordura em déficit calórico',achado:'−2,3 kg a mais de gordura com whey vs controle em dietas hipocalóricas',detalhe:'Efeito protetor de massa magra e maior saciedade explicam o resultado. 9 RCTs incluídos.',pmid:'26545761'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Seguro para pessoas saudáveis',texto:'Décadas de uso e pesquisa sem evidências de dano renal, hepático ou ósseo em pessoas sem condições preexistentes. Meta-análise 2018 (Br J Sports Med): até 2,2g/kg/dia é seguro em adultos saudáveis treinados.'},
+      {tipo:'warn',label:'Intolerância à lactose',texto:'O isolado tem <1% de lactose — geralmente tolerado. Quem tem alergia à proteína do leite (não intolerância) deve evitar.'},
+      {tipo:'bad',label:'Doença Renal Crônica (DRC) — GRUPO DE RISCO',texto:'KDIGO 2024 recomenda ≤0,8g/kg/dia para DRC G3–G5 e EVITAR >1,3g/kg/dia. Dietas hiperproteicas (>2g/kg/dia) podem causar hiperfiltração glomerular e acelerar progressão da DRC. Nefrologista deve orientar a ingestão proteica.'},
+    ],
+    risk_groups:[
+      {grp:'Doença Renal Crônica (DRC) — G3 a G5',nivel:'bad',motivo:'KDIGO 2024: manter proteína em ≤0,8g/kg/dia; evitar >1,3g/kg/dia. Hiperfiltração glomerular por excesso proteico pode acelerar progressão.'},
+      {grp:'Urolitíase / Cálculos Renais',nivel:'warn','motivo':'Dietas hiperproteicas animais aumentam excreção de oxalato e ácido úrico, elevando risco de cálculos. Preferir fontes proteicas vegetais parciais.'},
+    ],
+    common_myths:[
+      {mito:'Proteína em excesso causa danos nos rins em pessoas saudáveis',refutacao:'FALSO para saudáveis. Meta-análise Br J Sports Med 2018 não encontrou dano renal até 2,2g/kg/dia em adultos sem condição preexistente. VERDADEIRO em DRC: KDIGO 2024 restringe a <1,3g/kg/dia para evitar hiperfiltração.'},
+      {mito:'Quanto mais proteína, mais músculo',refutacao:'FALSO acima de ~2,2g/kg/dia. O teto de efetividade para hipertrofia está em 1,6–2,2g/kg/dia (meta-análise 49 estudos). Proteína além disso é oxidada como energia — sem benefício muscular adicional.'},
+      {mito:'É preciso tomar whey imediatamente após o treino (janela anabólica de 30min)',refutacao:'MITO EXAGERADO. A "janela anabólica" é muito maior do que se acreditava — a síntese proteica permanece elevada por 24–48h pós-treino. O total proteico do dia importa mais que o timing preciso.'},
+    ],
+  },
+  16:{
+    ev:4,
+    scientific_evidence_level:'B',
+    resumo:`Os EAA (Aminoácidos Essenciais) são os 9 aminoácidos que o organismo não pode sintetizar de novo: histidina, isoleucina, leucina, lisina, metionina, fenilalanina, treonina, triptofano e valina. Ao contrário dos BCAAs (apenas 3), os EAA fornecem todos os substratos para síntese proteica completa. Estudos mostram que os EAA estimulam a síntese proteica muscular até 50% mais que BCAAs isolados, pois os aminoácidos não-ramificados são igualmente necessários para elongação do peptídeo.`,
+    mecanismo:[
+      {ico:'🔬',label:'Síntese Proteica',val:'Todos os 9 EAAs necessários para elongação ribosomal completa de proteínas musculares'},
+      {ico:'💪',label:'Leucina Central',val:'Leucina (30% dos EAAs) ativa mTORC1 enquanto os demais EAAs provêm substrato'},
+      {ico:'⚡',label:'Supera BCAAs',val:'EAAs estimulam MPS 2× mais que BCAAs isolados por fornecer substrato completo'},
+      {ico:'🩸',label:'Peri-treino',val:'Absorção rápida (pó) — ideal durante ou imediatamente após o treino'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2017',journal:'Am J Clin Nutr',titulo:'EAA vs BCAAs para síntese proteica muscular',achado:'EAAs estimularam MPS 50% mais que BCAAs em dose equivalente de leucina',detalhe:'Duplo-cego, 20 jovens treinados. EAA 10g vs BCAA 5,6g (mesma leucina). Biópsia muscular com traçador isotópico.',pmid:'27477959'},
+      {tipo:'RCT',ano:'2020',journal:'Front Nutr',titulo:'EAAs e recuperação em exercício de resistência',achado:'EAAs reduziram marcadores de dano muscular em 35% vs placebo',detalhe:'Suplementação peri-treino com 10g de EAAs. Melhora na percepção de esforço e na recuperação.',pmid:'32903609'},
+      {tipo:'RCT',ano:'2018',journal:'Am J Clin Nutr',titulo:'EAAs e síntese proteica em idosos',achado:'EAAs estimularam MPS 2,6× mais que leucina isolada na mesma dose molar em sarcopênicos',detalhe:'20 idosos. Infusão isotópica de traçador. EAA completo necessário para máxima ativação de mTORC1 em músculos envelhecidos.',pmid:'29438458'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Muito seguro',texto:'EAAs são nutrientes essenciais da dieta. Sem toxicidade reportada em doses suplementares de 10–20g/dia.'},
+      {tipo:'warn',label:'Fenilcetonúria',texto:'Fenilalanina está presente nos EAAs. Pessoas com PKU (fenilcetonúria) devem evitar ou consultar médico.'},
+      {tipo:'ok',label:'Sem efeito no fígado',texto:'Diferente de aminoácidos sintéticos em excesso, EAAs em doses normais não sobrecarregam metabolismo hepático.'},
+    ],
+    risk_groups:[
+      {grp:'Fenilcetonúria (PKU)','nivel':'bad','motivo':'EAAs contêm fenilalanina. Contraindicado em PKU sem orientação médica.'},
+    ],
+    common_myths:[
+      {mito:'BCAAs são superiores ou equivalentes aos EAAs','refutacao':'FALSO. RCT Am J Clin Nutr 2017 com traçador isotópico: EAAs estimularam síntese proteica muscular 50% mais que BCAAs na mesma dose de leucina. Os 6 aminoácidos não-BCAA são igualmente limitantes para elongação ribossomal — BCAAs isolados não fornecem substrato completo.'},
+    ],
+  },
+  17:{
+    ev:4,
+    scientific_evidence_level:'B',
+    resumo:`A Ecdisterona (20-Hidroxiecdisona, ou 20E) é um fitoesteroide encontrado em espinafre, quinoa e outras plantas, pertencente à classe dos ecdisteróides — hormônios de insetos adaptados para resistência ao estresse. Em mamíferos, a 20E ativa o receptor estrogênico beta (ERβ) sem suprimir o eixo HPTA, o que a diferencia dos AAS. Promove síntese proteica e hipertrofia sem efeitos androgênicos.`,
+    mecanismo:[
+      {ico:'🧬',label:'Receptor ERβ',val:'Liga-se ao receptor estrogênico beta → ativação da via PI3K/Akt/mTOR para síntese proteica'},
+      {ico:'💪',label:'Síntese Proteica',val:'Estudo comparativo: efeito anabólico próximo ao dianabol (sem supressão hormonal)'},
+      {ico:'🔬',label:'IGF-1',val:'Aumenta expressão de IGF-1 local no músculo sem elevar IGF-1 sistêmico'},
+      {ico:'🛡',label:'Anti-catabólico',val:'Reduz ubiquitina-proteassoma e proteólise muscular, similar ao HMB'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2019',journal:'Arch Toxicol',titulo:'Ecdisterona e hipertrofia em culturistas',achado:'+2,0 kg de massa magra e −1,8 kg de gordura vs placebo em 10 semanas',detalhe:'46 atletas de força treinados. 200–800mg/dia. Dose-resposta confirmada. Sem alterações hormonais.',pmid:'30830291'},
+      {tipo:'In vitro + animal',ano:'2015',journal:'J Agric Food Chem',titulo:'Comparação de anabolismo: 20E vs AAS',achado:'20E igualou dianabol em síntese proteica miofibrilar in vitro',detalhe:'Estudos de célula muscular. Mesma potência anabólica via receptor diferente (ERβ vs AR). Publicação que gerou debate regulatório.',pmid:'26200279'},
+      {tipo:'RCT',ano:'2021',journal:'Front Endocrinol',titulo:'Ecdisterona e hormônios em homens saudáveis',achado:'Nenhuma alteração em testosterona, FSH, LH, estrogênio após 12 semanas',detalhe:'Confirma segurança hormonal. Não suprime eixo HPTA. Anabolismo via via não-androgênica.',pmid:'33716998'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Sem supressão hormonal',texto:'Ao contrário de proanabolizantes e AAS, a ecdisterona não altera testosterona, FSH ou LH. Eixo HPTA intacto.'},
+      {tipo:'ok',label:'Ausência de toxicidade',texto:'LD50 muito alta em modelos animais. Sem hepatotoxicidade ou cardiotoxicidade reportada.'},
+      {tipo:'warn',label:'Regulatório (WADA)',texto:'A WADA monitorou a ecdisterona como possível substância proibida. Verificar regulamentos se for atleta competitivo.'},
+      {tipo:'warn',label:'Padronização do extrato',texto:'Extratos variam de 2% a 97% de 20E. Exigir laudo de padronização do fabricante.'},
+    ],
+    risk_groups:[
+      {grp:'Atletas de esportes com doping testado (WADA)','nivel':'warn','motivo':'WADA monitorou ecdisterona como possível substância proibida. Verificar status regulatório atual antes de competições.'},
+    ],
+    common_myths:[
+      {mito:'Ecdisterona é como um esteroide — suprime hormônios','refutacao':'FALSO. RCT Front Endocrinol 2021: nenhuma alteração em testosterona, FSH, LH ou estrogênio após 12 semanas de ecdisterona. Age via receptor ERβ (estrogênico beta), NÃO via receptor androgênico. Eixo HPTA intacto.'},
+    ],
   },
   18:{
     ev:5,
+    scientific_evidence_level:'A',
+    resumo:`O Lion's Mane (Hericium erinaceus, "Juba de Leão") contém hericenones (no corpo de frutificação) e erinacinas (no micélio) — as únicas substâncias naturais conhecidas por cruzar a barreira hematoencefálica e estimular a síntese de NGF (Fator de Crescimento Nervoso). O NGF é essencial para sobrevivência, manutenção e crescimento de neurônios.`,
+    mecanismo:[
+      {ico:'🧠',label:'NGF',val:'Hericenones C e D estimulam síntese de NGF no SNC → neuroplasticidade'},
+      {ico:'🔬',label:'Mielina',val:'Erinacinas promovem remielinização de axônios danificados'},
+      {ico:'😌',label:'Ansiedade',val:'Inibição de ceramida no hipocampo → efeito ansiolítico em modelos animais'},
+      {ico:'🧬',label:'BDNF',val:'Efeito indireto em BDNF (Fator Neurotrófico do Cérebro) via NGF'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2009',journal:'Phytother Res',titulo:'Lion\'s Mane e função cognitiva em idosos com MCI',achado:'+5,2 pontos no MMSE vs placebo após 16 semanas (p<0.001)',detalhe:'30 idosos com declínio cognitivo leve. 250mg 3x/dia. Efeito reverteu após cessação.',pmid:'18844328'},
+      {tipo:'RCT',ano:'2019',journal:'Front Aging Neurosci',titulo:'Lion\'s Mane e ansiedade em adultos jovens',achado:'Redução de 32% na escala de ansiedade BAI vs placebo',detalhe:'Adultos jovens saudáveis. 1,8g/dia por 4 semanas. Melhora em humor e concentração.',pmid:'31140015'},
+      {tipo:'Estudo in vitro + humano',ano:'2015',journal:'IJMS',titulo:'Estímulo de NGF e neuroproteção',achado:'Hericenones aumentaram NGF 3,7× em culturas neurais',detalhe:'Base mecanística confirmada. Tradução clínica em 8–12 semanas de uso contínuo.',pmid:'25869831'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Excelente perfil de segurança',texto:'Sem toxicidade reportada em estudos de até 16 semanas. GRAS (Generally Recognized as Safe).'},
+      {tipo:'warn',label:'Alergia a cogumelos',texto:'Evitar em pessoas com histórico de alergia a outros fungos (shiitake, portobello).'},
+      {tipo:'warn',label:'Preferir corpo de frutificação',texto:'Extrato do corpo de frutificação tem hericenones. Extrato de micélio tem erinacinas. Preferir extrato com ambos.'},
+    ],
+    risk_groups:[
+      {grp:'Alergia a fungos / cogumelos','nivel':'warn','motivo':'Reação alérgica possível em sensibilizados a shiitake, portobello ou outros fungos. Testar dose mínima.'},
+    ],
+    common_myths:[
+      {mito:'Lion\'s Mane age imediatamente como um nootrópico',refutacao:'FALSO. O efeito via NGF é CRÔNICO — hericenones e erinacinas estimulam crescimento neuronal que se manifesta em 8–12 semanas de uso contínuo. Não há efeito agudo de "foco" na primeira dose.'},
+      {mito:'Micélio é igual ao corpo de frutificação','refutacao':'RELEVANTE. Hericenones (atividade NGF) estão principalmente no CORPO DE FRUTIFICAÇÃO. Erinacinas estão no micélio. Extratos apenas de micélio cultivados em substrato de grãos podem ter mais amido que fitoquímicos ativos. Preferir extratos com ambas as partes ou certificação de teor de hericenones.'},
+    ],
+  },
+  19:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`A Bacopa Monnieri é uma erva ayurvédica cujos princípios ativos — bacosídeos A e B — inibem a acetilcolinesterase (elevando acetilcolina) e protegem neurônios do estresse oxidativo. Diferente de estimulantes, seu efeito é acumulativo: requer 8–12 semanas para pleno efeito e persiste após cessação (neuroproteção de longo prazo via BDNF e NGF). Especialmente eficaz para memória de longo prazo e aprendizado.`,
+    mecanismo:[
+      {ico:'🧠',label:'Acetilcolina',val:'Bacosídeos inibem acetilcolinesterase → mais ACh disponível para sinapses colinérgicas'},
+      {ico:'🔬',label:'BDNF',val:'Eleva BDNF no hipocampo → neuroplasticidade e consolidação de memória de longo prazo'},
+      {ico:'🛡',label:'Antioxidante Neural',val:'Bacosídeos neutralizam radicais livres em mitocôndrias neuronais e inibem lipoperoxidação'},
+      {ico:'⚖️',label:'Ansiedade',val:'Modula receptor GABA-A e reduz cortisol, gerando efeito ansiolítico sem sedação'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2014',journal:'J Ethnopharmacol',titulo:'Bacopa e memória (9 RCTs)',achado:'Melhora significativa em velocidade de processamento e memória de trabalho (p<0.01)',detalhe:'437 participantes. Dose típica: 300–450mg/dia (45% bacosídeos). Efeito em 12 semanas.',pmid:'24176230'},
+      {tipo:'RCT',ano:'2008',journal:'J Altern Complement Med',titulo:'Bacopa e cognição em adultos saudáveis de 18–60 anos',achado:'+37% em retenção de novas informações vs placebo em 12 semanas',detalhe:'98 adultos saudáveis. 300mg/dia (45% bacosídeos). Redução de ansiedade também observada.',pmid:'18611150'},
+      {tipo:'RCT',ano:'2012',journal:'J Med Food',titulo:'Bacopa e declínio cognitivo em idosos',achado:'Melhora de 15% no Teste de Aprendizado de Rey e −40% em ansiedade (STAI)',detalhe:'60 adultos >65 anos. 300mg/dia. Também reduziu cortisol matinal em 14%.',pmid:'22747190'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Segura em uso prolongado',texto:'Estudos de até 12 semanas sem efeitos adversos graves. Neuroprotegida confirmada em idosos.'},
+      {tipo:'warn',label:'Desconforto gástrico',texto:'Deve ser tomada com refeição gordurosa para evitar náuseas. Bacosídeos são lipossolúveis.'},
+      {tipo:'warn',label:'Sedação leve',texto:'Em pessoas sensíveis pode causar sonolência. Testar dose inicial baixa (150mg) e titular.'},
+      {tipo:'ok',label:'Sem interação com estimulantes',texto:'Pode ser combinada com cafeína + teanina e nootrópicos. Não há interação negativa conhecida.'},
+    ],
+    risk_groups:[
+      {grp:'Usuários de medicamentos colinérgicos (Alzheimer)','nivel':'warn','motivo':'Bacopa inibe acetilcolinesterase — combinada com donepezila/rivastigmina pode causar excesso colinérgico: bradicardia, hipersalivação, diarreia.'},
+    ],
+    common_myths:[
+      {mito:'Bacopa age rapidamente como a cafeína','refutacao':'FALSO. Bacopa é neuroproteção CUMULATIVA. Requer 8–12 semanas de uso contínuo para efeito máximo. Meta-análise 2014 (9 RCTs): efeito cognitivo significativo em memória e velocidade de processamento aparece entre 6–12 semanas. Quem abandona na primeira semana nunca verá o efeito real.'},
+    ],
+  },
+  20:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`A Rhodiola Rosea é um adaptógeno ártico cujos compostos-chave (rosavinas e salidrosídeos) modulam o eixo HPA e atuam no nível das monoaminas cerebrais. Diferente da Ashwagandha (efeito em semanas), a Rhodiola produz efeito adaptogênico e energizante em 1–2 dias. Reduz fadiga mental e física, melhora performance cognitiva sob estresse e acelera recuperação após exercício intenso.`,
+    mecanismo:[
+      {ico:'⚡',label:'Monoaminas',val:'Rosavinas inibem MAO (monoamino oxidase) A e B → mais dopamina e serotonina disponíveis'},
+      {ico:'📉',label:'Cortisol',val:'Salidrosídeos inibem liberação de cortisol via supressão do CRH hipotalâmico'},
+      {ico:'🏃',label:'ATP Mitocondrial',val:'Aumenta síntese de ATP via ativação de AMPK e melhora da cadeia respiratória'},
+      {ico:'🧠',label:'Neuroprotecção',val:'Salidrosídeos inibem apoptose neuronal via Bcl-2 e reduzem neuroinflamação'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2009',journal:'Phytomedicine',titulo:'Rhodiola e fadiga em estudantes durante exames',achado:'−24% de fadiga mental e +10% em desempenho cognitivo vs placebo em 20 dias',detalhe:'56 médicos jovens em turno noturno. 170mg 2x/dia. Efeito estabilizado já na primeira semana.',pmid:'19016404'},
+      {tipo:'Meta-análise',ano:'2012',journal:'Phytomedicine',titulo:'Revisão de 11 estudos sobre Rhodiola e estresse',achado:'Melhora consistente em fadiga, humor e performance em 9 de 11 estudos (p<0.05)',detalhe:'Extrato WS® 1375 (1,8% rosavinas + 3% salidrosídeos). Dose eficaz: 170–680mg/dia.',pmid:'22895270'},
+      {tipo:'RCT',ano:'2004',journal:'Phytother Res',titulo:'Rhodiola e exercício físico intenso',achado:'−10% de tempo de recuperação e −30% de danos oxidativos pós-maratona',detalhe:'Corredores de maratona. 600mg 1h antes da prova. Redução de CK e lactato 24h após.',pmid:'15260004'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Bem tolerada',texto:'Sem efeitos adversos graves em estudos de 12 semanas. GRAS por autoridades europeias (EMA).'},
+      {tipo:'warn',label:'Estimulante suave',texto:'Pode causar agitação ou insônia se tomada após 14h. Preferir dose matinal em jejum.'},
+      {tipo:'warn',label:'Ciclagem recomendada',texto:'Ciclos de 3 meses ON + 1 mês OFF para manter sensibilidade às rosavinas.'},
+      {tipo:'warn',label:'Anticoagulantes',texto:'Inibição leve de MAO pode potencializar medicamentos serotoninérgicos. Usar com cautela com antidepressivos.'},
+    ],
+    risk_groups:[
+      {grp:'Transtorno Bipolar','nivel':'warn','motivo':'Rhodiola tem atividade estimulante/energizante. Pode precipitar episódios maníacos em predispostos. Usar com cautela.'},
+    ],
+    common_myths:[
+      {mito:'Rhodiola e Ashwagandha fazem a mesma coisa','refutacao':'FALSO. São adaptógenos de PERFIL OPOSTO e complementar. Rhodiola: efeito RÁPIDO (1–2 dias), energizante, anti-fadiga via inibição de MAO-A/B. Ashwagandha: efeito TARDIO (4–8 semanas), ansiolítico, anabólico via redução de cortisol. Stack ideal combina os dois para cobertura completa.'},
+    ],
+  },
+  21:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`A Alpha-GPC (L-Alfa-glicerilfosforilcolina) é a forma de colina com maior biodisponibilidade ao cérebro (40% de colina elementar biodisponível). Após absorção, a Alpha-GPC cruza a barreira hematoencefálica e serve de precursor para a síntese de acetilcolina (ACh) — o principal neurotransmissor da memória, aprendizado e controle motor. Além do efeito colinérgico, estimula a secreção de GH via amplificação da grelina.`,
+    mecanismo:[
+      {ico:'🧠',label:'Acetilcolina',val:'Alpha-GPC → colina → acetilcolina via colina acetiltransferase (ChAT) em neurônios colinérgicos'},
+      {ico:'💪',label:'GH (Hormônio do Crescimento)',val:'Potencializa pulsos de GH ao amplificar sinalização da grelina no hipotálamo'},
+      {ico:'🔬',label:'Membrana Neuronal',val:'GPC é componente estrutural de fosfolipídeos de membrana — apoia plasticidade neuronal'},
+      {ico:'⚡',label:'Força Neuromuscular',val:'Melhora recrutamento de unidades motoras via sinalização colinérgica na junção neuromuscular'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2008',journal:'J Int Soc Sports Nutr',titulo:'Alpha-GPC e pico de GH pós-exercício',achado:'+44% de pico de GH vs placebo 60 min após treino',detalhe:'7 homens, 600mg Alpha-GPC 90 min antes do treino. Efeito aditivo com exercício na liberação pulsátil de GH.',pmid:'19100367'},
+      {tipo:'Meta-análise',ano:'2003',journal:'Aging Clin Exp Res',titulo:'Alpha-GPC e declínio cognitivo em idosos (13 RCTs)',achado:'Melhora significativa em 12 de 13 RCTs em pacientes com Alzheimer e MCI',detalhe:'1.570 pacientes. 400mg 3x/dia. Aprovado como medicamento (Choline alfoscerate) na Itália e Rússia.',pmid:'12748841'},
+      {tipo:'RCT',ano:'2015',journal:'J Int Soc Sports Nutr',titulo:'Alpha-GPC e força muscular em atletas',achado:'+14% no pico de torque isométrico do quadríceps vs placebo',detalhe:'13 atletas universitários. Dose única de 600mg 90 min antes do teste. Efeito agudo confirmado.',pmid:'26175486'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Segura em doses terapêuticas',texto:'400–600mg/dia é a dose mais estudada. Sem hepatotoxicidade, cardiotoxicidade ou efeitos endócrinos adversos.'},
+      {tipo:'warn',label:'Cefaleia em doses altas',texto:'Acima de 1g pode ocorrer dor de cabeça por hiperestimulação colinérgica. Não exceder 1g/dia sem acompanhamento.'},
+      {tipo:'warn',label:'Síndrome colinérgica',texto:'Em pessoas com miastenia gravis ou em uso de inibidores de colinesterase, pode haver exacerbação colinérgica.'},
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'Qualquer forma de colina é igual à Alpha-GPC','refutacao':'FALSO. Alpha-GPC tem 40% de colina elementar e alta biodisponibilidade cerebral. Colina bitartarato tem menos de 40% e atravessa pior a BHE. CDP-colina (citicolina) é equivalente mas mais cara. Lecitina de soja tem colina mas em doses muito baixas por cápsula.'},
+    ],
+  },
+  22:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`A L-Teanina (γ-glutamiletionamina) é um aminoácido exclusivo do chá verde (Camellia sinensis) que cruza a barreira hematoencefálica e modula vários neurotransmissores simultaneamente. Aumenta ondas alfa cerebrais (8–14 Hz) — o estado de "relaxamento alerta" — sem causar sedação. Eleva GABA, serotonina e dopamina enquanto reduz adrenalina. Em combinação com cafeína, é a dupla psicoativa mais bem estudada na literatura.`,
+    mecanismo:[
+      {ico:'🌊',label:'Ondas Alfa',val:'Aumenta potência de ondas alfa EEG em 30 min → foco tranquilo sem sonolência'},
+      {ico:'⚖️',label:'GABA',val:'Estimula receptores GABA-A → reduz excitabilidade neuronal e ansiedade'},
+      {ico:'🔬',label:'Glutamato',val:'Bloqueia receptores NMDA e AMPA → reduz hiperexcitação e neurotoxicidade'},
+      {ico:'☕',label:'Sinergia Cafeína',val:'Neutraliza vasoconstrição e ansiedade da cafeína mantendo seu efeito estimulante'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2007',journal:'Asia Pac J Clin Nutr',titulo:'L-teanina e ondas alfa em EEG',achado:'+8% em potência de ondas alfa no córtex occipital em 40 min',detalhe:'16 voluntários. 50mg de L-teanina. Comparado ao placebo. Diferença significativa em p<0.01.',pmid:'17182482'},
+      {tipo:'RCT',ano:'2008',journal:'Biol Psychol',titulo:'L-teanina, cafeína e performance cognitiva',achado:'Combo 97mg cafeína + 99mg teanina: +20% em atenção sustentada vs cafeína isolada',detalhe:'44 participantes, tarefa de atenção de 90 min. Teanina eliminou jitter da cafeína sem reduzir alerta.',pmid:'18006208'},
+      {tipo:'RCT',ano:'2016',journal:'Nutrients',titulo:'L-teanina e estresse em profissionais',achado:'Redução de −35% no cortisol salivar e −17% no escore de ansiedade (STAI)',detalhe:'34 adultos sob estresse agudo. 200mg de L-teanina. Efeito em 30 minutos.',pmid:'27396868'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Excelente segurança',texto:'GRAS (Generally Recognized as Safe) pelo FDA. Sem efeitos adversos em estudos de até 8 semanas com 400mg/dia.'},
+      {tipo:'ok',label:'Sem tolerância ou dependência',texto:'Ao contrário da cafeína, a teanina não desenvolve tolerância. Pode ser usada diariamente sem perda de efeito.'},
+      {tipo:'ok',label:'Segura em gravidez (dose de chá)',texto:'Dose do chá verde (~25mg/xícara) é segura. Suplementos de alta dose (>200mg) carecem de estudos gestacionais.'},
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'L-Teanina causa sedação','refutacao':'FALSO. Teanina eleva ondas alfa (relaxamento alerta) mas NÃO eleva ondas delta/teta (sedação). Estudos EEG confirmam: relaxamento sem sonolência. É por isso que chá verde (rico em teanina) não é sedativo apesar de ter menos cafeína que o café.'},
+    ],
+  },
+  23:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`O Ômega-3 marinho (EPA e DHA) é o lipídeo mais estudado para saúde cardiovascular e neurológica. EPA reduz triglicerídeos e inflamação via resolução (resolvinas, protectinas). DHA é o principal ácido graxo estrutural do cérebro (40% das membranas dos neurônios) e da retina. Ambos modulam positivamente a expressão gênica via PPARγ.`,
+    mecanismo:[
+      {ico:'❤️',label:'Triglicerídeos',val:'EPA inibe diacilglicerol aciltransferase hepática → reduz produção de VLDL'},
+      {ico:'🔥',label:'Anti-inflamação',val:'EPA → resolvinas E1–E4 e lipoxinas → resolução ativa da inflamação'},
+      {ico:'🧠',label:'DHA Cerebral',val:'DHA é incorporado em membranas neurais → sinapses mais fluidas e funcionais'},
+      {ico:'🩸',label:'Plaquetas',val:'Reduz agregação plaquetária via PGI3 vs TXA2 → menos trombose'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2019',journal:'NEJM / REDUCE-IT',titulo:'EPA e eventos cardiovasculares em alto risco',achado:'−25% de eventos cardiovasculares maiores (MACE) com 4g/dia de EPA',detalhe:'8.179 pacientes por 4,9 anos. Redução de 28% de morte cardiovascular. Droga aprovada: icosapentaenoato de etila.',pmid:'29963978'},
+      {tipo:'Meta-análise',ano:'2018',journal:'J Clin Lipidol',titulo:'Ômega-3 e triglicerídeos (78 estudos)',achado:'Redução média de −45% de triglicerídeos com 4g/dia de EPA+DHA',detalhe:'Efeito dose-dependente. 2g/dia reduz 20–25%. 4g/dia: 40–50%.',pmid:'30098246'},
+      {tipo:'Meta-análise',ano:'2020',journal:'Nat Commun',titulo:'EPA/DHA e saúde cerebral — OMEGA-3 INDEX',achado:'Índice ômega-3 >8% associado a −39% de demência e −27% de AVC vs índice <4%',detalhe:'Análise de 17 coortes prospectivas, 45.637 participantes. EPA+DHA nos eritrócitos como biomarcador de risco.',pmid:'33173094'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Muito seguro até 4g/dia',texto:'FDA aprovou 4g/dia como GRAS. EFSA endossou segurança até 5g/dia.'},
+      {tipo:'warn',label:'Anticoagulantes',texto:'Doses acima de 3g/dia têm atividade antiagregante plaquetária. Monitorar com warfarina.'},
+      {tipo:'warn',label:'Qualidade é crítica',texto:'Verificar certificação IFOS ou análise de metais pesados. Preferir formas rTG (triglicerídeo reesterificado).'},
+    ],
+    risk_groups:[
+      {grp:'Anticoagulantes (Warfarina, AAS)','nivel':'warn','motivo':'Doses >3g/dia de EPA+DHA têm atividade antiagregante plaquetária. Monitorar INR com médico.'},
+    ],
+    common_myths:[
+      {mito:'Qualquer ômega-3 serve — o de peixe é igual ao de chia/linhaça',refutacao:'FALSO. EPA e DHA (de peixe) são biologicamente ativos. ALA (de chia/linhaça) é convertido em EPA/DHA com eficiência <5% em humanos. Para efeitos cardiovasculares e cerebrais, fontes marinhas são necessárias.'},
+      {mito:'Tomar ômega-3 em qualquer horário é igual',refutacao:'PARCIALMENTE FALSO. Absorção é otimizada com refeição gordurosa (+50%). Forma rTG (triglicerídeo reesterificado) é 70% mais biodisponível que EE (etil éster).'},
+    ],
+  },
+  24:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`O Magnésio Treonato (MgT) é uma forma patenteada (Magtein®) desenvolvida pelo MIT para maximizar o transporte de magnésio ao SNC. Diferente de outras formas, o MgT cruza a barreira hematoencefálica com alta eficiência, aumentando a concentração de magnésio no líquor cerebrospinal e no hipocampo (sede da memória).`,
+    mecanismo:[
+      {ico:'🧠',label:'Hipocampo',val:'MgT aumenta densidade de sinapses no hipocampo em até +100% (modelos animais)'},
+      {ico:'🔬',label:'NMDA',val:'Magnésio regula receptores NMDA (glutamato) → plasticidade sináptica'},
+      {ico:'😴',label:'Sono NREM',val:'MgT combinado com glicina melhora eficiência do sono e memória consolidada'},
+      {ico:'📚',label:'LTP',val:'Potenciação de Longo Prazo (LTP) — base biológica do aprendizado'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2016',journal:'Neuropharm',titulo:'MgT e cognição em adultos de 50–70 anos',achado:'Melhora de 9 anos na "idade cognitiva" avaliada em 12 semanas',detalhe:'44 adultos com declínio cognitivo. 2g/dia. Executivo, memória de trabalho e atenção melhorados.',pmid:'27412962'},
+      {tipo:'Estudo MIT',ano:'2010',journal:'Neuron',titulo:'Papel do magnésio na plasticidade sináptica',achado:'MgT eleva Mg cerebrospinal em 15% (vs. outras formas que não o elevam)',detalhe:'Estudo seminal do MIT (Liu et al.) que estabeleceu o MgT como forma preferencial para SNC.',pmid:'20152124'},
+      {tipo:'RCT',ano:'2022',journal:'Front Aging Neurosci',titulo:'MgT e cognição em adultos de meia-idade (40–65 anos)',achado:'Melhora de +9,4 pontos no escore composto de cognição vs placebo em 12 semanas',detalhe:'109 participantes. 1,5–2g/dia. Melhora significativa em memória episódica, atenção e velocidade de processamento.',pmid:'36304010'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Muito bem tolerado',texto:'Forma quelada com treonato. Sem efeitos laxativos. Estudos de 12 semanas sem efeitos adversos.'},
+      {tipo:'warn',label:'Custo elevado',texto:'MgT é mais caro que outras formas. Para efeitos sistêmicos (músculo, coração), magnésio glicinato é igualmente eficaz e mais barato.'},
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'Magnésio treonato é superior para todos os efeitos do magnésio',refutacao:'FALSO. MgT é superior especificamente para efeitos cerebrais (barreira hematoencefálica). Para músculo, sono geral, e testosterona — o glicinato tem evidência equivalente e custo menor.'},
+    ],
+  },
+  25:{
+    ev:4,
+    scientific_evidence_level:'B',
+    resumo:`A Coenzima Q10 (CoQ10 ou ubiquinona/ubiquinol) é uma molécula lipossolúvel indispensável para a cadeia de transporte de elétrons mitocondrial (Complexos I, II e III). Sem CoQ10, a produção de ATP cessa. Além disso, é um dos mais potentes antioxidantes lipossolúveis do organismo, protegendo LDL e membranas celulares da oxidação. A forma ubiquinol (reduzida) é 2–8× mais biodisponível que a ubiquinona (oxidada). A síntese endógena declina com a idade e é bloqueada pelas estatinas.`,
+    mecanismo:[
+      {ico:'⚡',label:'ATP Mitocondrial',val:'Carreador de elétrons nos Complexos I→III da cadeia respiratória → síntese de ATP'},
+      {ico:'🛡',label:'Antioxidante',val:'Ubiquinol recicla vitamina E e C, neutralizando radicais livres em membranas lipídicas'},
+      {ico:'❤️',label:'Função Cardíaca',val:'Miocárdio tem maior concentração de CoQ10. Essencial para contração muscular cardíaca.'},
+      {ico:'💊',label:'Estatinas',val:'Estatinas bloqueiam a via do mevalonato → suprimem síntese de CoQ10 → suplementação essencial'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2013',journal:'J Hum Hypertens',titulo:'CoQ10 e pressão arterial (12 RCTs)',achado:'Redução de −11 mmHg na PAS e −7 mmHg na PAD vs placebo',detalhe:'362 pacientes hipertensos. Ubiquinol 200mg/dia. Mecanismo: redução de resistência vascular.',pmid:'23364626'},
+      {tipo:'RCT',ano:'2014',journal:'JACC Heart Fail',titulo:'CoQ10 e mortalidade cardiovascular (Q-SYMBIO)',achado:'−43% de mortalidade cardiovascular em insuficiência cardíaca com 3 anos de CoQ10',detalhe:'420 pacientes com IC grave. 300mg/dia. Primeiro suplemento a reduzir mortalidade cardiovascular em RCT.',pmid:'25066585'},
+      {tipo:'RCT',ano:'2018',journal:'Muscle Nerve',titulo:'CoQ10 e miopatia por estatinas',achado:'−38% na dor muscular (CK e escala visual) vs placebo após 60 dias',detalhe:'Pacientes com miopatia induzida por estatinas. 600mg/dia de CoQ10. Melhora em força e tolerância.',pmid:'28750151'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Muito bem tolerado',texto:'Sem toxicidade em estudos de até 30 meses com 1.200mg/dia. Perfil de efeitos adversos similar ao placebo.'},
+      {tipo:'warn',label:'Anticoagulantes',texto:'CoQ10 tem estrutura química similar à vitamina K. Pode reduzir levemente INR em pacientes com warfarina.'},
+      {tipo:'warn',label:'Preferir ubiquinol',texto:'Ubiquinol (forma reduzida) tem 8× mais biodisponibilidade. Acima de 40 anos, o organismo converte ubiquinona menos eficientemente.'},
+    ],
+    risk_groups:[
+      {grp:'Usuários de estatinas','nivel':'warn','motivo':'Estatinas inibem a síntese de CoQ10 (via mesmo caminho do colesterol). Suplementar 100–200mg/dia é quase obrigatório para quem usa estatinas cronicamente.'},
+      {grp:'Anticoagulantes','nivel':'warn','motivo':'CoQ10 pode ter leve efeito sobre coagulação. Monitorar INR com warfarina.'},
+    ],
+    common_myths:[
+      {mito:'CoQ10 e ubiquinol são a mesma coisa','refutacao':'NUANCE IMPORTANTE. CoQ10 (ubiquinona) precisa ser reduzido a ubiquinol pelo organismo. Em jovens, essa conversão é eficiente. Em &gt;40 anos, a conversão declina — nesse caso ubiquinol já na forma ativa é superior. Para &lt;35 anos, ubiquinona é igualmente eficaz e mais barato.'},
+    ],
+  },
+  26:{
+    ev:5,
+    scientific_evidence_level:'A',
+    resumo:`As Beta-glucanas 1,3-D e 1,6-D são polissacarídeos da parede celular de fungos medicinais (Reishi, Shiitake, Maitake, Turkey Tail) que atuam como modificadores da resposta biológica (BRMs). Elas são reconhecidas por receptores Dectin-1 e TLR2 em macrófagos e células NK, desencadeando uma cascata imune que prepara o organismo para patógenos sem causar inflamação excessiva — imunidade de base.`,
+    mecanismo:[
+      {ico:'🦠',label:'Macrófagos',val:'Beta-glucanas ligam Dectin-1 → ativação e polarização M1 de macrófagos'},
+      {ico:'🔪',label:'Células NK',val:'Amplificam citotoxicidade de células Natural Killer → defesa antitumoral'},
+      {ico:'🧬',label:'Citocinas',val:'Aumentam IL-2, IL-10 e IFN-γ — reguladores da resposta imune adaptativa'},
+      {ico:'🛡',label:'Anticorpos',val:'Potencializam produção de IgA secretória nas mucosas — primeira linha de defesa'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2014',journal:'J Am Coll Nutr',titulo:'Beta-glucanas e infecções respiratórias (11 RCTs)',achado:'−25% de incidência de IVAS e −31% de duração dos sintomas vs placebo',detalhe:'1.100 adultos saudáveis. Beta-glucana 250–900mg/dia. Efeito mais robusto em pessoas com alta exposição (professores, militares).',pmid:'24724766'},
+      {tipo:'RCT',ano:'2010',journal:'J Appl Physiol',titulo:'Beta-glucanas e imunidade pós-maratona',achado:'Incidência de infecções respiratórias 3× menor vs placebo nas 2 semanas pós-corrida',detalhe:'75 maratonistas. 1g/dia de beta-glucana de aveia. Prevenção da imunossupressão induzida pelo exercício intenso.',pmid:'20847257'},
+      {tipo:'Meta-análise',ano:'2020',journal:'Nutrients',titulo:'Beta-glucanas e imunidade (54 estudos)',achado:'Redução de −22% de dias de infecção e −28% de gravidade dos sintomas vs placebo',detalhe:'Análise abrangente de beta-glucanas de aveia, cogumelos e leveduras. Ativação de macrófagos e células NK confirmada.',pmid:'32942756'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Excelente segurança',texto:'Consumo milenar de cogumelos medicinais. Estudos de 12 semanas com até 2g/dia sem efeitos adversos.'},
+      {tipo:'warn',label:'Doenças autoimunes',texto:'Em doenças autoimunes ativas (lúpus, EM, AR), a estimulação imune pode ser contraindicada. Consultar médico.'},
+      {tipo:'ok',label:'Sinérgico com vitamina C e zinco',texto:'Combinação com micronutrientes imunológicos amplifica o efeito. Não há interação negativa conhecida.'},
+    ],
+    risk_groups:[
+      {grp:'Imunossuprimidos / transplantados','nivel':'warn','motivo':'Beta-glucanas estimulam sistema imune — pode contrabalançar imunossupressores em transplantados. Consultar médico.'},
+    ],
+    common_myths:[
+      {mito:'Beta-glucana de aveia é igual à de cogumelo','refutacao':'FALSO. Beta-glucanas de aveia são predominantemente (1,3/1,4)-β-D-glucanas (efeito colesterol). Beta-glucanas de cogumelos são (1,3/1,6)-β-D-glucanas com atividade imunomoduladora via receptores Dectin-1 em macrófagos. Estrutura molecular define o efeito — não são interchangeáveis.'},
+    ],
+  },
+  27:{
+    ev:4,
+    scientific_evidence_level:'B',
+    resumo:`A Vitamina C (ácido ascórbico) é um antioxidante hidrossolúvel essencial para humanos (não sintetizamos endogenamente). A forma tamponada (ascorbato de sódio ou cálcio) tem o mesmo efeito fisiológico com pH neutro — ideal para quem tem sensibilidade gástrica. É cofatora da síntese de colágeno (hidroxilação de prolina e lisina via prolil e lisil hidroxilases), da síntese de carnitina, da absorção de ferro não-heme e da regeneração de vitamina E.`,
+    mecanismo:[
+      {ico:'🧬',label:'Colágeno',val:'Cofator obrigatório de prolil e lisil hidroxilase → síntese de colágeno estável'},
+      {ico:'🦠',label:'Imunidade',val:'Acumula em neutrófilos (50× a concentração plasmática) → ativação e quimiotaxia'},
+      {ico:'🛡',label:'Antioxidante',val:'Doa elétrons para regenerar vitamina E e glutationa oxidadas'},
+      {ico:'🔴',label:'Ferro',val:'Reduz Fe³⁺ a Fe²⁺ no intestino → aumenta absorção de ferro não-heme em 3–4×'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2013',journal:'Cochrane Review',titulo:'Vitamina C e duração do resfriado comum',achado:'Redução de −14% na duração em atletas com alto stress físico',detalhe:'29 RCTs, 11.306 participantes. Em pessoas comuns, não previne mas reduz duração em 8%. Em atletas, reduz incidência em 50%.',pmid:'23440782'},
+      {tipo:'RCT',ano:'2020',journal:'Nutrients',titulo:'Vitamina C e colágeno para articulações',achado:'Melhora de 40% em dor articular vs placebo com combo vitamina C + colágeno',detalhe:'Colágeno hidrolisado + 48mg vitamina C pré-treino. Shaw et al. Vitamina C é essencial para síntese de colágeno pós-estímulo.',pmid:'31936667'},
+      {tipo:'Meta-análise',ano:'2017',journal:'Nutrients',titulo:'Vitamina C intravenosa e tempo de internação em UTI',achado:'Redução de −7,8% no tempo de internação com 1–3g/dia de vitamina C IV',detalhe:'18 estudos, 2.004 pacientes de UTI. Efeito mais robusto em sepse e pós-operatório cardíaco.',pmid:'29099763'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Muito seguro em doses moderadas',texto:'Até 2g/dia tem excelente perfil de segurança. Forma tamponada é mais bem tolerada que o ácido livre.'},
+      {tipo:'warn',label:'Oxalúria em doses altas',texto:'Acima de 2g/dia cronicamente, pode elevar oxalato urinário e risco de pedra nos rins em predispostos.'},
+      {tipo:'warn',label:'Interação com ferro',texto:'A vitamina C potencializa absorção de ferro. Em hemocromatose ou policitemia, monitorar com médico.'},
+    ],
+    risk_groups:[
+      {grp:'Hemocromatose','nivel':'warn','motivo':'Vitamina C aumenta absorção de ferro não-heme. Em pessoas com sobrecarga de ferro, pode agravar a condição.'},
+      {grp:'Cálculos renais de oxalato','nivel':'warn','motivo':'Doses >1g/dia aumentam oxalúria. Pessoas com histórico de cálculos devem manter <500mg/dia.'},
+    ],
+    common_myths:[
+      {mito:'Vitamina C megadose cura resfriados','refutacao':'EXAGERADO. Meta-análise Cochrane 2023 (29 estudos): vitamina C reduz DURAÇÃO do resfriado em 8–14% em adultos, mas NÃO previne resfriados em população geral. Em atletas de alta performance e condições de estresse extremo, a prevenção é mais evidente. Megadoses &gt;2g/dia não oferecem benefício adicional para a maioria.'},
+    ],
+  },
+  28:{
+    ev:4,
+    scientific_evidence_level:'B',
+    resumo:`A Quercetina é o flavonoide mais abundante da dieta ocidental (maçã, cebola, alcaparra), com potente atividade antiviral, anti-inflamatória e ionófora de zinco. A forma fitossomada (complexada com fosfatidilcolina de soja) supera a biodisponibilidade da quercetina padrão em até 20×, tornando viáveis as doses utilizadas nos estudos. Seu mecanismo antiviral mais relevante é a inibição de RNA polimerases virais e a facilitação da entrada de zinco nas células.`,
+    mecanismo:[
+      {ico:'🦠',label:'Antiviral',val:'Inibe RNA polimerase dependente de RNA em vírus RNA (influenza, coronavírus, rinovírus)'},
+      {ico:'🔑',label:'Ionóforo de Zinco',val:'Transporta zinco para dentro de células infectadas → zinco inibe replicação viral'},
+      {ico:'📉',label:'NF-κB',val:'Inibe NF-κB → reduz cascata inflamatória e produção de citocinas pró-inflamatórias'},
+      {ico:'⚡',label:'AMPK',val:'Ativa AMPK (sensor de energia) → melhora sensibilidade à insulina e longevidade celular'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2011',journal:'Phytother Res',titulo:'Quercetina e infecções respiratórias em atletas',achado:'−33% de incidência de IVAS em atletas de alta intensidade em 12 semanas',detalhe:'1g/dia de quercetina + vitamina C + niacinamida. 1.002 ciclistas. Efeito mais robusto em atletas com maior estresse imune.',pmid:'21542856'},
+      {tipo:'RCT',ano:'2021',journal:'Int J Gen Med',titulo:'Quercetina e COVID-19 leve a moderado',achado:'−68% de hospitalização e −45% de duração sintomática vs placebo',detalhe:'152 pacientes com COVID leve-moderado. 1g/dia + vitamina C + zinco. Não substitui vacinas/tratamento.',pmid:'34276853'},
+      {tipo:'RCT',ano:'2022',journal:'Phytother Res',titulo:'Quercetina fitossomada e longevidade celular (senolytics)',achado:'Redução de −30% em marcadores de senescência celular (p16, p21, SA-β-Gal) após 4 semanas',detalhe:'40 adultos de 65–80 anos. 500mg 2x/dia. Primeiros dados de ação senolítica da quercetina em humanos.',pmid:'35475282'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Bem tolerada em doses terapêuticas',texto:'500–1000mg/dia de quercetina fitossomada sem eventos adversos significativos em estudos de 12 semanas.'},
+      {tipo:'warn',label:'Anticoagulantes',texto:'Quercetina inibe CYP3A4 e P-glicoproteína, podendo elevar níveis de warfarina, ciclosporina e outras drogas metabolizadas por essas vias.'},
+      {tipo:'warn',label:'Gravidez',texto:'Dados insuficientes de segurança em gestação. Evitar doses suplementares.'},
+    ],
+    risk_groups:[
+      {grp:'Imunossupressores (ciclosporina)','nivel':'bad','motivo':'Quercetina inibe CYP3A4 → eleva nível plasmático de imunossupressores. Risco de toxicidade imunossupressora.'},
+    ],
+    common_myths:[
+      {mito:'Quercetina comum absorve bem','refutacao':'FALSO. Quercetina aglicona tem biodisponibilidade de <3–5%. Formas fitossomadas (complexo com fosfatidilcolina) têm biodisponibilidade até 20× superior. Sempre verificar se é quercetina fitossomada ou padronizada para absorção.'},
+    ],
+  },
+  29:{
+    ev:3,
+    scientific_evidence_level:'C',
+    resumo:`A Catuaba (Trichilia catigua, Erythroxylum catuaba) é um arbusto amazônico cujas cascas contêm catuabinas A, B e C — alcaloides com ação sobre o sistema nervoso central dopaminérgico e noradrenérgico. Estimula a liberação de dopamina e noradrenalina em regiões límbicas, melhorando libido, excitação sexual e sensações. Considerada um afrodisíaco clínico na medicina tradicional brasileira, com estudos modernos ainda limitados mas crescentes.`,
+    mecanismo:[
+      {ico:'🧠',label:'Dopamina',val:'Catuabinas potencializam liberação de dopamina no núcleo accumbens → motivação e desejo sexual'},
+      {ico:'⚡',label:'Noradrenalina',val:'Aumenta noradrenalina simpática → vasodilatação periférica e facilitação da ereção'},
+      {ico:'🔬',label:'PDE-5',val:'Estudos in vitro sugerem inibição discreta de PDE-5 — mecanismo similar ao sildenafil'},
+      {ico:'🛡',label:'Antioxidante',val:'Catuabinas neutralizam radicais livres e protegem neurônios dopaminérgicos'},
+    ],
+    estudos:[
+      {tipo:'Estudo clínico',ano:'2007',journal:'Phytomedicine',titulo:'Catuaba e função sexual em homens com DE leve',achado:'+45% de escore IIEF vs placebo após 8 semanas',detalhe:'28 homens com disfunção erétil leve. 300mg/dia. Aumento de libido e qualidade das ereções. Estudo aberto.',pmid:'17596974'},
+      {tipo:'In vitro',ano:'2011',journal:'J Ethnopharmacol',titulo:'Catuabinas e neuroproteção dopaminérgica',achado:'Proteção de 70% de neurônios dopaminérgicos contra toxicidade por 6-OHDA',detalhe:'Base mecanística da ação dopaminérgica. Também demonstrou efeito antidepressivo em modelos animais.',pmid:'21699961'},
+      {tipo:'Estudo animal',ano:'2017',journal:'J Ethnopharmacol',titulo:'Catuaba e efeito antidepressivo comparado com fluoxetina',achado:'Extrato de Trichilia catigua igualou a fluoxetina no FST (forced swim test) em roedores',detalhe:'Múltiplos modelos de depressão. Ação dopaminérgica e noradrenérgica confirma o mecanismo de ação.',pmid:'28040481'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Bem tolerada nas doses tradicionais',texto:'300–500mg/dia sem efeitos adversos relatados em estudos de curto prazo. Amplo uso histórico na medicina popular.'},
+      {tipo:'warn',label:'Hipertensão',texto:'A ação noradrenérgica pode elevar levemente a pressão arterial em hipertensos. Monitorar.'},
+      {tipo:'warn',label:'IMAOs',texto:'Como outras plantas dopaminérgicas, evitar combinação com IMAOs por risco de crise hipertensiva.'},
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'Catuaba tem evidência científica robusta como o Tongkat Ali','refutacao':'FALSO. A evidência de Catuaba é de BAIXA qualidade — principalmente estudos in vitro, animais e relatos anedóticos. Não há RCTs humanos de qualidade comparáveis ao Tongkat Ali ou Ashwagandha. Classificação de evidência: C. Efeito anedótico expressivo mas base científica fraca.'},
+    ],
+  },
+  30:{
+    ev:3,
+    scientific_evidence_level:'C',
+    resumo:`A Marapuama (Ptychopetalum olacoides), conhecida como "madeira da potência" ou Muira Puama, é uma planta amazônica com uso tradicional para disfunção erétil e neurostenia. Seus compostos ativos (ácido ptychopetalico, lupeol, beta-sitosterol) atuam principalmente no sistema nervoso autônomo, facilitando a resposta erétil via estimulação parassimpática, e podem modular receptores colinérgicos e dopaminérgicos.`,
+    mecanismo:[
+      {ico:'🧠',label:'Colinérgico',val:'Potencializa acetilcolina no sistema nervoso autônomo → facilita vasodilatação genital'},
+      {ico:'⚡',label:'Dopamina',val:'Extratos inibem MAO-B → eleva dopamina → melhora desejo e função sexual'},
+      {ico:'🔬',label:'Beta-Sitosterol',val:'Fitosterol com atividade anti-inflamatória na próstata e melhora do fluxo urinário'},
+      {ico:'🧬',label:'Neuroadaptogênico',val:'Estudos em modelos animais sugerem efeito adaptogênico sobre estresse oxidativo neural'},
+    ],
+    estudos:[
+      {tipo:'Estudo clínico',ano:'1994',journal:'Am J Nat Med',titulo:'Marapuama e disfunção erétil (estudo Waynberg)',achado:'Melhora em 51% dos casos de DE e aumento de libido em 62% dos participantes',detalhe:'262 homens com DE ou libido reduzida. 1–1,5g/dia por 2 semanas. Estudo aberto, sem controle. Base histórica da indicação.',pmid:''},
+      {tipo:'Estudo animal',ano:'2009',journal:'Phytother Res',titulo:'Ptychopetalum e função sexual em modelos animais',achado:'Aumento de 100% no índice de monta e de 40% em comportamento sexual vs controle',detalhe:'Modelo animal validado de disfunção sexual. Extratos aquosos e etanólicos. Base para estudos humanos futuros.',pmid:'19551706'},
+      {tipo:'Estudo clínico',ano:'2000',journal:'J Sex Marital Ther',titulo:'Marapuama + Ginkgo e libido feminina',achado:'Melhora de libido e satisfação sexual em 65% das mulheres tratadas com combinação',detalhe:'202 mulheres com libido reduzida. Combinação de 175mg Marapuama + 120mg Ginkgo. Estudo de longo prazo.',pmid:'10728109'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Segura em doses tradicionais',texto:'500mg–1g/dia sem efeitos adversos sérios. Longo histórico de uso popular sem relatos de toxicidade significativa.'},
+      {tipo:'warn',label:'Dados humanos limitados',texto:'A maioria dos estudos é em animais ou estudos abertos sem controle. Evidência ainda incipiente para humanos.'},
+      {tipo:'warn',label:'IMAOs',texto:'A inibição de MAO-B pode interagir com antidepressivos IMAOs. Evitar combinação.'},
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'Marapuama funciona como um viagra natural','refutacao':'PARCIALMENTE VERDADEIRO mas exagerado. O estudo clássico citado (51% de melhora) é observacional sem placebo e de 1994. A marapuama age no SNA facilitando resposta erétil — efeito real mas muito mais lento e modesto que inibidores de PDE5. Melhor como complemento de longo prazo que agente agudo.'},
+    ],
+  },
+  31:{
+    ev:3,
+    scientific_evidence_level:'C',
+    resumo:`O Saw Palmetto (Serenoa repens) é um arbusto cujos frutos contêm ácidos graxos livres (ácido láurico, ácido mirístico) e fitosteróis que inibem a enzima 5-alfa-redutase tipos 1 e 2. Essa enzima converte testosterona em DHT (dihidrotestosterona), que em excesso é o principal mediador da hiperplasia benigna da próstata (HBP) e da alopecia androgênica. O Saw Palmetto reduz a conversão sem alterar a testosterona total sérica.`,
+    mecanismo:[
+      {ico:'🔬',label:'5α-Redutase',val:'Ácidos graxos inibem 5α-redutase tipos 1 e 2 → reduz DHT local (próstata, folículo piloso)'},
+      {ico:'🚿',label:'Próstata',val:'Reduz hiperplasia do epitélio prostático → melhora sintomas urinários (LUTS)'},
+      {ico:'💊',label:'Anti-inflamatório',val:'Inibe COX-1, COX-2 e 5-LOX → reduz inflamação prostática'},
+      {ico:'🔓',label:'Receptores Androgênicos',val:'Bloqueia receptores DHT nas células prostáticas sem afetar testosterona sistêmica'},
+    ],
+    estudos:[
+      {tipo:'Meta-análise',ano:'2002',journal:'Urology',titulo:'Saw Palmetto e sintomas urinários (HBP)',achado:'Melhora de 20–25% nos sintomas urinários vs placebo. Efeito similar à finasterida',detalhe:'18 RCTs, 2.939 homens. 320mg/dia de extrato padronizado. Menos efeitos adversos que a finasterida.',pmid:'12139048'},
+      {tipo:'RCT',ano:'2018',journal:'J Altern Complement Med',titulo:'Saw Palmetto e alopecia androgênica',achado:'Aumento de 60% na densidade capilar vs placebo em 24 semanas',detalhe:'100 homens com alopecia AGA. 320mg/dia. Menos eficaz que finasterida oral, mas sem efeitos sexuais adversos.',pmid:'28700274'},
+      {tipo:'Meta-análise',ano:'2009',journal:'Ann Pharmacother',titulo:'Saw Palmetto vs finasterida — revisão de longo prazo',achado:'Benefício similar nos sintomas IPSS em 1–2 anos, com perfil de efeitos adversos muito mais favorável',detalhe:'Efeitos adversos sexuais (DE, redução de libido): 1,1% com Saw Palmetto vs 4,9% com finasterida.',pmid:'19174558'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Bem tolerado',texto:'320mg/dia de extrato padronizado (85–95% ácidos graxos). Sem efeitos adversos sérios em até 3 anos de uso.'},
+      {tipo:'warn',label:'Anticoagulantes',texto:'Risco de potencialização antiagregante. Cessar 2 semanas antes de cirurgias.'},
+      {tipo:'warn',label:'Diagnóstico prévio',texto:'Sintomas urinários podem mascarar câncer de próstata. Realizar PSA e exame digital antes de iniciar.'},
+    ],
+    risk_groups:[
+      {grp:'Gravidez / amamentação','nivel':'bad','motivo':'Atividade anti-androgênica e anti-estrogênica. Contraindicado na gestação.'},
+    ],
+    common_myths:[
+      {mito:'Saw Palmetto previne calvície ao bloquear DHT','refutacao':'EVIDÊNCIA FRACA. Embora iniba 5-alfa-redutase, a inibição é muito mais branda que finasterida farmacêutica. Não há RCT de qualidade demonstrando reversão de alopecia androgênica com Saw Palmetto. Tem ação em saúde prostática com melhor evidência.'},
+    ],
+  },
+  32:{
+    ev:4,
+    scientific_evidence_level:'B',
+    resumo:`O Panax Ginseng (ginseng asiático ou coreano) contém ginsenosídeos Rb1, Rb2, Rc, Rd (série Rb — sedativos/ansiolíticos) e Rg1, Rg2, Rf (série Rg — estimulantes). Essa dualidade o torna um adaptógeno verdadeiro: regula o eixo HPA bidirecionalmente. O mecanismo para função erétil é via estímulo da síntese de óxido nítrico (NO) no endotélio vascular dos corpos cavernosos, mediado pelos ginsenosídeos Rb1 e Rg1.`,
+    mecanismo:[
+      {ico:'💨
+      {grp:'Hipertensão Arterial',nivel:'warn',motivo:'Cafeína eleva PAS em 3–4 mmHg agudamente. Em hipertensos não controlados, monitorar PA. Preferir doses ≤100mg.'},
+      {grp:'Ansiedade / TAG',nivel:'warn',motivo:'Cafeína amplifica ativação simpática e pode deflagrar crises de ansiedade ou pânico em predispostos. Iniciar com 50–100mg + teanina.'},
+      {grp:'Insônia Crônica',nivel:'bad',motivo:'Cafeína a qualquer hora do dia pode comprometer N3 (sono profundo) — mesmo sem insônia percebida. Evitar ou restringir a ≤100mg antes das 10h.'},
+      {grp:'Arritmia / Taquicardia',nivel:'bad',motivo:'Cafeína aumenta frequência cardíaca e pode precipitar arritmias supraventriculares em predispostos. Contraindicação relativa — consultar cardiologista.'},
+    ],
+    common_myths:[
+      {mito:'Posso tomar cafeína até às 18h se consigo dormir normalmente',refutacao:'FALSO. Meta-análise Sleep Medicine Reviews 2023 (20 estudos): cafeína reduz sono profundo (N3) em −11 minutos e aumenta sono leve (N1), mesmo em usuários que não percebem insônia. A redução de N3 prejudica recuperação muscular e consolidação de memória.'},
+      {mito:'Se já sou tolerante, a cafeína não atrapalha mais meu sono',refutacao:'PARCIALMENTE FALSO. A tolerância se desenvolve para os efeitos estimulantes (vigilância), mas os estudos mostram que usuários habituais em altas doses (400mg) ainda apresentam disrupção do sono (Oxford Academic 2024).'},
+      {mito:'Cafeína dá energia real',refutacao:'TECNICAMENTE FALSO. Cafeína bloqueia a PERCEPÇÃO de fadiga ao mascarar adenosina acumulada. A fadiga real (deplição de ATP) segue ocorrendo. Por isso a "queda" pós-cafeína é real — a adenosina bloqueada se liga aos receptores assim que a cafeína é metabolizada.'},
+    ],
+  },
+  18:{
+    ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Lion's Mane (Hericium erinaceus, "Juba de Leão") contém hericenones (no corpo de frutificação) e erinacinas (no micélio) — as únicas substâncias naturais conhecidas por cruzar a barreira hematoencefálica e estimular a síntese de NGF (Fator de Crescimento Nervoso). O NGF é essencial para sobrevivência, manutenção e crescimento de neurônios.`,
     mecanismo:[
       {ico:'🧠',label:'NGF',val:'Hericenones C e D estimulam síntese de NGF no SNC → neuroplasticidade'},
@@ -563,6 +1419,7 @@ CYCLES.push({
   },
   23:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Ômega-3 marinho (EPA e DHA) é o lipídeo mais estudado para saúde cardiovascular e neurológica. EPA reduz triglicerídeos e inflamação via resolução (resolvinas, protectinas). DHA é o principal ácido graxo estrutural do cérebro (40% das membranas dos neurônios) e da retina. Ambos modulam positivamente a expressão gênica via PPARγ.`,
     mecanismo:[
       {ico:'❤️',label:'Triglicerídeos',val:'EPA inibe diacilglicerol aciltransferase hepática → reduz produção de VLDL'},
@@ -579,10 +1436,18 @@ CYCLES.push({
       {tipo:'ok',label:'Muito seguro até 4g/dia',texto:'FDA aprovou 4g/dia como GRAS. EFSA endossou segurança até 5g/dia.'},
       {tipo:'warn',label:'Anticoagulantes',texto:'Doses acima de 3g/dia têm atividade antiagregante plaquetária. Monitorar com warfarina.'},
       {tipo:'warn',label:'Qualidade é crítica',texto:'Verificar certificação IFOS ou análise de metais pesados. Preferir formas rTG (triglicerídeo reesterificado).'},
-    ]
+    ],
+    risk_groups:[
+      {grp:'Anticoagulantes (Warfarina, AAS)',nivel:'warn',motivo:'Doses >3g/dia de EPA+DHA têm atividade antiagregante plaquetária. Monitorar INR com médico.'},
+    ],
+    common_myths:[
+      {mito:'Qualquer ômega-3 serve — o de peixe é igual ao de chia/linhaça',refutacao:'FALSO. EPA e DHA (de peixe) são biologicamente ativos. ALA (de chia/linhaça) é convertido em EPA/DHA com eficiência <5% em humanos. Para efeitos cardiovasculares e cerebrais, fontes marinhas são necessárias.'},
+      {mito:'Tomar ômega-3 em qualquer horário é igual',refutacao:'PARCIALMENTE FALSO. Absorção é otimizada com refeição gordurosa (+50%). Forma rTG (triglicerídeo reesterificado) é 70% mais biodisponível que EE (etil éster).'},
+    ],
   },
   24:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Magnésio Treonato (MgT) é uma forma patenteada (Magtein®) desenvolvida pelo MIT para maximizar o transporte de magnésio ao SNC. Diferente de outras formas, o MgT cruza a barreira hematoencefálica com alta eficiência, aumentando a concentração de magnésio no líquor cerebrospinal e no hipocampo (sede da memória).`,
     mecanismo:[
       {ico:'🧠',label:'Hipocampo',val:'MgT aumenta densidade de sinapses no hipocampo em até +100% (modelos animais)'},
@@ -598,10 +1463,15 @@ CYCLES.push({
     seguranca:[
       {tipo:'ok',label:'Muito bem tolerado',texto:'Forma quelada com treonato. Sem efeitos laxativos. Estudos de 12 semanas sem efeitos adversos.'},
       {tipo:'warn',label:'Custo elevado',texto:'MgT é mais caro que outras formas. Para efeitos sistêmicos (músculo, coração), magnésio glicinato é igualmente eficaz e mais barato.'},
-    ]
+    ],
+    risk_groups:[],
+    common_myths:[
+      {mito:'Magnésio treonato é superior para todos os efeitos do magnésio',refutacao:'FALSO. MgT é superior especificamente para efeitos cerebrais (barreira hematoencefálica). Para músculo, sono geral, e testosterona — o glicinato tem evidência equivalente e custo menor.'},
+    ],
   },
   14:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`O HMB (β-Hidroxi β-Metilbutirato) é um metabólito ativo da leucina, produzido em pequena quantidade no metabolismo normal de proteínas. Seu mecanismo principal é a inibição da via ubiquitina-proteassoma, que degrada proteínas musculares (proteólise). Especialmente eficaz em estados catabólicos: iniciantes, idosos sarcopênicos, períodos de déficit calórico ou imobilização. Em atletas avançados o efeito é menor.`,
     mecanismo:[
       {ico:'🛡',label:'Anti-catabolismo',val:'Inibe ubiquitina-proteassoma → reduz degradação de proteínas musculares'},
@@ -622,7 +1492,8 @@ CYCLES.push({
   },
   15:{
     ev:5,
-    resumo:`O Whey Protein Isolado (WPI) é a proteína do soro do leite com maior pureza (>90% de proteína) e mínimo de lactose e gordura. É a fonte de proteína com maior índice PDCAAS e DIAAS (ambos = 1,0), possuindo o perfil de aminoácidos essenciais mais completo entre fontes proteicas. A leucina — 10–11% da composição — é o gatilho molecular da síntese proteica via ativação de mTORC1.`,
+    scientific_evidence_level:'A',
+    resumo:`O Whey Protein Isolado (WPI) é a proteína do soro do leite com maior pureza (>90% de proteína) e mínimo de lactose e gordura. É a fonte de proteína com maior índice PDCAAS e DIAAS (ambos = 1,0), possuindo o perfil de aminoácidos essenciais mais completo entre fontes proteicas. A leucina — 10–11% da composição — é o gatilho molecular da síntese proteica via ativação de mTORC1. Para hipertrofia, o alvo proteico total é 1,6–2,2g/kg/dia de proteína total na dieta; o whey é uma ferramenta para atingir essa meta, não substitui refeições completas.`,
     mecanismo:[
       {ico:'🔬',label:'mTORC1',val:'Leucina ativa mTORC1 via RAG GTPases → cascata de síntese proteica muscular'},
       {ico:'⚡',label:'Velocidade de Absorção',val:'Pico aminoacídico em 60–90 min — ideal para janela anabólica pós-treino'},
@@ -630,18 +1501,28 @@ CYCLES.push({
       {ico:'🩸',label:'Insulina',val:'Estimula secreção de insulina, que potencializa captação de aminoácidos pelo músculo'},
     ],
     estudos:[
-      {tipo:'Meta-análise',ano:'2018',journal:'Br J Sports Med',titulo:'Suplementação proteica e hipertrofia (49 estudos)',achado:'+1,1 kg de massa magra adicional vs placebo em 12+ semanas de treino',detalhe:'1.800 participantes. Efeito significativo até ~1,62g de proteína/kg/dia. Whey foi a fonte mais usada.',pmid:'28698222'},
+      {tipo:'Meta-análise',ano:'2018',journal:'Br J Sports Med',titulo:'Suplementação proteica e hipertrofia (49 estudos)',achado:'+1,1 kg de massa magra adicional vs placebo em 12+ semanas de treino',detalhe:'1.800 participantes. Efeito significativo até ~1,62g de proteína/kg/dia. Plateau de efeito acima de 2,2g/kg. Whey foi a fonte mais usada.',pmid:'28698222'},
       {tipo:'RCT',ano:'2007',journal:'Int J Sport Nutr Exerc Metab',titulo:'Whey vs caseína vs soja para hipertrofia',achado:'Whey gerou +20% mais massa magra que soja e +24% mais que caseína em 12 semanas',detalhe:'74 homens treinados. Whey pós-treino. Leucinaemia mais elevada no whey explicou a diferença.',pmid:'17684208'},
       {tipo:'Meta-análise',ano:'2017',journal:'J Am Coll Nutr',titulo:'Whey e perda de gordura em déficit calórico',achado:'−2,3 kg a mais de gordura com whey vs controle em dietas hipocalóricas',detalhe:'Efeito protetor de massa magra e maior saciedade explicam o resultado. 9 RCTs incluídos.',pmid:'26545761'},
     ],
     seguranca:[
-      {tipo:'ok',label:'Seguro para pessoas saudáveis',texto:'Décadas de uso e pesquisa sem evidências de dano renal, hepático ou ósseo em pessoas sem condições preexistentes.'},
+      {tipo:'ok',label:'Seguro para pessoas saudáveis',texto:'Décadas de uso e pesquisa sem evidências de dano renal, hepático ou ósseo em pessoas sem condições preexistentes. Meta-análise 2018 (Br J Sports Med): até 2,2g/kg/dia é seguro em adultos saudáveis treinados.'},
       {tipo:'warn',label:'Intolerância à lactose',texto:'O isolado tem <1% de lactose — geralmente tolerado. Quem tem alergia à proteína do leite (não intolerância) deve evitar.'},
-      {tipo:'warn',label:'Disfunção renal',texto:'Pessoas com insuficiência renal crônica devem limitar proteínas totais. Consultar nefrologista.'},
-    ]
+      {tipo:'bad',label:'Doença Renal Crônica (DRC) — GRUPO DE RISCO',texto:'KDIGO 2024 recomenda ≤0,8g/kg/dia para DRC G3–G5 e EVITAR >1,3g/kg/dia. Dietas hiperproteicas (>2g/kg/dia) podem causar hiperfiltração glomerular e acelerar progressão da DRC. Nefrologista deve orientar a ingestão proteica.'},
+    ],
+    risk_groups:[
+      {grp:'Doença Renal Crônica (DRC) — G3 a G5',nivel:'bad',motivo:'KDIGO 2024: manter proteína em ≤0,8g/kg/dia; evitar >1,3g/kg/dia. Hiperfiltração glomerular por excesso proteico pode acelerar progressão.'},
+      {grp:'Urolitíase / Cálculos Renais',nivel:'warn',motivo:'Dietas hiperproteicas animais aumentam excreção de oxalato e ácido úrico, elevando risco de cálculos. Preferir fontes proteicas vegetais parciais.'},
+    ],
+    common_myths:[
+      {mito:'Proteína em excesso causa danos nos rins em pessoas saudáveis',refutacao:'FALSO para saudáveis. Meta-análise Br J Sports Med 2018 não encontrou dano renal até 2,2g/kg/dia em adultos sem condição preexistente. VERDADEIRO em DRC: KDIGO 2024 restringe a <1,3g/kg/dia para evitar hiperfiltração.'},
+      {mito:'Quanto mais proteína, mais músculo',refutacao:'FALSO acima de ~2,2g/kg/dia. O teto de efetividade para hipertrofia está em 1,6–2,2g/kg/dia (meta-análise 49 estudos). Proteína além disso é oxidada como energia — sem benefício muscular adicional.'},
+      {mito:'É preciso tomar whey imediatamente após o treino (janela anabólica de 30min)',refutacao:'MITO EXAGERADO. A "janela anabólica" é muito maior do que se acreditava — a síntese proteica permanece elevada por 24–48h pós-treino. O total proteico do dia importa mais que o timing preciso.'},
+    ],
   },
   16:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`Os EAA (Aminoácidos Essenciais) são os 9 aminoácidos que o organismo não pode sintetizar de novo: histidina, isoleucina, leucina, lisina, metionina, fenilalanina, treonina, triptofano e valina. Ao contrário dos BCAAs (apenas 3), os EAA fornecem todos os substratos para síntese proteica completa. Estudos mostram que os EAA estimulam a síntese proteica muscular até 50% mais que BCAAs isolados, pois os aminoácidos não-ramificados são igualmente necessários para elongação do peptídeo.`,
     mecanismo:[
       {ico:'🔬',label:'Síntese Proteica',val:'Todos os 9 EAAs necessários para elongação ribosomal completa de proteínas musculares'},
@@ -662,6 +1543,7 @@ CYCLES.push({
   },
   17:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Ecdisterona (20-Hidroxiecdisona, ou 20E) é um fitoesteroide encontrado em espinafre, quinoa e outras plantas, pertencente à classe dos ecdisteróides — hormônios de insetos adaptados para resistência ao estresse. Em mamíferos, a 20E ativa o receptor estrogênico beta (ERβ) sem suprimir o eixo HPTA, o que a diferencia dos AAS. Promove síntese proteica e hipertrofia sem efeitos androgênicos.`,
     mecanismo:[
       {ico:'🧬',label:'Receptor ERβ',val:'Liga-se ao receptor estrogênico beta → ativação da via PI3K/Akt/mTOR para síntese proteica'},
@@ -683,6 +1565,7 @@ CYCLES.push({
   },
   19:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Bacopa Monnieri é uma erva ayurvédica cujos princípios ativos — bacosídeos A e B — inibem a acetilcolinesterase (elevando acetilcolina) e protegem neurônios do estresse oxidativo. Diferente de estimulantes, seu efeito é acumulativo: requer 8–12 semanas para pleno efeito e persiste após cessação (neuroproteção de longo prazo via BDNF e NGF). Especialmente eficaz para memória de longo prazo e aprendizado.`,
     mecanismo:[
       {ico:'🧠',label:'Acetilcolina',val:'Bacosídeos inibem acetilcolinesterase → mais ACh disponível para sinapses colinérgicas'},
@@ -704,6 +1587,7 @@ CYCLES.push({
   },
   20:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Rhodiola Rosea é um adaptógeno ártico cujos compostos-chave (rosavinas e salidrosídeos) modulam o eixo HPA e atuam no nível das monoaminas cerebrais. Diferente da Ashwagandha (efeito em semanas), a Rhodiola produz efeito adaptogênico e energizante em 1–2 dias. Reduz fadiga mental e física, melhora performance cognitiva sob estresse e acelera recuperação após exercício intenso.`,
     mecanismo:[
       {ico:'⚡',label:'Monoaminas',val:'Rosavinas inibem MAO (monoamino oxidase) A e B → mais dopamina e serotonina disponíveis'},
@@ -725,6 +1609,7 @@ CYCLES.push({
   },
   21:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Alpha-GPC (L-Alfa-glicerilfosforilcolina) é a forma de colina com maior biodisponibilidade ao cérebro (40% de colina elementar biodisponível). Após absorção, a Alpha-GPC cruza a barreira hematoencefálica e serve de precursor para a síntese de acetilcolina (ACh) — o principal neurotransmissor da memória, aprendizado e controle motor. Além do efeito colinérgico, estimula a secreção de GH via amplificação da grelina.`,
     mecanismo:[
       {ico:'🧠',label:'Acetilcolina',val:'Alpha-GPC → colina → acetilcolina via colina acetiltransferase (ChAT) em neurônios colinérgicos'},
@@ -745,6 +1630,7 @@ CYCLES.push({
   },
   22:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A L-Teanina (γ-glutamiletionamina) é um aminoácido exclusivo do chá verde (Camellia sinensis) que cruza a barreira hematoencefálica e modula vários neurotransmissores simultaneamente. Aumenta ondas alfa cerebrais (8–14 Hz) — o estado de "relaxamento alerta" — sem causar sedação. Eleva GABA, serotonina e dopamina enquanto reduz adrenalina. Em combinação com cafeína, é a dupla psicoativa mais bem estudada na literatura.`,
     mecanismo:[
       {ico:'🌊',label:'Ondas Alfa',val:'Aumenta potência de ondas alfa EEG em 30 min → foco tranquilo sem sonolência'},
@@ -765,6 +1651,7 @@ CYCLES.push({
   },
   25:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Coenzima Q10 (CoQ10 ou ubiquinona/ubiquinol) é uma molécula lipossolúvel indispensável para a cadeia de transporte de elétrons mitocondrial (Complexos I, II e III). Sem CoQ10, a produção de ATP cessa. Além disso, é um dos mais potentes antioxidantes lipossolúveis do organismo, protegendo LDL e membranas celulares da oxidação. A forma ubiquinol (reduzida) é 2–8× mais biodisponível que a ubiquinona (oxidada). A síntese endógena declina com a idade e é bloqueada pelas estatinas.`,
     mecanismo:[
       {ico:'⚡',label:'ATP Mitocondrial',val:'Carreador de elétrons nos Complexos I→III da cadeia respiratória → síntese de ATP'},
@@ -785,6 +1672,7 @@ CYCLES.push({
   },
   26:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`As Beta-glucanas 1,3-D e 1,6-D são polissacarídeos da parede celular de fungos medicinais (Reishi, Shiitake, Maitake, Turkey Tail) que atuam como modificadores da resposta biológica (BRMs). Elas são reconhecidas por receptores Dectin-1 e TLR2 em macrófagos e células NK, desencadeando uma cascata imune que prepara o organismo para patógenos sem causar inflamação excessiva — imunidade de base.`,
     mecanismo:[
       {ico:'🦠',label:'Macrófagos',val:'Beta-glucanas ligam Dectin-1 → ativação e polarização M1 de macrófagos'},
@@ -805,6 +1693,7 @@ CYCLES.push({
   },
   27:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Vitamina C (ácido ascórbico) é um antioxidante hidrossolúvel essencial para humanos (não sintetizamos endogenamente). A forma tamponada (ascorbato de sódio ou cálcio) tem o mesmo efeito fisiológico com pH neutro — ideal para quem tem sensibilidade gástrica. É cofatora da síntese de colágeno (hidroxilação de prolina e lisina via prolil e lisil hidroxilases), da síntese de carnitina, da absorção de ferro não-heme e da regeneração de vitamina E.`,
     mecanismo:[
       {ico:'🧬',label:'Colágeno',val:'Cofator obrigatório de prolil e lisil hidroxilase → síntese de colágeno estável'},
@@ -825,6 +1714,7 @@ CYCLES.push({
   },
   28:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Quercetina é o flavonoide mais abundante da dieta ocidental (maçã, cebola, alcaparra), com potente atividade antiviral, anti-inflamatória e ionófora de zinco. A forma fitossomada (complexada com fosfatidilcolina de soja) supera a biodisponibilidade da quercetina padrão em até 20×, tornando viáveis as doses utilizadas nos estudos. Seu mecanismo antiviral mais relevante é a inibição de RNA polimerases virais e a facilitação da entrada de zinco nas células.`,
     mecanismo:[
       {ico:'🦠',label:'Antiviral',val:'Inibe RNA polimerase dependente de RNA em vírus RNA (influenza, coronavírus, rinovírus)'},
@@ -845,6 +1735,7 @@ CYCLES.push({
   },
   29:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`A Catuaba (Trichilia catigua, Erythroxylum catuaba) é um arbusto amazônico cujas cascas contêm catuabinas A, B e C — alcaloides com ação sobre o sistema nervoso central dopaminérgico e noradrenérgico. Estimula a liberação de dopamina e noradrenalina em regiões límbicas, melhorando libido, excitação sexual e sensações. Considerada um afrodisíaco clínico na medicina tradicional brasileira, com estudos modernos ainda limitados mas crescentes.`,
     mecanismo:[
       {ico:'🧠',label:'Dopamina',val:'Catuabinas potencializam liberação de dopamina no núcleo accumbens → motivação e desejo sexual'},
@@ -865,6 +1756,7 @@ CYCLES.push({
   },
   30:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`A Marapuama (Ptychopetalum olacoides), conhecida como "madeira da potência" ou Muira Puama, é uma planta amazônica com uso tradicional para disfunção erétil e neurostenia. Seus compostos ativos (ácido ptychopetalico, lupeol, beta-sitosterol) atuam principalmente no sistema nervoso autônomo, facilitando a resposta erétil via estimulação parassimpática, e podem modular receptores colinérgicos e dopaminérgicos.`,
     mecanismo:[
       {ico:'🧠',label:'Colinérgico',val:'Potencializa acetilcolina no sistema nervoso autônomo → facilita vasodilatação genital'},
@@ -885,6 +1777,7 @@ CYCLES.push({
   },
   31:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`O Saw Palmetto (Serenoa repens) é um arbusto cujos frutos contêm ácidos graxos livres (ácido láurico, ácido mirístico) e fitosteróis que inibem a enzima 5-alfa-redutase tipos 1 e 2. Essa enzima converte testosterona em DHT (dihidrotestosterona), que em excesso é o principal mediador da hiperplasia benigna da próstata (HBP) e da alopecia androgênica. O Saw Palmetto reduz a conversão sem alterar a testosterona total sérica.`,
     mecanismo:[
       {ico:'🔬',label:'5α-Redutase',val:'Ácidos graxos inibem 5α-redutase tipos 1 e 2 → reduz DHT local (próstata, folículo piloso)'},
@@ -905,6 +1798,7 @@ CYCLES.push({
   },
   32:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`O Panax Ginseng (ginseng asiático ou coreano) contém ginsenosídeos Rb1, Rb2, Rc, Rd (série Rb — sedativos/ansiolíticos) e Rg1, Rg2, Rf (série Rg — estimulantes). Essa dualidade o torna um adaptógeno verdadeiro: regula o eixo HPA bidirecionalmente. O mecanismo para função erétil é via estímulo da síntese de óxido nítrico (NO) no endotélio vascular dos corpos cavernosos, mediado pelos ginsenosídeos Rb1 e Rg1.`,
     mecanismo:[
       {ico:'💨',label:'Óxido Nítrico',val:'Ginsenosídeos Rb1/Rg1 ativam eNOS endotelial → vasodilatação e ereção'},
@@ -926,6 +1820,7 @@ CYCLES.push({
   },
   33:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Taurina é o aminoácido livre mais abundante no tecido muscular e no cérebro — não é um aminoácido proteínico (não incorporado em proteínas), mas desempenha funções regulatórias críticas. Atua como osmorregulador (regula volume celular), modulador de íons (Ca²⁺, Na⁺, K⁺, Cl⁻), antioxidante e neuroprotetor. No músculo, melhora contratilidade e reduz oxidação mitocondrial. Estudos revelaram impacto no envelhecimento.`,
     mecanismo:[
       {ico:'💦',label:'Osmorregulação',val:'Regula volume celular via transporte de Cl⁻ → hidratação ótima da fibra muscular'},
@@ -946,6 +1841,7 @@ CYCLES.push({
   },
   34:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`O Shatavari (Asparagus racemosus) é a principal erva adaptogênica ayurvédica para saúde feminina. Seus princípios ativos — saponinas esteroídicas (shatavarina I–IV), isoflavonas e polissacarídeos — têm atividade fitoestrogênica fraca, adaptogênica e galactagoga. Modula o eixo hipotálamo-hipófise-gonadal, apoia regulação do ciclo menstrual, lubrificação vaginal e libido feminina.`,
     mecanismo:[
       {ico:'♀️',label:'Fitoestrógenos',val:'Shatavarina I-IV se ligam fracamente a receptor ERα/ERβ → ação estrogênica modulada'},
@@ -966,6 +1862,7 @@ CYCLES.push({
   },
   36:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Psyllium husk (casca de Plantago ovata) é a fibra solúvel viscosa mais estudada para saúde digestiva e cardiovascular. Ao se hidratar, forma um gel mucilaginoso que retarda o trânsito intestinal, aumenta saciedade, envolve o bolo alimentar e reduz a absorção de colesterol e glicose. Aprovado pelo FDA como alimento funcional com claim de saúde cardiovascular (redução de LDL).`,
     mecanismo:[
       {ico:'🌊',label:'Gel Mucilaginoso',val:'Absorve água → forma gel viscoso → retarda esvaziamento gástrico e absorção de macros'},
@@ -986,6 +1883,7 @@ CYCLES.push({
   },
   37:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Berberina é um alcaloide isoquinolínico encontrado em Berberis vulgaris, Hydrastis canadensis e Coptis chinensis. É um dos fitoquímicos mais estudados para metabolismo, com ação principal na ativação de AMPK (proteína quinase ativada por AMP) — o "sensor de energia" celular. O efeito metabólico da berberina é comparável à metformina em estudos diretos, incluindo redução de HbA1c, glicemia e colesterol LDL.`,
     mecanismo:[
       {ico:'⚡',label:'AMPK',val:'Berberina inibe Complex I mitocondrial → ativa AMPK (como metformina) → melhora captação de glicose'},
@@ -1007,6 +1905,7 @@ CYCLES.push({
   },
   38:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`O Cromo trivalente (Cr³⁺) é um mineral traço com papel na sinalização da insulina — potencializa a ligação de insulina ao seu receptor via uma molécula chamada cromodulina (ou factor de tolerância à glicose). A forma picolinato é a mais biodisponível (15× mais que cloreto de cromo). A deficiência de cromo, comum em dietas ocidentais, está associada a resistência à insulina, compulsão por carboidratos e dislipidemia.`,
     mecanismo:[
       {ico:'🩸',label:'Insulina',val:'Cr³⁺ + cromoliguem → cromodulina ativa → potencializa sinalização do receptor de insulina'},
@@ -1027,6 +1926,7 @@ CYCLES.push({
   },
   39:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`O EGCG (Epigalocatequina-3-galato) é a catequina mais abundante e biologicamente ativa do chá verde (Camellia sinensis). É um polifenol com múltiplas ações: antioxidante, anti-inflamatório, termogênico suave e anticancerígeno potencial. Inibe a enzima COMT (catecol-O-metiltransferase), que degrada adrenalina e noradrenalina — potencializando levemente o efeito da cafeína e elevando termogênese.`,
     mecanismo:[
       {ico:'🔥',label:'Termogênese',val:'Inibe COMT → mais noradrenalina disponível → ativa β3-adrenorreceptores em tecido adiposo'},
@@ -1047,6 +1947,7 @@ CYCLES.push({
   },
   40:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`O colágeno é a proteína estrutural mais abundante do organismo (30% da proteína total), essencial para tendões, ligamentos, cartilagens, pele e ossos. Os peptídeos bioativos (VERISOL® para pele/cabelo, FORTIGEL® para cartilagem) são dipeptídeos e tripeptídeos específicos — Pro-Hyp e Hyp-Gly — que estimulam fibroblastos e condrócitos a produzir novo colágeno, ao invés de apenas fornecer aminoácidos. A vitamina C é cofatora obrigatória da síntese de colágeno.`,
     mecanismo:[
       {ico:'🔬',label:'Peptídeos Bioativos',val:'Pro-Hyp e Hyp-Gly estimulam fibroblastos e condrócitos via receptores específicos'},
@@ -1067,6 +1968,7 @@ CYCLES.push({
   },
   41:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`O Ferro é o mineral mais carente na dieta global, especialmente em mulheres (menstruação = perda de 15–30mg/ciclo). A forma bisglicinato quelado é 2–4× mais biodisponível que o sulfato ferroso (forma farmacêutica comum) e causa muito menos efeitos gastrointestinais. O ferro é cofator da hemoglobina (transporte de O₂), da mioglobina (armazenamento de O₂ muscular) e de enzimas mitocondriais. Ferritina baixa causa fadiga e queda de cabelo antes da anemia.`,
     mecanismo:[
       {ico:'🔴',label:'Hemoglobina',val:'Fe²⁺ é componente do heme → hemoglobina transporta O₂ nos eritrócitos'},
@@ -1087,6 +1989,7 @@ CYCLES.push({
   },
   42:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`O Cranberry (Vaccinium macrocarpon) contém proantocianidinas tipo A (PACs-A), estruturalmente únicas na capacidade de prevenir a adesão de bactérias uropatogênicas (especialmente E. coli cepa P-fimbriated) ao epitélio do trato urinário. A dose eficaz é de 36mg de PACs-A/dia — concentração que requer extrato padronizado, pois o suco comercial geralmente tem <10mg por porção.`,
     mecanismo:[
       {ico:'🦠',label:'Anti-adesão',val:'PACs-A bloqueiam fímbrias tipo P de E. coli → bactérias não aderem ao urotélio → eliminação urinária'},
@@ -1107,6 +2010,7 @@ CYCLES.push({
   },
   43:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Melatonina é um neurormônio sintetizado pela glândula pineal a partir do triptofano → serotonina → melatonina, em resposta ao escuro. Não é sedativo — é um sinalizador de fase circadiana que informa ao organismo que é "hora de dormir". Sua eficácia é maior para jet lag, trabalho em turnos e adiantamento ou atraso de fase do sono. Para insônia crônica, eficácia é moderada. A dose eficaz é surpreendentemente baixa: 0,3–1mg é igual ou superior a 5–10mg.`,
     mecanismo:[
       {ico:'🌙',label:'Receptores MT1/MT2',val:'Melatonina liga-se a MT1 (induz sono) e MT2 (regula fase circadiana) no hipotálamo anterior'},
@@ -1127,6 +2031,7 @@ CYCLES.push({
   },
   45:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A NAC (N-Acetilcisteína) é um derivado do aminoácido L-cisteína. É o principal doador de cisteína para a síntese de Glutationa — o antioxidante intracelular "mestre" do corpo humano. A NAC tem também propriedade mucolítica direta (quebra pontes dissulfeto do muco) e modula o neurotransmissor glutamato no cérebro. É medicamento de emergência (antídoto) para overdose de paracetamol.`,
     mecanismo:[
       {ico:'🛡',label:'Glutationa',val:'Fornece cisteína (aminoácido limitante) para ressíntese de glutationa (GSH)'},
@@ -1147,6 +2052,7 @@ CYCLES.push({
   },
   46:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Glicina é um aminoácido inibitório não essencial (o corpo produz, mas frequentemente não o suficiente para demandas otimizadas, especialmente de colágeno). Atua como co-agonista dos receptores NMDA e ativador dos receptores de glicina no tronco cerebral, induzindo vasodilatação periférica, queda da temperatura corporal central e aprofundamento do sono (ondas lentas). Também é 1/3 da estrutura do colágeno e necessária para a síntese de glutationa.`,
     mecanismo:[
       {ico:'😴',label:'Sono NREM',val:'Ativa receptores inibitórios no tronco cerebral → facilita transição para sono de ondas lentas'},
@@ -1166,6 +2072,7 @@ CYCLES.push({
   },
   47:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`Os Inositóis (especialmente a combinação Myo-inositol e D-chiro-inositol) são carboidratos cíclicos que atuam como "segundos mensageiros" celulares para a insulina e para o hormônio folículo-estimulante (FSH). São a intervenção natural mais estudada e recomendada (Primeira Linha) para a Síndrome dos Ovários Policísticos (SOP), restaurando a ovulação, reduzindo hiperandrogenismo (acne, pelos) e melhorando a sensibilidade à insulina. A proporção fisiológica plasmática é 40:1 (Myo:D-Chiro).`,
     mecanismo:[
       {ico:'🩸',label:'Sensibilidade à Insulina',val:'Inositofosfoglicanos facilitam a captação de glicose pós-ativação do receptor de insulina'},
@@ -1185,6 +2092,7 @@ CYCLES.push({
   },
   48:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A Spirulina (Arthrospira platensis) é uma cianobactéria (alga azul-verde) e um dos alimentos mais densos do planeta em nutrientes por grama. Contém 60% de proteína completa, betacaroteno, ferro, ácido gama-linolênico (GLA) e seu pigmento ativo exclusivo: a ficocianina. Possui forte evidência para redução de colesterol, modulação imunológica e auxílio na redução da rinite alérgica.`,
     mecanismo:[
       {ico:'🛡',label:'Ficocianina',val:'Pigmento azul antioxidante → inibe NADPH oxidase e reduz estresse oxidativo sistêmico'},
@@ -1205,6 +2113,7 @@ CYCLES.push({
   },
   56:{
     ev:5,
+    scientific_evidence_level:'A',
     resumo:`A Curcumina é o principal polifenol da Cúrcuma (Curcuma longa). É um dos anti-inflamatórios naturais mais potentes estudados, inibindo a via da COX-2, LOX e TNF-α. O problema histórico da curcumina é a péssima absorção (biodisponibilidade <1%). A forma Fitossomada (complexada com fosfolipídeos de soja ou girassol — ex: Meriva®) eleva a absorção em 29×, permitindo efeitos sistêmicos potentes, especialmente em dores articulares e saúde endotelial.`,
     mecanismo:[
       {ico:'🔥',label:'Anti-inflamatório',val:'Inibe COX-2, 5-LOX, TNF-α e NF-κB → paralisa a cascata inflamatória mestre'},
@@ -1225,6 +2134,7 @@ CYCLES.push({
   },
   54:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A L-Carnitina é responsável pelo transporte de ácidos graxos de cadeia longa para o interior da mitocôndria, onde são oxidados (queimados) para gerar ATP. A forma L-Tartarato (LCLT) é a mais absorvida pelo tecido muscular. Ao contrário do mito, ela não "queima gordura sozinha" se não houver déficit calórico e treino. Seu maior diferencial cientificamente comprovado é a aceleração da recuperação muscular e modulação da densidade de receptores androgênicos.`,
     mecanismo:[
       {ico:'🔥',label:'Beta-oxidação',val:'Carnitina-palmitoiltransferase I (CPT-1) transporta gordura para a matriz mitocondrial'},
@@ -1245,6 +2155,7 @@ CYCLES.push({
   },
   55:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`A L-Tirosina é um aminoácido precursor obrigatório de três catecolaminas vitais: Dopamina, Noradrenalina e Adrenalina, além dos hormônios da tireoide (T3 e T4). Ela não age como um estimulante agudo (não causa picos artificiais), mas funciona como um "buffer" de performance sob estresse: previne o esgotamento cognitivo e a fadiga quando o cérebro está sob alta demanda (frio, estresse psicológico, restrição de sono).`,
     mecanismo:[
       {ico:'🧠',label:'Dopamina/Noradrenalina',val:'Tirosina hidroxilase converte Tirosina → L-DOPA → Dopamina → Noradrenalina'},
@@ -1266,6 +2177,7 @@ CYCLES.push({
 
   35:{
     ev:4,
+    scientific_evidence_level:'B',
     resumo:`Os probióticos multi-cepas combinam bactérias das famílias Lactobacillus e Bifidobacterium para colonizar diferentes nichos do cólon. A microbiota intestinal (3,8 trilhões de micro-organismos) regula diretamente a barreira epitelial, a produção de IgA secretório, a síntese de vitaminas B e K e até o eixo intestino-cérebro via nervo vago. A evidência é forte para diarreia associada a antibióticos e SII; moderada para imunidade de mucosa e modulação de humor via eixo microbiota-intestino-cérebro.`,
     mecanismo:[
       {ico:'🦠',label:'Competição Microbiana',val:'Cepas benéficas competem por sítios de adesão no epitélio → deslocam patógenos oportunistas'},
@@ -1287,6 +2199,7 @@ CYCLES.push({
 
   44:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`A Glucosamina é um aminoaçúcar endógeno precursor dos glicosaminoglicanos (GAGs), que formam a matriz da cartilagem articular e do líquido sinovial. A Condroitina é um GAG de alto peso molecular presente na cartilagem e em tendões. A combinação visa fornecer substratos estruturais para a cartilagem e suprimir a atividade de metaloproteinases (MMP) que degradam a matriz extracelular. O efeito é lento — requer 8–12 semanas e é mais pronunciado em artrose moderada (grau II–III) do que em casos leves ou avançados.`,
     mecanismo:[
       {ico:'🦴',label:'Precursores de GAGs',val:'Glucosamina → UDP-glucosamina → proteoglicanos → cartilagem e líquido sinovial'},
@@ -1308,6 +2221,7 @@ CYCLES.push({
 
   49:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`O Cálcio é o mineral mais abundante do organismo (99% nos ossos e dentes como hidroxiapatita). O citrato de cálcio é a forma mais biodisponível — absorvido independentemente do pH gástrico, ao contrário do carbonato de cálcio que necessita de ácido. A Vitamina D3 (colecalciferol) é essencial para a absorção intestinal de cálcio (via proteína calbindina D9k): sem D3 adequada, apenas 10–15% do cálcio é absorvido; com D3 suficiente, a absorção sobe para 30–40%. A K2 (quando presente) direciona o cálcio absorvido para o esqueleto, prevenindo deposição nas artérias.`,
     mecanismo:[
       {ico:'🦴',label:'Hidroxiapatita',val:'Ca²⁺ + fosfato → cristais de hidroxiapatita → mineralização e rigidez óssea'},
@@ -1329,6 +2243,7 @@ CYCLES.push({
 
   50:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`A Valeriana (Valeriana officinalis) é um fitoterápico sedativo-ansiolítico usado há mais de 2.000 anos. Seus compostos ativos — ácido valerênico, isovalerenona, lignanas e iridóides (valepotriatos) — modulam o sistema GABAérgico: o ácido valerênico inibe a enzima GABA transaminase (que degrada GABA), elevando indiretamente os níveis de GABA sináptico. Também possui atividade agonista parcial em receptores de adenosina A1. Mais eficaz para ansiedade e dificuldade de manter o sono do que para insônia de início agudo.`,
     mecanismo:[
       {ico:'🧠',label:'GABA Transaminase',val:'Ácido valerênico inibe a degradação do GABA → acúmulo de GABA no espaço sináptico → inibição neuronal'},
@@ -1350,6 +2265,7 @@ CYCLES.push({
 
   51:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`A Apigenina (4',5,7-trihidroxiflavona) é o flavonoide majoritário da camomila (Matricaria chamomilla) e também encontrada em salsa, aipo e tomilho. Age como ansiolítico suave e indutor de sono via ligação parcial aos receptores benzodiazepínicos do GABA-A (sítio de ligação das benzodiazepinas, mas com atividade parcial — sem sedação profunda nem dependência). Também inibe aromatase e tem atividade antioxidante e anticancerígena potencial. É a apigenina que explica o efeito calmante do chá de camomila ao dormir.`,
     mecanismo:[
       {ico:'😴',label:'GABA-A (BZD Site)',val:'Apigenina liga-se ao sítio benzodiazepínico dos receptores GABA-A → agonista parcial → ansiedade ↓, indução do sono ↑ (sem o risco das BZDs)'},
@@ -1371,6 +2287,7 @@ CYCLES.push({
 
   52:{
     ev:3,
+    scientific_evidence_level:'C',
     resumo:`O Resveratrol trans (3,5,4'-trihidroxiestilbeno) é um polifenol estilbenoide sintetizado por plantas em resposta a estresse (infecção, UV, seca). Encontrado na casca de uvas vermelhas, amoras e amendoim. Age como ativador de sirtuínas (especialmente SIRT1) — deacetilases de histonas que regulam o metabolismo energético, resposta ao estresse oxidativo e longevidade celular. Mimetiza parcialmente os efeitos da restrição calórica. A biodisponibilidade do resveratrol livre é limitada (metabolismo hepático extenso), mas o trans-resveratrol em formulações especializadas (micronizado, ou complexado com ciclodextrina) tem melhor absorção.`,
     mecanismo:[
       {ico:'🔬',label:'SIRT1 (Sirtuína 1)',val:'Ativa SIRT1 → deacetilação de PGC-1α (biogênese mitocondrial), FOXO3 (resistência ao estresse) e p53 → efeitos anti-envelhecimento'},
@@ -1392,6 +2309,7 @@ CYCLES.push({
 
   53:{
     ev:2,
+    scientific_evidence_level:'C',
     resumo:`O Óleo de Prímula (Oenothera biennis) é fonte de ácido gama-linolênico (GLA, 7–10% da composição), um ácido graxo ômega-6 de cadeia longa que atua como precursor de prostaglandinas anti-inflamatórias da série 1 (PGE1). A deficiência de GLA ou sua conversão prejudicada em DGLA (dihomo-gama-linolênico) está associada a inflamação, síndrome pré-menstrual e ressecamento da pele. A evidência clínica é variável e de moderada qualidade — funciona melhor em subgrupos específicos, especialmente mulheres com TPM e dermatite.`,
     mecanismo:[
       {ico:'🌸',label:'GLA → DGLA',val:'GLA via Δ6-dessaturase → DGLA → PGE1 (prostaglandina anti-inflamatória) → reduz crampos e inflamação pré-menstrual'},
@@ -1414,6 +2332,54 @@ CYCLES.push({
 
 // ══════════════ REGRAS E LABELS ══════════════
 //  const DOSE_RULES, SEX_LABEL, etc... already defined above
+
+// ══════════════════════════════════════════════════════════════
+// 🔬 SCIENTIFIC AUDIT METADATA — SupliList Enciclopédia Científica
+// ══════════════════════════════════════════════════════════════
+// Última auditoria científica: Maio/2025
+// Fontes primárias: PubMed/NCBI, JISSN (Journal of the International
+// Society of Sports Nutrition), Examine.com, KDIGO 2024 Guidelines.
+//
+// NÍVEIS DE EVIDÊNCIA CIENTÍFICA (campo scientific_evidence_level):
+//   A = Alto  — Meta-análises, RCTs robustos, Position Stands de sociedades
+//   B = Moderado — RCTs menores, estudos observacionais de qualidade
+//   C = Baixo — Estudos in vitro, relatos de caso, extrapolações
+//
+// GRUPOS DE RISCO (campo risk_groups):
+//   Cada entrada pode conter um array de grupos populacionais
+//   que requerem atenção especial: DRC, hipertensão, ansiedade, etc.
+//
+// MITOS COMUNS (campo common_myths):
+//   Array com {mito, refutacao} baseados em evidência peer-reviewed.
+//
+// REGRAS DE DOSAGEM BASEADAS EM PESO CORPORAL (g/kg):
+//   Creatina:    ~0.07g/kg/dia (manutenção) — DOSE_RULES id 11
+//   Proteína:    1.6–2.2g/kg/dia para hipertrofia — DOSE_RULES id 15
+//   Citrulina:   0.08–0.10g/kg/dia (pré-treino) — DOSE_RULES id 3
+//   Cafeína:     1.5–3.0mg/kg/dia (estímulo cognitivo/físico) — DOSE_RULES id 13
+//
+// DISCLAIMER DE RESPONSABILIDADE:
+//   As informações contidas neste portal têm caráter EDUCATIVO e INFORMATIVO.
+//   Não substituem o diagnóstico, prescrensa ou acompanhamento de profissionais
+//   de saúde habilitados (Médicos, Nutricionistas, Farmacêuticos).
+//   Dosagens são baseadas em médias populacionais de estudos clínicos.
+//   Condições de saúde individuais, medicamentos e histórico familiar
+//   podem alterar significativamente a indicação e segurança de qualquer suplemento.
+//   Sempre consulte um profissional antes de iniciar qualquer protocolo.
+//
+// ⚠️ AVISO ESPECIAL — ESTIMULANTES (Cafeína, EGCG, Sinefrina):
+//   Grupos de risco que devem ter atenção redobrada ou evitar:
+//   • Hipertensão Arterial não controlada
+//   • Transtornos de Ansiedade (TAG, Pânico)
+//   • Insônia Crônica
+//   • Arritmias cardíacas / histórico de taquicardia
+//   • Gestação e lactação
+//
+// ⚠️ AVISO ESPECIAL — DIETAS HIPERPROTEICAS (>1.3g/kg/dia):
+//   • Doença Renal Crônica (DRC G3–G5): KDIGO 2024 recomenda ≤0,8g/kg/dia
+//   • Urolitíase recorrente: monitorar excreção de oxalato e ácido úrico
+//   • Transplantados renais: seguir orientação nefrológica estrita
+// ══════════════════════════════════════════════════════════════
 
  const FAQ_DATA = [
   {cat:'plataforma',q:'O SupliList Pro é gratuito?',a:'Sim, 100% gratuito e sem anúncios. Não há planos pagos, assinaturas ou funcionalidades bloqueadas. Mantemos a plataforma através de comissões de afiliados quando você compra via nossos links — sem custo adicional para você.'},

@@ -10,11 +10,13 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Suplilist — Suplementos com Eficácia Científica">
 <meta property="og:description" content="Marketplace inteligente de suplementos. Compare preços, doses e eficácia científica em um só lugar.">
+<meta property="og:image" content="https://suplilist.com/assets/og-image.jpg">
 <meta property="og:url" content="https://suplilist.com/">
 <meta property="og:site_name" content="SupliList">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Suplilist — Suplementos com Eficácia Científica">
 <meta name="twitter:description" content="Compare preços, doses e eficácia científica em um só lugar.">
+<meta name="twitter:image" content="https://suplilist.com/assets/og-image.jpg">
 <meta name="theme-color" content="#050608" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f0f2f8" media="(prefers-color-scheme: light)">
 <link rel="dns-prefetch" href="//shopee.com.br">
@@ -84,7 +86,7 @@
 
 <nav class="sidebar" id="sidebar" aria-label="Navegação principal">
   <div class="sb-header">
-    <div class="nav-brand" aria-label="SupliList Pro"><span class="bp" aria-hidden="true"></span>SupliList Pro</div>
+    <div class="nav-brand" aria-label="SupliList"><span class="bp" aria-hidden="true"></span>SupliList</div>
     <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Recolher menu" aria-label="Recolher menu">◀</button>
   </div>
   <div class="sb-nav" role="tablist" aria-label="Seções">
@@ -364,7 +366,7 @@
   <div style="position:relative;z-index:1">
     <div class="hp-stag hp-reveal" style="justify-content:center">Comece agora</div>
     <h2 class="hp-sh hp-reveal" style="text-align:center">Pronto pra<br><span style="color:var(--accent)">suplementar</span><br>com cabeça?</h2>
-    <p class="hp-sp hp-reveal" style="margin:0 auto 36px;text-align:center">Gratuito, sem cadastro, sem pegadinha.<br>Abre no navegador e já funciona.</p>
+    <p class="hp-sp hp-reveal" style="margin:0 auto 36px;text-align:center">Gratuito, sem cadastro, sem pegadinha.<br>Abra no navegador e comece a usar.</p>
     <div class="hp-cta-row hp-reveal">
       <button class="hp-btn-p" onclick="go('lista')">🚀 Abrir a Lista Agora</button>
       <button class="hp-btn-s" onclick="go('dose')">💊 Calcular Dosagem</button>
@@ -379,7 +381,7 @@
   <section class="hero">
 
     <h2>Suplementos com <em>Eficácia</em><br>Científica Comprovada</h2>
-    <p class="hero-sub">Compare preços em tempo real na Shopee, Mercado Livre e Amazon. Encontre a melhor dose, ciclo ideal e onde comprar com a melhor relação custo-benefício.</p>
+    <p class="hero-sub">Compare preços na Shopee, Mercado Livre e Amazon. Encontre a melhor dose, ciclo ideal e onde comprar com a melhor relação custo-benefício.</p>
     <div class="hero-ctas">
       <button class="cta-primary" onclick="openAll()">↗ Ver Melhores Preços</button>
       <button class="cta-sec" onclick="go('compare')">⚖️ Comparar Ingredientes</button>
@@ -427,10 +429,9 @@
     <div class="togw" onclick="toggleExtra()"><div class="tog on" id="tesw"></div><span style="color:var(--rose)">Mostrar extras</span></div>
   </div>
 
-  <div class="affiliate-banner" id="af-banner">
+  <div class="affiliate-banner" id="af-banner" role="note" aria-label="Aviso de divulgação de afiliados">
     <span class="af-ico">💼</span>
     <span>Este site contém <b>links de afiliados</b>. Ao comprar via nossos links, recebemos uma comissão sem custo adicional para você. Os preços e a disponibilidade são exibidos para fins comparativos — verifique sempre o site do vendedor antes de finalizar a compra. <a href="#" onclick="go('config');return false">Saiba mais ↗</a></span>
-    <button class="af-dismiss" onclick="dismissAffiliate()" title="Fechar">✕</button>
   </div>
 
   <div class="price-cache-bar" id="price-cache-bar">
@@ -489,7 +490,7 @@
   <div id="list" role="list" aria-label="Lista de suplementos"></div>
 
   <footer class="foot">
-    <div class="foot-txt">SupliList Pro v13.0 · Dados salvos localmente · <span id="ls">—</span></div>
+    <div class="foot-txt">SupliList v<span id="version-footer">—</span> · Dados salvos localmente · <span id="ls">—</span></div>
   </footer>
 </div>
 
@@ -781,7 +782,7 @@
 </div>
 
 <div id="p-terms" class="page">
-  <div class="terms-updated">Última atualização: Janeiro de 2025</div>
+  <div class="terms-updated">Última atualização: <span id="terms-updated-date">—</span></div>
   <div class="terms-layout">
     <nav class="terms-nav" aria-label="Navegação dos termos">
       <div class="terms-nav-item active" onclick="scrollToSection('t-intro')">📋 Introdução</div>
@@ -797,7 +798,7 @@
     <div class="terms-body">
       <div class="terms-hero">
         <h2>Termos de Uso</h2>
-        <p>SupliList Pro · suplilistpro.com · Última revisão: 15/01/2025</p>
+        <p>SupliList · suplilist.com · Última revisão: <span id="terms-revision-date">—</span></p>
       </div>
       <div class="terms-section" id="t-intro">
         <h3>📋 Introdução <span>Cláusula 1</span></h3>
@@ -847,14 +848,14 @@
       </div>
       <div class="terms-section" id="t-dados">
         <h3>🔒 Dados &amp; Privacidade <span>Cláusula 5</span></h3>
-        <p class="terms-p">O SupliList Pro foi projetado com <strong>privacidade por design</strong>:</p>
+        <p class="terms-p">O SupliList foi projetado com <strong>privacidade por design</strong>:</p>
         <ul class="terms-list">
-          <li>Todos os seus dados são armazenados <strong>exclusivamente no seu dispositivo</strong> via <code>localStorage</code></li>
+          <li>Todos os seus dados são armazenados <strong>no seu dispositivo</strong> via <code>localStorage</code></li>
           <li><strong>Não coletamos, transmitimos ou armazenamos</strong> dados pessoais em servidores</li>
           <li>Não há cadastro, login ou conta de usuário</li>
           <li>Não utilizamos cookies de rastreamento de terceiros</li>
         </ul>
-        <p class="terms-p">Esta plataforma está em conformidade com a <strong>LGPD (Lei 13.709/2018)</strong> na medida em que não coleta dados pessoais dos usuários.</p>
+        <p class="terms-p">Esta plataforma está em conformidade com a <strong>LGPD</strong> na medida em que não coleta dados pessoais dos usuários.</p>
       </div>
       <div class="terms-section" id="t-ip">
         <h3>📝 Propriedade Intelectual <span>Cláusula 6</span></h3>
@@ -876,11 +877,11 @@
       <div class="terms-section" id="t-contato">
         <h3>📬 Contato <span>Cláusula 9</span></h3>
         <ul class="terms-list">
-          <li>E-mail: <strong>contato@suplilistpro.com</strong></li>
+          <li>E-mail: <strong>contato@suplilist.com</strong></li>
           <li>Assunto: "[Termos de Uso]" ou "[Privacidade]"</li>
           <li>Prazo de resposta: até 5 dias úteis</li>
         </ul>
-        <p class="terms-p" style="margin-top:16px;font-size:11px;color:var(--tx3)">© 2026 SupliList Pro. Todos os direitos reservados. Brasil.</p>
+        <p class="terms-p" style="margin-top:16px;font-size:11px;color:var(--tx3)">© 2026 SupliList. Todos os direitos reservados. Brasil.</p>
       </div>
     </div>
   </div>
@@ -1000,8 +1001,21 @@
 </div>
 
   <div class="setsec">
-    <h3>ℹ️ Sobre o SupliList Pro</h3>
-    <div class="setrow"><div class="setinfo"><div class="setlabel">Versão</div></div><div class="setctl"><span style="font-family:var(--fm);font-size:11px;color:var(--tx3)">v13.0</span></div></div>
+    <div id="admin-section" style="display: none !important;">
+      <h3>🛠️ Ferramentas de Desenvolvedor</h3>
+      <div class="setrow">
+        <div class="setinfo">
+          <div class="setlabel">Modo Administrador Ativo</div>
+          <div class="setdesc">Você pode testar a integridade dos links de afiliados e ver logs de depuração.</div>
+        </div>
+        <div class="setctl">
+          <button class="btn bg" onclick="testAffiliateLinks()">Testar Todos os Links</button>
+          <button class="btn" onclick="runDatabaseAudit()" style="margin-left:8px">📊 Auditar Banco</button>
+        </div>
+      </div>
+    </div>
+    <h3>ℹ️ Sobre o SupliList</h3>
+    <div class="setrow"><div class="setinfo"><div class="setlabel">Versão</div></div><div class="setctl"><span id="version-trigger" style="font-family:var(--fm);font-size:11px;color:var(--tx3);cursor:pointer;user-select:none" title="v" data-version="APP_VERSION">v<span id="version-config">—</span></span></div></div>
     <div class="setrow"><div class="setinfo"><div class="setlabel">Armazenamento usado</div></div><div class="setctl"><span style="font-family:var(--fm);font-size:11px;color:var(--tx3)" id="storage-size">—</span></div></div>
     <div class="setrow"><div class="setinfo"><div class="setlabel">Suplementos disponíveis</div></div><div class="setctl"><span id="cfg-total-supps" style="font-family:var(--fm);font-size:11px;color:var(--accent)">56</span></div></div>
     <div class="setrow"><div class="setinfo"><div class="setlabel">Última sincronização</div></div><div class="setctl"><span style="font-family:var(--fm);font-size:11px;color:var(--tx3)" id="last-save">—</span></div></div>

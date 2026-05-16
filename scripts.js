@@ -1,54 +1,12 @@
 // ══════════════ MAPEAMENTOS E REGRAS DE NEGÓCIO ══════════════
 
-function amazonAff(url){
-  try{
-    const u=new URL(url);
-    if(u.hostname.includes('amazon.')){
-      u.searchParams.set('tag',AFF.amazonTag);
-      u.searchParams.set('linkCode','ll2');
-      u.searchParams.set('ref_','as_li_ss_tl');
-    }
-    return u.toString();
-  }catch(e){return url;}
-}
-
-function mlAff(url){
-  try{
-    const u=new URL(url);
-    if(u.hostname.includes('meli.la')) return u.toString();
-    u.searchParams.set('utm_source','suplilistpro');
-    u.searchParams.set('utm_medium','affiliate');
-    u.searchParams.set('utm_campaign','mercadolivre');
-    u.searchParams.set('utm_content',AFF.mlLabel);
-    u.searchParams.set('label',AFF.mlLabel);
-    return u.toString();
-  }catch(e){return url;}
-}
-
-function getBestDeal(it) {
-  const p = it.pm || 20;
-  const mlp = mlPrice(it);
-  const azp = azPrice(it);
-  const shopee = it.linkShopee || it.shopee || '';
-  const amazon = it.linkAmazon || it.az || '';
-  const ml = it.linkML || it.ml || '';
-
-  if (p <= mlp && p <= azp) return { name: 'Shopee', price: p, url: shopee, src: 'shopee' };
-  if (mlp <= p && mlp <= azp) return { name: 'Mercado Livre', price: mlp, url: mlAff(ml), src: 'mercadolivre' };
-  return { name: 'Amazon', price: azp, url: amazonAff(amazon), src: 'amazon' };
-}
-
-function mlPrice(i){return i.mlp||Math.round((i.pm||20)*1.08);}
-function azPrice(i){return i.azp||Math.round((i.pm||20)*1.18);}
-function bestMarketplacePrice(i){return Math.min(mlPrice(i),azPrice(i));}
-
-
 // ══════════════ STATE ══════════════
-let S={
-  checked:{},open:{},notes:{},wishlist:{},stack:{},imgs:{},
+let S = {
+  version: null,
+  checked:{},open:{},notes:{},wishlist:{},stack:{},
   tab:'lista',cat:'Todos',goal:'',showDone:true,showExtra:true,goalFilter:'',priceFilter:'',
   cmpSel:[],rSel:[],history:[],cycleStart:{},cycleNote:{},cyclePause:{},
-  cfg:{showStars:true,showPdose:true,confetti:true,theme:'dark',delay:280,
+  cfg:{isAdmin:false,showStars:true,showPdose:true,confetti:true,theme:'dark',delay:280,
        alertInteractions:true,alertCycles:true,toasts:true,
        expandOnClick:true,confirmUncheck:false,autoSync:true,defaultSort:'priority'},
   lastSave:null
@@ -81,6 +39,7 @@ function _setSyncUI(status,msg){
 function _doSave(){
   _setSyncUI('syncing','Salvando no dispositivo…');
   S.lastSave=new Date().toISOString();
+  S.version = APP_VERSION; // Persiste a versão atual para validação futura
   try{
     localStorage.setItem(STORAGE_KEY,JSON.stringify(S));
     const t='Salvo no Dispositivo às '+new Date(S.lastSave).toLocaleTimeString('pt-BR');
@@ -108,16 +67,37 @@ function load(){
     const r=localStorage.getItem(STORAGE_KEY);
     if(r){
       const d=JSON.parse(r);
-      S={...S,...d};
+
+      // Validação de Schema / Migration
+      const savedVersion = d.version || '0';
+      if (savedVersion !== APP_VERSION) {
+        console.warn(`[Version Control] Detectada v${savedVersion}. Atual: v${APP_VERSION}`);
+        
+        const migratedData = runMigrations(d, savedVersion, APP_VERSION);
+        
+        if (migratedData) {
+          console.info("[Migration] Sucesso: Dados convertidos para v" + APP_VERSION);
+          S = { ...S, ...migratedData };
+        } else {
+          // Fallback: Se não houver regra de migração, resetamos para evitar quebra silenciosa
+          console.error("[Migration] Incompatibilidade crítica. Executando reset amigável.");
+          toast('📢', 'Seus dados foram resetados após atualização para garantir estabilidade.', 'info', { duration: 7000 });
+          S.version = APP_VERSION;
+          save();
+          return; // Aborta carregamento dos dados obsoletos
+        }
+      } else {
+        S={...S,...d};
+      }
+
       S.cfg={...S.cfg,...(d.cfg||{})};
-      S.imgs={...S.imgs,...(d.imgs||{})};
       S.stack={...S.stack,...(d.stack||{})};
       S.cycleStart={...S.cycleStart,...(d.cycleStart||{})};
       S.cycleNote={...S.cycleNote,...(d.cycleNote||{})};
       S.cyclePause={...S.cyclePause,...(d.cyclePause||{})};
+      // S.imgs foi removido, não é mais necessário carregar imagens base64
     }
   }catch(e){}
-  if(!S.imgs)S.imgs={};
   if(!S.stack)S.stack={};
   if(!S.cycleStart)S.cycleStart={};
   if(!S.cycleNote)S.cycleNote={};
@@ -125,6 +105,18 @@ function load(){
   if(!S.rSel)S.rSel=[];
   if(!S.cmpSel)S.cmpSel=[];
   if(!S.history)S.history=[];
+}
+
+/**
+ * Transforma dados de schemas antigos para o schema atual.
+ * @param {Object} d - Dados brutos vindos do localStorage.
+ * @param {string} oldV - Versão salva no disco.
+ * @param {string} newV - Versão APP_VERSION definida em data.js.
+ * @returns {Object|null} - Dados migrados ou null para forçar reset.
+ */
+function runMigrations(d, oldV, newV) {
+  // Exemplo de uso futuro: if(oldV === '14.0') { d.novoCampo = []; return d; }
+  return null; // Por padrão, resetar se o schema divergir e não houver regra específica.
 }
 
 
@@ -157,6 +149,54 @@ function syncCfgThemeGrid(){
 
 function toggleCfgExtra(){S.showExtra=!S.showExtra;applyCfg();renderList();save();}
 function toggleCfgDone(){S.showDone=!S.showDone;applyCfg();renderList();save();}
+
+function toggleAdminMode() {
+  // Solicita senha apenas se estiver tentando ATIVAR o modo admin
+  if (!S.cfg.isAdmin) {
+    const pw = prompt("Digite a senha de administrador para acessar as ferramentas mestre:");
+    if (pw !== "admin123") { // Você pode alterar "admin123" para a senha que desejar
+      toast('🚫', 'Acesso negado: Senha incorreta', 'error');
+      return;
+    }
+  }
+
+  S.cfg.isAdmin = !S.cfg.isAdmin;
+  const sec = document.getElementById('admin-section');
+  if (sec) {
+    if (S.cfg.isAdmin) {
+      sec.style.setProperty('display', 'block', 'important');
+    } else {
+      sec.style.setProperty('display', 'none', 'important');
+    }
+  }
+  save();
+  const msg = S.cfg.isAdmin ? 'Modo Administrador Ativado' : 'Modo Administrador Desativado';
+  toast(S.cfg.isAdmin ? '🛠️' : '🔒', msg, 'info');
+}
+
+function runDatabaseAudit() {
+  if (!S.cfg.isAdmin) return;
+
+  const total = IT.length;
+  const manualLinks = IT.filter(i => PRODUCT_LINKS[i.id]).length;
+  const missingManual = IT.filter(i => !PRODUCT_LINKS[i.id]);
+  const withImages = IT.filter(i => SUPP_IMGS[i.id]).length;
+
+  console.group("📊 Relatório de Auditoria - SupliList");
+  console.log(`Total de Itens: ${total}`);
+  console.log(`Links Manuais: ${manualLinks} (${Math.round(manualLinks/total*100)}%)`);
+  console.log(`Imagens Mapeadas: ${withImages} (${Math.round(withImages/total*100)}%)`);
+  
+  if (missingManual.length > 0) {
+    console.warn("⚠️ Itens operando apenas com busca automática (sem link direto no links.js):");
+    missingManual.forEach(i => console.log(`- ID ${i.id}: ${i.name}`));
+  } else {
+    console.log("✅ Todos os itens possuem links manuais!");
+  }
+  console.groupEnd();
+
+  toast('📊', `Auditoria: ${manualLinks}/${total} links manuais. Veja o console (F12).`, 'info', {duration: 5000});
+}
 
 function copyToClipboard(){
   const checked=IT.filter(i=>S.checked[i.id]).map(i=>'✅ '+i.name);
@@ -201,19 +241,68 @@ function go(p, pushState=true){
   if(activeTab){activeTab.classList.add('on');activeTab.setAttribute('aria-selected','true');}
   
   S.tab=p;save();
+
+  // Wrapper para capturar erros de runtime em cada seção
+  const safeRender = (sectionId, sectionName, renderFn) => {
+    try {
+      renderFn();
+    } catch (error) {
+      console.group(`🚨 [Boundary] Falha na Seção: ${sectionName}`);
+      console.error("Erro:", error);
+      console.info("Ação:", S.tab);
+      try {
+        console.info("Dados Locais:", JSON.parse(localStorage.getItem(STORAGE_KEY)));
+      } catch(e) {}
+      console.groupEnd();
+
+      const container = document.getElementById(`p-${sectionId}`);
+      if (container) {
+        container.innerHTML = `
+          <div class="empty" style="padding:40px; border:1px dashed var(--red); background:var(--redd); border-radius:16px; margin:20px 0;">
+            <div class="empty-ico" style="color:var(--red); filter:none;">🚫</div>
+            <div class="empty-title" style="color:var(--tx)">Algo deu errado.</div>
+            <p class="empty-sub">Ocorreu um erro inesperado na seção ${sectionName}.</p>
+            <button class="btn bg" onclick="go('${sectionId}')" style="margin-top:16px">Tentar recarregar seção</button>
+          </div>
+        `;
+      }
+    }
+  };
+
+  if(p==='home') safeRender('home', 'Início', () => { initHomeReveal(); });
   
-  if(p==='home'){initHomeReveal();}
-  if(p==='stack'){initStackSel();renderStack();renderCycles();}
-  if(p==='wishlist') renderWishlist();
-  if(p==='recipe') renderRecipeSel();
-  if(p==='dose') renderDose();
-  if(p==='compare') renderCmp();
-  if(p==='history'){initHist();renderHist();}
-  if(p==='interact') renderInteract();
-  if(p==='faq') renderFaq();
-  if(p==='terms') initTermsNav();
-  if(p==='config'){syncCfgThemeGrid();updateStorageSize();}
-  
+  if(p==='lista') safeRender('lista', 'Lista de Suplementos', () => { renderAll(); });
+
+  if(p==='stack') safeRender('stack', 'Minha Stack', () => { 
+    initStackSel(); 
+    renderStack(); 
+    renderCycles(); 
+  });
+
+  if(p==='wishlist') safeRender('wishlist', 'Favoritos', () => renderWishlist());
+
+  if(p==='recipe') safeRender('recipe', 'Gerador de Receita', () => renderRecipeSel());
+
+  if(p==='dose') safeRender('dose', 'Calculadora de Dose', () => renderDose());
+
+  if(p==='compare') safeRender('compare', 'Comparador', () => renderCmp());
+
+  if(p==='history') safeRender('history', 'Histórico', () => {
+    initHist();
+    renderHist();
+  });
+
+  if(p==='interact') safeRender('interact', 'Interações', () => renderInteract());
+
+  if(p==='faq') safeRender('faq', 'FAQ', () => renderFaq());
+
+  if(p==='terms') safeRender('terms', 'Termos de Uso', () => initTermsNav());
+
+  if(p==='config') safeRender('config', 'Configurações', () => {
+    syncCfgThemeGrid();
+    updateStorageSize();
+  });
+
   if(typeof bnSelect==='function')bnSelect(p);
   if(typeof syncBnBadges==='function')syncBnBadges();
   
@@ -273,36 +362,48 @@ function starsHTML(n){
   return`<div class="stars">${[...Array(5)].map((_,i)=>`<div class="star${i<n?' on':''}"></div>`).join('')}</div>`;
 }
 
-function mktPanel(it,pos){
-  const p=it.pm||20;
-  const mlp=mlPrice(it),azp=azPrice(it);
-  const shopee=it.linkShopee||it.shopee||'';
-  const amazon=it.linkAmazon||it.az||'';
-  const ml=it.linkML||it.ml||'';
-  const cards=[
-    {cls:'mc-sp',ico:'🛍️',name:'Shopee',price:p,url:shopee,best:p<=mlp&&p<=azp},
-    {cls:'mc-ml',ico:'🛒',name:'Merc. Livre',price:mlp,url:ml,best:mlp<=p&&mlp<=azp},
-    {cls:'mc-az',ico:'📦',name:'Amazon',price:azp,url:amazon,best:azp<p&&azp<mlp},
-  ];
-  const pd=pdose(it);
-  return`<div class="mkt-panel">
-  <div class="mkt-title">🏪 Onde comprar — <span>${it.name}</span></div>
-  <div class="mkt-cards">${cards.map(c=>`<div class="mkt-card ${c.cls}${c.url?'':' link-dead'}">
-    ${c.best?'<div class="mkt-best">✓ Melhor custo</div>':''}
-    <div class="mkt-ico">${c.ico}</div>
-    <div class="mkt-name">${c.name}</div>
-    <div class="mkt-price"><sup>R$</sup>${c.price}</div>
-    ${c.url?`<a class="mkt-buy-btn ${c.cls}" href="${utm(c.url,c.name==='Amazon'?'amazon':c.name==='Merc. Livre'?'mercadolivre':'shopee','affiliate','suplilist',pos)}" target="_blank" rel="sponsored noopener" onclick="event.stopPropagation()">Comprar no ${c.name}</a>`:''}
-    ${pd?`<div class="mkt-pdose">~R$${pd}/dose</div>`:''}
-  </div>`).join('')}</div>
-</div>`;
+function renderBuySection(it, idx) {
+  // links.js já aplicou amazonAff() + mlAff() + utm() — usar direto, sem re-processar
+  const azUrl   = it.linkAmazon || '';
+  const spUrl   = it.linkShopee || '';
+  const mlUrl   = it.linkML    || '';
+  const spPrice = it.pm || 20;
+  const mlp     = mlPrice(it);
+  const azp     = azPrice(it);
+  const pd      = pdose(it);
+
+  const markets = [
+    { cls:'mc-sp', url: spUrl, ico: '🛍️', name: 'Shopee',      price: spPrice, cta: 'Comprar no Shopee'      },
+    { cls:'mc-ml', url: mlUrl, ico: '🛒', name: 'Merc. Livre',  price: mlp,    cta: 'Comprar no Merc. Livre'  },
+    { cls:'mc-az', url: azUrl, ico: '📦', name: 'Amazon',       price: azp,    cta: 'Comprar no Amazon'       },
+  ].filter(m => m.url);
+
+  if (!markets.length) return '';
+
+  const bestPrice = Math.min(...markets.map(m => m.price));
+
+  const cardsHtml = markets.map(m => {
+    const isBest = m.price === bestPrice;
+    return `<a class="mkt-card ${m.cls}" href="${m.url}" target="_blank" rel="sponsored noopener noreferrer" onclick="event.stopPropagation()">
+      ${isBest ? `<span class="mkt-best">✓ Melhor custo</span>` : ''}
+      <div class="mkt-ico">${m.ico}</div>
+      <div class="mkt-name">${m.name}</div>
+      <div class="mkt-price"><sup>R$</sup>${m.price}</div>
+      <span class="mkt-cta">${m.cta}</span>
+      ${pd ? `<div class="mkt-pdose">~R$${pd}/dose</div>` : ''}
+    </a>`;
+  }).join('');
+
+  return `<div class="mkt-panel">
+    <div class="mkt-title">🏪 ONDE COMPRAR — <span>${it.name.toUpperCase()}</span></div>
+    <div class="mkt-cards">${cardsHtml}</div>
+  </div>`;
 }
 
 function itemHTML(it,idx){
   const done=S.checked[it.id],open=S.open[it.id],isX=it.pr==='extra';
   const cc=CAT[it.cat]?.cls||'cV',ico=CAT[it.cat]?.ico||'🌿';
   const pd=pdose(it);
-  const bestDeal = getBestDeal(it);
   const badgeHTML=it.badge==='hot'?'<span class="badge badge-hot">🔥 Popular</span>':it.badge==='best'?'<span class="badge badge-best">★ Melhor C/B</span>':it.badge==='val'?'<span class="badge badge-val">💰 Econômico</span>':'';
   const activeImg=(typeof SUPP_IMGS !== 'undefined' && SUPP_IMGS[it.id])||'';
   const imgHTML=activeImg
@@ -341,18 +442,7 @@ function itemHTML(it,idx){
   </div>
   <div class="dpanel" id="dp-${it.id}" role="region" aria-label="Detalhes de ${it.name}">
     <div class="dbox">
-      <div class="aff-block">${renderAffiliateButtons(it)}</div>
-      ${mktPanel(it,idx)}
-      <div class="cta-container" style="margin-bottom:20px">
-        <a class="cta-primary" style="width:100%;justify-content:center;height:60px;font-size:16px" 
-           href="${utm(bestDeal.url, bestDeal.src, 'affiliate', 'suplilist_cta', idx)}" 
-           target="_blank" rel="sponsored noopener" onclick="event.stopPropagation()">
-           🛒 Comprar na ${bestDeal.name} — R$ ${bestDeal.price} ↗
-        </a>
-        <div style="display:flex;justify-content:center;gap:15px;margin-top:10px">
-           <button class="btn" style="height:32px;font-size:11px" onclick="event.stopPropagation();shareSupplement({name:'${it.name}', description:'${it.desc}'})">📤 Compartilhar</button>
-        </div>
-      </div>
+      ${renderBuySection(it,idx)}
 
       <div class="dtitle">${it.name}</div>
       <div class="dtext">${it.desc}</div>
@@ -360,7 +450,6 @@ function itemHTML(it,idx){
       ${it.dose?`<div class="ddose" role="note">💊 ${it.dose}</div>`:''}
       ${it.warn?`<div class="dwarn" role="alert">⚠️ ${it.warn}</div>`:''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn bg" style="height:32px;font-size:11px" onclick="event.stopPropagation();showSticky(${it.id})" aria-label="Ver melhor preço para ${it.name}">🛒 Ver melhor preço</button>
         <button class="btn" style="height:32px;font-size:11px;background:var(--rosedim);color:var(--rose);border-color:rgba(244,114,182,.25)" onclick="event.stopPropagation();addToStack(${it.id})" aria-label="Adicionar ${it.name} à stack">💪 Adicionar à stack</button>
         <button class="ref-btn" onclick="event.stopPropagation();openRef(${it.id})" aria-label="Ver referências científicas para ${it.name}">🔬 Estudos Científicos</button>
       </div>
@@ -387,7 +476,14 @@ function renderList(){
   }
   if(!list.length){
     const q=(document.getElementById('search')?.value||'').trim();
-    document.getElementById('list').innerHTML=`<div class="empty"><div class="empty-ico">🌿</div><div class="empty-title">Nenhum resultado encontrado</div><div class="empty-sub">${q?`Nenhum suplemento corresponde a "<strong style="color:var(--tx)">${q}</strong>"`:'Tente ajustar os filtros para ver mais itens.'}</div>${q?`<button class="empty-action" onclick="clearSearch()">Limpar busca</button>`:''}</div>`;
+    const title = q ? 'Nenhum resultado' : 'Lista vazia';
+    const sub = q 
+      ? `Nenhum suplemento corresponde a "<strong style="color:var(--tx)">${q}</strong>"`
+      : 'Parece que nenhum item atende aos filtros atuais.';
+    const btnLabel = q ? 'Limpar busca' : 'Ver todos';
+    const btnFn = q ? 'clearSearch()' : "setCat('Todos')";
+    
+    document.getElementById('list').innerHTML = emptyStateHTML('🌿', title, sub, btnLabel, btnFn);
     return;
   }
   let html='',idx=0;
@@ -421,6 +517,14 @@ function renderStats(){
   ['s-tot','s-pend','s-done','s-urg'].forEach((id,i)=>{
     const el=document.getElementById(id);if(el)el.textContent=[total,total-done,done,urg][i];
   });
+  
+  // Trata o progresso zerado no widget da Landing Page
+  const pctText = document.getElementById('pct');
+  if(pctText) {
+    pctText.textContent = pct === 0 ? '0% iniciado' : pct + '%';
+    pctText.style.color = pct === 0 ? 'var(--tx3)' : 'var(--accent)';
+  }
+
   const hsTotal=document.getElementById('hs-total');if(hsTotal)hsTotal.textContent=total;
   const hsCats=document.getElementById('hs-cats');if(hsCats)hsCats.textContent=allCats().length-1;
   const cfgTotal=document.getElementById('cfg-total-supps');if(cfgTotal)cfgTotal.textContent=total;
@@ -434,6 +538,18 @@ function renderStats(){
   if(pct===100&&done>0&&S.cfg.confetti&&!_confDone){_confDone=true;confetti();}
   
   if(typeof syncBnBadges==='function')syncBnBadges();
+}
+
+/**
+ * Gera o HTML padronizado para estados vazios (Empty States)
+ */
+function emptyStateHTML(ico, title, sub, btnLabel, btnFn) {
+  return `<div class="empty">
+    <div class="empty-ico">${ico}</div>
+    <div class="empty-title">${title}</div>
+    <p class="empty-sub">${sub}</p>
+    ${btnLabel ? `<button class="empty-action" onclick="${btnFn}">${btnLabel}</button>` : ''}
+  </div>`;
 }
 
 function renderToggs(){
@@ -556,23 +672,123 @@ function openAll(){
   toast('↗',`Abrindo ${pend.length} links…`,'info',{duration:3000});
 }
 
-function dismissAffiliate(){
-  const el=document.getElementById('af-banner');
-  if(el){el.style.display='none';}
-  S.cfg.afDismissed=true;save();
+/**
+ * Faz um fetch acompanhando o progresso do download.
+ */
+async function fetchWithProgress(url, onProgress) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+  const contentLength = response.headers.get('content-length');
+  if (!contentLength || !response.body) return response.json();
+
+  const total = parseInt(contentLength, 10);
+  let loaded = 0;
+  const reader = response.body.getReader();
+  const chunks = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    loaded += value.length;
+    if (onProgress) onProgress(Math.round((loaded / total) * 100));
+  }
+
+  const allChunks = new Uint8Array(loaded);
+  let position = 0;
+  for (const chunk of chunks) {
+    allChunks.set(chunk, position);
+    position += chunk.length;
+  }
+  return JSON.parse(new TextDecoder("utf-8").decode(allChunks));
 }
 
-function refreshPrices(){
-  const btn=document.getElementById('refresh-btn');
-  if(btn){btn.classList.add('spinning');btn.textContent='⟳ Atualizando…';}
-  const ageEl=document.getElementById('cache-age');
-  setTimeout(()=>{
-    if(btn){btn.classList.remove('spinning');btn.textContent='⟳ Atualizar';}
-    if(ageEl)ageEl.textContent='0 min';
-    const bar=document.getElementById('price-cache-bar');
-    if(bar){const fresh=bar.querySelector('.price-fresh');if(fresh){fresh.className='price-fresh live';fresh.innerHTML='<span class="dot"></span> Cache ativo';}}
-    toast('✅','Preços atualizados!','success',{duration:2800});
-  },1800);
+/**
+ * Executa uma tarefa assíncrona com estados explícitos de Loading e Error.
+ * @param {string} containerId - ID do elemento onde o erro/loading será exibido.
+ * @param {string} taskName - Nome amigável da operação.
+ * @param {Function} taskFn - Função que retorna uma Promise (o fetch).
+ * @param {Function} renderFn - Função de renderização para o estado de sucesso (Data).
+ */
+async function runAsync(containerId, taskName, taskFn, renderFn) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // 1. Estado: LOADING
+  const originalHTML = container.innerHTML;
+  container.innerHTML = `
+    <div class="empty" style="padding:60px; opacity:0.8;">
+      <div class="sync-dot syncing" style="width:32px; height:32px; margin-bottom:20px;"></div>
+      <div class="empty-title">Carregando ${taskName}…</div>
+      <p class="empty-sub" id="${containerId}-prog-lbl">Iniciando download...</p>
+      <div class="prog-track" style="width:240px; margin: 16px auto; height: 6px; display:none;" id="${containerId}-prog-track">
+         <div class="prog-fill" id="${containerId}-prog-bar" style="width:0%"></div>
+      </div>
+    </div>
+  `;
+
+  const onProgress = (pct) => {
+    const bar = document.getElementById(`${containerId}-prog-bar`);
+    const track = document.getElementById(`${containerId}-prog-track`);
+    const lbl = document.getElementById(`${containerId}-prog-lbl`);
+    if (track) track.style.display = 'block';
+    if (bar) bar.style.width = pct + '%';
+    if (lbl) lbl.textContent = `Baixando ${taskName}: ${pct}%`;
+  };
+
+  try {
+    // 2. Estado: DATA (Sucesso)
+    const result = await taskFn(onProgress);
+    if (renderFn) {
+      renderFn(result);
+    } else {
+      container.innerHTML = originalHTML; // Fallback para o estado anterior
+    }
+    return result;
+  } catch (error) {
+    // 3. Estado: ERROR
+    console.error(`🚨 [API Error] ${taskName}:`, error);
+    
+    container.innerHTML = `
+      <div class="empty" style="padding:40px; border:1px dashed var(--red); background:var(--redd); border-radius:16px;">
+        <div class="empty-ico" style="color:var(--red); filter:none;">⚠️</div>
+        <div class="empty-title">Falha ao carregar ${taskName}</div>
+        <p class="empty-sub">${error.message || 'Verifique sua conexão e tente novamente.'}</p>
+        <button class="btn bg" onclick="runAsync('${containerId}', '${taskName}', ${taskFn.name}, ${renderFn ? renderFn.name : 'null'})" style="margin-top:16px">
+          Tentar novamente
+        </button>
+      </div>
+    `;
+    
+    toast('❌', `Erro ao atualizar ${taskName}`, 'error');
+    throw error;
+  }
+}
+
+/**
+ * Exemplo prático: Atualização de preços com o novo padrão.
+ */
+async function refreshPrices() {
+  const updateTask = async (onProgress) => {
+    // Simulando o fetch de um JSON grande de preços
+    const data = await fetchWithProgress('https://api.exemplo.com/prices.json', onProgress);
+    return data;
+  };
+
+  const finalizeUI = () => {
+    const ageEl = document.getElementById('cache-age');
+    if (ageEl) ageEl.textContent = '0 min';
+    const fresh = document.querySelector('.price-fresh');
+    if (fresh) {
+      fresh.className = 'price-fresh live';
+      fresh.innerHTML = '<span class="dot"></span> Cache ativo';
+    }
+    renderList(); // Recarrega a lista para mostrar os preços "frescos"
+    toast('✅', 'Preços atualizados com sucesso!', 'success');
+  };
+
+  await runAsync('list', 'Preços', updateTask, finalizeUI);
 }
 
 
@@ -619,10 +835,10 @@ function openRef(id){
         <div class="ref-title">${e.titulo}</div>
         <div class="ref-finding">📊 ${e.achado}</div>
         <div class="ref-detail">${e.detalhe}</div>
-        ${e.pmid?`<a class="ref-link" href="https://pubmed.ncbi.nlm.nih.gov/${e.pmid}" target="_blank" rel="noopener">🔬 PubMed ${e.pmid} ↗</a>`:`<a class="ref-link" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener">🔬 Ver no PubMed ↗</a>`}
+        ${e.pmid?`<a class="ref-link" href="https://pubmed.ncbi.nlm.nih.gov/${e.pmid}" target="_blank" rel="noopener noreferrer">🔬 PubMed ${e.pmid} ↗</a>`:`<a class="ref-link" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener noreferrer">🔬 Ver no PubMed ↗</a>`}
       </div>`;
     });
-    html+=`<a class="ref-link" style="margin-top:10px;display:inline-flex" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener">🔍 Ver todos os estudos no PubMed ↗</a>`;
+    html+=`<a class="ref-link" style="margin-top:10px;display:inline-flex" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener noreferrer">🔍 Ver todos os estudos no PubMed ↗</a>`;
     html+=`</div>`;
     // MECANISMO
     html+=`<div class="stab-panel" id="stab-mecanismo"><div class="mech-grid">`;
@@ -637,8 +853,8 @@ function openRef(id){
     });
     html+=`</div></div>`;
   } else {
-    html=`<div class="stab-panel on" id="stab-resumo"><div class="ref-entry"><div class="ref-detail">${it.desc||'Dados científicos detalhados em breve.'}</div></div><a class="ref-link" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener">🔬 Ver estudos no PubMed ↗</a></div>
-    <div class="stab-panel" id="stab-estudos"><div class="ref-entry"><div class="ref-detail">Banco de estudos em expansão. Clique no link abaixo para ver pesquisas publicadas.</div><a class="ref-link" style="margin-top:10px;display:inline-flex" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener">🔬 PubMed ↗</a></div></div>
+    html=`<div class="stab-panel on" id="stab-resumo"><div class="ref-entry"><div class="ref-detail">${it.desc||'Dados científicos detalhados em breve.'}</div></div><a class="ref-link" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener noreferrer">🔬 Ver estudos no PubMed ↗</a></div>
+    <div class="stab-panel" id="stab-estudos"><div class="ref-entry"><div class="ref-detail">Banco de estudos em expansão. Clique no link abaixo para ver pesquisas publicadas.</div><a class="ref-link" style="margin-top:10px;display:inline-flex" href="https://pubmed.ncbi.nlm.nih.gov/?term=${pubmedQ}" target="_blank" rel="noopener noreferrer">🔬 PubMed ↗</a></div></div>
     <div class="stab-panel" id="stab-mecanismo"><div class="ref-entry"><div class="ref-detail">Informações de mecanismo em breve.</div></div></div>
     <div class="stab-panel" id="stab-seguranca"><div class="safety-item ok"><div class="safety-ico">✅</div><div><div class="safety-label">Uso responsável</div><div class="safety-text">${it.warn||'Consulte um profissional de saúde antes de iniciar qualquer suplementação.'}</div></div></div></div>`;
   }
@@ -660,12 +876,7 @@ function closeRef(){
 function showSticky(id){
   const it=IT.find(i=>i.id===id);if(!it) return;
   _stickyItem=it;
-  const sp=it.pm||20,mlp=mlPrice(it),azp=azPrice(it);
-  const best=sp<=mlp&&sp<=azp
-    ?{name:'Shopee',price:sp,url:it.linkShopee||it.shopee,src:'shopee'}
-    :mlp<=sp&&mlp<=azp
-      ?{name:'Mercado Livre',price:mlp,url:it.linkML||(it.ml?mlAff(it.ml):''),src:'mercadolivre'}
-      :{name:'Amazon',price:azp,url:it.linkAmazon||(it.az?amazonAff(it.az):''),src:'amazon'};
+  const best = getBestDeal(it);
   document.getElementById('sb-name').textContent=it.name;
   document.getElementById('sb-price').textContent=`~R$${best.price} · Melhor: ${best.name}`;
   document.getElementById('sb-btn').onclick=()=>window.open(utm(best.url,best.src,'sticky','suplilist',0),'_blank');
@@ -689,7 +900,10 @@ function togWl(id){
 function renderWishlist(){
   const el=document.getElementById('wl-list');if(!el) return;
   const items=IT.filter(i=>S.wishlist[i.id]);
-  if(!items.length){el.innerHTML='<div class="wl-empty">🤍 Nenhum favorito ainda.<br>Toque em 🤍 em qualquer suplemento.</div>';return;}
+  if(!items.length){
+    el.innerHTML = emptyStateHTML('🤍', 'Favoritos vazios', 'Sua lista de desejos está limpa. Adicione itens clicando no coração dos suplementos.', 'Explorar lista', "go('lista')");
+    return;
+  }
   let html='';items.forEach((it,i)=>{html+=itemHTML(it,i);});
   el.innerHTML=html;
 }
@@ -749,7 +963,10 @@ function removeFromStack(id){delete S.stack[id];save();renderStack();renderStats
 function renderStack(){
   const el=document.getElementById('stack-list');if(!el) return;
   const items=Object.values(S.stack);
-  if(!items.length){el.innerHTML='<div style="color:var(--tx3);font-size:12px;text-align:center;padding:20px">Nenhum suplemento em uso. Adicione abaixo.</div>';return;}
+  if(!items.length){
+    el.innerHTML = emptyStateHTML('💪', 'Stack vazia', 'Você não está monitorando nenhum suplemento no momento.', 'Adicionar primeiro item', "document.getElementById('stack-sel').focus()");
+    return;
+  }
 
   const monthlyCost=items.reduce((sum,it)=>{
     const src=IT.find(i=>i.id===it.id);
@@ -1752,7 +1969,7 @@ function applyCfg(){
 }
 
 function exportTxt(){
-  let t='SUPLILIST PRO v3\n'+'═'.repeat(50)+'\n';
+  let t='SUPLILIST v'+APP_VERSION+'\n'+'═'.repeat(50)+'\n';
   ['alta','media','baixa','extra'].forEach(p=>{
     const g=IT.filter(i=>i.pr===p);if(!g.length) return;
     t+=`\n[${PLBL[p].toUpperCase()}]\n`;
@@ -1793,11 +2010,61 @@ function handleImport(input){
   reader.readAsText(file);
 }
 
+function testAffiliateLinks() {
+    if (!S.cfg.isAdmin) {
+        console.warn("Acesso negado: Modo administrador necessário.");
+        return;
+    }
+
+    // Usando Creatina Monohidratada (ID 11) como produto de amostra para teste
+    const testProduct = IT.find(i => i.id === 11);
+
+    if (!testProduct) {
+        toast('⚠️', 'Produto de teste (Creatina) não encontrado. Verifique o data.js.', 'error', { duration: 5000 });
+        return;
+    }
+
+    // Os links já foram processados por applyProductLinks em links.js
+    // Usamos as propriedades linkAmazon, linkShopee, linkML que já contêm as tags de afiliado e UTMs.
+
+    const amazonTestUrl = testProduct.linkAmazon;
+    if (amazonTestUrl) {
+        window.open(amazonTestUrl, '_blank');
+        console.log('Amazon Test URL:', amazonTestUrl);
+    } else {
+        toast('⚠️', 'Link da Amazon para Creatina não disponível.', 'warn', { duration: 3000 });
+    }
+
+    const mlTestUrl = testProduct.linkML;
+    if (mlTestUrl) {
+        window.open(mlTestUrl, '_blank');
+        console.log('Mercado Livre Test URL:', mlTestUrl);
+    } else {
+        toast('⚠️', 'Link do Mercado Livre para Creatina não disponível.', 'warn', { duration: 3000 });
+    }
+
+    const shopeeTestUrl = testProduct.linkShopee;
+    if (shopeeTestUrl) {
+        window.open(shopeeTestUrl, '_blank');
+        console.log('Shopee Test URL:', shopeeTestUrl);
+    } else {
+        toast('⚠️', 'Link da Shopee para Creatina não disponível.', 'warn', { duration: 3000 });
+    }
+
+    toast('🔗', 'Abrindo links de teste em novas abas. Verifique os parâmetros de afiliado.', 'info', { duration: 6000 });
+}
+
 function copyList(){
   const lines=IT.map(i=>{
-    const mlLink = i.linkML || (i.ml ? mlAff(i.ml) : '');
-    const azLink = i.linkAmazon || (i.az ? amazonAff(i.az) : '');
-    return `${S.checked[i.id]?'✔':'○'} ${i.name}  ~R$${bestMarketplacePrice(i)}${S.wishlist[i.id]?' ❤️':''}\nMercado Livre: ${mlLink}\nAmazon: ${azLink}`;
+    const p = bestMarketplacePrice(i);
+    let text = `${S.checked[i.id]?'✔':'○'} ${i.name} (~R$${p})`;
+    if(S.wishlist[i.id]) text += ' ❤️';
+    
+    const ml = i.linkML || "";
+    const az = i.linkAmazon || "";
+    const sh = i.linkShopee || "";
+    
+    return `${text}\n   🛒 ML: ${ml}\n   🛒 Amazon: ${az}\n   🛒 Shopee: ${sh}`;
   });
   navigator.clipboard?.writeText(lines.join('\n')).then(()=>toast('📋','Lista copiada!','success',{duration:2400,progress:false}));
 }
@@ -2334,14 +2601,30 @@ function clearSearch(){
 })();
 
 // Version Label
-(()=>{
-  document.querySelectorAll('.setsec .setrow').forEach(row=>{
-    const lbl=row.querySelector('.setlabel');
-    if(lbl&&lbl.textContent==='Versão'){
-      const ctl=row.querySelector('.setctl span');
-      if(ctl)ctl.textContent='v15.0';
+(() => {
+  const versionEl = document.getElementById('version-trigger');
+  if (versionEl) {
+    let clicks = 0;
+    versionEl.addEventListener('click', () => {
+      clicks++;
+      if (clicks === 7) {
+        toggleAdminMode();
+        clicks = 0;
+      }
+      // Feedback visual sutil (opcional)
+      versionEl.style.opacity = 0.5 + (clicks * 0.07);
+    });
+  }
+  
+  // Verifica se deve mostrar a seção ao carregar
+  setTimeout(() => {
+    const sec = document.getElementById('admin-section');
+    if (sec) {
+      if (S.cfg.isAdmin) {
+        sec.style.setProperty('display', 'block', 'important');
+      }
     }
-  });
+  }, 500);
 })();
 
 // Smooth scroll nav
@@ -2355,7 +2638,6 @@ load();
 document.body.setAttribute('data-theme',S.cfg.theme||'dark');
 document.querySelectorAll('.th-opt').forEach(el=>el.classList.remove('on'));
 document.getElementById('th-'+(S.cfg.theme||'dark'))?.classList.add('on');
-if(S.cfg.afDismissed){const el=document.getElementById('af-banner');if(el)el.style.display='none';}
 applyCfg();
 syncCfgThemeGrid();
 renderAll();
@@ -2376,3 +2658,17 @@ if(ls2El&&S.lastSave){
   const txt=ls2El.querySelector('span:last-child');
   if(txt)txt.textContent='Sincronizado às '+new Date(S.lastSave).toLocaleTimeString('pt-BR');
 }
+
+// ═══════════════ APP VERSION ═══════════════
+const verFooter=document.getElementById('version-footer');
+if(verFooter)verFooter.textContent=APP_VERSION;
+const verConfig=document.getElementById('version-config');
+if(verConfig)verConfig.textContent=APP_VERSION;
+// ═════════════════════════════════════════
+
+// ═════════════ TERMS DYNAMIC DATES ════════
+const termsUpdatedEl=document.getElementById('terms-updated-date');
+if(termsUpdatedEl)termsUpdatedEl.textContent=getTermsUpdatedDate();
+const termsRevisionEl=document.getElementById('terms-revision-date');
+if(termsRevisionEl)termsRevisionEl.textContent=getTermsRevisionDate();
+// ═════════════════════════════════════════

@@ -6,11 +6,7 @@
 //    3. Deixe o campo vazio ("") para usar busca automática
 // ══════════════════════════════════════════════════════════════
 
-const AFF = {
-  amazonTag : "suplilist01-20",   // seu Associates tag
-  mlLabel   : "cv20251229193743", // seu label do Mercado Livre
-  shopeeId  : "18350911123",      // seu ID Shopee (informativo)
-};
+// Nota: AFF, amazonAff(), mlAff(), utm() e searchUrl() já definidos em data.js
 
 // ──────────────────────────────────────────────────────────────
 //  LINKS DOS PRODUTOS
@@ -358,68 +354,17 @@ const PRODUCT_LINKS = {
 
 };
 
-// ══════════════════════════════════════════════════════════════
-//  MOTOR DE AFILIADOS — não precisa mexer daqui pra baixo
-// ══════════════════════════════════════════════════════════════
+// ──────────────────────────────────────────────────────────────
+//  HELPERS (definidos aqui pois links.js carrega antes de scripts.js)
+// ──────────────────────────────────────────────────────────────
 
-/** Aplica tag de afiliado Amazon em qualquer URL da Amazon */
-function amazonAff(url) {
-  if (!url) return '';
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes('amazon.')) {
-      u.searchParams.set('tag', AFF.amazonTag);
-      u.searchParams.set('linkCode', 'll2');
-      u.searchParams.set('ref_', 'as_li_ss_tl');
-    }
-    return u.toString();
-  } catch (e) { return url; }
-}
-
-/** Aplica parâmetros de afiliado Mercado Livre */
-function mlAff(url) {
-  if (!url) return '';
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes('meli.la')) return u.toString();
-    u.searchParams.set('utm_source',   'suplilistpro');
-    u.searchParams.set('utm_medium',   'affiliate');
-    u.searchParams.set('utm_campaign', 'mercadolivre');
-    u.searchParams.set('utm_content',  AFF.mlLabel);
-    u.searchParams.set('label',        AFF.mlLabel);
-    return u.toString();
-  } catch (e) { return url; }
-}
-
-/** Gera URL de busca automática quando não há link manual */
-function searchUrl(name, marketplace) {
-  const q = encodeURIComponent(name.trim());
-  if (marketplace === 'shopee')
-    return `https://shopee.com.br/search?keyword=${q}&sortBy=sales`;
-  if (marketplace === 'ml')
-    return `https://lista.mercadolivre.com.br/${q}`;
-  if (marketplace === 'amazon')
-    return `https://www.amazon.com.br/s?k=${q}&tag=${AFF.amazonTag}&s=review-rank`;
-  return '#';
-}
-
-/** Adiciona parâmetros UTM para rastreamento interno */
-function utm(url, src, medium, campaign, pos) {
-  if (!url || url === '#') return '#';
-  try {
-    const u = new URL(url);
-    u.searchParams.set('utm_source',   src);
-    u.searchParams.set('utm_medium',   medium);
-    u.searchParams.set('utm_campaign', campaign);
-    if (pos) u.searchParams.set('utm_term', String(pos));
-    return u.toString();
-  } catch (e) { return url; }
-}
+// ──────────────────────────────────────────────────────────────
 
 /**
  * Injeta os links do PRODUCT_LINKS no array IT (vindo do data.js).
  * Chamado automaticamente após o carregamento do data.js.
- * - Aplica tag de afiliado em todos os links fornecidos
+ * - Amazon: usa link direto com tag de afiliado (sem UTM extra)
+ * - Shopee/ML: usa link de busca com afiliado + UTM
  * - Preenche com busca automática onde o link está vazio
  * - Sobrescreve pm (preço) se informado
  */
@@ -434,25 +379,19 @@ function applyProductLinks() {
   IT.forEach(item => {
     const entry = PRODUCT_LINKS[item.id];
 
-    // Links manuais (com afiliado aplicado) ou busca automática
-    item.linkShopee = entry?.shopee
-      ? utm(entry.shopee, 'shopee', 'affiliate', 'suplilist', item.id)
-      : searchUrl(item.name, 'shopee');
+    // Shopee: link direto ou busca, com parâmetros de afiliado
+    const rawShopee = entry?.shopee || searchUrl(item.name, 'shopee');
+    item.linkShopee = shopeeAff(rawShopee, item.id);
 
-    item.linkML = entry?.ml
-      ? utm(mlAff(entry.ml), 'mercadolivre', 'affiliate', 'suplilist', item.id)
-      : searchUrl(item.name, 'ml');
+    // Mercado Livre: link direto ou busca, com parâmetros de afiliado
+    const rawML = entry?.ml || searchUrl(item.name, 'ml');
+    item.linkML = mlAff(rawML, item.id);
 
-    item.linkAmazon = entry?.amazon
-      ? utm(amazonAff(entry.amazon), 'amazon', 'affiliate', 'suplilist', item.id)
-      : searchUrl(item.name, 'amazon');
+    // Amazon: link direto com tag de afiliado (amazonAff já insere o tag)
+    const rawAmazon = entry?.amazon || searchUrl(item.name, 'amazon');
+    item.linkAmazon = amazonAff(rawAmazon);
 
-    // Sobrescreve preço se informado manualmente
-    if (entry?.pm) {
-      item.pm = entry.pm;
-      if (entry.amazon) item.azp = entry.pm;
-      if (entry.ml) item.mlp = entry.pm;
-    }
+    if (entry?.pm) item.pm = entry.pm;
 
     if (entry) applied++;
   });

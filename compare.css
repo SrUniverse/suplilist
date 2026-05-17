@@ -1,0 +1,889 @@
+/**
+ * ══════════════════════════════════════════════════════════════════════
+ * compare.css — Estilos do Módulo de Comparação (SL-40)
+ *
+ * Contém:
+ *   1. Floating Comparison Dock (barra flutuante inferior)
+ *   2. Overlay Modal de Comparação (tela cheia)
+ *   3. Tabela Comparativa (grid lado a lado com scroll horizontal)
+ *   4. Badges de "Melhor Valor"
+ *   5. Estado visual dos cards selecionados (.is-in-compare)
+ *   6. Animações e micro-interações
+ *   7. Adaptações para tema claro e mobile
+ *
+ * Variáveis CSS consumidas: todas definidas em styles.css (:root)
+ * Dependências: nenhuma (CSS puro, sem preprocessador)
+ * ══════════════════════════════════════════════════════════════════════
+ */
+
+/* ════════════════════════════════════════════════════════════════════
+   1. FLOATING COMPARISON DOCK
+   ════════════════════════════════════════════════════════════════════ */
+
+.cmp-dock {
+  /* Posicionamento fixo, acima do conteúdo, abaixo dos modais críticos */
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(110%); /* Começa fora da tela */
+  z-index: 400; /* Acima da sidebar (z:300) mas abaixo de modais (z:500) */
+
+  /* Largura responsiva */
+  width: min(860px, calc(100vw - 32px));
+
+  /* Visual: glass morphism sobre o fundo escuro */
+  background: rgba(15, 20, 28, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  box-shadow:
+    0 -8px 40px rgba(0, 0, 0, 0.45),
+    0 -1px 0 var(--border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  /* Transição suave de entrada/saída */
+  transition:
+    transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity   0.3s ease;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Estado visível — ativado via JS ao selecionar ≥1 item */
+.cmp-dock.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Animação de "warning pulse" ao atingir o limite máximo */
+@keyframes cmpDockWarn {
+  0%   { border-color: var(--bh); box-shadow: 0 -8px 40px rgba(0,0,0,.45); }
+  30%  { border-color: var(--amber); box-shadow: 0 -8px 40px rgba(255,182,39,.25), 0 0 0 3px rgba(255,182,39,.15); }
+  100% { border-color: var(--bh); box-shadow: 0 -8px 40px rgba(0,0,0,.45); }
+}
+.cmp-dock--warn {
+  animation: cmpDockWarn 0.65s cubic-bezier(.36,.07,.19,.97);
+}
+
+/* ── Layout interno do Dock ──────────────────────────────────────── */
+
+.cmp-dock-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+}
+
+/* Coluna esquerda: label + contagem */
+.cmp-dock-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.cmp-dock-label {
+  font-family: var(--fh);
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
+  filter: drop-shadow(0 0 6px var(--ag));
+}
+
+.cmp-dock-count {
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--tx3);
+}
+
+/* ── Miniaturas dos itens selecionados ───────────────────────────── */
+
+.cmp-dock-thumbs {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  justify-content: center;
+}
+
+/* Miniatura de item selecionado */
+.cmp-dock-thumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  border: 1.5px solid var(--accent);
+  overflow: visible;
+  flex-shrink: 0;
+  animation: thumbPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes thumbPop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.cmp-dock-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Botão de remoção individual no canto do thumb */
+.cmp-dock-remove {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  border: 2px solid var(--bg2);
+  cursor: pointer;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 2;
+}
+
+.cmp-dock-thumb:hover .cmp-dock-remove,
+.cmp-dock-thumb:focus-within .cmp-dock-remove {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Slots vazios (placeholders visuais) */
+.cmp-dock-slot {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  border: 1.5px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cmp-dock-slot-icon {
+  font-size: 20px;
+  color: var(--tx3);
+  line-height: 1;
+  font-weight: 300;
+  font-family: var(--fb);
+}
+
+/* ── Ações do Dock (botões) ──────────────────────────────────────── */
+
+.cmp-dock-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Botão principal: "Comparar Agora" */
+.cmp-dock-compare-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  height: 44px;
+  border-radius: 100px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-family: var(--fb);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background   0.2s,
+    transform    0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow   0.2s,
+    opacity      0.2s;
+  box-shadow: 0 0 20px var(--ag);
+}
+
+.cmp-dock-compare-btn:hover:not(.disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 32px var(--ag), 0 4px 16px rgba(0,0,0,.3);
+}
+
+.cmp-dock-compare-btn:active:not(.disabled) {
+  transform: scale(0.97);
+}
+
+.cmp-dock-compare-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Botão "Limpar" (ícone ✕) */
+.cmp-dock-clear-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--tx3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.cmp-dock-clear-btn:hover {
+  background: var(--redd);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   2. OVERLAY MODAL DE COMPARAÇÃO
+   ════════════════════════════════════════════════════════════════════ */
+
+.cmp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(5, 6, 11, 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  display: flex;
+  align-items: flex-start;        /* Painel aparece no TOPO da viewport */
+  justify-content: center;
+  padding: 0;
+  overflow-y: auto;               /* Permite rolar o overlay se o painel for alto */
+
+  /* Estado oculto por padrão */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Estado ativo: classe .on adicionada pelo modal.js */
+.cmp-overlay.on {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Painel interno ──────────────────────────────────────────────── */
+
+.cmp-panel {
+  width: 100%;
+  max-width: 1200px;
+  max-height: 92vh;
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: 0 0 24px 24px;   /* Cantos arredondados embaixo — nasce do topo */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow:
+    0 16px 64px rgba(0, 0, 0, 0.55),
+    0 1px 0 var(--bh);
+
+  /* Animação: desliza de cima para baixo */
+  transform: translateY(-48px);
+  transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cmp-overlay.on .cmp-panel {
+  transform: translateY(0);
+}
+
+/* ── Cabeçalho do painel ─────────────────────────────────────────── */
+
+.cmp-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--bg2), var(--bg1));
+}
+
+.cmp-modal-title {
+  font-family: var(--fh);
+  font-size: 22px;
+  letter-spacing: .08em;
+  color: var(--tx);
+  text-transform: uppercase;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--tx), var(--tx2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cmp-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--tx2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.cmp-close-btn:hover {
+  background: var(--redd);
+  color: var(--red);
+  border-color: var(--red);
+  transform: scale(1.1);
+}
+
+/* ── Área de rolagem ─────────────────────────────────────────────── */
+
+.cmp-scroll-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto; /* era hidden — impedia sticky horizontal dos labels de funcionar */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+
+  /* Scrollbar customizada (Webkit) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg5) transparent;
+}
+
+.cmp-scroll-wrap::-webkit-scrollbar { width: 6px; }
+.cmp-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+.cmp-scroll-wrap::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 3px; }
+
+/* ── Rodapé do painel ────────────────────────────────────────────── */
+
+.cmp-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg2);
+}
+
+.cmp-clear-btn {
+  padding: 0 24px;
+  height: 40px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--redd);
+  color: var(--red);
+  font-family: var(--fb);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.cmp-clear-btn:hover {
+  background: rgba(255, 68, 85, 0.18);
+  border-color: var(--red);
+  transform: translateY(-1px);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   3. TABELA COMPARATIVA (Grid lado a lado + X-Axis Scroll)
+   ════════════════════════════════════════════════════════════════════ */
+
+.cmp-table-wrap {
+  padding: 20px 24px 24px;
+  min-width: 0;
+}
+
+/* ── Cabeçalho de colunas (uma por item) ─────────────────────────── */
+
+.cmp-cols-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  position: sticky;
+  top: 0;
+  background: var(--bg1);
+  z-index: 10;
+  padding: 16px 0 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cmp-row-label-spacer {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.cmp-header-cols {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.cmp-header-cols::-webkit-scrollbar { display: none; }
+
+/* Coluna de cabeçalho de item */
+.cmp-col-head {
+  min-width: 180px;
+  max-width: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  position: relative;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.cmp-col-head:hover {
+  border-color: var(--bh);
+}
+
+.cmp-item-img-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg3);
+}
+
+.cmp-item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cmp-item-name {
+  font-family: var(--fb);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tx);
+  line-height: 1.3;
+  text-align: center;
+  word-break: break-word;
+}
+
+.cmp-item-brand {
+  font-size: 11px;
+  color: var(--tx3);
+  font-family: var(--fm);
+}
+
+/* Botão para remover coluna */
+.cmp-remove-col-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--tx3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s, color 0.2s;
+  padding: 0;
+}
+
+.cmp-col-head:hover .cmp-remove-col-btn {
+  opacity: 1;
+}
+
+.cmp-remove-col-btn:hover {
+  background: var(--redd);
+  color: var(--red);
+  border-color: var(--red);
+}
+
+/* ── Seções da tabela ────────────────────────────────────────────── */
+
+.cmp-section {
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.cmp-section-head {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.cmp-section-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--accent);
+  font-family: var(--fb);
+}
+
+/* ── Linhas de dados ─────────────────────────────────────────────── */
+
+.cmp-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.cmp-row:last-child {
+  border-bottom: none;
+}
+
+.cmp-row:hover {
+  background: var(--bg2);
+}
+
+/* Rótulo da linha (coluna esquerda fixa) */
+.cmp-row-label {
+  width: 160px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx2);
+  border-right: 1px solid var(--border);
+  background: var(--bg1);
+  line-height: 1.3;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+/* Wrapper das células de dados (scroll horizontal) */
+.cmp-row-cells {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.cmp-row-cells::-webkit-scrollbar { display: none; }
+
+/* Célula individual de dado */
+.cmp-cell {
+  min-width: 180px;
+  max-width: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.cmp-cell:last-child {
+  border-right: none;
+}
+
+/* Célula com melhor valor — destaque sutil */
+.cmp-cell[data-best="true"] {
+  background: var(--ad);
+}
+
+.cmp-cell-val {
+  font-family: var(--fm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tx);
+}
+
+.cmp-cell[data-best="true"] .cmp-cell-val {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── Badge "Melhor Valor" ─────────────────────────────────────────── */
+
+.cmp-best-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--ag);
+  border: 1px solid var(--accent);
+  font-family: var(--fb);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--accent);
+  white-space: nowrap;
+  animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   4. ESTADO VISUAL DOS CARDS SELECIONADOS (.is-in-compare)
+   ════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Aplicado dinamicamente nos cards da lista principal pelo compare.js.
+ * Presume que cada card tem classe .item-card ou similar, e que o
+ * checkbox de comparação tem atributo [data-compare-checkbox].
+ */
+
+/* Pulso de entrada: confirma visualmente que o item foi selecionado */
+@keyframes cmpCardPulse {
+  0%   { box-shadow: 0 0 0 0 var(--ag); }
+  40%  { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 1px var(--ag), 0 4px 20px rgba(0,0,0,.2); }
+}
+
+[data-item-id].is-in-compare {
+  border-color: var(--accent) !important;
+  box-shadow:
+    0 0 0 1px var(--ag),
+    0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Dispara o pulso toda vez que o item entra na seleção */
+[data-item-id].is-in-compare.just-added {
+  animation: cmpCardPulse 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Checkbox de comparação no card */
+[data-compare-checkbox] {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--tx3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  flex-shrink: 0;
+  color: transparent;
+  background: var(--bg3);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-compare-checkbox].checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+  font-weight: 800;
+  transform: scale(1.1);
+}
+
+[data-compare-checkbox].checked::after {
+  content: '✓';
+}
+
+/* Botão/trigger de comparação */
+[data-compare-trigger] {
+  cursor: pointer;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   5. TEMA CLARO (overrides)
+   ════════════════════════════════════════════════════════════════════ */
+
+[data-theme="light"] .cmp-dock {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 -8px 40px rgba(0, 0, 0, 0.12),
+    0 -1px 0 var(--border);
+}
+
+[data-theme="light"] .cmp-panel {
+  background: var(--bg1);
+  box-shadow: 0 -16px 64px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] .cmp-col-head {
+  background: var(--bg2);
+}
+
+[data-theme="light"] .cmp-row-label {
+  background: var(--bg1);
+}
+
+[data-theme="light"] .cmp-cols-header {
+  background: var(--bg1);
+}
+
+[data-theme="light"] .cmp-section-head {
+  background: var(--bg2);
+}
+
+[data-theme="light"] .cmp-modal-title {
+  background: linear-gradient(135deg, var(--tx), var(--tx2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   6. RESPONSIVO — MOBILE (max-width: 640px)
+   ════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  /* Dock ocupa toda a largura no mobile */
+  .cmp-dock {
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    left: 0;
+    /* Reseta o translateX(-50%) da regra base — no mobile encosta na borda */
+    transform: translateY(110%);
+  }
+
+  .cmp-dock.visible {
+    transform: translateY(0);
+  }
+
+  .cmp-dock-inner {
+    padding: 12px 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Esconde rótulo no mobile para economizar espaço */
+  .cmp-dock-left {
+    display: none;
+  }
+
+  .cmp-dock-compare-btn {
+    font-size: 12px;
+    padding: 0 16px;
+    height: 40px;
+  }
+
+  /* Painel ocupa quase tela inteira no mobile */
+  .cmp-panel {
+    max-height: 95vh;
+    border-radius: 0 0 20px 20px; /* Cantos embaixo — nasce do topo */
+  }
+
+  .cmp-panel-head {
+    padding: 16px;
+  }
+
+  .cmp-modal-title {
+    font-size: 17px;
+  }
+
+  .cmp-table-wrap {
+    padding: 12px 16px 16px;
+  }
+
+  /* Rótulo mais estreito no mobile para mais espaço às células */
+  .cmp-row-label,
+  .cmp-row-label-spacer {
+    width: 110px;
+    font-size: 11px;
+    padding: 10px 10px;
+  }
+
+  .cmp-cell {
+    min-width: 130px;
+    padding: 10px 10px;
+  }
+
+  .cmp-cell-val {
+    font-size: 12px;
+  }
+
+  .cmp-item-img-wrap {
+    width: 56px;
+    height: 56px;
+  }
+
+  .cmp-col-head {
+    min-width: 130px;
+    padding: 12px 8px;
+  }
+
+  .cmp-cols-header {
+    padding: 12px 0 8px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   7. SIDEBAR OFFSET (evita que o Dock fique embaixo da sidebar)
+   ════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Se a sidebar estiver expandida (220px), o Dock precisa ser centralizado
+ * levando em conta o deslocamento. Ajuste condicional via classe do body.
+ */
+@media (min-width: 768px) {
+  body:has(.sidebar:not(.collapsed)) .cmp-dock {
+    left: calc(50% + 110px); /* 220px / 2 = 110px de offset */
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   8. REDUCED MOTION (acessibilidade)
+   ════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp-dock,
+  .cmp-panel,
+  .cmp-overlay,
+  .cmp-dock-thumb,
+  .cmp-best-badge,
+  .cmp-dock-compare-btn {
+    transition: none !important;
+    animation: none !important;
+  }
+}

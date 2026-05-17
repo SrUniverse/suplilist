@@ -39,6 +39,26 @@
 
 </head>
 <body data-theme="dark">
+<!-- ░░ APP SHELL SKELETON — visível imediatamente, antes de qualquer JS ░░ -->
+<!-- Remove-se assim que o DOMContentLoaded dispara e o app inicializa -->
+<div id="app-shell-skeleton" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;background:var(--bg,#07090e);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity .3s ease">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:.85">
+      <rect width="40" height="40" rx="10" fill="rgba(0,255,135,.12)"/>
+      <path d="M12 20h6l3-7 4 14 3-7h4" stroke="#00ff87" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-family:system-ui,sans-serif;font-size:13px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase">SupliList</div>
+  </div>
+  <div style="width:120px;height:2px;background:rgba(255,255,255,.08);border-radius:100px;overflow:hidden">
+    <div style="height:100%;width:40%;background:#00ff87;border-radius:100px;animation:skelPulse 1.1s ease-in-out infinite alternate"></div>
+  </div>
+</div>
+<style>
+  @keyframes skelPulse{from{width:20%;opacity:.4}to{width:80%;opacity:1}}
+  /* Tema claro: skeleton de fundo claro */
+  [data-theme="light"] #app-shell-skeleton{background:#f0f2f8}
+  [data-theme="light"] #app-shell-skeleton div[style*="rgba(255,255,255,.35)"]{color:rgba(0,0,0,.35)}
+</style>
 <a href="#main-content" class="skip-link">Ir para o conteúdo principal</a>
 <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3" style="width:500px;height:500px;background:rgba(167,139,250,.022);top:45%;left:35%;filter:blur(200px);pointer-events:none;z-index:0;position:fixed;animation:orbFloat3 26s ease-in-out infinite"></div>
 <div id="toast-container"></div>
@@ -90,16 +110,12 @@
   <div class="th-opt" id="th-aurora" onclick="setTheme('aurora')"><span class="th-dot" style="background:#020810;border:1px solid #a78bfa"></span>Aurora</div>
 </div>
 
-<div class="shell" id="main-shell">
-<main id="main-content" aria-label="Conteúdo principal">
-
-<nav class="sidebar" id="sidebar" aria-label="Navegação principal">
+<nav class="sidebar" id="sidebar" aria-label="Menu principal">
   <div class="sb-header">
     <div class="nav-brand" aria-label="SupliList">
-      <img src="assets/logo.png" class="sidebar-logo-icon" alt="">
+      <div class="sidebar-logo-icon" style="display:flex;align-items:center;justify-content:center">S</div>
       <span class="sidebar-logo-text">SupliList</span>
     </div>
-    <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Recolher menu" aria-label="Recolher menu">◀</button>
   </div>
   <div class="sb-nav" role="tablist" aria-label="Seções">
     <button class="nt on" id="nt-home" role="tab" aria-selected="true" aria-controls="p-home" onclick="window.go('home')"><span class="nt-ico">🏠</span><span class="nt-lbl">Início</span></button>
@@ -120,6 +136,7 @@
     <button class="theme-btn" onclick="toggleThemePop()" id="theme-toggle-btn" aria-label="Escolher tema" aria-haspopup="true" aria-expanded="false">
       <span class="theme-btn-ico">🎨</span><span class="theme-btn-lbl">Tema</span>
     </button>
+    <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Recolher menu" aria-label="Recolher menu">◀</button>
   </div>
 </nav>
 
@@ -144,6 +161,9 @@
     </button>
   </div>
 </nav>
+
+<div class="shell" id="main-shell">
+<main id="main-content" aria-label="Conteúdo principal">
 
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
 
@@ -626,29 +646,29 @@
     </div>
     <div class="recipe-presets">
       <span style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;align-self:center">Preset:</span>
-      <button class="rpreset" id="rp-hipertrofia" onclick="applyPreset('hipertrofia',this)">💪 Hipertrofia</button>
-      <button class="rpreset" id="rp-energia" onclick="applyPreset('energia',this)">⚡ Energia</button>
-      <button class="rpreset" id="rp-sono" onclick="applyPreset('sono',this)">🌙 Sono</button>
-      <button class="rpreset" id="rp-saude" onclick="applyPreset('saude',this)">❤️ Saúde</button>
-      <button class="rpreset" id="rp-libido" onclick="applyPreset('libido',this)">🌿 Libido</button>
-      <button class="rpreset" id="rp-mulher" onclick="applyPreset('mulher',this)">♀️ Mulher</button>
-      <button class="rpreset" id="rp-longevidade" onclick="applyPreset('longevidade',this)">⏳ Longevidade</button>
+      <button class="rpreset" id="rp-hipertrofia" onclick="window._app.applyPreset('hipertrofia',this)">💪 Hipertrofia</button>
+      <button class="rpreset" id="rp-energia" onclick="window._app.applyPreset('energia',this)">⚡ Energia</button>
+      <button class="rpreset" id="rp-sono" onclick="window._app.applyPreset('sono',this)">🌙 Sono</button>
+      <button class="rpreset" id="rp-saude" onclick="window._app.applyPreset('saude',this)">❤️ Saúde</button>
+      <button class="rpreset" id="rp-libido" onclick="window._app.applyPreset('libido',this)">🌿 Libido</button>
+      <button class="rpreset" id="rp-mulher" onclick="window._app.applyPreset('mulher',this)">♀️ Mulher</button>
+      <button class="rpreset" id="rp-longevidade" onclick="window._app.applyPreset('longevidade',this)">⏳ Longevidade</button>
     </div>
   </div>
 
   <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
-    <button class="btn bg" onclick="selAllR()">✔ Todos</button>
-    <button class="btn" onclick="clearR()">↺ Limpar</button>
-    <button class="btn" style="background:var(--rosedim);color:var(--rose);border-color:rgba(244,114,182,.25)" onclick="selBought()">🛒 Comprados</button>
+    <button class="btn bg" onclick="window._app.selAllR()">✔ Todos</button>
+    <button class="btn" onclick="window._app.clearR()">↺ Limpar</button>
+    <button class="btn" style="background:var(--rosedim);color:var(--rose);border-color:rgba(244,114,182,.25)" onclick="window._app.selBought()">🛒 Comprados</button>
     <div style="flex:1"></div>
     <span id="r-filtered-count" style="font-size:11px;color:var(--tx3);font-family:var(--fm)"></span>
   </div>
   <div class="recipe-search-row">
     <div class="recipe-search-wrap">
       <span class="recipe-search-ico">🔍</span>
-      <input class="recipe-search" type="text" id="r-search" placeholder="Buscar suplemento…" oninput="filterRecipeSel()" aria-label="Buscar suplemento">
+      <input class="recipe-search" type="text" id="r-search" placeholder="Buscar suplemento…" oninput="window._app.filterRecipeSel()" aria-label="Buscar suplemento">
     </div>
-    <select class="recipe-cat-filter" id="r-cat-filter" onchange="filterRecipeSel()" aria-label="Filtrar por categoria">
+    <select class="recipe-cat-filter" id="r-cat-filter" onchange="window._app.filterRecipeSel()" aria-label="Filtrar por categoria">
       <option value="">Todas categorias</option>
       <option value="Adaptógeno">🌿 Adaptógeno</option>
       <option value="Aminoácido">⚡ Aminoácido</option>
@@ -671,8 +691,8 @@
   <div id="r-alerts"></div>
 
   <div class="recipe-view-tabs" id="r-view-tabs" style="display:none">
-    <button class="rvtab on" id="rvt-protocol" onclick="setRecipeView('protocol',this)">📋 Protocolo</button>
-    <button class="rvtab" id="rvt-timeline" onclick="setRecipeView('timeline',this)">🕐 Cronograma</button>
+    <button class="rvtab on" id="rvt-protocol" data-view="protocol" onclick="window._app.setRecipeView('protocol',this)">📋 Protocolo</button>
+    <button class="rvtab" id="rvt-timeline" data-view="timeline" onclick="window._app.setRecipeView('timeline',this)">🕐 Cronograma</button>
   </div>
 
   <div id="rout"></div>
@@ -691,14 +711,16 @@
         <label class="prof-label">Peso corporal</label>
         <div class="weight-slider-wrap">
           <div class="weight-slider-row">
-            <input type="range" class="weight-slider" id="prof-weight-slider" min="40" max="200" value="80" oninput="syncWeightSlider(this.value)">
+            <div class="weight-slider-track">
+              <input type="range" class="weight-slider" id="prof-weight-slider" min="40" max="200" value="80" oninput="syncWeightSlider(this.value)">
+              <div class="weight-slider-labels"><span>40 kg</span><span>120 kg</span><span>200 kg</span></div>
+            </div>
             <div style="display:flex;align-items:baseline;gap:2px">
               <span class="weight-slider-val" id="weight-display">80</span>
               <span class="weight-slider-unit">kg</span>
             </div>
             <input class="prof-input" type="number" id="prof-weight" value="80" min="40" max="200" oninput="syncWeightInput(this.value)" style="width:80px;flex-shrink:0">
           </div>
-          <div class="weight-slider-labels"><span>40 kg</span><span>120 kg</span><span>200 kg</span></div>
         </div>
       </div>
       <div class="prof-field">
@@ -1103,81 +1125,56 @@
   </main>
 </div>
 
-<script src="data.js?v=15.1"></script>
-<script src="links.js?v=15.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
-<script src="scripts.js?v=15.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" defer></script>
+<!-- Ponto de entrada único — ES Modules -->
+<script type="module" src="./main.js"></script>
+
 <script>
-/* ── v2 Home: canvas particles + reveal ── */
+/* ── Hook Gráfico da Home: Encapsulamento e Ciclo de Vida ── */
 (function(){
   let animId = null;
-  /* Canvas particles */
+  const canvas = document.getElementById('v2-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let P = [], W, H;
+
+  function resize(){ 
+    W = canvas.width = canvas.offsetWidth; 
+    H = canvas.height = canvas.offsetHeight; 
+  }
+
   function initCanvas(){
-    const canvas=document.getElementById('v2-canvas');
-    if(!canvas) return;
-    const ctx=canvas.getContext('2d');
-    let P=[],W,H;
-    function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight}
-    window.addEventListener('resize',resize);resize();
-    for(let i=0;i<55;i++)P.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+.3,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,o:Math.random()*.4+.1});
+    if(animId) return;
+    window.addEventListener('resize', resize);
+    resize();
+    P = [];
+    for(let i=0; i<55; i++) P.push({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.3+.3, vx:(Math.random()-.5)*.18, vy:(Math.random()-.5)*.18, o:Math.random()*.4+.1});
+    
     function draw(){
-      if(S.tab !== 'home') {
-        cancelAnimationFrame(animId);
-        animId = null;
-        return;
+      if(!window.S || (window.S && window.S.tab !== 'home')) {
+        cancelAnimationFrame(animId); animId = null; return;
       }
       ctx.clearRect(0,0,W,H);
       P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(0,255,135,'+p.o+')';ctx.fill()});
       for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(P[i].x,P[i].y);ctx.lineTo(P[j].x,P[j].y);ctx.strokeStyle='rgba(0,255,135,'+(1-d/100)*.07+')';ctx.lineWidth=.5;ctx.stroke()}}
       animId = requestAnimationFrame(draw);
     }
-    if(!animId) draw();
+    draw();
   }
 
-  /* Reveal: força visibilidade de todos os .v2-reveal dentro da home */
-  function revealHomeElements(){
-    const home=document.getElementById('p-home');
-    if(!home)return;
-    const els=home.querySelectorAll('.v2-reveal');
-    els.forEach(function(el,i){
-      setTimeout(function(){el.classList.add('v2-vis');},80+i*60);
-    });
-  }
-
-  /* Executa ao carregar se home já está ativa */
-  function onReady(){
-    const home=document.getElementById('p-home');
-    if(home&&home.classList.contains('on')){
+  window._homeVisuals = {
+    init: () => {
       initCanvas();
-      revealHomeElements();
+      document.querySelectorAll('#p-home .v2-reveal').forEach((el, i) => {
+        setTimeout(() => el.classList.add('v2-vis'), 80 + (i * 60));
+      });
+    },
+    stop: () => {
+      cancelAnimationFrame(animId);
+      animId = null;
+      window.removeEventListener('resize', resize);
     }
-  }
-
-  /* Hook no go() global para disparar quando home for aberta.
-     IMPORTANTE: o patch deve ocorrer APÓS o DOMContentLoaded, garantindo
-     que window.go já foi registrado pelo scripts.js. */
-  function patchGo(){
-    const _origGo=window.go;
-    window.go=function(page){
-      if(typeof _origGo==='function') _origGo.apply(this,arguments);
-      if(page==='home'){
-        setTimeout(function(){
-          initCanvas();
-          revealHomeElements();
-        },50);
-      }
-    };
-  }
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){
-      patchGo();
-      onReady();
-    });
-  } else {
-    patchGo();
-    setTimeout(onReady,100);
-  }
+  };
 })();
 </script>
 </body>

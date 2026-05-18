@@ -3,12 +3,13 @@
 // ══════════════════════════════════════════════════════════════
 import { S } from './state.js';
 import {
-  IT, CAT, PRIO, PLBL, PCLS, SUPP_IMGS, APP_VERSION, STUDIES,
+  IT, CAT, PRIO, PLBL, PCLS, SUPP_IMGS, APP_VERSION, STUDIES, INTERACT,
   mlPrice, azPrice, bestMarketplacePrice,
 } from './database.js';
 import { escapeHTML, emptyStateHTML } from './utils.js';
 import { isCurrentSearch } from './search.js'; // [SL-29] Importa o verificador de concorrência
-import { applyFilters, isFilteringActive } from './filter.js';
+import { applyFilters, isFilteringActive, calculateCategoryCounts } from './filter.js';
+import { t } from './i18n.js';
 
 // ── Lazy Loading Observer ─────────────────────────────────────
 const imgObserver = new IntersectionObserver((entries, observer) => {
@@ -71,9 +72,9 @@ export function renderBuySection(it) {
   const pd      = pdose(it);
 
   const markets = [
-    { cls:'mc-sp', url: spUrl, ico:'🛍️', name:'Shopee',       price: spPrice, cta:'Comprar no Shopee'      },
-    { cls:'mc-ml', url: mlUrl, ico:'🛒', name:'Merc. Livre',  price: mlp,    cta:'Comprar no Merc. Livre'  },
-    { cls:'mc-az', url: azUrl, ico:'📦', name:'Amazon',       price: azp,    cta:'Comprar no Amazon'       },
+    { cls:'mc-sp', url: spUrl, ico:'🛍️', name:'Shopee',       price: spPrice, cta: t('buttons.buy_at', { shop: 'Shopee' }) },
+    { cls:'mc-ml', url: mlUrl, ico:'🛒', name:'Mercado Livre', price: mlp,     cta: t('buttons.buy_at', { shop: 'Mercado Livre' }) },
+    { cls:'mc-az', url: azUrl, ico:'📦', name:'Amazon',       price: azp,     cta: t('buttons.buy_at', { shop: 'Amazon' }) },
   ].filter(m => m.url);
 
   if (!markets.length) return '';
@@ -81,9 +82,9 @@ export function renderBuySection(it) {
 
   const cardsHtml = markets.map(m => {
     const isBest = m.price === bestPrice;
-    return `<a class="mkt-card ${m.cls}" href="${m.url}" target="_blank" rel="sponsored noopener noreferrer" onclick="event.stopPropagation()">
-      ${isBest ? `<span class="mkt-best">✓ Melhor custo</span>` : ''}
-      <div class="mkt-ico">${m.ico}</div>
+    return `<a class="mkt-card ${m.cls}" href="${m.url}" target="_blank" rel="sponsored" onclick="event.stopPropagation()">
+      ${isBest ? `<span class="mkt-best">✓ ${t('compare.best_value')}</span>` : ''}
+      <div class="mkt-ico" aria-hidden="true">${m.ico}</div>
       <div class="mkt-name">${m.name}</div>
       <div class="mkt-price"><sup>R$</sup>${m.price}</div>
       <span class="mkt-cta">${m.cta}</span>
@@ -91,10 +92,84 @@ export function renderBuySection(it) {
     </a>`;
   }).join('');
 
-  return `<div class="mkt-panel">
-    <div class="mkt-title">🏪 ONDE COMPRAR — <span>${it.name.toUpperCase()}</span></div>
-    <div class="mkt-cards">${cardsHtml}</div>
-  </div>`;
+  return `
+    <div class="mkt-panel">
+      <div class="mkt-title">🏪 ${t('compare.buy_on')} — <span>${escapeHTML(it.name.toUpperCase())}</span></div>
+      <div class="mkt-cards">${cardsHtml}</div>
+    </div>`;
+}
+
+// ── Componente de Alertas de Segurança (Refatoração UX) ───────
+export function renderCardAlerts(it) {
+  const alerts = [];
+  const itemName = it.name.toLowerCase();
+
+  // 1. Prioridade 1: Aviso específico do registro no banco
+  if (it.warn) {
+    alerts.push({ type: 'warning', ico: '⚠️', text: it.warn });
+  }
+
+  // 2. Prioridade 2: Busca proativa no banco de interações (INTERACT)
+  INTERACT.forEach(int => {
+    // Regex simples para capturar o nome do suplemento como palavra inteira
+    const nameRegex = new RegExp(`\\b${itemName}\\b`, 'i');
+    if (nameRegex.test(int.title) || nameRegex.test(int.desc)) {
+      const severity = int.type === 'danger' ? 'critical' : (int.type === 'warn' ? 'warning' : 'info');
+      const icon = int.type === 'danger' ? '🚫' : (int.type === 'warn' ? '⚠️' : '💡');
+      
+      // Evita duplicar alertas que dizem a mesma coisa
+      if (!alerts.some(a => a.text === int.desc)) {
+        alerts.push({ type: severity, ico: icon, text: int.desc });
+      }
+    }
+  });
+
+  // 3. Ordenação por Severidade Crítica
+  const severityWeight = { critical: 1, warning: 2, info: 3 };
+  alerts.sort((a, b) => severityWeight[a.type] - severityWeight[b.type]);
+
+  if (alerts.length === 0) return '';
+
+  // 4. Mecânica de "Show More" (UX-03)
+  const maxVisible = 2; 
+  const hasMore = alerts.length > maxVisible;
+  const visibleAlerts = alerts.slice(0, maxVisible);
+  const hiddenAlerts = alerts.slice(maxVisible);
+
+  /**
+   * Renderiza o template de cada alerta com proteção XSS e acessibilidade
+   */
+  const renderAlertItem = (a) => `
+    <div class="alert-item alert-${a.type}">
+      <div class="alert-icon" role="img" aria-hidden="true">${a.ico}</div>
+      <div class="alert-content">${escapeHTML(a.text)}</div>
+    </div>
+  `;
+
+  return `
+    <div class="card-alerts-wrapper" onclick="event.stopPropagation()">
+      <div class="alert-list">
+        ${visibleAlerts.map(renderAlertItem).join('')}
+        ${hasMore ? `
+          <div class="alerts-collapsible" id="more-alerts-${it.id}">
+            ${hiddenAlerts.map(renderAlertItem).join('')}
+          </div>
+          <button class="alert-expand-trigger" 
+                  aria-expanded="false"
+                  onclick="
+                    const target = this.previousElementSibling;
+                    const isOpen = target.classList.toggle('is-open');
+                    this.setAttribute('aria-expanded', isOpen);
+                    this.innerHTML = isOpen 
+                      ? '− ' + (t('buttons.show_less') || 'Ver menos') 
+                      : '+ ' + (t('buttons.show_more_alerts', { n: alerts.length - maxVisible }) || 'Mostrar mais ' + (alerts.length - maxVisible) + ' alertas');
+                  ">
+            + ${t('buttons.show_more_alerts', { n: alerts.length - maxVisible }) || 'Mostrar mais ' + (alerts.length - maxVisible) + ' alertas'}
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `;
 }
 
 // ── Item HTML ─────────────────────────────────────────────────
@@ -102,73 +177,79 @@ export function itemHTML(it, idx) {
   const done = S.checked[it.id], open = S.open[it.id], isX = it.pr === 'extra';
   // Fallback seguro caso a categoria não exista no database.js
   const catMeta = CAT[it.cat] || { cls: 'cM', ico: '📦' };
-  const cc = catMeta.cls, ico = catMeta.ico;
+  const cc = catMeta.cls;
   const pd = pdose(it);
-  const badgeHTML = it.badge === 'hot' ? '<span class="badge badge-hot">🔥 Popular</span>' :
-                    it.badge === 'best' ? '<span class="badge badge-best">★ Melhor C/B</span>' :
-                    it.badge === 'val'  ? '<span class="badge badge-val">💰 Econômico</span>' : '';
+  const badgeHTML = it.badge === 'hot' ? `<span class="badge badge-hot">🔥 ${t('badges.popular')}</span>` :
+                    it.badge === 'best' ? `<span class="badge badge-best">★ ${t('badges.best_cb')}</span>` :
+                    it.badge === 'val'  ? `<span class="badge badge-val">💰 ${t('badges.economic')}</span>` : '';
   const activeImg = (typeof SUPP_IMGS !== 'undefined' && SUPP_IMGS[it.id]) || '';
-  const imgHTML = activeImg
-    ? `<div class="item-img-wrap" aria-label="Imagem de ${it.name}"><img class="item-img lazy-img" data-src="${activeImg}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${it.name}" loading="lazy" decoding="async" onerror="this.src='./assets/placeholder.png'"></div>`
-    : `<div class="item-img-wrap item-img-placeholder" aria-hidden="true"><span style="font-size:28px">${CAT[it.cat]?.ico || '🌿'}</span></div>`;
+  
+  // Padronização do container de imagem para Bounding Box
+  const imgHTML = `<div class="item-img-wrap">
+    ${activeImg
+      ? `<img class="item-img lazy-img" data-src="${activeImg}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${it.name}" onerror="this.src='./assets/placeholder.png'">`
+      : `<span class="item-img-placeholder">${catMeta.ico || '💊'}</span>`
+    }
+  </div>`;
+
   const isQcmp = S.quickCmpSel.includes(it.id);
-  const efficacyClass = `eff-s${it.sc}`;
+  const efficacyClass = `eff-s${it?.sc || 0}`;
   const sd = (typeof STUDIES !== 'undefined' && STUDIES[it.id]) ? STUDIES[it.id] : null;
   const evLevel = sd ? sd.scientific_evidence_level : null;
-  const evHTML = evLevel ? `<span class="ev-badge ev-${evLevel.toLowerCase()}" title="Nível de Evidência Científica: ${evLevel}">Ciência: ${evLevel}</span>` : '';
+  const evHTML = evLevel ? `<span class="ev-badge ev-${evLevel.toLowerCase()}" title="${t('compare.science_level')} ${evLevel}">${t('compare.science_label')} ${evLevel}</span>` : '';
+  const btnLabel = open ? `▲ ${t('buttons.close_options')}` : `＋ ${t('buttons.see_prices')}`;
 
-  return `<div class="item ${cc} glass-card prio-${it.pr} ${efficacyClass} ${done?' done':''}${open?' open':''}${isQcmp?' qcmp-selected':''}" id="item-${it.id}" style="--idx: ${idx}" role="listitem">
-  <div class="itop" onclick="window._app.togItem(${it.id})" aria-expanded="${open?'true':'false'}" role="button" aria-controls="dp-${it.id}" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window._app.togItem(${it.id})}" aria-label="${escapeHTML(it.name)}, ${it.cat}">
-    <div class="cbw" onclick="event.stopPropagation()">
-      <input class="cb" type="checkbox" id="cb${it.id}"${done?' checked':''} onclick="window._app.chk(${it.id})" aria-label="Marcar ${it.name} como comprado">
-      <label class="cbl" for="cb${it.id}" aria-hidden="true"></label>
-    </div>
-    ${imgHTML}
-    <div class="ibody">
-      <div class="i-header" style="position: relative; z-index: 1;">
-        <div class="i-name-row" style="margin-bottom: 2px;">
-          <span class="iname">${escapeHTML(it.name)}</span>
-          ${isX?'<span class="xtag" title="Opcional">✨</span>':''}
+  // SL-40: O container principal recebe 'is-expanded' para controle do CSS Grid
+  return `<div class="supplement-card ${cc} glass-card prio-${it?.pr || 'baixa'} ${efficacyClass} ${done?' done':''}${open?' is-expanded open':''}${isQcmp?' qcmp-selected':''}" id="item-${it.id}" data-item-id="${it.id}" style="--idx: ${idx}" role="listitem">
+    <div class="card-main-content" aria-expanded="${open?'true':'false'}" role="button" aria-controls="dp-${it.id}" tabindex="0">
+      
+      <!-- Top/Header: Zona Protegida de Imagem e Tags -->
+      <header class="card-header">
+        <div class="card-checkbox-wrapper">
+          <input class="cb" type="checkbox" id="cb${it.id}"${done?' checked':''}>
+          <label class="cbl" for="cb${it.id}"></label>
         </div>
-        <div class="i-badges-row">
+        ${imgHTML}
+      </header>
+
+      <!-- Center/Body: Título e Classificação -->
+      <div class="card-body">
+        <div class="card-tags">
            ${badgeHTML}
            ${evHTML}
-           <span class="ctag ${cc}">${ico} ${it.cat}</span>
+           <span class="ctag ${cc}">${catMeta.ico} ${it.cat}</span>
+        </div>
+        <h3 class="card-title">${escapeHTML(it.name)} ${isX?'<span class="xtag">✨</span>':''}</h3>
+        <div class="card-science">
+          ${starsHTML(it.sc)}
+          <div class="card-desc-short">${escapeHTML(it.desc || '')}</div>
         </div>
       </div>
-      <div class="imeta">
-        ${starsHTML(it.sc)}
-        <div class="price-group">
-          <span class="mp" aria-label="Preço estimado: R$ ${it.pm}">R$${it.pm}</span>
-          ${pd&&S.cfg.showPdose?`<span class="pdose-tag" aria-label="Preço por dose: R$ ${pd}">R$${pd}/dose</span>`:''}
+
+      <!-- Bottom/Footer: Preço e CTA -->
+      <footer class="card-footer">
+        <div class="card-price-row">
+          <span class="card-price-main">R$ ${it.pm}</span>
+          ${pd&&S.cfg.showPdose?`<span class="pdose-tag">R$${pd}/dose</span>`:''}
         </div>
-      </div>
-      ${(it.dm||it.dn)?`<div class="dose-badge-row" aria-label="Dosagem recomendada">
-        ${it.dm?`<span class="dose-badge" title="Dose manhã${it.dp?' / pré-treino':''}"><span class="dose-ico">${it.dp?'⚡':'🌅'}</span>${it.dm}</span>`:''}
-        ${it.dn&&it.dn!==it.dm?`<span class="dose-badge" title="Dose noite" style="border-color:var(--violet);color:var(--violet);box-shadow:0 0 10px var(--vd)"><span class="dose-ico">🌙</span>${it.dn}</span>`:''}
-        ${it.dn&&it.dn===it.dm?`<span class="dose-badge" title="Dose: manhã e noite" style="border-color:var(--violet);color:var(--violet);box-shadow:0 0 10px var(--vd)"><span class="dose-ico">🌙</span>${it.dn}</span>`:''}
-      </div>`:''}
+        <button class="btn-buy-trigger" id="btn-label-${it.id}">${btnLabel}</button>
+      </footer>
     </div>
-    <div class="iright">
-      <button class="wl-btn${S.wishlist[it.id]?' on':''}" onclick="event.stopPropagation();window._app.togWl(${it.id})" title="${S.wishlist[it.id]?'Remover dos favoritos':'Adicionar aos favoritos'}" aria-label="${S.wishlist[it.id]?'Remover '+it.name+' dos favoritos':'Adicionar '+it.name+' aos favoritos'}" aria-pressed="${S.wishlist[it.id]?'true':'false'}">${S.wishlist[it.id]?'❤️':'🤍'}</button>
-      <span class="eico" aria-hidden="true">▼</span>
-    </div>
-  </div>
-  <div class="dpanel" id="dp-${it.id}" role="region" aria-label="Detalhes de ${it.name}">
-    <div class="dbox" style="background: rgba(0, 0, 0, 0.2); border-radius: 0 0 20px 20px;">
+
+  <!-- SL-40: Painel de marketplaces aninhado corretamente no root do card -->
+  <div class="marketplaces-container ${open ? 'is-visible' : ''}" id="dp-${it.id}" role="region" aria-label="Opções de compra para ${it.name}">
+    <div class="expansion-content">
       ${renderBuySection(it)}
-      <div class="dtitle">${escapeHTML(it.name)}</div>
-      <div class="dtext">${escapeHTML(it.desc)}</div>
       <div class="dtags" aria-label="Tags">${(it.tags||[]).map(t=>`<span class="dtag">${t}</span>`).join('')}</div>
       ${it.dose?`<div class="ddose" role="note">💊 ${escapeHTML(it.dose)}</div>`:''}
-      ${it.warn?`<div class="dwarn" role="alert">⚠️ ${it.warn}</div>`:''}
+      ${renderCardAlerts(it)}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn" style="height:32px;font-size:11px;background:var(--rosedim);color:var(--rose);border-color:rgba(244,114,182,.25)" onclick="event.stopPropagation();window._app.addToStack(${it.id})" aria-label="Adicionar ${it.name} à stack">💪 Adicionar à stack</button>
-        <button class="ref-btn" onclick="event.stopPropagation();window._app.openRef(${it.id})" aria-label="Ver referências científicas para ${it.name}">🔬 Estudos Científicos</button>
+        <button class="btn btn-add-to-stack" data-id="${it.id}" style="height:32px;font-size:11px;background:var(--rosedim);color:var(--rose);border-color:rgba(244,114,182,.25)" aria-label="Adicionar ${it.name} à stack">💪 Adicionar à stack</button>
+        <button class="ref-btn btn-open-ref" data-id="${it.id}" aria-label="Ver referências científicas para ${it.name}">🔬 Estudos Científicos</button>
       </div>
       <div class="note-row">
         <textarea class="note-ta item-note" data-id="${it.id}" placeholder="Nota: marca, preço pago, lote…" rows="2" aria-label="Nota pessoal sobre ${it.name}" oninput="window._app.updateNote('${it.id}', this.value)">${escapeHTML(S.notes[it.id])}</textarea>
-        <button class="note-btn" onclick="window._app.saveNote('${it.id}')" aria-label="Salvar nota para ${it.name}" title="Salvar nota">💾</button>
+        <button class="note-btn btn-save-note" data-id="${it.id}" aria-label="Salvar nota para ${it.name}" title="Salvar nota">💾</button>
       </div>
     </div>
   </div>
@@ -257,24 +338,18 @@ export function renderList(currentSearchId) { // [SL-29] Recebe o ID da busca at
 // ── Chips ─────────────────────────────────────────────────────
 export function renderChips() {
   const el = document.getElementById('chips'); if (!el) return;
-  const searchInput = document.getElementById('search');
-  const q  = (searchInput?.value || '').toLowerCase();
-  const gf = S.goalFilter || '', pf = S.priceFilter || '';
-  const base = IT.filter(i => {
-    if (i.pr === 'extra' && !S.showExtra) return false;
-    if (!S.showDone && S.checked[i.id]) return false;
-    if (gf && !(i.goals || []).includes(gf)) return false;
-    if (pf) {
-      const [lo,hi] = pf.includes('+') ? [parseInt(pf),999] : [...pf.split('-').map(Number)];
-      if (i.pm < lo || i.pm > hi) return false;
-    }
-    if (q && !i.name.toLowerCase().includes(q) && !(i.tags||[]).some(t=>t.toLowerCase().includes(q))) return false;
-    return true;
-  });
+  
+  const counts = calculateCategoryCounts(S, IT);
+
   el.innerHTML = allCats().map(c => {
-    const n = c === 'Todos' ? base.length : base.filter(i => i.cat === c).length;
+    const n = counts[c] || 0;
     const ico = c === 'Todos' ? '🌐' : CAT[c]?.ico || '';
-    return `<button class="chip${S.cat===c?' on':''}" onclick="window._app.setCat('${c}')">${ico} ${c} <span class="cn">${n}</span></button>`;
+    const isDisabled = n === 0 && c !== 'Todos';
+    return `<button class="chip${S.cat===c?' on':''}" 
+             style="${isDisabled ? 'opacity: 0.4; pointer-events: none;' : ''}" 
+             onclick="window._app.setCat('${c}')">
+               ${ico} ${c} <span class="cn">${n}</span>
+            </button>`;
   }).join('');
 }
 

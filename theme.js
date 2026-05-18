@@ -17,7 +17,7 @@ let _manualThemeSet = false; // Flag para indicar se o usuário definiu um tema 
  * @param {'light'|'dark'} theme - O tema a ser aplicado.
  * @param {boolean} isManual - Indica se a mudança foi feita pelo usuário (true) ou automática (false).
  */
-const VALID_THEMES = new Set(['light','dark','midnight','forest','sunset','ocean','rose','volcano','neon','aurora']);
+const VALID_THEMES = new Set(['light','dark','midnight','ocean']);
 
 export function setTheme(theme, isManual = false) {
   if (!VALID_THEMES.has(theme)) {

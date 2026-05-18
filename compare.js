@@ -18,9 +18,12 @@
  * ══════════════════════════════════════════════════════════════════════
  */
 
+import { S, save } from './state.js';
 import { t, translatePage } from './i18n.js';
 import { announceToScreenReader } from './accessibility.js';
 import { openModal, closeModal } from './modal.js';
+import { IT, INTERACT, RECIPE_SYNERGIES, bestMarketplacePrice } from './database.js';
+import { escapeHTML } from './utils.js';
 
 // ─────────────────────────────────────────────
 // CONSTANTES
@@ -81,7 +84,7 @@ function esc(value) {
  * @returns {number|null}
  */
 export function calcCostPerDose(item) {
-  const price = parseFloat(item?.price);
+  const price = parseFloat(item?.pm);
   const doses = parseInt(item?.doses, 10);
   if (!price || !doses || doses <= 0) return null;
   return price / doses;
@@ -98,12 +101,65 @@ export function calcCostPerDose(item) {
  * @returns {number|null}
  */
 export function calcCostPerGramProtein(item) {
-  const price    = parseFloat(item?.price);
+  const price    = parseFloat(item?.pm);
   const proteinG = parseFloat(item?.servingG);
   const doses    = parseInt(item?.doses, 10);
   if (!price || !proteinG || !doses || proteinG <= 0 || doses <= 0) return null;
   const totalProtein = proteinG * doses;
   return price / totalProtein;
+}
+
+/**
+ * Executa a análise completa de uma stack de suplementos.
+ * @param {number[]} ids - IDs dos suplementos na stack
+ */
+export function analyzeStack(ids) {
+  const items = ids.map(id => IT.find(it => it.id === id)).filter(Boolean);
+  if (!items.length) return null;
+
+  const monthlyCost = items.reduce((sum, it) => {
+    const p = bestMarketplacePrice(it);
+    return sum + (it.doses ? (p / it.doses) * 30 : p);
+  }, 0);
+
+  const avgEvidence = items.reduce((sum, it) => sum + (it.sc || 0), 0) / items.length;
+  
+  const names = items.map(i => i.name.toLowerCase());
+  const conflicts = INTERACT.filter(int => 
+    int.type === 'danger' && names.some(n => int.title.toLowerCase().includes(n))
+  );
+  
+  const synergies = RECIPE_SYNERGIES.filter(syn => 
+    syn[0].every(id => ids.includes(id))
+  );
+
+  return {
+    items,
+    monthlyCost,
+    avgEvidence,
+    conflicts,
+    synergies,
+    count: items.length
+  };
+}
+
+/**
+ * Move um item para a Stack A ou B
+ */
+export function assignToAB(id, side) {
+  const key = side === 'A' ? 'stackA' : 'stackB';
+  const other = side === 'A' ? 'stackB' : 'stackA';
+  
+  // Remove do outro lado se existir (toggle exclusivo)
+  S[other] = S[other].filter(i => i !== id); // filter já gera novo array
+  let list = S[key];
+  const idx = list.indexOf(id);
+  if (idx === -1) list.push(id);
+  else list.splice(idx, 1);
+  S[key] = list;
+  
+  save();
+  renderCompareAB();
 }
 
 /**
@@ -273,8 +329,9 @@ export function removeFromCompare(id) {
   if (idx === -1) return;
   
   const itemName = IT.find(i => i.id === id)?.name || '';
-  S.cmpSel.splice(idx, 1);
-  save();
+  const list = S.cmpSel;
+  list.splice(idx, 1);
+  S.cmpSel = list; // Dispara o Proxy.set para persistência e reatividade
 
   const removedMsg = t('compare.item_removed', { name: itemName })
     || `${item.name} removido da comparação.`;
@@ -708,6 +765,88 @@ function _renderCompareTable(items) {
       </div>
     </div>
     ${sectionsHTML}`;
+}
+
+/**
+ * Renderiza a nova interface de Comparação A vs B
+ */
+export function renderCompareAB() {
+  const container = document.getElementById('cmp-ab-view');
+  if (!container) return;
+
+  const analysisA = analyzeStack(S.stackA || []);
+  const analysisB = analyzeStack(S.stackB || []);
+
+  const maxCost = Math.max(analysisA?.monthlyCost || 0, analysisB?.monthlyCost || 0, 1);
+
+  const renderColumn = (analysis, side) => {
+    if (!analysis) return `
+      <div class="cmp-ab-empty">
+        <div class="empty-ico">➕</div>
+        <p>Stack ${side} vazia</p>
+        <small>Adicione itens da lista abaixo</small>
+      </div>`;
+
+    return `
+      <div class="cmp-stack-card">
+        <div class="cmp-stack-header">
+          <div class="cmp-stack-title">STACK ${side}</div>
+          <div class="cmp-stack-main-metrics">
+            <div class="cmp-metric">
+              <span class="lbl">Custo Mensal</span>
+              <span class="val">R$ ${analysis.monthlyCost.toFixed(0)}</span>
+            </div>
+            <div class="cmp-metric">
+              <span class="lbl">Evidência Média</span>
+              <span class="val">${analysis.avgEvidence.toFixed(1)} ★</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="cmp-bar-wrap">
+          <div class="cmp-bar-fill" style="width: ${(analysis.monthlyCost / maxCost) * 100}%; background: var(--accent)"></div>
+        </div>
+
+        <div class="cmp-stack-items">
+          ${analysis.items.map(it => `
+            <div class="cmp-stack-mini-item">
+              <span>${it.name}</span>
+              <button onclick="window._app.assignToAB(${it.id}, '${side}')">✕</button>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="cmp-stack-analysis">
+          ${analysis.conflicts.length ? `<div class="cmp-alert danger">⚠️ ${analysis.conflicts.length} Conflitos detectados</div>` : ''}
+          ${analysis.synergies.length ? `<div class="cmp-alert success">✨ ${analysis.synergies.length} Sinergias ativas</div>` : ''}
+        </div>
+      </div>`;
+  };
+
+  container.innerHTML = `
+    <div class="cmp-ab-grid">
+      <div class="cmp-ab-col">${renderColumn(analysisA, 'A')}</div>
+      <div class="cmp-ab-divider">VS</div>
+      <div class="cmp-ab-col">${renderColumn(analysisB, 'B')}</div>
+    </div>
+    <div class="cmp-ab-selector">
+      <h4>Selecione para comparar:</h4>
+      <div class="cmp-ab-pool">
+        ${IT.filter(i => i.pr !== 'extra').map(it => {
+          const inA = S.stackA.includes(it.id);
+          const inB = S.stackB.includes(it.id);
+          return `
+            <div class="cmp-pool-item ${inA?'in-a':''} ${inB?'in-b':''}">
+              <span class="name">${it.name}</span>
+              <div class="btns">
+                <button class="btn-a" onclick="window._app.assignToAB(${it.id}, 'A')">A</button>
+                <button class="btn-b" onclick="window._app.assignToAB(${it.id}, 'B')">B</button>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
 }
 
 // ─────────────────────────────────────────────

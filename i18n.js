@@ -22,7 +22,15 @@ const dictionaries = {
             save: 'Salvar Alterações',
             cancel: 'Cancelar',
             add: 'Adicionar Item',
-            buy: 'Comprar Agora'
+            buy: 'Comprar Agora',
+            see_prices: 'Ver melhores preços',
+            close_options: 'Fechar opções',
+            buy_at: 'Comprar no {shop}'
+        },
+        badges: {
+            popular: 'Popular',
+            best_cb: 'Melhor C/B',
+            economic: 'Econômico'
         },
         search: {
             placeholder: 'Buscar suplemento, objetivo ou tag...',
@@ -47,7 +55,11 @@ const dictionaries = {
             add_announcement: '{name} adicionado à comparação.',
             limit_reached: '⚠️ Máximo de {n} itens para comparar.',
             label_category: 'Categoria',
-            label_price: 'Preço'
+            label_price: 'Preço',
+            science_label: 'Evidência',
+            science_level: 'Nível de Evidência',
+            efficacy: 'Eficácia',
+            dose: 'Dose'
         }
     },
     'en': {
@@ -60,7 +72,10 @@ const dictionaries = {
             save: 'Save Changes',
             cancel: 'Cancel',
             add: 'Add Item',
-            buy: 'Buy Now'
+            buy: 'Buy Now',
+            see_prices: 'See best prices',
+            close_options: 'Close options',
+            buy_at: 'Buy at {shop}'
         },
         search: {
             placeholder: 'Search supplement, goal or tag...',
@@ -85,7 +100,11 @@ const dictionaries = {
             add_announcement: '{name} added to comparison.',
             limit_reached: '⚠️ Maximum of {n} items to compare.',
             label_category: 'Category',
-            label_price: 'Price'
+            label_price: 'Price',
+            science_label: 'Evidence',
+            science_level: 'Evidence Level',
+            efficacy: 'Efficacy',
+            dose: 'Dose'
         }
     }
 };

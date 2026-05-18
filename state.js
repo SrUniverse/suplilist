@@ -24,7 +24,7 @@ export const STORAGE_KEY = 'suplilist_v3';
 // Única fonte de verdade do estado de runtime da aplicação.
 // Nunca inicializar com valores derivados de IT ou STUDIES aqui;
 // a população inicial com dados demo é feita em scripts.js (DOMContentLoaded).
-export let S = {
+let _S = {
   version:   null,
   demoMode:  false,
   lang:      'pt-BR',
@@ -36,6 +36,8 @@ export let S = {
   notes:     {},
   wishlist:  {},
   stack:     {},
+  stackA:    [],
+  stackB:    [],
 
   // Filtros e navegação
   tab:         'lista',
@@ -47,8 +49,8 @@ export let S = {
   priceFilter: '',
 
   // Seleções e histórico
-  cmpSel:     [],
-  quickCmpSel: [],
+  cmpSel:      [],
+  quickCmpSel: [], // [FIX] Garantido no estado padrão para evitar crash em togQuickCmp
   rSel:       [],
   history:    [],
   cycleStart: {},
@@ -62,7 +64,7 @@ export let S = {
     showPdose:      true,
     showTooltips:   true,
     confetti:       true,
-    theme:          'dark',
+    theme:          'theme-dark',
     delay:          280,
     alertInteractions: true,
     alertCycles:    true,
@@ -76,6 +78,25 @@ export let S = {
 
   lastSave: null,
 };
+
+/**
+ * Proxy de Estado para garantir que toda mutação dispare persistência
+ * e que leituras retornem clones, impedindo mutação direta via referência.
+ */
+export const S = new Proxy(_S, {
+  get(target, prop) {
+    const val = target[prop];
+    if (typeof val === 'object' && val !== null) {
+      return Array.isArray(val) ? [...val] : { ...val };
+    }
+    return val;
+  },
+  set(target, prop, value) {
+    target[prop] = value;
+    if (target.cfg?.autoSync) save();
+    return true;
+  }
+});
 
 
 // ─────────────── VARIÁVEIS INTERNAS DE RUNTIME ───────────────
@@ -337,6 +358,8 @@ export function load() {
   if (!S.rSel)          S.rSel          = [];
   if (!S.cmpSel)        S.cmpSel        = [];
   if (!S.history)       S.history       = [];
+  if (!S.stackA)        S.stackA        = [];
+  if (!S.stackB)        S.stackB        = [];
   if (!S._customCycles) S._customCycles = [];
 }
 
@@ -364,8 +387,9 @@ export function load() {
  * @returns {boolean} Novo valor de checked para o id.
  */
 export function toggleItemCheck(id) {
-  S.checked[id] = !S.checked[id];
-  save();
+  const current = S.checked;
+  current[id] = !current[id];
+  S.checked = current; // Dispara o Proxy.set para persistência
   return !!S.checked[id];
 }
 
@@ -376,8 +400,9 @@ export function toggleItemCheck(id) {
  * @param {boolean} val  - true = comprado, false = pendente.
  */
 export function setItemCheck(id, val) {
-  S.checked[id] = !!val;
-  // Não chama save() — operações em lote fazem um único save() externo.
+  const current = S.checked;
+  current[id] = !!val;
+  S.checked = current;
 }
 
 /**
@@ -396,8 +421,9 @@ export function setCheckedAll(snapshot) {
  */
 export function checkAllItems() {
   const prev = { ...S.checked };
-  IT.forEach(i => { S.checked[i.id] = true; });
-  save();
+  const next = {};
+  IT.forEach(i => { next[i.id] = true; });
+  S.checked = next;
   return prev;
 }
 
@@ -419,8 +445,9 @@ export function uncheckAllItems() {
  * @returns {boolean} Novo valor de open para o id.
  */
 export function toggleItemOpen(id) {
-  S.open[id] = !S.open[id];
-  save();
+  const current = S.open;
+  current[id] = !current[id];
+  S.open = current; // Garante que a mutação seja detectada pelo Proxy
   return !!S.open[id];
 }
 
@@ -432,8 +459,9 @@ export function toggleItemOpen(id) {
  * @param {string}        text  - Conteúdo da nota.
  */
 export function setItemNote(id, text) {
-  S.notes[id] = text;
-  if (S.cfg.autoSync) save();
+  const current = S.notes;
+  current[id] = text;
+  S.notes = current;
 }
 
 /**
@@ -442,8 +470,9 @@ export function setItemNote(id, text) {
  * @param {string}        text  - Conteúdo final da nota.
  */
 export function saveItemNote(id, text) {
-  S.notes[id] = text;
-  save();
+  const current = S.notes;
+  current[id] = text;
+  S.notes = current;
 }
 
 /**
@@ -452,8 +481,9 @@ export function saveItemNote(id, text) {
  * @returns {boolean} Novo valor de wishlist para o id.
  */
 export function toggleItemWishlist(id) {
-  S.wishlist[id] = !S.wishlist[id];
-  save();
+  const current = S.wishlist;
+  current[id] = !current[id];
+  S.wishlist = current;
   return !!S.wishlist[id];
 }
 

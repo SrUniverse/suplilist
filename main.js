@@ -226,9 +226,11 @@ function getAppController() {
     // togR: implementado aqui porque recipe.js não o exporta —
     //        atualiza S.rSel e delega a persistência ao orquestrador.
     togR: (id) => {
-      const idx = S.rSel.indexOf(id);
+      let list = S.rSel;
+      const idx = list.indexOf(id);
       const adding = idx < 0;
-      if (adding) S.rSel.push(id); else S.rSel.splice(idx, 1);
+      if (adding) list.push(id); else list.splice(idx, 1);
+      S.rSel = list;
       _activeRecipePreset = null;
       document.querySelectorAll('.rpreset').forEach(b => b.classList.remove('on'));
       save();
@@ -314,8 +316,10 @@ function exposeSecureGlobals() {
     enumerable: true
   });
 
-  // Expõe funções individuais no window para compatibilidade com handlers inline legados
-  // No futuro, estes handlers devem ser movidos para o events.js
+  /**
+   * COMPATIBILIDADE (ID 02): Expõe as pontes globais para handlers inline (onclick).
+   * O objeto window._app torna-se o namespace oficial para evitar conflitos de escopo.
+   */
   Object.keys(app).forEach(key => {
     if (typeof app[key] === 'function' && key !== 'confettiTrigger') {
       window[key] = app[key];

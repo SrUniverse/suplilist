@@ -6,10 +6,11 @@
 
 import { S, save } from './state.js';
 import { go, invalidateTab } from './router.js';
-import { toggleThemePop, runDatabaseAudit } from './ui.js';
+import { toggleThemePop, handleThemeSelection, runDatabaseAudit } from './ui.js';
 import { setTheme } from './theme.js';
-import { toggleCfgExtra, onSearchInput } from './actions.js';
+import { toggleCfgExtra, onSearchInput, togItem, chk, saveNote } from './actions.js';
 import { addStack } from './stack.js';
+import { addToStack } from './stack.js';
 import { addHist } from './history.js';
 import { handleCreateSupplement } from './create.js';
 import { handleUpdateRegister } from './update.js';
@@ -29,27 +30,94 @@ export function setupEvents() {
   document.addEventListener('click', (e) => {
     const target = e.target;
 
+    // ── 1.1 Checkbox (Prioridade Máxima) ──
+    const checkTrigger = target.closest('.card-checkbox-wrapper');
+    if (checkTrigger) {
+      const card = checkTrigger.closest('.supplement-card');
+      const id = parseInt(card?.dataset.itemId);
+      if (id) {
+        chk(id);
+        // Não usamos preventDefault para permitir que o input checkbox nativo mude de estado
+      }
+      return;
+    }
+
+    // ── 1.2 Card Toggle (Expansão) ──
+    const expansionTrigger = target.closest('.card-main-content') || target.closest('.btn-buy-trigger');
+    if (expansionTrigger) {
+      const card = expansionTrigger.closest('.supplement-card');
+      if (card) {
+        e.preventDefault();
+        const id = parseInt(card.dataset.itemId);
+        if (!isNaN(id)) {
+          togItem(id, expansionTrigger);
+          return; // Interrompe para não disparar outros eventos
+        }
+      }
+    }
+
+    // ── 1.3 Ações dentro do Painel Expandido ──
+    const btnStack = target.closest('.btn-add-to-stack');
+    if (btnStack) {
+      e.stopPropagation();
+      addToStack(parseInt(btnStack.dataset.id));
+      return;
+    }
+
+    const btnRef = target.closest('.btn-open-ref');
+    if (btnRef) {
+      e.stopPropagation();
+      import('./ui.js').then(m => m.openRef(parseInt(btnRef.dataset.id)));
+      return;
+    }
+
+    const btnSave = target.closest('.btn-save-note');
+    if (btnSave) {
+      e.stopPropagation();
+      saveNote(btnSave.dataset.id);
+      return;
+    }
+
     // Atalhos de navegação por atributos data-go
-    if (target.hasAttribute('data-go')) {
-      const page = target.getAttribute('data-go');
+    const navTrigger = target.closest('[data-go]');
+    if (navTrigger) {
+      const page = navTrigger.getAttribute('data-go');
       go(page);
       return;
     }
 
+    // TEMA: Abrir/Fechar menu (Delegação robusta)
+    const themeToggle = target.closest('#theme-toggle-btn');
+    if (themeToggle) {
+      e.stopPropagation();
+      toggleThemePop();
+      return;
+    }
+
+    // TEMA: Seleção de opção (Popover ou Grade de Configurações)
+    // SL-34: Unifica a captura de cliques em seletores de tema via delegação.
+    const themeOpt = target.closest('.th-opt, .cfg-th');
+    if (themeOpt) {
+      const theme = themeOpt.getAttribute('data-theme');
+      if (theme) { handleThemeSelection(theme); }
+      return;
+    }
+
     // Controle de Fechamento de Modais e Popups ao clicar fora
-    const themePop = document.getElementById('theme-pop');
-    if (themePop && themePop.classList.contains('on') && !themePop.contains(target) && target.id !== 'theme-toggle-btn') {
+    const themePop = document.getElementById('theme-pop') || document.getElementById('theme-popover');
+    if (themePop && themePop.classList.contains('on') && !themePop.contains(target) && !target.closest('#theme-toggle-btn')) {
       themePop.classList.remove('on');
       document.getElementById('theme-toggle-btn')?.setAttribute('aria-expanded', 'false');
     }
 
     // Cliques em abas / chips de categoria de filtros rápidos
-    if (target.classList.contains('hcat')) {
-      const cat = target.getAttribute('data-cat');
+    const hcat = target.closest('.hcat');
+    if (hcat) {
+      const cat = hcat.getAttribute('data-cat');
       if (cat) {
         S.cat = cat;
         document.querySelectorAll('.hcat').forEach(el => el.classList.remove('on'));
-        target.classList.add('on');
+        hcat.classList.add('on');
         invalidateTab('lista');
         go('lista');
       }
@@ -73,10 +141,12 @@ export function setupEvents() {
 
   // ── 1.1 GESTOS TOUCH (Long Press para Comparação) ───────────
   document.addEventListener('touchstart', (e) => {
-    const card = e.target.closest('.item');
+    // SL-40: Atualizado para o novo seletor de card
+    const card = e.target.closest('.supplement-card');
     if (!card || S.tab !== 'lista') return;
 
-    const id = parseInt(card.id.replace('item-', ''));
+    // SL-40: Uso de dataset para maior resiliência em vez de parsing de ID de string
+    const id = parseInt(card.dataset.itemId);
     isLongPress = false;
     card.classList.add('pressing');
 
@@ -97,35 +167,19 @@ export function setupEvents() {
 
   document.addEventListener('touchend', (e) => {
     clearTimeout(lpTimer);
-    const card = e.target.closest('.item');
+    const card = e.target.closest('.supplement-card');
     if (card) card.classList.remove('pressing');
   });
 
   document.addEventListener('touchmove', () => {
     clearTimeout(lpTimer);
-    document.querySelectorAll('.item.pressing').forEach(el => el.classList.remove('pressing'));
+    document.querySelectorAll('.supplement-card.pressing').forEach(el => el.classList.remove('pressing'));
   });
 
   // Impede o menu de contexto nativo ao segurar nos cards
-  document.addEventListener('contextmenu', e => { if (e.target.closest('.item')) e.preventDefault(); });
+  document.addEventListener('contextmenu', e => { if (e.target.closest('.supplement-card')) e.preventDefault(); });
 
   // ── 2. NAVEGAÇÃO E TEMAS ─────────────────────────────────────
-  const themeToggleBtn = document.getElementById('theme-toggle-btn');
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleThemePop();
-    });
-  }
-
-  // Opções do seletor de temas rápido
-  document.querySelectorAll('.th-opt').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const theme = btn.getAttribute('data-theme');
-      if (theme) setTheme(theme, true);
-    });
-  });
-
   // ── 3. FORMULÁRIOS E INPUTS DA LISTA DE SUPLEMENTOS ──────────
   const searchInput = document.getElementById('search');
   if (searchInput) {
@@ -157,11 +211,7 @@ export function setupEvents() {
     chip.addEventListener('click', () => {
       const sortType = chip.getAttribute('data-sort');
       if (sortType) {
-        S.cfg.defaultSort = sortType;
-        document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('on'));
-        chip.classList.add('on');
-        invalidateTab('lista');
-        go('lista');
+        window._app.setSortOrder(sortType, chip);
       }
     });
   });

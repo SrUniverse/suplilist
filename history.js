@@ -33,8 +33,12 @@ export function addHist() {
   const [y,mo,d] = dateInput.split('-').map(Number);
   const now = new Date();
   const fullDate = new Date(y,mo-1,d,now.getHours(),now.getMinutes(),now.getSeconds()).toISOString();
-  S.history.push({ id:parseInt(idEl.value), name:it?.name||'?', price, date:fullDate, uid:Date.now() });
-  save(); renderHist(); pEl.value = '';
+  
+  const history = S.history;
+  history.push({ id:parseInt(idEl.value), name:it?.name||'?', price, date:fullDate, uid:Date.now() });
+  S.history = history;
+
+  renderHist(); pEl.value = '';
   announceToScreenReader(`Compra de ${it?.name || 'item'} registrada no histórico.`);
   toast('✅','Compra registrada!','success',{duration:2600});
 }
@@ -43,7 +47,8 @@ export function delHist(uid) { S.history = S.history.filter(h => h.uid !== uid);
 
 export function editHist(uid) {
   announceToScreenReader('Abrindo diálogo para editar registro.');
-  const h = S.history.find(x => x.uid === uid); if (!h) return;
+  let history = S.history;
+  const h = history.find(x => x.uid === uid); if (!h) return;
 
   // Cria um input temporário para capturar o novo valor de forma não-bloqueante
   const inputId = 'edit-hist-input-' + uid;
@@ -60,6 +65,7 @@ export function editHist(uid) {
     const newPrice = parseFloat(inputEl?.value ?? '');
     if (!isNaN(newPrice) && newPrice >= 0) {
       h.price = newPrice;
+      S.history = history;
       save();
       renderHist();
       announceToScreenReader(`Preço de ${h.name} atualizado.`);

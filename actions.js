@@ -10,6 +10,7 @@ import { toast, confirmModal } from './utils.js';
 import { renderAll, renderList, renderStats } from './list.js';
 import { invalidateTabs } from './router.js';
 import { resetFilters } from './filter.js';
+import { t } from './i18n.js';
 import { generateCacheKey, hasCachedResult, invalidateSearchCache, getNewSearchId } from './search.js';
 
 const SKELETON_TPL = `
@@ -28,48 +29,68 @@ function showPending() {
 }
 
 // ── Expand/Collapse card ──────────────────────────────────────
-export function togItem(id) {
-  // Se o long-press foi ativado, ignoramos o clique de expansão
+export function togItem(id, triggerElement = null) {
   if (window._app?._blockNextClick) {
     window._app._blockNextClick = false;
     return;
   }
 
-  // [SL-05] Guard: se o item saiu do DOM (troca rápida de aba), aborta silenciosamente
-  const itemEl = document.getElementById('item-' + id);
-  if (!itemEl || !itemEl.isConnected) { renderList(); return; }
   const isOpen = toggleItemOpen(id);
-  const eico  = itemEl.querySelector('.eico');
-  const itop  = itemEl.querySelector('.itop');
   
-  itemEl.classList.toggle('open', isOpen);
-  if (itop) itop.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  // [BUGFIX] Atualiza todas as instâncias do card no DOM (Lista e Favoritos)
+  // para evitar falhas causadas por IDs duplicados e manter a UI sincronizada.
+  const cards = document.querySelectorAll(`.supplement-card[data-item-id="${id}"], .item[id="item-${id}"]`);
+  
+  cards.forEach(card => {
+    // Sincronia com Design System v4.0 (CSS)
+    card.classList.toggle('is-expanded', isOpen);
+    card.classList.toggle('open', isOpen); 
+
+    const panel = card.querySelector('.marketplaces-container, .dpanel');
+    if (panel) {
+      panel.classList.toggle('is-visible', isOpen);
+      // Suporte a diferentes layouts de exibição dependendo da classe
+      panel.style.display = isOpen ? (panel.classList.contains('marketplaces-container') ? 'grid' : 'block') : 'none';
+    }
+
+    // Atualização dinâmica de labels (i18n)
+    const btnLabel = card.querySelector('.btn-buy-trigger, #btn-label-' + id);
+    if (btnLabel) {
+      btnLabel.textContent = isOpen 
+        ? `▲ ${t('buttons.close_options') || 'FECHAR OPÇÕES'}` 
+        : `＋ ${t('buttons.see_prices') || 'VER MELHORES PREÇOS'}`;
+    }
+  });
 }
 
 // ── Auto-register history ─────────────────────────────────────
 export function _autoRegisterHistory(id) {
   if (!S.cfg.autoHistory) return;
   const now    = Date.now();
-  const recent = S.history.find(h => h.id === id && (now - h.uid < 10000));
+  let history = S.history;
+  const recent = history.find(h => h.id === id && (now - h.uid < 10000));
   if (recent) return;
   const it = IT.find(i => i.id === id); if (!it) return;
-  S.history.push({
+  history.push({
     id, name: it.name, price: bestMarketplacePrice(it) || it.pm || 0,
     date: new Date().toISOString(), uid: now,
   });
+  S.history = history;
   // Re-renderiza histórico se visível (lazy import para evitar ciclo)
   import('./history.js').then(m => { if (S.tab === 'history') m.renderHist(); });
 }
 
 // ── Granular DOM for checkbox ─────────────────────────────────
 function _applyChkDOM(id) {
-  const el = document.getElementById('item-' + id); if (!el) return;
-  const done = !!S.checked[id];
-  el.classList.toggle('done', done);
-  const cb = el.querySelector('.cb');
-  if (cb) cb.checked = done;
-  const it = IT.find(i => i.id === id);
-  if (cb && it) cb.setAttribute('aria-label', (done ? 'Desmarcar ' : 'Marcar ') + it.name + ' como comprado');
+  const instances = document.querySelectorAll(`[data-item-id="${id}"], #item-${id}`);
+  instances.forEach(el => {
+    const done = !!S.checked[id];
+    el.classList.toggle('done', done);
+    const cb = el.querySelector('.cb');
+    if (cb) cb.checked = done;
+    const it = IT.find(i => i.id === id);
+    if (cb && it) cb.setAttribute('aria-label', (done ? 'Desmarcar ' : 'Marcar ') + it.name + ' como comprado');
+  });
 }
 
 // ── chk ───────────────────────────────────────────────────────
@@ -96,9 +117,11 @@ export function chk(id) {
     invalidateTabs('history', 'recipe');
   } else {
     const now = Date.now();
-    const histIdx = S.history.findIndex(h => h.id === id && (now - h.uid < 5000));
+    let history = S.history;
+    const histIdx = history.findIndex(h => h.id === id && (now - h.uid < 5000));
     if (histIdx !== -1) {
-      S.history.splice(histIdx, 1);
+      history.splice(histIdx, 1);
+      S.history = history;
       import('./history.js').then(m => { if (S.tab === 'history') m.renderHist(); });
     }
     invalidateTabs('history', 'recipe');
@@ -117,7 +140,8 @@ export function chk(id) {
 // ── Notes ─────────────────────────────────────────────────────
 export function updateNote(id, value) { setItemNote(id, value); }
 export function saveNote(id) {
-  const el = document.getElementById('note-' + id);
+  // Busca o textarea da nota em qualquer instância ativa do card
+  const el = document.querySelector(`[data-item-id="${id}"] .note-ta, #item-${id} .note-ta`);
   if (el) { saveItemNote(id, el.value); toast('💾', 'Nota salva', 'success', { duration: 2200, progress: false }); }
   announceToScreenReader(`Nota salva para ${IT.find(i=>i.id===id)?.name || 'o item'}.`);
 }
@@ -154,7 +178,9 @@ export function setGoalFromSelect(v) {
 export function setPriceFilter(v) { S.priceFilter = v || ''; invalidateSearchCache(); save(); renderAll(); }
 
 export function setSortOrder(v, chipEl) {
-  S.cfg.defaultSort = v || 'priority';
+  const cfg = S.cfg;
+  cfg.defaultSort = v || 'priority';
+  S.cfg = cfg; // Reatribuição necessária para trigger do Proxy e persistência
   document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('on'));
   if (chipEl) chipEl.classList.add('on');
   else {
@@ -265,12 +291,18 @@ export function onSearchInput() {
 }
 
 export function clearSearch() {
-  resetFilters(S);
-  const searchInput = document.getElementById('search');
-  if (searchInput) searchInput.focus();
+  // Reset do Estado de Filtragem
+  S.cat = 'Todos';
+  S.goalFilter = '';
+  S.priceFilter = '';
   
-  const cl = document.getElementById('search-clear');
-  if (cl) cl.classList.remove('vis');
+  const s = document.getElementById('search');
+  if (s) s.value = '';
   
+  const gf = document.getElementById('f-goal'); if (gf) gf.value = '';
+  const pf = document.getElementById('f-price'); if (pf) pf.value = '';
+  
+  invalidateSearchCache();
+  toast('🧹', 'Todos os filtros limpos', 'info');
   renderAll();
 }

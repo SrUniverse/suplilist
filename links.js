@@ -100,7 +100,7 @@ export const PRODUCT_LINKS = {
   11: {
     amazon: "https://www.amazon.com.br/Creatina-Monohidratada-Dark-Lab-Pureza/dp/B0CF71CJ2L",
     ml: "https://www.mercadolivre.com.br/creatina-1kg-suplemento-monohidratada-em-po-100-pura-soldiers-nutrition/p/MLB18725310",
-    pm: 45,
+    pm: 50,
   },
 
   // 12 — Beta-Alanina em pó

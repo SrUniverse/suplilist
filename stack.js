@@ -18,8 +18,12 @@ export function addStack() {
   if (!sel || !qty) return;
   const id = parseInt(sel.value), q = parseFloat(qty.value) || 100;
   const it = IT.find(i => i.id === id); if (!it) return;
-  S.stack[id] = { id, name: it.name, qty: q, started: new Date().toISOString() };
-  save(); renderStack(); renderStats();
+  
+  const stack = S.stack;
+  stack[id] = { id, name: it.name, qty: q, started: new Date().toISOString() };
+  S.stack = stack;
+
+  renderStack(); renderStats();
   announceToScreenReader(`${it.name} adicionado à stack.`);
   toast('💪', `${it.name} adicionado à stack`, 'success', { duration: 2800 });
   qty.value = '';
@@ -28,13 +32,21 @@ export function addStack() {
 export function addToStack(id) {
   const it = IT.find(i => i.id === id); if (!it) return;
   announceToScreenReader(`${it.name} adicionado à stack.`);
-  S.stack[id] = { id, name: it.name, qty: 100, started: new Date().toISOString() };
-  save(); renderStack(); renderStats();
+  
+  const stack = S.stack;
+  stack[id] = { id, name: it.name, qty: 100, started: new Date().toISOString() };
+  S.stack = stack;
+
+  renderStack(); renderStats();
   toast('💪', `${it.name} adicionado à stack`, 'success', { duration: 2800 });
 }
 
 export function removeFromStack(id) {
-  delete S.stack[id]; save(); invalidateTab('stack'); renderStack(); renderStats();
+  const stack = S.stack;
+  delete stack[id];
+  S.stack = stack;
+
+  invalidateTab('stack'); renderStack(); renderStats();
   announceToScreenReader(`${IT.find(i=>i.id===id)?.name || 'Item'} removido da stack.`);
 }
 
@@ -263,24 +275,54 @@ export function startCyc(n) {
 export function pauseCyc(n) {
   const CYCLES_DATA = (typeof CYCLES !== 'undefined') ? CYCLES : [];
   const c = CYCLES_DATA.find(c => c.name === n) || { pausa: 30 };
-  S.cyclePause[n] = new Date().toISOString(); delete S.cycleStart[n];
+  let starts = S.cycleStart;
+  let pauses = S.cyclePause;
+  pauses[n] = new Date().toISOString();
+  delete starts[n];
+  S.cycleStart = starts;
+  S.cyclePause = pauses;
   save(); renderCycles(); announceToScreenReader(`Ciclo ${n} pausado.`); toast('⏸', `Ciclo pausado — ${c.pausa}d de descanso`, 'info', { duration: 3200 });
 }
 export function resumeCyc(n) {
-  S.cycleStart[n] = new Date().toISOString(); delete S.cyclePause[n];
+  let starts = S.cycleStart;
+  let pauses = S.cyclePause;
+  starts[n] = new Date().toISOString();
+  delete pauses[n];
+  S.cycleStart = starts;
+  S.cyclePause = pauses;
   save(); renderCycles(); announceToScreenReader(`Ciclo ${n} retomado.`); toast('▶', `Ciclo de ${n} retomado`, 'success', { duration: 2800 });
 }
 export function resetCyc(n) {
   confirmModal({ title:'Reiniciar ciclo', msg:`Reiniciar o ciclo de <strong>${n}</strong> a partir de hoje?`, ico:'↺', okLabel:'Reiniciar', cancelLabel:'Cancelar', danger:false, okColor:'var(--amber)' })
-    .then(ok => { if (!ok) return; S.cycleStart[n] = new Date().toISOString(); delete S.cyclePause[n]; save(); renderCycles(); announceToScreenReader(`Ciclo ${n} reiniciado.`); toast('↺', `Ciclo de ${n} reiniciado`, 'warn', { duration: 2800 }); });
+    .then(ok => { 
+      if (!ok) return;
+      let starts = S.cycleStart;
+      let pauses = S.cyclePause;
+      starts[n] = new Date().toISOString();
+      delete pauses[n];
+      S.cycleStart = starts;
+      S.cyclePause = pauses;
+      save(); renderCycles(); announceToScreenReader(`Ciclo ${n} reiniciado.`); toast('↺', `Ciclo de ${n} reiniciado`, 'warn', { duration: 2800 }); 
+    });
 }
 export function stopCyc(n) {
   confirmModal({ title:'Encerrar ciclo', msg:`Encerrar o ciclo de <strong>${n}</strong>?`, ico:'✕', okLabel:'Encerrar', cancelLabel:'Cancelar', danger:true })
-    .then(ok => { if (!ok) return; delete S.cycleStart[n]; delete S.cyclePause[n]; save(); renderCycles(); announceToScreenReader(`Ciclo ${n} encerrado.`); toast('✕', `Ciclo de ${n} encerrado`, 'error', { duration: 2600 }); });
+    .then(ok => { 
+      if (!ok) return;
+      let starts = S.cycleStart;
+      let pauses = S.cyclePause;
+      delete starts[n];
+      delete pauses[n];
+      S.cycleStart = starts;
+      S.cyclePause = pauses;
+      save(); renderCycles(); announceToScreenReader(`Ciclo ${n} encerrado.`); toast('✕', `Ciclo de ${n} encerrado`, 'error', { duration: 2600 }); 
+    });
 }
 export function saveCycNote(n, v) {
-  if (!S.cycleNote) S.cycleNote = {};
-  S.cycleNote[n] = v.trim(); save();
+  let notes = S.cycleNote;
+  notes[n] = v.trim();
+  S.cycleNote = notes;
+  save();
 }
 export function addCustomCyc() {
   const nameEl  = document.getElementById('cyc-custom-name');
@@ -293,7 +335,9 @@ export function addCustomCyc() {
   if ([...CYCLES_DATA, ...S._customCycles].find(c => c.name === name)) {
     toast('⚠️', 'Já existe um ciclo com esse nome', 'warn', { duration: 2600 }); return;
   }
-  S._customCycles.push({ name, ico:'🧪', max:parseInt(maxEl?.value||90), pausa:parseInt(pausaEl?.value||30), cat:'Personalizado', cor:'var(--violet)' });
+  let customs = S._customCycles || [];
+  customs.push({ name, ico:'🧪', max:parseInt(maxEl?.value||90), pausa:parseInt(pausaEl?.value||30), cat:'Personalizado', cor:'var(--violet)' });
+  S._customCycles = customs;
   if (nameEl) nameEl.value = '';
   announceToScreenReader(`Ciclo personalizado ${name} criado.`);
   save(); renderCycles();
@@ -304,8 +348,15 @@ export function removeCustomCyc(n) {
     .then(ok => {
       if (!ok) return;
       if (S._customCycles) S._customCycles = S._customCycles.filter(c => c.name !== n);
-      delete S.cycleStart[n]; delete S.cyclePause[n];
-      if (S.cycleNote) delete S.cycleNote[n];
+      let starts = S.cycleStart;
+      let pauses = S.cyclePause;
+      let notes = S.cycleNote;
+      delete starts[n];
+      delete pauses[n];
+      delete notes[n];
+      S.cycleStart = starts;
+      S.cyclePause = pauses;
+      S.cycleNote = notes;
       save(); renderCycles(); toast('🗑', `Ciclo de ${n} removido`, 'error', { duration: 2400 });
       announceToScreenReader(`Ciclo personalizado ${n} removido.`);
     });

@@ -98,28 +98,22 @@
 
 <div class="theme-popover" id="theme-pop">
   <div class="theme-label">Escolher tema</div>
-  <div class="th-opt on" id="th-dark" onclick="setTheme('dark')"><span class="th-dot" style="background:#07090e;border:1px solid #4edd9a"></span>Dark</div>
-  <div class="th-opt" id="th-light" onclick="setTheme('light')"><span class="th-dot" style="background:#f0f2f8;border:1px solid #555"></span>Light</div>
-  <div class="th-opt" id="th-midnight" onclick="setTheme('midnight')"><span class="th-dot" style="background:#000005;border:1px solid #818cf8"></span>Midnight</div>
-  <div class="th-opt" id="th-forest" onclick="setTheme('forest')"><span class="th-dot" style="background:#081a0c;border:1px solid #4ade80"></span>Forest</div>
-  <div class="th-opt" id="th-sunset" onclick="setTheme('sunset')"><span class="th-dot" style="background:#0f070a;border:1px solid #fb923c"></span>Sunset</div>
-  <div class="th-opt" id="th-ocean" onclick="setTheme('ocean')"><span class="th-dot" style="background:#020c14;border:1px solid #38bdf8"></span>Ocean</div>
-  <div class="th-opt" id="th-rose" onclick="setTheme('rose')"><span class="th-dot" style="background:#0f050a;border:1px solid #f472b6"></span>Rose</div>
-  <div class="th-opt" id="th-volcano" onclick="setTheme('volcano')"><span class="th-dot" style="background:#0f0600;border:1px solid #ff6b2b"></span>Volcano</div>
-  <div class="th-opt" id="th-neon" onclick="setTheme('neon')"><span class="th-dot" style="background:#000000;border:1px solid #39ff14"></span>Neon</div>
-  <div class="th-opt" id="th-aurora" onclick="setTheme('aurora')"><span class="th-dot" style="background:#020810;border:1px solid #a78bfa"></span>Aurora</div>
+  <div class="th-opt" id="th-dark" data-theme="dark"><span class="th-dot" style="background:#09090b;border:1px solid #00ff87"></span>Dark</div>
+  <div class="th-opt" id="th-light" data-theme="light"><span class="th-dot" style="background:#f0f2f8;border:1px solid #555"></span>Light</div>
+  <div class="th-opt" id="th-midnight" data-theme="midnight"><span class="th-dot" style="background:#0a0916;border:1px solid #a78bfa"></span>Midnight</div>
+  <div class="th-opt" id="th-ocean" data-theme="ocean"><span class="th-dot" style="background:#02101b;border:1px solid #0ea5e9"></span>Ocean</div>
 </div>
 
 <nav class="sidebar" id="sidebar" aria-label="Menu principal">
   <div class="sb-header">
-    <div class="nav-brand" aria-label="SupliList">
+    <div class="nav-brand" aria-label="SupliList" onclick="window._app.go('home')" style="cursor:pointer">
       <div class="sidebar-logo-icon" style="display:flex;align-items:center;justify-content:center">S</div>
       <span class="sidebar-logo-text">SupliList</span>
     </div>
   </div>
   <div class="sb-nav" role="tablist" aria-label="Seções">
-    <button class="nt on" id="nt-home" role="tab" aria-selected="true" aria-controls="p-home" onclick="window.go('home')"><span class="nt-ico">🏠</span><span class="nt-lbl">Início</span></button>
-    <button class="nt" id="nt-lista" role="tab" aria-selected="false" aria-controls="p-lista" onclick="window.go('lista')"><span class="nt-ico">🌿</span><span class="nt-lbl">Lista</span><span class="nb" id="nb-lista" aria-label="pendentes">0</span></button>
+    <button class="nt on" id="nt-home" role="tab" aria-selected="true" aria-controls="p-home" onclick="window._app.go('home')"><span class="nt-ico">🏠</span><span class="nt-lbl">Início</span></button>
+    <button class="nt" id="nt-lista" role="tab" aria-selected="false" aria-controls="p-lista" onclick="window._app.go('lista')"><span class="nt-ico">🌿</span><span class="nt-lbl">Lista</span><span class="nb" id="nb-lista" aria-label="pendentes">0</span></button>
     <button class="nt" id="nt-stack" role="tab" aria-selected="false" aria-controls="p-stack" onclick="window.go('stack')"><span class="nt-ico">💪</span><span class="nt-lbl">Minha Stack</span><span class="nb" id="nb-stack">0</span></button>
     <button class="nt" id="nt-wishlist" role="tab" aria-selected="false" aria-controls="p-wishlist" onclick="window.go('wishlist')"><span class="nt-ico">❤️</span><span class="nt-lbl">Favoritos</span><span class="nb" id="nb-wl">0</span></button>
     <button class="nt" id="nt-recipe" role="tab" aria-selected="false" aria-controls="p-recipe" onclick="window.go('recipe')"><span class="nt-ico">⚗️</span><span class="nt-lbl">Receita</span></button>
@@ -133,7 +127,7 @@
   </div>
   <div class="sb-footer">
     <div class="sb-save" id="ls2"><span class="sync-dot done" id="sync-indicator"></span><span>—</span></div>
-    <button class="theme-btn" onclick="toggleThemePop()" id="theme-toggle-btn" aria-label="Escolher tema" aria-haspopup="true" aria-expanded="false">
+    <button class="theme-btn" id="theme-toggle-btn" aria-label="Escolher tema" aria-haspopup="true" aria-expanded="false">
       <span class="theme-btn-ico">🎨</span><span class="theme-btn-lbl">Tema</span>
     </button>
     <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Recolher menu" aria-label="Recolher menu">◀</button>
@@ -162,7 +156,7 @@
   </div>
 </nav>
 
-<div class="shell" id="main-shell">
+<div class="shell" id="main-shell" style="max-width: 100vw; overflow-x: hidden;">
 <main id="main-content" aria-label="Conteúdo principal">
 
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
@@ -810,6 +804,12 @@
 <div id="p-compare" class="page">
   <div class="ptitle">⚖️ Comparar Ingredientes</div>
   <p class="psub">Selecione até 4 ingredientes</p>
+  
+  <!-- Novo sub-módulo A vs B -->
+  <div id="cmp-ab-view" style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--border)">
+    <!-- Injetado por compare.js -->
+  </div>
+
   <div class="cmp-grid" id="cmp-grid"></div>
   <div id="cmp-out"></div>
 </div>
@@ -985,54 +985,24 @@
   <div class="setsec">
     <h3>🎨 Tema Visual</h3>
     <div class="cfg-themes" id="cfg-theme-grid">
-      <div class="cfg-th on" id="cfgth-dark" onclick="setTheme('dark')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#07090e,#0a0c10);box-shadow:inset 0 0 0 2px #4edd9a"></div>
+      <div class="cfg-th" id="cfgth-dark" data-theme="dark">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#09090b,#18181b);box-shadow:inset 0 0 0 2px #00ff87"></div>
         <div class="cfg-th-name">Dark</div>
         <div class="cfg-th-check">✓</div>
       </div>
-      <div class="cfg-th" id="cfgth-light" onclick="setTheme('light')">
+      <div class="cfg-th" id="cfgth-light" data-theme="light">
         <div class="cfg-th-preview" style="background:linear-gradient(135deg,#f0f2f8,#e8ebf4);box-shadow:inset 0 0 0 2px #555"></div>
         <div class="cfg-th-name">Light</div>
         <div class="cfg-th-check">✓</div>
       </div>
-      <div class="cfg-th" id="cfgth-midnight" onclick="setTheme('midnight')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#000005,#05050f);box-shadow:inset 0 0 0 2px #818cf8"></div>
+      <div class="cfg-th" id="cfgth-midnight" data-theme="midnight">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#0a0916,#1b193d);box-shadow:inset 0 0 0 2px #a78bfa"></div>
         <div class="cfg-th-name">Midnight</div>
         <div class="cfg-th-check">✓</div>
       </div>
-      <div class="cfg-th" id="cfgth-forest" onclick="setTheme('forest')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#050f08,#081a0c);box-shadow:inset 0 0 0 2px #4ade80"></div>
-        <div class="cfg-th-name">Forest</div>
-        <div class="cfg-th-check">✓</div>
-      </div>
-      <div class="cfg-th" id="cfgth-sunset" onclick="setTheme('sunset')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#0f070a,#1a080d);box-shadow:inset 0 0 0 2px #fb923c"></div>
-        <div class="cfg-th-name">Sunset</div>
-        <div class="cfg-th-check">✓</div>
-      </div>
-      <div class="cfg-th" id="cfgth-ocean" onclick="setTheme('ocean')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#020c14,#041525);box-shadow:inset 0 0 0 2px #38bdf8"></div>
+      <div class="cfg-th" id="cfgth-ocean" data-theme="ocean">
+        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#02101b,#062638);box-shadow:inset 0 0 0 2px #0ea5e9"></div>
         <div class="cfg-th-name">Ocean</div>
-        <div class="cfg-th-check">✓</div>
-      </div>
-      <div class="cfg-th" id="cfgth-rose" onclick="setTheme('rose')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#0f050a,#1a0812);box-shadow:inset 0 0 0 2px #f472b6"></div>
-        <div class="cfg-th-name">Rose</div>
-        <div class="cfg-th-check">✓</div>
-      </div>
-      <div class="cfg-th" id="cfgth-volcano" onclick="setTheme('volcano')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#0f0600,#1a0a00);box-shadow:inset 0 0 0 2px #ff6b2b"></div>
-        <div class="cfg-th-name">Volcano</div>
-        <div class="cfg-th-check">✓</div>
-      </div>
-      <div class="cfg-th" id="cfgth-neon" onclick="setTheme('neon')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#000,#0d0d0d);box-shadow:inset 0 0 0 2px #39ff14"></div>
-        <div class="cfg-th-name">Neon</div>
-        <div class="cfg-th-check">✓</div>
-      </div>
-      <div class="cfg-th" id="cfgth-aurora" onclick="setTheme('aurora')">
-        <div class="cfg-th-preview" style="background:linear-gradient(135deg,#020810,#040e1c);box-shadow:inset 0 0 0 2px #a78bfa"></div>
-        <div class="cfg-th-name">Aurora</div>
         <div class="cfg-th-check">✓</div>
       </div>
     </div>

@@ -1,5 +1,21 @@
 // ══════════════ DATA ══════════════
-import { t } from './lang.js';
+/**
+ * database.js — Hub Central de Dados e Metadados (SSoT)
+ * Responsabilidade: Armazenar arrays estruturais, regras de negócio e utilitários de preço.
+ * [ARQUITETURA] Este arquivo centraliza o que antes estava espalhado no data.js.
+ */
+
+import { t } from './i18n.js';
+
+/**
+ * Sanitização estrita para outputs de DOM.
+ * Bloqueia injeção de tags script e atributos de eventos.
+ */
+export function sanitize(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 
 /**
  * Utilitário para congelamento profundo de objetos e arrays.
@@ -15,7 +31,7 @@ export function deepFreeze(obj) {
   return Object.freeze(obj);
 }
 
-// ─────────────── APP VERSION ───────────────
+/** @type {string} Versão canônica da aplicação */
 /** @type {string} Versão atual da aplicação (Imutável) */
 export const APP_VERSION = Object.freeze('15.1'); 
 // ───────────────────────────────────────────
@@ -34,26 +50,26 @@ export function getTermsRevisionDate() {
 }
 // ───────────────────────────────────────────
 
-/** Mapeamento de categorias e metadados visuais (Imutável) */
 export const CAT = deepFreeze({
-  Adaptógeno:   { cls:'cA',  ico:'🌿', get label(){ return t('CAT_ADAPTOGENO') } },
-  Aminoácido:   { cls:'cAm', ico:'⚡', get label(){ return t('CAT_AMINOACIDO') } },
-  Hormônio:     { cls:'cH',  ico:'🧬', get label(){ return t('CAT_HORMONIO') } },
-  Mineral:      { cls:'cM',  ico:'💎' },
-  Antioxidante: { cls:'cAx', ico:'🛡' },
-  Vegetal:      { cls:'cV',  ico:'🥗' },
-  'Saúde Geral':{ cls:'cG',  ico:'❤️', get label(){ return t('CAT_SAUDE') } },
-  Desempenho:   { cls:'cP',  ico:'💪' },
-  Estimulante:  { cls:'cE',  ico:'⚡' },
-  Cognição:     { cls:'cF',  ico:'🧠' },
-  Imunidade:    { cls:'cI',  ico:'🛡' },
-  Extra:        { cls:'cX',  ico:'✨' },
-  Mulher:       { cls:'cF',  ico:'♀️' },
-  Digestão:     { cls:'cV',  ico:'🦠' },
-  Metabolismo:  { cls:'cE',  ico:'🔥' },
-  Articulações: { cls:'cM',  ico:'🦴' },
-  Sono:         { cls:'cA',  ico:'🌙' },
-  Longevidade:  { cls:'cAx', ico:'⏳' }
+  Adaptógeno:   { cls:'cA',  ico:'🌿', i18n: 'CAT_ADAPTOGENO' },
+  Aminoácido:   { cls:'cAm', ico:'⚡', i18n: 'CAT_AMINOACIDO' },
+  Hormônio:     { cls:'cH',  ico:'🧬', i18n: 'CAT_HORMONIO' },
+  Mineral:      { cls:'cM',  ico:'💎', i18n: 'CAT_MINERAL' },
+  Antioxidante: { cls:'cAx', ico:'🛡', i18n: 'CAT_ANTIOXIDANTE' },
+  Vegetal:      { cls:'cV',  ico:'🥗', i18n: 'CAT_VEGETAL' },
+  'Saúde Geral':{ cls:'cG',  ico:'❤️', i18n: 'CAT_SAUDE_GERAL' },
+  Desempenho:   { cls:'cP',  ico:'💪', i18n: 'CAT_DESEMPENHO' },
+  Estimulante:  { cls:'cE',  ico:'⚡', i18n: 'CAT_ESTIMULANTE' },
+  Cognição:     { cls:'cF',  ico:'🧠', i18n: 'CAT_COGNICAO' },
+  Imunidade:    { cls:'cI',  ico:'🛡', i18n: 'CAT_IMUNIDADE' },
+  Extra:        { cls:'cX',  ico:'✨', i18n: 'CAT_EXTRA' },
+  Mulher:       { cls:'cH',  ico:'♀️', i18n: 'CAT_MULHER' },
+  Digestão:     { cls:'cV',  ico:'🦠', i18n: 'CAT_DIGESTAO' },
+  Metabolismo:  { cls:'cP',  ico:'🔥', i18n: 'CAT_METABOLISMO' },
+  Articulações: { cls:'cG',  ico:'🦴', i18n: 'CAT_ARTICULACOES' },
+  Sono:         { cls:'cF',  ico:'🌙', i18n: 'CAT_SONO' },
+  Longevidade:  { cls:'cAx', ico:'⏳', i18n: 'CAT_LONGEVIDADE' },
+  'Longevidade & Performance': { cls:'cAx', ico:'🧬', i18n: 'CAT_LONGEVIDADE_PERFORMANCE' }
 });
 
 // Mapeamento de Labels de Objetivos para UI
@@ -74,7 +90,7 @@ export const GOAL_MAP = deepFreeze({
   digestao:[35,36,48],
   articulacoes:[40,44,56],
   metabolismo:[37,38,39,54,55],
-  longevidade:[25,28,45,52,56],
+  longevidade:[25,28,45,52,56,37,57],
 });
 
 /** Definições de prioridade para ordenação (Imutável) */
@@ -95,7 +111,7 @@ export function amazonAff(url) {
   try{
     const u=new URL(url);
     if(u.hostname.includes('amazon.')){
-      u.searchParams.set('tag',AFF.amazonTag);
+      u.searchParams.set('tag', AFF.amazonTag);
       u.searchParams.set('linkCode','ll2');
       u.searchParams.set('ref_','as_li_ss_tl');
     }
@@ -144,9 +160,15 @@ export function searchUrl(name, mkt) {
   if (mkt === 'amazon')  return `https://www.amazon.com.br/s?k=${q}`;
   return '';
 }
-export function mlPrice(i){return i.mlp||Math.round((i.pm||20)*1.08);}
-export function azPrice(i){return i.azp||Math.round((i.pm||20)*1.18);}
-export function bestMarketplacePrice(i){return Math.min(i.pm || 999, mlPrice(i), azPrice(i));}
+
+/** Cálculo seguro com fallbacks para evitar erros de renderização (NaN) */
+/** [QA] Blindagem contra NaN em cálculos financeiros */
+export function mlPrice(i) { return Number(i?.mlp) || Math.round((Number(i?.pm) || 20) * 1.08); }
+export function azPrice(i) { return Number(i?.azp) || Math.round((Number(i?.pm) || 20) * 1.18); }
+export function bestMarketplacePrice(i) { 
+  const p = Math.min(Number(i?.pm) || 999, mlPrice(i), azPrice(i));
+  return isNaN(p) ? 999 : p;
+}
 
 // URL base apontando para o seu repositório no GitHub (versão Raw)
 const BASE_URL = "assets/";
@@ -191,7 +213,7 @@ export const IT = [
 {id:34,name:'Shatavari extrato',qty:'60g',buy:'100g+',cat:'Mulher',pr:'media',sc:4,pm:55,doses:60,tags:['mulher','libido','ciclo','adaptógeno'],goals:['mulher','libido'],dm:'500mg',dn:null,dc:true,dp:false,cy:{max:90,pausa:30},badge:null,desc:'Adaptógeno tradicionalmente usado para suporte feminino, bem-estar no ciclo e libido. Mais indicado para rotina de longo prazo do que efeito imediato.',warn:'Evitar em gestação, lactação ou condições sensíveis a estrogênio sem orientação.',dose:'500mg–1g/dia com refeição.',shopee:'https://shopee.com.br/search?keyword=shatavari+extrato',ml:'https://lista.mercadolivre.com.br/shatavari',az:'https://www.amazon.com.br/s?k=shatavari+extrato'},
 {id:35,name:'Probiótico multi-cepas',qty:'—',buy:'30caps',cat:'Digestão',pr:'media',sc:4,pm:65,doses:30,tags:['microbiota','intestino','imunidade'],goals:['digestao','saude'],dm:'1 cáps',dn:null,dc:true,dp:false,cy:null,badge:null,desc:'Cepas de Lactobacillus e Bifidobacterium ajudam a modular microbiota, regularidade intestinal e barreira imune. Melhor quando combinado com fibras prebióticas.',warn:'Imunossuprimidos devem usar apenas com orientação médica.',dose:'1 cápsula/dia com refeição por 4–8 semanas.',shopee:'https://shopee.com.br/search?keyword=probiotico+multicepas',ml:'https://lista.mercadolivre.com.br/probiotico-multicepas',az:'https://www.amazon.com.br/s?k=probiotico+multicepas'},
 {id:36,name:'Psyllium Husk em pó',qty:'300g',buy:'500g',cat:'Digestão',pr:'alta',sc:5,pm:35,doses:60,tags:['fibra','saciedade','colesterol','intestino'],goals:['digestao','saude'],dm:'5g',dn:null,dc:false,dp:false,cy:null,badge:'best',desc:'Fibra solúvel que forma gel, melhora trânsito intestinal, saciedade e perfil lipídico. Um dos melhores custos-benefícios para saúde digestiva.',warn:'Tomar com bastante água e afastar 2h de medicamentos.',dose:'5–10g/dia com 300–500ml de água.',shopee:'https://shopee.com.br/search?keyword=psyllium+husk+po',ml:'https://lista.mercadolivre.com.br/psyllium-husk',az:'https://www.amazon.com.br/s?k=psyllium+husk'},
-{id:37,name:'Berberina HCL',qty:'—',buy:'60caps',cat:'Metabolismo',pr:'alta',sc:5,pm:70,doses:60,tags:['glicemia','insulina','AMPK','metabolismo'],goals:['metabolismo','gordura'],dm:'500mg',dn:'500mg',dc:true,dp:false,cy:null,badge:'hot',desc:'Ativa AMPK e melhora sensibilidade à insulina. Muito usada para suporte de glicemia, composição corporal e perfil lipídico.',warn:'Pode potencializar antidiabéticos. Evitar em gestação e lactação.',dose:'500mg, 1–2x/dia com refeições.',shopee:'https://shopee.com.br/search?keyword=berberina+hcl',ml:'https://lista.mercadolivre.com.br/berberina-hcl',az:'https://www.amazon.com.br/s?k=berberina+hcl'},
+{id:37,name:'Berberina HCL',qty:'—',buy:'60caps',cat:'Longevidade & Performance',pr:'alta',sc:5,pm:75,doses:60,tags:['longevidade','glicemia','AMPK','metabolismo','essencial'],goals:['metabolismo','gordura','longevidade'],dm:'500mg',dn:'500mg',dc:true,dp:false,cy:null,badge:'hot',desc:'Um dos fitoquímicos mais poderosos para longevidade. Ativa a via AMPK, mimetizando restrição calórica. Melhora sensibilidade à insulina e controle lipídico.',warn:'Pode potencializar antidiabéticos. Evitar em gestação e lactação.',dose:'500mg a 1500mg por dia, dividido com as refeições.',shopee:'https://shopee.com.br/search?keyword=berberina+hcl',ml:'https://lista.mercadolivre.com.br/berberina-hcl',az:'https://www.amazon.com.br/s?k=berberina+hcl'},
 {id:38,name:'Cromo Picolinato',qty:'—',buy:'120caps',cat:'Metabolismo',pr:'media',sc:4,pm:30,doses:120,tags:['glicemia','compulsão','insulina'],goals:['metabolismo','gordura'],dm:'200mcg',dn:null,dc:true,dp:false,cy:null,badge:'val',desc:'Mineral traço envolvido na sinalização da insulina. Pode ajudar controle de vontade por doces em pessoas com baixa ingestão de cromo.',warn:'Diabéticos devem monitorar glicemia.',dose:'200–400mcg/dia com refeição.',shopee:'https://shopee.com.br/search?keyword=cromo+picolinato',ml:'https://lista.mercadolivre.com.br/cromo-picolinato',az:'https://www.amazon.com.br/s?k=cromo+picolinato'},
 {id:39,name:'EGCG Chá Verde extrato',qty:'60g',buy:'100g+',cat:'Vegetal',pr:'media',sc:4,pm:50,doses:100,tags:['termogênico','antioxidante','metabolismo'],goals:['metabolismo','gordura'],dm:'300mg',dn:null,dc:true,dp:false,cy:null,badge:null,desc:'Catequina do chá verde com ação antioxidante e apoio discreto ao gasto energético. Funciona melhor junto com dieta e treino.',warn:'Evitar em jejum se houver sensibilidade gástrica ou histórico hepático.',dose:'300–500mg/dia com refeição.',shopee:'https://shopee.com.br/search?keyword=egcg+cha+verde+extrato',ml:'https://lista.mercadolivre.com.br/egcg-cha-verde',az:'https://www.amazon.com.br/s?k=egcg+green+tea'},
 {id:40,name:'Colágeno Peptídeos Verisol/Fortigel',qty:'300g',buy:'500g',cat:'Articulações',pr:'media',sc:4,pm:75,doses:60,tags:['tendão','pele','articulação','colágeno'],goals:['articulacoes','mulher','hipertrofia'],dm:'5g',dn:null,dc:true,dp:false,cy:null,badge:null,desc:'Peptídeos bioativos de colágeno apoiam síntese de matriz extracelular, pele, tendões e articulações. Melhor com vitamina C.',warn:null,dose:'5–10g/dia com fonte de vitamina C.',shopee:'https://shopee.com.br/search?keyword=colageno+peptideos+verisol+fortigel',ml:'https://lista.mercadolivre.com.br/colageno-verisol-fortigel',az:'https://www.amazon.com.br/s?k=colageno+verisol+fortigel'},
@@ -211,6 +233,7 @@ export const IT = [
 {id:54,name:'L-Carnitina L-Tartarato',qty:'200g',buy:'500g',cat:'Metabolismo',pr:'baixa',sc:4,pm:70,doses:100,tags:['recuperação','metabolismo de gordura','andrógenos'],goals:['metabolismo','gordura'],dm:'2g',dn:null,dc:true,dp:true,cy:null,badge:null,desc:'Participa do transporte de ácidos graxos e tem dados para recuperação muscular. Efeito em perda de gordura é modesto e depende do contexto.',warn:'Pode causar desconforto gastrointestinal em dose alta.',dose:'1–2g/dia com refeição ou pré-treino.',shopee:'https://shopee.com.br/search?keyword=l+carnitina+l+tartarato',ml:'https://lista.mercadolivre.com.br/l-carnitina-l-tartarato',az:'https://www.amazon.com.br/s?k=l+carnitine+l+tartrate'},
 {id:55,name:'Tirosina em pó',qty:'100g',buy:'200g',cat:'Aminoácido',pr:'media',sc:4,pm:45,doses:100,tags:['dopamina','foco','estresse','tireoide'],goals:['energia','metabolismo'],dm:'500mg',dn:null,dc:false,dp:true,cy:null,badge:null,desc:'Precursora de dopamina, noradrenalina e hormônios tireoidianos. Ajuda desempenho cognitivo sob estresse, privação de sono ou frio.',warn:'Evitar com IMAO e cautela em hipertireoidismo.',dose:'500mg–2g antes de demanda mental ou treino.',shopee:'https://shopee.com.br/search?keyword=l+tirosina+po',ml:'https://lista.mercadolivre.com.br/l-tirosina-po',az:'https://www.amazon.com.br/s?k=l+tyrosine+powder'},
 {id:56,name:'Curcumina Fitossomada',qty:'—',buy:'60caps',cat:'Antioxidante',pr:'media',sc:5,pm:75,doses:60,tags:['inflamação','articulação','antioxidante'],goals:['articulacoes','saude','longevidade'],dm:'500mg',dn:null,dc:true,dp:false,cy:null,badge:'best',desc:'Forma de curcumina com maior biodisponibilidade. Apoia controle inflamatório, conforto articular e defesa antioxidante.',warn:'Evitar com anticoagulantes ou antes de cirurgias sem orientação.',dose:'500–1000mg/dia com refeição.',shopee:'https://shopee.com.br/search?keyword=curcumina+fitossomada',ml:'https://lista.mercadolivre.com.br/curcumina-fitossomada',az:'https://www.amazon.com.br/s?k=curcumin+phytosome'},
+{id:57,name:'NMN (Mononucleotídeo de Nicotinamida)',qty:'30g',buy:'Frasco',cat:'Longevidade & Performance',pr:'media',sc:4,pm:280,doses:30,tags:['NAD+','celular','longevidade','energia','emergente'],goals:['longevidade','energia'],dm:'250mg',dn:null,dc:false,dp:false,cy:null,badge:null,desc:'Precursor direto de NAD+, essencial para reparo de DNA e função mitocondrial. Suplemento emergente com forte foco em rejuvenescimento celular e vitalidade.',warn:'Uso em humanos ainda sob extensa pesquisa. Consulte especialista.',dose:'250mg a 500mg pela manhã em jejum.',shopee:'https://shopee.com.br/search?keyword=nmn+nicotinamide+mononucleotide',ml:'https://lista.mercadolivre.com.br/nmn-suplemento',az:'https://www.amazon.com.br/s?k=nmn+supplement'},
 ];
 
 // Criamos o objeto de imagens dinamicamente baseado nos itens existentes
@@ -559,6 +582,7 @@ export const DOSE_RULES = deepFreeze({
   23:{min:20,max:40,unit:'g',actScale:true},
   45:{min:600,max:1200,unit:'mg'},
   48:{min:3,max:5,unit:'g'},
+  57:{min:250,max:500,unit:'mg'},
   36:{min:5,max:10,unit:'g'},
   37:{min:500,max:1000,unit:'mg'},
   40:{min:5,max:15,unit:'g',byKg:true,kgFactor:.08,cap:15},
@@ -1970,6 +1994,31 @@ export const STUDIES = deepFreeze({
       {tipo:'warn',label:'Epilepsia',texto:'GLA pode reduzir o limiar convulsivo em predispostos. Evitar em pacientes com epilepsia sem orientação neurológica.'},
       {tipo:'warn',label:'Anticoagulantes',texto:'GLA tem leve atividade antiagregante plaquetária. Cautela com warfarina e AAS em dose anticoagulante.'},
     ]
+  },
+  57:{
+    ev:3,
+    scientific_evidence_level:'B',
+    resumo:'O NMN é um intermediário chave na biossíntese de NAD+. A suplementação tem demonstrado aumentar os níveis de NAD+ em diversos tecidos, promovendo a ativação de sirtuínas e melhorando a saúde metabólica e mitocondrial.',
+    mecanismo:[
+      {ico:'🔋',label:'Aumento de NAD+',val:'Precursor imediato que eleva concentrações sistêmicas de NAD+ intracelular'},
+      {ico:'🧬',label:'Sirtuínas',val:'Ativa SIRT1 a SIRT7, regulando longevidade e reparo de DNA'},
+      {ico:'⚡',label:'Mitocôndria',val:'Melhora a eficiência da cadeia de transporte de elétrons e biogênese mitocondrial'},
+      {ico:'🏃',label:'Vascular',val:'Promove angiogênese e melhora o fluxo sanguíneo muscular em modelos de envelhecimento'},
+    ],
+    estudos:[
+      {tipo:'RCT',ano:'2022',journal:'GeroScience',titulo:'Segurança e eficácia da suplementação de NMN',achado:'Aumento dose-dependente de NAD+ no sangue e melhora na performance física (teste de caminhada)',detalhe:'Estudo em 80 adultos saudáveis por 60 dias. Seguro e bem tolerado até 900mg/dia.',pmid:'36481155'},
+      {tipo:'RCT',ano:'2021',journal:'Science',titulo:'NMN e sensibilidade à insulina em mulheres',achado:'Melhora na sinalização de insulina no músculo esquelético (+25%)',detalhe:'Mulheres na pós-menopausa com pré-diabetes. 250mg/dia por 10 semanas.',pmid:'33888596'},
+    ],
+    seguranca:[
+      {tipo:'ok',label:'Seguro em humanos',texto:'Estudos clínicos recentes mostram excelente perfil de segurança até 1000mg/dia.'},
+      {tipo:'warn',label:'Pesquisa Emergente',texto:'Apesar de promissor, dados de longuíssimo prazo (>5 anos) em humanos ainda são limitados.'},
+    ],
+    risk_groups:[
+      {grp:'Gestantes e Lactantes',nivel:'bad',motivo:'Falta de dados de segurança para desenvolvimento fetal.'},
+    ],
+    common_myths:[
+      {mito:'NMN e NR são a mesma coisa',refutacao:'FALSO. Embora ambos elevem NAD+, o NMN é o precursor imediato e utiliza o transportador Slc12a8 para entrada direta em certas células, sendo potencialmente mais eficiente em tecidos específicos.'},
+    ],
   }
 });
 

@@ -5,7 +5,7 @@
 // ══════════════════════════════════════════════════════════════
 import { announceToScreenReader } from './accessibility.js';
 import { IT, CAT, GOAL_MAP, RECIPE_SYNERGIES, INTERACT, bestMarketplacePrice } from './database.js';
-import { toast, dl, escapeHTML, assertEquals } from './utils.js';
+import { toast, dl, escapeHTML } from './utils.js';
 
 /**
  * Aplica um preset de objetivo à seleção.
@@ -299,11 +299,11 @@ export function renderRecipeOut(S, recipeView = 'protocol') {
   const sel    = IT.filter(i => S.rSel.includes(i.id));
   renderRecipeAlerts(sel);
   if (!sel.length) {
-    if (tabsEl) tabsEl.classList.add('is-hidden');
+    if (tabsEl) tabsEl.style.display = 'none';
     el.innerHTML = `<div class="recipe-empty"><div class="recipe-empty-ico">⚗️</div><div class="recipe-empty-title">Nenhum suplemento selecionado</div><div class="recipe-empty-sub">Escolha os suplementos ou use um preset acima.</div></div>`;
     return;
   }
-  if (tabsEl) tabsEl.classList.remove('is-hidden');
+  if (tabsEl) tabsEl.style.display = 'flex';
   const pre = sel.filter(i=>i.dp&&i.dm), ma = sel.filter(i=>i.dm&&!i.dp), no = sel.filter(i=>i.dn), warns = sel.filter(i=>i.warn);
   const hasCycle = sel.filter(i=>i.cy);
   const totalItems = sel.length;

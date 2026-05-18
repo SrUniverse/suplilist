@@ -2,6 +2,15 @@
 // S, STORAGE_KEY, save, syncNow, load, runMigrations → state.js
 // APP_VERSION, IT, CAT, STUDIES, etc.              → database.js
 
+let _tooltipTimer;
+let fuse = null;
+let _confDone = false;
+let _stickyItem = null;
+
+function escapeHTML(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 // ══════════════ THEME E CONFIGS GERAIS ══════════════
 // [MODULARIZADO] Funções de Tema e Config movidas para ui.js e actions.js
 
@@ -45,15 +54,6 @@ function updateStorageSize() {
     el.textContent = kb + ' KB';
   } catch (e) { el.textContent = '—'; }
 }
-
-document.addEventListener('click', e => {
-  const p = document.getElementById('theme-pop');
-  const btn = document.getElementById('theme-toggle-btn');
-  if (p && !p.contains(e.target) && btn && !btn.contains(e.target)) {
-    p.classList.remove('on');
-    btn.setAttribute('aria-expanded', 'false');
-  }
-});
 
 
 // ══════════════ NAV E ROTEAMENTO ══════════════
@@ -220,7 +220,7 @@ function go(p, pushState = true) {
   if (p === 'terms') safeRender('terms', 'Termos de Uso', () => initTermsNav());
 
   if (p === 'config') safeRender('config', 'Configurações', () => {
-    syncCfgThemeGrid();
+    if(window._app) window._app.syncCfgThemeGrid();
     updateStorageSize();
   }, true /* sempre: pode mudar armazenamento */);
 
@@ -591,23 +591,32 @@ function renderAll() { renderStats(); renderChips(); renderList(); renderToggs()
 // chk e togWl: migrados para atualização granular via _applyChkDOM / _applyWlDOM.
 // renderAll() é preservado apenas para ações estruturais (filtros, sort, toggles globais).
 function togItem(id) {
-  const isOpen = toggleItemOpen(id); // state.js: persiste S.open[id] e chama save()
-  const itemEl = document.getElementById('item-' + id);
-  if (!itemEl) { renderList(); return; }
-  const panel = document.getElementById('dp-' + id);
-  const eico = itemEl.querySelector('.eico');
-  const itop = itemEl.querySelector('.itop');
-  if (isOpen) {
-    itemEl.classList.add('open');
-    if (panel) panel.style.display = 'block';
-    if (eico) { eico.style.transform = 'rotate(180deg)'; eico.style.color = 'var(--accent)'; }
-    if (itop) itop.setAttribute('aria-expanded', 'true');
-  } else {
-    itemEl.classList.remove('open');
-    if (panel) panel.style.display = 'none';
-    if (eico) { eico.style.transform = ''; eico.style.color = ''; }
-    if (itop) itop.setAttribute('aria-expanded', 'false');
+  // SL-29: Previne expansão se um Long Press (comparação) acabou de ocorrer
+  if (window._app && window._app._blockNextClick) {
+    window._app._blockNextClick = false;
+    return;
   }
+
+  const isOpen = toggleItemOpen(id);
+  
+  // [BUGFIX] Seleciona todas as instâncias do suplemento para evitar que IDs duplicados 
+  // impeçam a interação em abas como Favoritos.
+  const cards = document.querySelectorAll(`[id="item-${id}"]`);
+  
+  cards.forEach(card => {
+    const panel = card.querySelector('.dpanel, .marketplaces-container') || document.getElementById('dp-' + id);
+    const btn = card.querySelector('.btn-buy-trigger, #btn-label-' + id);
+    const trigger = card.querySelector('.card-main-content, .itop');
+
+    card.classList.toggle('is-expanded', isOpen);
+    card.classList.toggle('open', isOpen);
+    if (panel) {
+      panel.classList.toggle('is-visible', isOpen);
+      panel.style.display = isOpen ? 'block' : 'none';
+    }
+    if (btn) btn.textContent = isOpen ? '▲ FECHAR OPÇÕES' : '＋ VER MELHORES PREÇOS';
+    if (trigger) trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
 }
 
 function chk(id) {
@@ -669,17 +678,18 @@ function chk(id) {
  * @param {number} id - ID do suplemento
  */
 function _applyChkDOM(id) {
-  const el = document.getElementById('item-' + id);
-  if (!el) return; // card fora do DOM (ex: filtrado) — sem ação necessária
-  const done = !!S.checked[id];
-  // Classe visual no card
-  el.classList.toggle('done', done);
-  // Sincroniza o input checkbox (evita dessincronismo visual)
-  const cb = el.querySelector('.cb');
-  if (cb) cb.checked = done;
-  // Aria-label do checkbox para acessibilidade
-  const it = IT.find(i => i.id === id);
-  if (cb && it) cb.setAttribute('aria-label', (done ? 'Desmarcar ' : 'Marcar ') + it.name + ' como comprado');
+  const instances = document.querySelectorAll(`[id="item-${id}"]`);
+  instances.forEach(el => {
+    const done = !!S.checked[id];
+    // Classe visual no card
+    el.classList.toggle('done', done);
+    // Sincroniza o input checkbox (evita dessincronismo visual)
+    const cb = el.querySelector('.cb');
+    if (cb) cb.checked = done;
+    // Aria-label do checkbox para acessibilidade
+    const it = IT.find(i => i.id === id);
+    if (cb && it) cb.setAttribute('aria-label', (done ? 'Desmarcar ' : 'Marcar ') + it.name + ' como comprado');
+  });
 }
 
 /**
@@ -756,7 +766,10 @@ function setPriceFilter(v) {
 
 /** Chamado pelos Sort Chips — persiste a ordenação escolhida */
 function setSortOrder(v, chipEl) {
-  S.cfg.defaultSort = v || 'priority';
+  if(!S.cfg) S.cfg = {};
+  const cfg = S.cfg;
+  cfg.defaultSort = v || 'priority';
+  S.cfg = cfg;
   // Atualiza visual dos chips
   document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('on'));
   if (chipEl) chipEl.classList.add('on');
@@ -767,6 +780,9 @@ function setSortOrder(v, chipEl) {
   save();
   renderList();
 }
+
+function toggleCfgDone(){ S.showDone=!S.showDone; save(); if(window._app) window._app.applyCfg(); renderAll(); }
+function toggleCfgExtra(){ S.showExtra=!S.showExtra; save(); if(window._app) window._app.applyCfg(); renderAll(); }
 
 function toggleDone() { S.showDone = !S.showDone; save(); renderAll(); }
 function toggleExtra() { S.showExtra = !S.showExtra; save(); renderAll(); }
@@ -2248,7 +2264,11 @@ function renderInteract() {
 
 
 // ══════════════ CONFIG E EXPORTAÇÃO ══════════════
-function toggleCfg(k) { S.cfg[k] = !S.cfg[k]; save(); applyCfg(); renderList(); }
+function toggleCfg(k) {
+  const cfg = S.cfg;
+  cfg[k] = !cfg[k];
+  S.cfg = cfg;
+  save(); applyCfg(); renderList(); }
 
 function nukeAll() {
   confirmModal({

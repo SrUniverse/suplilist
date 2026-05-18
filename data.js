@@ -27,6 +27,7 @@ const CAT={
   Digestão:{cls:'cV',ico:'🦠'},Articulações:{cls:'cG',ico:'🦴'},
   Metabolismo:{cls:'cP',ico:'🔥'},Longevidade:{cls:'cAx',ico:'⏳'},
   'Saúde Geral':{cls:'cG',ico:'❤️'},Extra:{cls:'cX',ico:'✨'},
+  'Longevidade & Performance': {cls:'cAx', ico:'🧬'}
 };
 const GOAL_MAP={
   hipertrofia:[11,12,13,14,15,16,17,33,40,44],
@@ -105,7 +106,9 @@ function searchUrl(name, mkt) {
 }
 function mlPrice(i){return i.mlp||Math.round((i.pm||20)*1.08);}
 function azPrice(i){return i.azp||Math.round((i.pm||20)*1.18);}
-function bestMarketplacePrice(i){return Math.min(mlPrice(i),azPrice(i));}
+function bestMarketplacePrice(i) {
+    return Math.min(i.pm || 999, mlPrice(i), azPrice(i));
+}
 
 // URL base apontando para o seu repositório no GitHub (versão Raw)
 const BASE_URL = "assets/";

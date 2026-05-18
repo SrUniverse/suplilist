@@ -16,6 +16,7 @@ import { itemHTML, starsHTML, pdose, renderStats, renderAll, observeLazyImages }
 import { applyFilters } from './filter.js';
 import { runRecipeTestSuite } from './recipe.js';
 import { setTheme as coreSetTheme, toggleTheme as coreToggleTheme } from './theme.js'; // Import core theme functions
+import { go } from './router.js'; // [FIX] Necessário para openQuickCmpPanel e openCompareModal
 import { runDoseTestSuite } from './dose.js';
 import { openModal, closeModal } from './modal.js';
 
@@ -41,22 +42,34 @@ export function toggleLoading(id, isLoading) {
 }
 
 // ══════════════ TEMA ══════════════
-export function handleThemeSelection(theme) {
-  coreSetTheme(theme, true); // Call the core theme logic, marking it as manual
-  // Update UI elements directly after coreSetTheme
-  document.querySelectorAll('.th-opt').forEach(el => el.classList.remove('on'));
-  document.getElementById('th-' + theme)?.classList.add('on');
-  syncCfgThemeGrid(); // This function already updates cfgth- elements
+export async function handleThemeSelection(theme) {
+  // Feedback visual: ativa o estado de carregamento no shell principal
+  const shell = document.getElementById('main-shell');
+  if (shell) toggleLoading('main-shell', true);
 
-  const themePop = document.getElementById('theme-pop');
+  // Pequena latência para o spinner ser percebido antes do processamento
+  await new Promise(r => setTimeout(r, 150));
+
+  coreSetTheme(theme, true); 
+
+  // Sincronização visual em múltiplos containers (Popover e Aba Config)
+  document.querySelectorAll('.th-opt').forEach(el => el.classList.remove('on'));
+  document.getElementById('th-' + theme)?.classList.add('on'); // Popover
+  syncCfgThemeGrid(); // Grade na aba Config
+
+  const themePop = document.getElementById('theme-pop') || document.getElementById('theme-popover');
   if (themePop) themePop.classList.remove('on');
   const btn = document.getElementById('theme-toggle-btn');
   if (btn) btn.setAttribute('aria-expanded', 'false');
+
+  if (shell) toggleLoading('main-shell', false);
 }
 
 export { coreToggleTheme as toggleTheme }; // Expose coreToggleTheme as toggleTheme
 export function toggleThemePop() {
-  const pop = document.getElementById('theme-pop'), btn = document.getElementById('theme-toggle-btn');
+  const pop = document.getElementById('theme-pop') || document.getElementById('theme-popover');
+  const btn = document.getElementById('theme-toggle-btn');
+  if (!pop) return;
   const isOpen = pop.classList.toggle('on');
   if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 }
@@ -114,9 +127,9 @@ export function syncBnBadges() {
   const wl   = Object.values(S.wishlist||{}).filter(Boolean).length;
   const st   = Object.keys(S.stack||{}).length;
   const setBadge = (id,n) => { const el=document.getElementById(id); if(!el) return; el.textContent=n; el.classList.toggle('vis',n>0); };
-  setBadge('bn-badge-lista', pend);
-  setBadge('bn-badge-wl',    wl);
-  setBadge('bn-badge-stack', st);
+  setBadge('nb-lista', pend);
+  setBadge('nb-wl',    wl);
+  setBadge('nb-stack', st);
 }
 
 // ══════════════ WISHLIST ══════════════
@@ -134,7 +147,7 @@ export function clearWl() {
   confirmModal({title:'Limpar favoritos',msg:'Remover todos os itens dos favoritos?',ico:'🤍',okLabel:'Limpar',cancelLabel:'Cancelar',danger:false,okColor:'var(--amber)'})
     .then(ok => {
       if (!ok) return;
-      const prev = {...S.wishlist};
+      const prev = S.wishlist;
       setWishlistAll({});
       announceToScreenReader('Lista de favoritos limpa.');
       renderWishlist(); renderStats();
@@ -178,16 +191,18 @@ export const CompareController = {
     const it = IT.find(i => i.id === id);
     if (!it) { this._lock = false; return; }
 
-    const idx = S.cmpSel.indexOf(id);
+    let list = S.cmpSel;
+    const idx = list.indexOf(id);
     if (idx >= 0) {
-      S.cmpSel.splice(idx, 1);
-    } else if (S.cmpSel.length < this.MAX_ITEMS) {
-      S.cmpSel.push(id);
+      list.splice(idx, 1);
+    } else if (list.length < this.MAX_ITEMS) {
+      list.push(id);
       announceToScreenReader(t('compare.add_announcement', { name: it.name }));
       if (navigator.vibrate) navigator.vibrate(15);
     } else {
       toast('⚠️', t('compare.limit_reached', { n: this.MAX_ITEMS }), 'warn');
     }
+    S.cmpSel = list; 
 
     save();
     this.renderDock();
@@ -231,7 +246,7 @@ export const CompareController = {
 export function togCmp(id) { CompareController.toggle(id); }
 
 export function clearCompare() {
-  S.cmpSel = [];
+  S.cmpSel = []; 
   save();
   CompareController.renderDock();
   renderCmp();
@@ -274,8 +289,8 @@ export function openCompareModal() {
     [t('compare.label_price'), i => `R$ ${i.pm}`],
     [t('compare.cost_per_dose'), i => `R$ ${CompareUtils.calcDose(i.pm || 0, i.doses || 1).toFixed(2)}`],
     [t('compare.cost_per_gram'), i => `R$ ${CompareUtils.calcGram(i).toFixed(3)}`],
-    [t('Eficácia'), i => starsHTML(i.sc)],
-    [t('Dose'), i => i.dm || i.dn || '—'],
+    [t('compare.efficacy'), i => starsHTML(i.sc)],
+    [t('compare.dose'), i => i.dm || i.dn || '—'],
   ];
 
   let html = `
@@ -754,7 +769,9 @@ export function setLang(l) {
 
 // ── Aliases e stubs para compatibilidade com main.js ──────────
 export function togWl(id) {
-  S.wishlist[id] = !S.wishlist[id];
+  const wl = S.wishlist;
+  wl[id] = !wl[id];
+  S.wishlist = wl;
   save();
   announceToScreenReader(`Suplemento ${IT.find(i=>i.id===id)?.name || 'item'} ${S.wishlist[id] ? 'adicionado' : 'removido'} dos favoritos.`);
   renderWishlist();
@@ -832,11 +849,13 @@ export function injectEfficacyColors() {
 }
 
 export function togQuickCmp(id) {
-  const idx = S.quickCmpSel.indexOf(id);
-  if (idx >= 0) S.quickCmpSel.splice(idx, 1);
-  else if (S.quickCmpSel.length < 4) S.quickCmpSel.push(id);
+  let list = S.quickCmpSel;
+  const idx = list.indexOf(id);
+  if (idx >= 0) list.splice(idx, 1);
+  else if (list.length < 4) list.push(id);
   else return toast('⚠️', 'Máximo 4 itens para comparação rápida', 'warn');
 
+  S.quickCmpSel = list;
   document.getElementById(`item-${id}`)?.classList.toggle('qcmp-selected', idx < 0);
   renderQuickCmpBar();
   save();

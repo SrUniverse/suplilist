@@ -1,0 +1,71 @@
+{
+  "name": "SupliList — Suplementação Baseada em Ciência",
+  "short_name": "SupliList",
+  "description": "57+ suplementos, dosagens clínicas, preços em tempo real de 3 marketplaces.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#7c3aed",
+  "background_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["health", "productivity"],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calculadora de Dosagem",
+      "short_name": "Dosagem",
+      "description": "Calcule a dosagem ideal baseada no seu peso",
+      "url": "/app#/dosage",
+      "icons": [{ "src": "/icon-dosage.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Minhas Compras",
+      "short_name": "Compras",
+      "description": "Histórico de suplementação e check-ins",
+      "url": "/app#/history",
+      "icons": [{ "src": "/icon-history.png", "sizes": "96x96" }]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text"
+    }
+  }
+}

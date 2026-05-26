@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>SupliList — Suplementação Baseada em Evidências Científicas</title>
+  <meta name="description" content="Pare de adivinhar. Otimize sua suplementação com fórmulas e dosagens clínicas personalizadas pelo seu peso corporal. Compare preços e economize nos maiores marketplaces.">
+  <meta name="keywords" content="suplementos, dosagem clinica, creatina, whey protein, omega 3, ashwagandha, comparador de preços, hipertrofia, queima de gordura, performance">
+  <meta name="author" content="SupliList Team">
+  <meta name="theme-color" content="#08080f">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://suplilist.com.br/">
+  <meta property="og:title" content="SupliList — Suplementação Baseada em Evidências Científicas">
+  <meta property="og:description" content="Pare de adivinhar. Calcule dosagens personalizadas com racional científico e compare preços em tempo real na Shopee, Mercado Livre e Amazon.">
+  <meta property="og:image" content="https://suplilist.com.br/screenshot-2.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://suplilist.com.br/">
+  <meta property="twitter:title" content="SupliList — Suplementação Baseada em Evidências Científicas">
+  <meta property="twitter:description" content="Pare de adivinhar. Calcule dosagens personalizadas com racional científico e compare preços em tempo real na Shopee, Mercado Livre e Amazon.">
+  <meta property="twitter:image" content="https://suplilist.com.br/screenshot-2.png">
+
+  <!-- Manifest e PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+    
+    // Dispara visualização de página na inicialização
+    gtag('event', 'landing_page_view');
+  </script>
+
+  <!-- Schema.org Dados Estruturados (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "SupliList",
+    "url": "https://suplilist.com.br",
+    "description": "Suplementação baseada em evidências clínicas sólidas. Calcule dosagens exatas com base no seu peso, compare preços em tempo real nos maiores marketplaces e gerencie sua stack ativa.",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0.00",
+      "priceCurrency": "BRL"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "SupliList Team"
+    }
+  }
+  </script>
+
+  <!-- Link de Estilos do Design System e Landing Page -->
+  <link rel="stylesheet" href="src/css/design-system.css">
+  <link rel="stylesheet" href="src/css/landing.css">
+
+  <style>
+    /* Sobrescrita de Design Tokens Landing */
+    :root {
+      --bg: #08080f; /* Ligeiramente azulado conforme home.png */
+      --bg-landing: #08080f;
+      --border-subtle: rgba(255, 255, 255, 0.05);
+    }
+    
+    body.landing-body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+    }
+
+    /* 1. NAV HEADER: Fundo transparente, border-bottom sutil */
+    .landing-header {
+      background: transparent;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .landing-logo {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .landing-logo span {
+      background: #ffffff;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: initial;
+      color: #ffffff;
+    }
+
+    /* 2. HERO: Fullscreen height, Left (60%) e Right (40%) */
+    .hero-section {
+      min-height: 100vh;
+      box-sizing: border-box;
+      padding-top: 130px;
+      padding-bottom: 60px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 40px;
+      align-items: center;
+      text-align: left;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .hero-right {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .hero-divider-line {
+      width: 100%;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(36px, 5.5vw, 68px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      margin: 0;
+      text-align: left;
+      max-width: 100%;
+    }
+
+    /* EVIDÊNCIAS gradiente branco-roxo */
+    .hero-title span {
+      background: linear-gradient(90deg, #f4f4f5, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--t2);
+      margin: 0;
+      max-width: 580px;
+      font-weight: 400;
+      text-align: left;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .hero-actions .btn-primary, .hero-actions .btn-outline {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 14px 28px;
+    }
+
+    .hero-stats-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 10px;
+    }
+
+    .hero-stats-row span.sep {
+      color: var(--border-subtle);
+      font-weight: 300;
+    }
+
+    /* App Mockup animado no Hero Right */
+    .app-mockup-wrapper {
+      width: 100%;
+      max-width: 440px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      background: #11111e;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(124, 58, 237, 0.15);
+      transition: transform 0.5s ease;
+    }
+
+    .app-mockup-wrapper:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+
+    .hero-mockup-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      opacity: 0.95;
+    }
+
+    /* 3. TICKER MARQUEE */
+    .ticker-marquee-container {
+      width: 100%;
+      background: rgba(124, 58, 237, 0.03);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: marquee 30s linear infinite;
+      gap: 40px;
+    }
+
+    .ticker-track span {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .ticker-track span.arrow {
+      color: var(--brand-light);
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* 4. FEATURES */
+    .feature-card.featured {
+      border: 1px solid var(--brand-light) !important;
+      background: rgba(20, 20, 35, 0.5) !important;
+      box-shadow: 0 0 30px rgba(168, 85, 247, 0.1) !important;
+    }
+
+    /* 5. HOW IT WORKS */
+    .step-card {
+      background: rgba(13, 13, 25, 0.5);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .step-watermark {
+      font-size: 130px;
+      opacity: 0.07; /* Enormes de fundo */
+      top: -30px;
+      right: 10px;
+      color: var(--t1);
+    }
+
+    .steps-section-cta {
+      display: flex;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .steps-section-cta .btn-primary {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 16px 36px;
+      border-radius: 12px;
+    }
+
+    /* 6. APP MOCKUP TERMINAL/CODE WINDOW */
+    .app-code-mockup-section {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      box-sizing: border-box;
+    }
+
+    .code-editor-window {
+      background: #06060c;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(124, 58, 237, 0.08);
+      font-family: monospace;
+      text-align: left;
+    }
+
+    .code-editor-header {
+      background: #0c0c16;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      gap: 8px;
+    }
+
+    .code-editor-header .control {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .code-editor-header .control.red { background: #ef4444; }
+    .code-editor-header .control.yellow { background: #eab308; }
+    .code-editor-header .control.green { background: #22c55e; }
+
+    .code-editor-header .window-title {
+      font-size: 11px;
+      color: var(--t3);
+      margin-left: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .code-content {
+      padding: 24px;
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #cbd5e1;
+      overflow-x: auto;
+    }
+
+    .code-content .keyword { color: #c084fc; font-weight: bold; }
+    .code-content .string { color: #34d399; }
+    .code-content .comment { color: #64748b; font-style: italic; }
+    .code-content .function { color: #60a5fa; }
+
+    /* 7. OBJECTIVES: Grid 4x2 com Ver Todos destacado */
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, auto);
+      gap: 16px;
+      width: 100%;
+    }
+
+    .objective-card {
+      background: rgba(13, 13, 25, 0.5);
+      border: 1px solid var(--border-subtle);
+      padding: 20px 24px;
+      border-radius: 16px;
+      min-height: 64px;
+      box-sizing: border-box;
+    }
+
+    .objective-card:hover {
+      border-color: var(--brand-light);
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.15);
+    }
+
+    /* 8. MARKETPLACES: Central destacado */
+    .marketplaces-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.2fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .marketplace-card {
+      background: rgba(13, 13, 25, 0.5);
+      border: 1px solid var(--border-subtle);
+      padding: 32px 24px;
+    }
+
+    .marketplace-card.featured {
+      transform: scale(1.06);
+      border: 1px solid var(--brand-light);
+      background: rgba(20, 20, 35, 0.6);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+    }
+
+    .marketplace-card.featured:hover {
+      transform: scale(1.08);
+      border-color: var(--brand-light);
+      box-shadow: 0 10px 35px rgba(124, 58, 237, 0.25);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--brand);
+      border-radius: 3px;
+    }
+
+    /* 9. CTA FINAL */
+    .cta-badge-testimonials {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--brand-light);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      background: rgba(168, 85, 247, 0.08);
+      border-radius: 4px;
+      padding: 3px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .cta-final-wrapper {
+      padding: 80px 24px;
+      background: radial-gradient(circle at center, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .cta-final-headline {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    /* Responsividade avançada */
+    @media (max-width: 1024px) {
+      .hero-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding-top: 140px;
+        gap: 30px;
+      }
+      .hero-left {
+        align-items: center;
+      }
+      .hero-title {
+        text-align: center;
+      }
+      .hero-subtitle {
+        text-align: center;
+      }
+      .hero-actions {
+        justify-content: center;
+      }
+      .hero-stats-row {
+        justify-content: center;
+      }
+      .marketplaces-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .marketplace-card.featured {
+        transform: none !important;
+      }
+      .marketplace-card.featured:hover {
+        transform: translateY(-4px) !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .objectives-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="landing-body">
+
+  <!-- 1. NAV HEADER -->
+  <header class="landing-header">
+    <div class="landing-nav-container">
+      <a href="#" class="landing-logo">⚡ <span>SUPLILIST</span></a>
+      <nav class="landing-nav-links">
+        <a href="#">Início</a>
+        <a href="app.html#/list">Lista</a>
+        <a href="app.html#/my-stack">Minha Stack</a>
+        <a href="app.html#/settings">Configurações</a>
+      </nav>
+      <a href="app.html#/list" class="btn-primary nav-cta" id="nav-cta-top" data-cta="top" style="border-radius: 10px; font-size: 11px; padding: 10px 20px; box-shadow: none;">MONTAR LISTA</a>
+    </div>
+  </header>
+
+  <!-- 2. HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-left">
+      <div class="hero-divider-line"></div>
+      <h1 class="hero-title">
+        SUPLEMENTAÇÃO<br>BASEADA EM<br><span>EVIDÊNCIAS.</span>
+      </h1>
+      <div class="hero-divider-line"></div>
+      <p class="hero-subtitle">
+        Compare preços, doses e eficácia científica em Shopee, Mercado Livre e Amazon — tudo em um só lugar. Sem cadastro.
+      </p>
+      
+      <div class="hero-actions">
+        <a href="app.html#/my-stack" class="btn-primary btn-lg cta-btn" data-cta="build-stack">MONTAR MINHA STACK</a>
+        <a href="app.html#/dosage" class="btn-outline btn-lg cta-btn" data-cta="calculate-dosage">📋 CALCULAR DOSAGEM</a>
+      </div>
+      
+      <div class="hero-stats-row">
+        <span>57+ Suplementos</span>
+        <span class="sep">|</span>
+        <span>3 Marketplaces</span>
+        <span class="sep">|</span>
+        <span>500+ Estudos</span>
+        <span class="sep">|</span>
+        <span>R$0 Cadastro</span>
+      </div>
+    </div>
+    
+    <div class="hero-right">
+      <div class="app-mockup-wrapper">
+        <img src="src/screenshot-2.png" alt="Suplilist App Mockup" class="hero-mockup-img" onerror="this.src='screenshot-2.png'">
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TICKER MARQUEE -->
+  <div class="ticker-marquee-container">
+    <div class="ticker-marquee">
+      <div class="ticker-track">
+        <span>Maca Peruana</span> <span class="arrow">→</span>
+        <span>Ashwagandha</span> <span class="arrow">→</span>
+        <span>Creatina</span> <span class="arrow">→</span>
+        <span>Whey Protein</span> <span class="arrow">→</span>
+        <span>Rhodiola Rosea</span> <span class="arrow">→</span>
+        <span>Melatonina</span> <span class="arrow">→</span>
+        <span>Ômega 3</span> <span class="arrow">→</span>
+        <span>Magnésio</span> <span class="arrow">→</span>
+        <!-- Duplicação para scroll infinito fluido -->
+        <span>Maca Peruana</span> <span class="arrow">→</span>
+        <span>Ashwagandha</span> <span class="arrow">→</span>
+        <span>Creatina</span> <span class="arrow">→</span>
+        <span>Whey Protein</span> <span class="arrow">→</span>
+        <span>Rhodiola Rosea</span> <span class="arrow">→</span>
+        <span>Melatonina</span> <span class="arrow">→</span>
+        <span>Ômega 3</span> <span class="arrow">→</span>
+        <span>Magnésio</span> <span class="arrow">→</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. FEATURES -->
+  <section id="beneficios" class="fade-up" style="padding: 80px 24px; max-width: 1200px; margin: 0 auto; box-sizing: border-box;">
+    <div class="section-header">
+      <span>FUNCIONALIDADES</span>
+      <h2>TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
+      <p style="max-width: 600px;">Do planejamento à compra com ciência real. Sem abas abertas, sem frutas, sem crises.</p>
+    </div>
+    
+    <div class="features-grid">
+      <!-- Card 1 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper" style="font-size: 32px;">⭐</div>
+        <h3>Comparação de Preços</h3>
+        <p>Shopee, Mercado Livre e Amazon tudo junto nos maiores marketplaces do Brasil. Encontre o menor preço e economize.</p>
+      </div>
+      <!-- Card 2 (Destaque Central) -->
+      <div class="feature-card featured">
+        <div class="feature-icon-wrapper" style="font-size: 32px;">📊</div>
+        <h3>Dosagens Científicas</h3>
+        <p>Baseadas em estudos calibrados e calculadas especificamente de acordo com seu peso corporal e nível de treino diário.</p>
+      </div>
+      <!-- Card 3 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper" style="font-size: 32px;">♡</div>
+        <h3>Stack Personalizado</h3>
+        <p>Monte e gerencie seu próprio protocolo ativo. Monitore o estoque do seu armário e preveja compras futuras facilmente.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. HOW IT WORKS -->
+  <section id="como-funciona" class="fade-up" style="padding: 80px 24px; max-width: 1200px; margin: 0 auto; box-sizing: border-box;">
+    <div class="section-header">
+      <span>COMO FUNCIONA</span>
+      <h2>3 PASSOS PARA COMPRAR CERTO.</h2>
+    </div>
+    
+    <div class="steps-grid">
+      <!-- Passo 1 -->
+      <div class="step-card">
+        <div class="step-watermark">01</div>
+        <span class="step-num-small">01</span>
+        <h3>Defina seus Objetivos</h3>
+        <p>Filtre por objetivo do seu treino para encontrar o composto exato com alto nível de comprovação e estudos médicos revisados.</p>
+      </div>
+      <!-- Passo 2 -->
+      <div class="step-card">
+        <div class="step-watermark">02</div>
+        <span class="step-num-small">02</span>
+        <h3>Compare Preços e Doses</h3>
+        <p>Cada item, o melhor custo-benefício financeiro por dose ativa. Calcule as dosagens adequadas sem achismos.</p>
+      </div>
+      <!-- Passo 3 -->
+      <div class="step-card">
+        <div class="step-watermark">03</div>
+        <span class="step-num-small">03</span>
+        <h3>Marque e Compre</h3>
+        <p>Check nos que comprou para injetar no seu protocolo e acompanhar as datas de validade estimadas do seu armário.</p>
+      </div>
+    </div>
+
+    <div class="steps-section-cta">
+      <a href="app.html#/list" class="btn-primary cta-btn" data-cta="steps-begin">COMEÇAR AGORA</a>
+    </div>
+  </section>
+
+  <!-- 6. APP MOCKUP (TERMINAL WINDOW) -->
+  <section class="app-code-mockup-section fade-up" style="margin-bottom: 80px;">
+    <div class="code-editor-window">
+      <div class="code-editor-header">
+        <span class="control red"></span>
+        <span class="control yellow"></span>
+        <span class="control green"></span>
+        <span class="window-title">src/js/features/history/historyRepo.js</span>
+      </div>
+      <pre class="code-content"><code><span class="keyword">import</span> { stateManager } <span class="keyword">from</span> <span class="string">'../../core/state-manager.js'</span>;
+<span class="keyword">import</span> { calculateDosage } <span class="keyword">from</span> <span class="string">'../../../calculations.js'</span>;
+
+<span class="comment">// 🧬 Otimizando dosagem reativa com base no perfil clínico</span>
+<span class="keyword">export function</span> <span class="function">optimizeStack</span>(userWeight, activityLevel) {
+  <span class="keyword">const</span> favorites = stateManager.<span class="function">getState</span>(<span class="string">'favorites'</span>) || [];
+  
+  <span class="keyword">return</span> favorites.<span class="function">map</span>(supp => {
+    <span class="keyword">const</span> recommendedDose = <span class="function">calculateDosage</span>(supp, userWeight, activityLevel);
+    <span class="keyword">return</span> {
+      id: supp.id,
+      name: supp.name,
+      dose: <span class="string">`\${recommendedDose}\${supp.unit}/dia`</span>,
+      evidence: supp.evidenceLevel,
+      status: <span class="string">'🟢 OTIMIZADO'</span>
+    };
+  });
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- 7. OBJECTIVES -->
+  <section id="objetivos-section" class="fade-up" style="padding: 80px 24px; max-width: 1200px; margin: 0 auto; box-sizing: border-box;">
+    <div class="section-header">
+      <span>OBJETIVOS</span>
+      <h2>FILTRADO POR COMO VOCÊ TREINA.</h2>
+    </div>
+    
+    <div class="objectives-grid">
+      <a href="app.html#/list" class="objective-card cta-obj" data-goal="Hipertrofia">
+        <span>💪 Hipertrofia</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+      <a href="app.html#/list" class="objective-card cta-obj" data-goal="Queima de Gordura">
+        <span>🔥 Queima de Gordura</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+      <a href="app.html#/list" class="objective-card cta-obj" data-goal="Energia & Foco">
+        <span>⚡ Energia & Foco</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+      <a href="app.html#/list" class="objective-card cta-obj" data-goal="Saúde Geral">
+        <span>🌿 Saúde Geral</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+      <a href="app.html#/list" class="objective-card cta-obj" data-goal="Libido & Testo">
+        <span>🔥 Libido & Testo</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+      <a href="app.html#/list" class="objective-card cta-obj" data-goal="Sono">
+        <span>🌙 Sono</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+      <a href="app.html#/list" class="objective-card cta-obj" data-goal="Mulher">
+        <span>🌸 Mulher</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+      <a href="app.html#/list" class="objective-card cta-obj all-destaque" data-goal="todos">
+        <span>▷ Ver Todos</span>
+        <span class="arrow-icon">➔</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- 8. MARKETPLACES -->
+  <section id="marketplaces-section" class="fade-up" style="padding: 80px 24px; max-width: 1200px; margin: 0 auto; box-sizing: border-box;">
+    <div class="section-header">
+      <span>MARKETPLACES</span>
+      <h2>OS MAIORES MARKETPLACES DO BRASIL.</h2>
+    </div>
+    
+    <div class="marketplaces-grid">
+      <!-- Card 1: Shopee -->
+      <div class="marketplace-card">
+        <div class="marketplace-logo-container" title="Shopee Brasil">
+          <svg width="120" height="96" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="5" y="28" fill="#ee4d2d" font-family="'Outfit', sans-serif" font-weight="900" font-size="24" letter-spacing="-0.02em">Shopee</text>
+            <circle cx="98" cy="16" r="6" fill="#ee4d2d"/>
+            <path d="M95 16H101" stroke="#fff" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="marketplace-name">Integrado</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+      
+      <!-- Card 2: Mercado Livre (Featured) -->
+      <div class="marketplace-card featured">
+        <div class="marketplace-logo-container" title="Mercado Livre Brasil">
+          <svg width="160" height="96" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="5" y="28" fill="#ffe600" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" letter-spacing="-0.03em">Mercado</text>
+            <text x="90" y="28" fill="#2d3277" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" letter-spacing="-0.03em">Livre</text>
+          </svg>
+        </div>
+        <div class="marketplace-name">Em breve...</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: 70%; background: #eab308;"></div>
+        </div>
+      </div>
+
+      <!-- Card 3: Amazon -->
+      <div class="marketplace-card">
+        <div class="marketplace-logo-container" title="Amazon Brasil">
+          <svg width="120" height="96" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="5" y="25" fill="#ffffff" font-family="'Outfit', sans-serif" font-weight="900" font-size="22" letter-spacing="-0.02em">amazon</text>
+            <path d="M15 32C35 38 65 38 85 32" stroke="#ff9900" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M80 29L86 32L83 37" stroke="#ff9900" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="marketplace-name">Integrado</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. CTA FINAL -->
+  <section class="fade-up" style="padding: 80px 24px; max-width: 1200px; margin: 0 auto; box-sizing: border-box;">
+    <div class="cta-final-wrapper">
+      <span class="cta-badge-testimonials">DEPOIMENTOS</span>
+      <h2 class="cta-final-headline">
+        PARE DE ADIVINHAR.<br>COMECE A SUPLEMENTAR<br>COM CIÊNCIA REAL.
+      </h2>
+      <p class="cta-final-sub">Milhares de pessoas ainda compram suplemento errado, na dose errada, no lugar mais caro. Você não precisa ser uma delas.</p>
+      <div class="cta-final-buttons">
+        <a href="app.html#/list" class="btn-primary btn-lg cta-btn" data-cta="bottom-build-stack">Montar Minha Lista Agora</a>
+        <a href="app.html#/dosage" class="btn-outline btn-lg cta-btn" data-cta="bottom-calculate-dosage">Ver Guia de Uso</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FOOTER -->
+  <footer class="landing-footer">
+    <div class="footer-nav">
+      <div class="footer-nav-top">
+        <a href="#" class="landing-logo">⚡ <span>SUPLILIST</span></a>
+        <div class="footer-nav-links">
+          <a href="src/pages/legal.html">Privacidade</a>
+          <a href="src/pages/legal.html">Termos</a>
+          <a href="src/pages/legal.html">API</a>
+          <a href="src/pages/legal.html">Github</a>
+        </div>
+      </div>
+      <div class="footer-copy">
+        © 2026 — Powered by Suplilist
+      </div>
+      <div class="footer-disclosure">
+        <strong>Nota de Transparência e Aviso de Afiliados:</strong> O SupliList é um utilitário digital totalmente gratuito e de código aberto dedicado a traduzir pesquisas científicas de saúde e suplementação. Nós analisamos as dosagens e racional clínicos estritamente baseados em ensaios clínicos robustos revisados por pares. Alguns dos botões ou links externos apresentados em nossas páginas contêm tags e códigos de afiliação de plataformas parceiras como Shopee Brasil, Mercado Livre e Amazon Brasil. Ao efetuar uma compra qualificada através desses links, nós poderemos receber uma pequena comissão percentual que apoia diretamente os custos de servidores e desenvolvimento contínuo da ferramenta, sem qualquer alteração de custo ou custo adicional de venda para o seu carrinho de compras.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lógica de interação da Landing Page -->
+  <script>
+    // 1. Observer de scroll para efeito fade-up
+    const fadeElements = document.querySelectorAll('.fade-up');
+    if ('IntersectionObserver' in window) {
+      const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            fadeObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      fadeElements.forEach(el => fadeObserver.observe(el));
+    } else {
+      fadeElements.forEach(el => el.classList.add('visible'));
+    }
+
+    // 2. Telemetria GA4 para Cliques nos CTAs de conversão
+    document.body.addEventListener('click', (e) => {
+      const ctaBtn = e.target.closest('.cta-btn, .nav-cta, .cta-obj');
+      if (ctaBtn) {
+        let ctaType = ctaBtn.getAttribute('data-cta') || ctaBtn.getAttribute('data-goal') || 'generic';
+        
+        if (ctaType === 'build-stack' || ctaType === 'top') {
+          ctaType = 'build-stack';
+        } else if (ctaType === 'calculate-dosage') {
+          ctaType = 'calculate-dosage';
+        }
+
+        if (typeof gtag === 'function') {
+          gtag('event', 'cta_click', {
+            cta_type: ctaType,
+            href: ctaBtn.getAttribute('href') || '#'
+          });
+        }
+      }
+    });
+
+    // 3. Monitoramento de Profundidade de Scroll (Scroll Depth Tracking)
+    const scrollTracked = { 25: false, 50: false, 75: false, 100: false };
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrollPercent = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+      
+      [25, 50, 75, 100].forEach(depth => {
+        if (scrollPercent >= depth && !scrollTracked[depth]) {
+          scrollTracked[depth] = true;
+          if (typeof gtag === 'function') {
+            gtag('event', 'scroll_depth', { percent: depth });
+          }
+        }
+      });
+    }, { passive: true });
+  </script>
+</body>
+</html>

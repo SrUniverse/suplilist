@@ -1,0 +1,47 @@
+# Dependências
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-error.log
+yarn-debug.log*
+pnpm-debug.log*
+
+# Cache
+.vite/
+.npm/
+.yarn/
+.eslintcache
+
+# Relatórios de Teste
+coverage/
+.vitest-cache/
+
+# Build/Distribuição
+dist/
+.out/
+build/
+
+# Documentação
+docs/
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# IDEs e Editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sublime-*
+
+# Variáveis de ambiente (Segurança)
+# Ignora todos os arquivos .env, exceto os de exemplo.
+.env*
+!.env.example
+!.env.template

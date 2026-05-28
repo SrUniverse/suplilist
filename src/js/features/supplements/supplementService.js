@@ -92,9 +92,9 @@ class SupplementService {
 
       if (invItem && typeof invItem.qty === 'number') {
         const daysLeft = calcDaysLeft(invItem.qty, supplement.defaultDose);
-        
+
         result.daysLeft = daysLeft;
-        
+
         if (daysLeft === 0) {
           result.stockStatus = 'out-of-stock';
         } else if (daysLeft <= 7) {
@@ -134,6 +134,34 @@ class SupplementService {
     }
 
     return list.slice(0, limit);
+  }
+
+  /**
+   * Obtém a lista completa de todos os suplementos.
+   * Delega a chamada estritamente para o repositório.
+   * @returns {import('../../types/supplement.schema.js').Supplement[]} Lista de suplementos.
+   */
+  getAll() {
+    return supplementRepo.getAll();
+  }
+
+  /**
+   * Busca um suplemento direto pelo seu ID/slug (Delegação).
+   * @param {string} id - O identificador do suplemento.
+   * @returns {import('../../types/supplement.schema.js').Supplement | null} Suplemento.
+   */
+  getById(id) {
+    return supplementRepo.getById(id);
+  }
+
+  /**
+   * Realiza uma busca textual simples delegando ao repositório, SEM persistir estado ou emitir eventos (Sem side-effects).
+   * Útil para funcionalidades satélites de UI, como o Autocomplete da tabela de comparação.
+   * @param {string} query - O termo de pesquisa.
+   * @returns {import('../../types/supplement.schema.js').Supplement[]} Resultados brutos.
+   */
+  searchSimple(query) {
+    return supplementRepo.search(query);
   }
 }
 

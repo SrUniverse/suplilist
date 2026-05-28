@@ -83,42 +83,35 @@ export function createSettingsPage(container) {
 
   // --- Lógica Interna ---
   const saveBtn = container.querySelector('#btn-save-profile');
-  const themeTog = container.querySelector('#set-theme');
   const notifTog = container.querySelector('#set-notif');
   const btnExport = container.querySelector('#btn-export-json');
   const fileImport = container.querySelector('#file-import');
 
-  saveBtn.addEventListener('click', () => {
+  saveBtn?.addEventListener('click', () => {
     stateManager.setState('profile.name', container.querySelector('#set-name').value);
     stateManager.setState('profile.email', container.querySelector('#set-email').value);
     toast.show('Perfil atualizado com sucesso!', 'success');
   });
 
-  themeTog.addEventListener('change', (e) => {
-    const isDark = e.target.checked;
-    stateManager.setState('settings.theme', isDark ? 'dark' : 'light');
-    document.documentElement.className = isDark ? 'dark' : 'light';
-  });
-
-  notifTog.addEventListener('change', (e) => {
+  notifTog?.addEventListener('change', (e) => {
     stateManager.setState('settings.notifications', e.target.checked);
   });
 
-  btnExport.addEventListener('click', () => {
+  btnExport?.addEventListener('click', () => {
     const data = localStorage.getItem('suplilist:state');
     if (!data) return toast.show('Nenhum dado encontrado para exportar.', 'warning');
-    
+
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `suplilist-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `suplilist-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.show('Backup exportado com sucesso!', 'success');
   });
 
-  fileImport.addEventListener('change', (e) => {
+  fileImport?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
 

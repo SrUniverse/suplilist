@@ -31,9 +31,7 @@
   <meta name="twitter:image:alt"
     content="Interface do Suplilist mostrando comparação de preços e eficácia de suplementos" />
   <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
-  <!-- CSS injected by Vite at build time -->
   <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
-  <!-- CSS injected by Vite at build time -->
   <link rel="dns-prefetch" href="//shopee.com.br" />
   <link rel="dns-prefetch" href="//mercadolivre.com.br" />
   <link rel="dns-prefetch" href="//amazon.com.br" />
@@ -46,7 +44,39 @@
     href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,500&display=swap"
     rel="stylesheet" />
 
-  <!-- CSS injected by Vite at build time -->
+  <!-- CSS — ordem de cascade: tokens → reset → layout → componentes → páginas -->
+  <link rel="stylesheet" href="css/tokens.css?v=15.2" />
+  <link rel="stylesheet" href="css/reset.css?v=15.2" />
+  <link rel="stylesheet" href="css/layout.css?v=15.2" />
+  <link rel="stylesheet" href="css/components.css?v=15.2" />
+  <link rel="stylesheet" href="css/cards.css?v=15.2" />
+  <link rel="stylesheet" href="css/pages.css?v=15.2" />
+  <link rel="stylesheet" href="css/home.css?v=15.2" />
+  <link rel="stylesheet" href="css/patches.css?v=15.2" />
+  <link rel="stylesheet" href="css/missing.css?v=15.2" />
+  <link rel="stylesheet" href="css/design-update.css?v=15.2" />
+  <link rel="stylesheet" href="css/sidebar.css?v=15.2" />
+  <link rel="stylesheet" href="css/style.css?v=15.2" />
+  <link rel="stylesheet" href="css/redesign.css?v=15.2" />
+  <link rel="stylesheet" href="css/lista-redesign.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            surface: 'var(--color-surface, #131316)',
+            'surface-sunken': 'var(--color-surface-sunken, #0a0a0c)',
+            border: 'var(--color-border-subtle, #27272a)',
+            accent: 'var(--accent, #00ff87)',
+            tx: 'var(--tx, #f8fafc)',
+            tx2: 'var(--tx2, #94a3b8)',
+          }
+        }
+      }
+    }
+  </script>
 </head>
 
 <body>
@@ -576,7 +606,7 @@
     </nav>
 
     <main class="shell flex-1 w-full min-w-0 h-screen overflow-y-auto bg-[#0e0e11] p-8 lg:p-10" id="main-shell">
-      <div id="main-content" class="max-w-full mx-auto w-full" aria-label="Conteúdo principal">
+      <div id="page-content" class="max-w-full mx-auto w-full" aria-label="Conteúdo principal">
         <div id="kb-hint">
           / buscar &nbsp;·&nbsp; ESC fechar &nbsp;·&nbsp; ⌘K abrir lista
         </div>
@@ -2410,6 +2440,66 @@
 
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" defer></script>
   <!-- Ponto de entrada único — ES Modules -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function buildProgressBar() {
+        var wrapper = document.getElementById('stats-bar-wrapper');
+        if (!wrapper) return;
+        var app = window._app;
+        var total = 0, pendentes = 0, comprados = 0, urgentes = 0;
+        if (app && app.supps) {
+          total = app.supps.length;
+          comprados = app.supps.filter(function (s) { return s.done; }).length;
+          urgentes = app.supps.filter(function (s) { return s.urgent; }).length;
+          pendentes = total - comprados;
+        }
+        var pct = total > 0 ? Math.round((comprados / total) * 100) : 0;
+        wrapper.innerHTML =
+          '<div class="progress-bar-wrap">' +
+          '<span class="progress-label">Progresso da Suplementação</span>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<span class="progress-pct">' + pct + '%</span>' +
+          '<div class="progress-stats">' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + total + '</span><span class="progress-stat-label">Total</span></div>' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + pendentes + '</span><span class="progress-stat-label">Pendentes</span></div>' +
+          (urgentes > 0 ? '<div class="progress-stat"><span class="progress-stat-num urgent">' + urgentes + ' Urgentes</span><span class="progress-stat-label"></span></div>' : '') +
+          '</div>' +
+          '</div>';
+      }
+      setTimeout(buildProgressBar, 800);
+      setTimeout(buildProgressBar, 2000);
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function buildProgressBar() {
+        var wrapper = document.getElementById('stats-bar-wrapper');
+        if (!wrapper) return;
+        var app = window._app;
+        var total = 0, pendentes = 0, comprados = 0, urgentes = 0;
+        if (app && app.supps) {
+          total = app.supps.length;
+          comprados = app.supps.filter(function (s) { return s.done; }).length;
+          urgentes = app.supps.filter(function (s) { return s.urgent; }).length;
+          pendentes = total - comprados;
+        }
+        var pct = total > 0 ? Math.round((comprados / total) * 100) : 0;
+        wrapper.innerHTML =
+          '<div class="progress-bar-wrap">' +
+          '<span class="progress-label">Progresso da Suplementação</span>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<span class="progress-pct">' + pct + '%</span>' +
+          '<div class="progress-stats">' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + total + '</span><span class="progress-stat-label">Total</span></div>' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + pendentes + '</span><span class="progress-stat-label">Pendentes</span></div>' +
+          (urgentes > 0 ? '<div class="progress-stat"><span class="progress-stat-num urgent">' + urgentes + ' Urgentes</span><span class="progress-stat-label"></span></div>' : '') +
+          '</div>' +
+          '</div>';
+      }
+      setTimeout(buildProgressBar, 800);
+      setTimeout(buildProgressBar, 2000);
+    });
+  </script>
   <script type="module" src="database.js" defer></script>
   <script type="module" src="calculations.js" defer></script>
   <script type="module" src="links.js" defer></script>

@@ -5,17 +5,12 @@
 
 import { createCard } from './supplement-card.js';
 import { skeleton } from './skeleton.js';
-import { toast } from './toast.js';
-import { favoritesRepo } from '../features/favorites/favoritesRepo.js';
-import { supplementService } from '../features/supplements/supplementService.js';
-import { stateManager } from '../core/state-manager.js';
 import { eventBus } from '../core/eventbus.js';
 import { logger } from '../utils/logger.js';
-import { comparatorService } from '../features/comparator/comparatorService.js';
 
-class SupplementListController {
+export class SupplementList {
   /**
-   * Construtor da classe do controlador.
+   * Construtor do componente apresentacional.
    * @param {string} containerId - O seletor CSS do elemento container.
    */
   constructor(containerId) {
@@ -33,37 +28,29 @@ class SupplementListController {
     this._cleanupFns = [];
 
     if (!this.container) {
-      logger.error(`SupplementListController: O container "${containerId}" não foi encontrado no DOM.`);
+      logger.error(`SupplementList: O container "${containerId}" não foi encontrado no DOM.`);
       return;
     }
 
     this._setupEventDelegation();
-    this._subscribeToEvents();
   }
 
   /**
-   * Inicia o carregamento síncrono e assíncrono dos suplementos da página.
+   * Renderiza os esqueletos de carregamento.
    * @returns {void}
    */
-  init() {
+  renderLoading() {
     if (!this.container) return;
     skeleton.render(6, this.container, 'card');
-    
-    // Inicia a busca padrão (carrega a base no Pub/Sub reativo)
-    try {
-      supplementService.search({});
-    } catch (err) {
-      logger.error('SupplementListController.init: Erro na busca de inicialização.', err);
-    }
   }
 
   /**
    * Limpa o container e renderiza a lista fornecida de suplementos.
-   * @param {import('../types/supplement.schema.js').Supplement[]} supplements - Lista de suplementos a exibir.
-   * @param {Object} [options={}] - Configurações de renderização adicionais.
+   * O array já deve vir enriquecido pelo Controller com status de favoritos e estoque.
+   * @param {Array} supplements - Lista de suplementos pré-enriquecidos.
    * @returns {void}
    */
-  render(supplements, options = {}) {
+  render(supplements = []) {
     if (!this.container) return;
 
     skeleton.clear(this.container);
@@ -85,21 +72,14 @@ class SupplementListController {
     const fragment = document.createDocumentFragment();
 
     supplements.forEach((supp) => {
-      // Enriquece o card obtendo status de estoque e favoritados atualizados do Service
-      const enriched = supplementService.getEnriched(supp.id, {
-        includeFavorite: true,
-        includeInventory: true,
+      // O componente burro apenas repassa os dados pré-calculados que recebeu
+      const card = createCard(supp.supplement || supp, {
+        isFavorite: supp.isFavorite || false,
+        stockStatus: supp.stockStatus || 'ok',
+        daysLeft: supp.daysLeft || 0,
       });
 
-      if (enriched) {
-        const card = createCard(enriched.supplement, {
-          isFavorite: enriched.isFavorite,
-          stockStatus: enriched.stockStatus,
-          daysLeft: enriched.daysLeft,
-        });
-        
-        fragment.appendChild(card);
-      }
+      fragment.appendChild(card);
     });
 
     this.container.appendChild(fragment);
@@ -126,112 +106,31 @@ class SupplementListController {
 
       switch (action) {
         case 'favorite':
-          this._handleFavorite(id);
+          eventBus.emit('ui:supplement:favorite:requested', { supplementId: id });
           break;
         case 'detail':
-          this._handleDetail(id);
+          eventBus.emit('ui:supplement:detail:requested', { supplementId: id });
           break;
         case 'compare':
-          this._handleCompare(id);
+          eventBus.emit('ui:supplement:compare:requested', { supplementId: id });
           break;
         case 'buy':
-          this._handleBuy(id, e);
+          eventBus.emit('ui:supplement:buy:requested', { supplementId: id });
           break;
       }
-    });
-  }
-
-  /**
-   * Gerencia a alternância de favoritos disparada pelo clique no coração.
-   * @private
-   * @param {string} id - O slug do suplemento.
-   * @returns {void}
-   */
-  _handleFavorite(id) {
-    const isFav = favoritesRepo.toggle(id);
-    toast.show(isFav ? 'Adicionado aos favoritos!' : 'Removido dos favoritos', 'success');
-  }
-
-  /**
-   * Notifica o sistema que o modal de detalhes completos deve ser aberto.
-   * @private
-   * @param {string} id - O slug do suplemento.
-   * @returns {void}
-   */
-  _handleDetail(id) {
-    eventBus.emit('supplement:detail:open', { supplementId: id });
-  }
-
-  /**
-   * Adiciona o suplemento selecionado à lista ativa do comparador.
-   * @private
-   * @param {string} id - O slug do suplemento.
-   * @returns {void}
-   */
-  _handleCompare(id) {
-    comparatorService.addToComparator(id);
-  }
-
-  /**
-   * Redireciona o usuário para o marketplace com melhor preço cadastrado.
-   * @private
-   * @param {string} id - O slug do suplemento.
-   * @param {Event} event - Objeto do clique.
-   * @returns {void}
-   */
-  _handleBuy(id, event) {
-    const supp = supplementService.getEnriched(id, { includeFavorite: false });
-    if (!supp || !supp.supplement) return;
-
-    const supplement = supp.supplement;
-    
-    // Identifica o menor preço e seu respectivo marketplace
-    let cheapestMarketplace = 'shopee';
-    let minPrice = Infinity;
-
-    Object.entries(supplement.prices).forEach(([mkt, price]) => {
-      if (price > 0 && price < minPrice) {
-        minPrice = price;
-        cheapestMarketplace = mkt;
-      }
-    });
-
-    const links = supplement.links || {};
-    const targetUrl = links[cheapestMarketplace] || `https://shopee.com.br/search?keyword=${encodeURIComponent(supplement.name)}`;
-
-    window.open(targetUrl, '_blank', 'noopener');
-    eventBus.emit('checkout:initiated', {
-      supplementId: id,
-      marketplace: cheapestMarketplace,
     });
   }
 
   /**
    * Escuta os canais Pub/Sub reativos de interesse para atualizar cirurgicamente a UI.
    * @private
-   * @returns {void}
-   */
-  _subscribeToEvents() {
-    const unsubFiltered = eventBus.on('supplements:filtered', ({ results }) => {
-      this.render(results);
-    });
-
-    // Atualização granular reativa de favs
-    const unsubFavorite = eventBus.on('favorite:toggled', ({ supplementId, isFavorite }) => {
-      this._updateFavoriteIcon(supplementId, isFavorite);
-    });
-
-    this._cleanupFns.push(unsubFiltered, unsubFavorite);
-  }
-
-  /**
    * Atualiza cirurgicamente apenas o ícone de coração de um card específico (DOM directo).
-   * @private
+   * Chamado publicamente pelo Controller responsável.
    * @param {string} supplementId - O slug do card.
    * @param {boolean} isFavorite - Novo status de favorito.
    * @returns {void}
    */
-  _updateFavoriteIcon(supplementId, isFavorite) {
+  updateFavoriteIcon(supplementId, isFavorite) {
     if (!this.container) return;
 
     const card = this.container.querySelector(`[data-supplement-id="${supplementId}"]`);
@@ -263,15 +162,6 @@ class SupplementListController {
   destroy() {
     this._cleanupFns.forEach((fn) => fn());
     this._cleanupFns = [];
-    logger.info('SupplementListController destruído com sucesso.');
+    logger.info('SupplementList UI destruído com sucesso.');
   }
-}
-
-/**
- * Factory de inicialização rápida do controlador.
- * @param {string} containerId - Elemento seletor CSS do container.
- * @returns {SupplementListController} Instância do controlador.
- */
-export function initSupplementList(containerId) {
-  return new SupplementListController(containerId);
 }

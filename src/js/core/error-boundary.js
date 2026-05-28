@@ -4,8 +4,8 @@
  * impedindo que falhas em componentes específicos derrubem a aplicação inteira.
  */
 
-import { eventBus } from './eventbus.js';
 import { logger } from '../utils/logger.js';
+import { eventBus } from './eventbus.js';
 
 export class ErrorBoundary {
   /**
@@ -56,7 +56,7 @@ export class ErrorBoundary {
   static _renderErrorState(componentName, err) {
     const card = document.createElement('div');
     card.className = 'error-card bg-red-950/20 border border-red-500/30 rounded-xl p-4 text-center my-2 shadow-sm backdrop-blur-sm';
-    
+
     // Determina se exibe os detalhes do erro ou mensagem genérica de prod
     let isDev = true;
     try {

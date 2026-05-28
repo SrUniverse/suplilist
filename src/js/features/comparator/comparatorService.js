@@ -4,11 +4,14 @@
  * dosagens, preços e calcula sinergias/interações medicamentosas conhecidas.
  */
 
-import { supplementRepo } from '../supplements/supplementRepo.js';
 import { eventBus } from '../../core/eventbus.js';
+
+import { MAX_COMPARATOR_ITEMS } from '../../utils/constants.js';
 import { logger } from '../../utils/logger.js';
 import { formatDose, formatPrice } from '../../utils/formatters.js';
-import { MAX_COMPARATOR_ITEMS } from '../../utils/constants.js';
+
+// TODO: Violação de arquitetura (Feature-to-Feature coupling). Desacoplar para leitura via stateManager/EventBus.
+import { supplementRepo } from '../supplements/supplementRepo.js';
 
 class ComparatorService {
   /**
@@ -95,7 +98,7 @@ class ComparatorService {
       matrix.evidenceLevel.push(supp.evidenceLevel);
       matrix.goals.push(supp.goals);
       matrix.defaultDose.push(formatDose(supp.defaultDose, supp.unit));
-      
+
       const activePrices = Object.values(supp.prices).filter((p) => typeof p === 'number' && p > 0);
       const minPrice = activePrices.length > 0 ? Math.min(...activePrices) : 0;
       matrix.cheapestPrice.push(formatPrice(minPrice));
@@ -157,7 +160,7 @@ class ComparatorService {
    */
   addToComparator(supplementId) {
     if (!supplementId || typeof supplementId !== 'string') return;
-    
+
     // Garante que o suplemento existe na base
     const supp = supplementRepo.getById(supplementId);
     if (!supp) {

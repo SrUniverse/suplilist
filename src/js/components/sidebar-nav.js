@@ -9,13 +9,9 @@
  * @version 3.0.0
  */
 
-import { eventBus }       from '../core/eventbus.js';
-import { ErrorBoundary }  from '../core/error-boundary.js';
-import { logger }         from '../utils/logger.js';
-import { supplementRepo } from '../features/supplements/supplementRepo.js';
-import { inventoryRepo }  from '../features/inventory/inventoryRepo.js';
-import { stateManager }   from '../core/state-manager.js';
-import { settingsRepo }   from '../features/settings/settingsRepo.js';
+import { eventBus } from '../core/eventbus.js';
+import { ErrorBoundary } from '../core/error-boundary.js';
+import { logger } from '../utils/logger.js';
 
 /* ══════════════════════════════════════════════════════════════
    CONFIGURAÇÃO DOS 7 ITENS (confirmados por lista.png)
@@ -27,12 +23,12 @@ import { settingsRepo }   from '../features/settings/settingsRepo.js';
  * badge: null → oculto; número/string → exibido.
  */
 const NAV_ITEMS = [
-  { id: 'home',      icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>',  label: 'Home',       route: '/home',      badge: null },
-  { id: 'list',      icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>',  label: 'List',        route: '/list',      badge: null },
-  { id: 'my-stack',  icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>',  label: 'My Stack',  route: '/my-stack',  badge: null },
-  { id: 'favorites', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>',  label: 'Favorites',    route: '/favorites', badge: null },
-  { id: 'history',   icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>', label: 'History',      route: '/history',    badge: null },
-  { id: 'settings',  icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>',  label: 'Settings',     route: '/settings',   badge: null },
+  { id: 'home', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>', label: 'Home', route: '/home', badge: null },
+  { id: 'list', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>', label: 'List', route: '/list', badge: null },
+  { id: 'my-stack', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>', label: 'My Stack', route: '/my-stack', badge: null },
+  { id: 'favorites', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>', label: 'Favorites', route: '/favorites', badge: null },
+  { id: 'history', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>', label: 'History', route: '/history', badge: null },
+  { id: 'settings', icon: '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>', label: 'Settings', route: '/settings', badge: null },
 ];
 
 /* ══════════════════════════════════════════════════════════════
@@ -63,7 +59,7 @@ function _buildNavItem(item, activeRoute) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'nav-item';
-  btn.dataset.id    = item.id;
+  btn.dataset.id = item.id;
   btn.dataset.route = item.route;
   btn.setAttribute('aria-label', item.label);
   btn.setAttribute('title', item.label);
@@ -74,7 +70,7 @@ function _buildNavItem(item, activeRoute) {
 
   // Ícone
   const iconEl = document.createElement('span');
-  iconEl.className   = 'nav-icon';
+  iconEl.className = 'nav-icon';
   if (item.icon.includes('<svg')) {
     iconEl.innerHTML = item.icon;
   } else {
@@ -84,15 +80,15 @@ function _buildNavItem(item, activeRoute) {
 
   // Label
   const labelEl = document.createElement('span');
-  labelEl.className   = 'nav-label';
+  labelEl.className = 'nav-label';
   labelEl.textContent = item.label;
 
   // Badge
   const badgeEl = document.createElement('span');
-  badgeEl.className   = 'nav-badge';
+  badgeEl.className = 'nav-badge';
   badgeEl.dataset.badge = item.id;
   if (item.badge) {
-    badgeEl.textContent  = item.badge;
+    badgeEl.textContent = item.badge;
     badgeEl.style.display = 'inline-flex';
   } else {
     badgeEl.style.display = 'none';
@@ -137,17 +133,17 @@ export class SidebarNav {
     }
 
     // Bind de handlers para remoção limpa depois
-    this._onNavClick          = this._onNavClick.bind(this);
-    this._onRouterNavigate    = this._onRouterNavigate.bind(this);
-    this._onDataChanged       = this._onDataChanged.bind(this);
+    this._onNavClick = this._onNavClick.bind(this);
+    this._onRouterNavigate = this._onRouterNavigate.bind(this);
   }
 
   /* ─── Ciclo de vida ─────────────────────────────────────── */
 
   /**
-   * Monta o componente: renderiza itens, registra eventos.
+   * Monta o componente visualmente, esperando receber as configurações via parâmetros.
+   * @param {Object} props - Dados apresentacionais iniciais (tema, badges, etc).
    */
-  mount() {
+  mount(props = {}) {
     if (!this.container) return;
 
     const current = _normalizeRoute(this.router?.getCurrentRoute?.() || '/home');
@@ -159,20 +155,17 @@ export class SidebarNav {
 
     // Reatividade via EventBus
     this._cleanupFns.push(
-      eventBus.on('router:navigate',  this._onRouterNavigate),
-      eventBus.on('stack:updated',    this._onDataChanged),
-      eventBus.on('inventory:updated', this._onDataChanged),
-      eventBus.on('supplements:loaded', this._onDataChanged),
-      eventBus.on('state:imported',   this._onDataChanged),
+      eventBus.on('router:navigate', this._onRouterNavigate)
     );
 
     // Setup: logo adaptável, breadcrumb, tema, mobile overlay
     this._setupLogo(current);
-    this._setupThemeButton();
+    this._setupThemeButton(props.theme || 'dark');
     this._setupMobileOverlay();
 
-    // Badges iniciais
-    this._refreshBadges();
+    if (props.badges) {
+      Object.entries(props.badges).forEach(([id, val]) => this.updateBadge(id, val));
+    }
 
     logger.info('SidebarNav montado com 7 itens.');
   }
@@ -208,7 +201,7 @@ export class SidebarNav {
     if (!badgeEl) return;
 
     if (value != null && value !== '' && value !== 0) {
-      badgeEl.textContent  = String(value);
+      badgeEl.textContent = String(value);
       badgeEl.style.display = 'inline-flex';
     } else {
       badgeEl.style.display = 'none';
@@ -222,7 +215,7 @@ export class SidebarNav {
     if (this.container) {
       this.container.removeEventListener('click', this._onNavClick);
     }
-    this._cleanupFns.forEach(fn => { try { fn(); } catch (_) {} });
+    this._cleanupFns.forEach(fn => { try { fn(); } catch (_) { } });
     this._cleanupFns = [];
     logger.info('SidebarNav destruído.');
   }
@@ -252,10 +245,6 @@ export class SidebarNav {
     this.updateActive(route);
   }
 
-  _onDataChanged() {
-    this._refreshBadges();
-  }
-
   /* ─── Setup auxiliares ──────────────────────────────────── */
 
   /**
@@ -263,7 +252,7 @@ export class SidebarNav {
    * @param {string} cleanRoute — rota normalizada
    */
   _setupLogo(cleanRoute) {
-    const logoEl     = document.querySelector('.sidebar-logo');
+    const logoEl = document.querySelector('.sidebar-logo');
     const subtitleEl = document.querySelector('.sidebar-subtitle');
     if (logoEl) {
       logoEl.textContent = 'Suplilist';
@@ -280,28 +269,6 @@ export class SidebarNav {
   }
 
   /**
-   * Recalcula os badges dinâmicos de Lista e Minha Stack.
-   */
-  _refreshBadges() {
-    try {
-      // Badge Lista → total de suplementos no catálogo
-      const suppCount = supplementRepo.getAll?.()?.length ?? 53;
-      this.updateBadge('list', suppCount > 0 ? suppCount : null);
-
-      // Badge Minha Stack → itens ativos no inventário
-      const invItems  = inventoryRepo.getAll?.() ?? {};
-      const stackCount = Object.keys(invItems).length;
-      // Fallback: lê stack.items do stateManager
-      const stackState = stateManager.getState('stack') || {};
-      const stackItems = stackState.items || [];
-      const count = stackCount > 0 ? stackCount : stackItems.length;
-      this.updateBadge('my-stack', count > 0 ? count : null);
-    } catch (err) {
-      logger.error('SidebarNav: erro ao atualizar badges.', err);
-    }
-  }
-
-  /**
    * Atualiza o breadcrumb no top-bar (se existir).
    * @param {string} cleanRoute
    */
@@ -310,7 +277,7 @@ export class SidebarNav {
     if (!el) return;
 
     const matched = NAV_ITEMS.find(i => _normalizeRoute(i.route) === cleanRoute);
-    const label   = matched ? matched.label : 'App';
+    const label = matched ? matched.label : 'App';
 
     el.innerHTML = `
       <span style="font-size:12px;color:var(--t3);">SupliList</span>
@@ -320,28 +287,19 @@ export class SidebarNav {
   }
 
   /**
-   * Conecta o botão de tema (pode existir no HTML ou ser criado aqui).
+   * Conecta o botão de tema disparando um evento burro.
+   * @param {string} initialTheme
    */
-  _setupThemeButton() {
+  _setupThemeButton(initialTheme) {
     // O app.html já tem #btn-theme-toggle — apenas conecta o click
     const themeBtn = document.getElementById('btn-theme-toggle')
-                  || document.getElementById('btn-sidebar-theme');
+      || document.getElementById('btn-sidebar-theme');
     if (!themeBtn) return;
 
-    // Inicializa o texto com base no tema ativo
-    const currentTheme = settingsRepo.getSetting('theme') || 'dark';
-    themeBtn.textContent = currentTheme === 'dark' ? '🌐 TEMA' : '🌙 TEMA';
+    themeBtn.textContent = initialTheme === 'dark' ? '🌐 TEMA' : '🌙 TEMA';
 
     const handleTheme = () => {
-      const current = settingsRepo.getSetting('theme') || 'dark';
-      const next    = current === 'dark' ? 'light' : 'dark';
-
-      settingsRepo.setSetting('theme', next);
-
-      eventBus.emit('toast:show', {
-        message: `Tema ${next === 'dark' ? '🌙 Escuro' : '☀️ Claro'} ativado!`,
-        type: 'success',
-      });
+      eventBus.emit('ui:theme:toggle:requested');
     };
 
     // Atualiza reativamente se o tema mudar (inclusive por outro componente)
@@ -364,9 +322,9 @@ export class SidebarNav {
    * Conecta hamburger + overlay para mobile drawer.
    */
   _setupMobileOverlay() {
-    const sidebar    = document.getElementById('sidebar');
-    const overlay    = document.getElementById('sidebar-overlay');
-    const hamburger  = document.getElementById('btn-hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const hamburger = document.getElementById('btn-hamburger');
 
     if (!sidebar) return;
 

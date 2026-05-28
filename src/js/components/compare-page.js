@@ -9,12 +9,12 @@
  * @version 3.0.0
  */
 
-import Fuse              from 'fuse.js';
-import { eventBus }      from '../core/eventbus.js';
-import { logger }        from '../utils/logger.js';
-import { supplementRepo } from '../features/supplements/supplementRepo.js';
-import { stateManager }  from '../core/state-manager.js';
-import { toast }         from './toast.js';
+import Fuse from 'fuse.js';
+import { eventBus } from '../core/eventbus.js';
+import { logger } from '../utils/logger.js';
+import { supplementService } from '../features/supplements/supplementService.js';
+import { stateManager } from '../core/state-manager.js';
+import { toast } from './toast.js';
 import { formatPrice, formatDose } from '../utils/formatters.js';
 
 /* ══════════════════════════════════════════════════════════════
@@ -296,19 +296,23 @@ function _injectStyles() {
    ══════════════════════════════════════════════════════════════ */
 
 const COMPARE_ROWS = [
-  { key: 'category',      label: 'Categoria',       render: (s) => s.category || '—' },
-  { key: 'evidenceLevel', label: 'Evidência',        render: (s) => {
-    const lvl = (s.evidenceLevel || 'C').toUpperCase();
-    return `<span class="cp-badge cp-badge-${lvl.toLowerCase()}">Nível ${lvl}</span>`;
-  }},
-  { key: 'defaultDose',   label: 'Dose Padrão',      render: (s) => formatDose(s.defaultDose, s.unit), compareAs: 'numeric', lowerIsBetter: false },
-  { key: 'costPerDose',   label: 'Custo / Dose',     render: (s) => formatPrice(s.costPerDose), compareAs: 'numeric', lowerIsBetter: true },
-  { key: 'doses',         label: 'Doses / Pote',     render: (s) => s.doses ?? '—', compareAs: 'numeric', lowerIsBetter: false },
-  { key: 'goals',         label: 'Objetivos',        render: (s) => {
-    const pills = (s.goals || []).map(g => `<span class="cp-goal-pill">${g}</span>`).join('');
-    return `<div class="cp-goals">${pills || '—'}</div>`;
-  }},
-  { key: 'mechanism',     label: 'Mecanismo',        render: (s) => `<span style="font-size:11px;line-height:1.5;color:#71717a;">${(s.mechanism || '—').slice(0, 120)}${s.mechanism?.length > 120 ? '...' : ''}</span>` },
+  { key: 'category', label: 'Categoria', render: (s) => s.category || '—' },
+  {
+    key: 'evidenceLevel', label: 'Evidência', render: (s) => {
+      const lvl = (s.evidenceLevel || 'C').toUpperCase();
+      return `<span class="cp-badge cp-badge-${lvl.toLowerCase()}">Nível ${lvl}</span>`;
+    }
+  },
+  { key: 'defaultDose', label: 'Dose Padrão', render: (s) => formatDose(s.defaultDose, s.unit), compareAs: 'numeric', lowerIsBetter: false },
+  { key: 'costPerDose', label: 'Custo / Dose', render: (s) => formatPrice(s.costPerDose), compareAs: 'numeric', lowerIsBetter: true },
+  { key: 'doses', label: 'Doses / Pote', render: (s) => s.doses ?? '—', compareAs: 'numeric', lowerIsBetter: false },
+  {
+    key: 'goals', label: 'Objetivos', render: (s) => {
+      const pills = (s.goals || []).map(g => `<span class="cp-goal-pill">${g}</span>`).join('');
+      return `<div class="cp-goals">${pills || '—'}</div>`;
+    }
+  },
+  { key: 'mechanism', label: 'Mecanismo', render: (s) => `<span style="font-size:11px;line-height:1.5;color:#71717a;">${(s.mechanism || '—').slice(0, 120)}${s.mechanism?.length > 120 ? '...' : ''}</span>` },
 ];
 
 /** Valor numérico de nível de evidência para comparação */
@@ -341,7 +345,7 @@ class ComparePageController {
 
     // Pré-seleciona via evento da calculadora
     eventBus.on('compare:preselect', ({ supplementId }) => {
-      const supp = supplementRepo.getById(supplementId);
+      const supp = supplementService.getById(supplementId);
       if (supp && !this._selected[0]) {
         this._selected[0] = supp;
         this._render();
@@ -351,7 +355,7 @@ class ComparePageController {
   }
 
   _buildFuse() {
-    const all = supplementRepo.getAll();
+    const all = supplementService.getAll();
     this._fuseIndex = new Fuse(all, {
       keys: ['name', 'category'],
       threshold: 0.35,
@@ -365,7 +369,7 @@ class ComparePageController {
     if (!this.container) return;
 
     const slotsHtml = this._selected.map((supp, i) => this._renderSlot(supp, i)).join('');
-    const hasAny    = this._selected.some(Boolean);
+    const hasAny = this._selected.some(Boolean);
     const tableHtml = hasAny ? this._renderTable() : `
       <div class="cp-empty">
         <div class="cp-empty-icon">⚖️</div>
@@ -519,7 +523,7 @@ class ComparePageController {
 
     // Busca nos slots
     container.querySelectorAll('[data-slot-input]').forEach(input => {
-      const idx     = parseInt(input.dataset.slotInput, 10);
+      const idx = parseInt(input.dataset.slotInput, 10);
       const suggsEl = container.querySelector(`#cp-suggestions-${idx}`);
 
       input.addEventListener('input', () => {
@@ -528,7 +532,7 @@ class ComparePageController {
 
         const results = this._fuseIndex
           ? this._fuseIndex.search(q).slice(0, 8).map(r => r.item)
-          : supplementRepo.search(q).slice(0, 8);
+          : supplementService.searchSimple(q).slice(0, 8);
 
         if (!suggsEl) return;
         suggsEl.innerHTML = results.map(s => `
@@ -544,7 +548,7 @@ class ComparePageController {
       suggsEl?.addEventListener('click', e => {
         const item = e.target.closest('[data-sugg-id]');
         if (!item) return;
-        const supp = supplementRepo.getById(item.dataset.suggId);
+        const supp = supplementService.getById(item.dataset.suggId);
         if (!supp) return;
         // Evita duplicata
         if (this._selected.some(s => s?.id === supp.id)) {
@@ -568,7 +572,7 @@ class ComparePageController {
     container.querySelectorAll('[data-add-stack]').forEach(btn => {
       btn.addEventListener('click', () => {
         const suppId = btn.dataset.addStack;
-        const supp   = supplementRepo.getById(suppId);
+        const supp = supplementService.getById(suppId);
         if (!supp) return;
 
         const stack = stateManager.getState('stack') || {};
@@ -595,7 +599,7 @@ class ComparePageController {
   }
 
   destroy() {
-    this._cleanupFns.forEach(fn => { try { fn(); } catch (_) {} });
+    this._cleanupFns.forEach(fn => { try { fn(); } catch (_) { } });
     this._cleanupFns = [];
     logger.info('ComparePageController destruído.');
   }

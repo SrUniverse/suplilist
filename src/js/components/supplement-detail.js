@@ -8,13 +8,14 @@
  * @version 3.0.0
  */
 
-import { eventBus }        from '../core/eventbus.js';
-import { logger }          from '../utils/logger.js';
+import { eventBus } from '../core/eventbus.js';
+import { logger } from '../utils/logger.js';
 import { supplementService } from '../features/supplements/supplementService.js';
-import { favoritesRepo }   from '../features/favorites/favoritesRepo.js';
-import { inventoryRepo }   from '../features/inventory/inventoryRepo.js';
-import { toast }           from './toast.js';
+import { favoritesRepo } from '../features/favorites/favoritesRepo.js';
+import { inventoryRepo } from '../features/inventory/inventoryRepo.js';
+import { toast } from './toast.js';
 import { formatPrice, formatDose, formatDaysLeft } from '../utils/formatters.js';
+import { STUDIES, RECIPE_SYNERGIES } from '../../../database.js';
 
 /* ══════════════════════════════════════════════════════════════
    INJEÇÃO DE ESTILOS (uma única vez no head)
@@ -464,30 +465,6 @@ function _injectStyles() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   ESTUDOS CLÍNICOS ESTÁTICOS POR SUPLEMENTO
-   (enriquece os dados do database com metadados científicos)
-   ══════════════════════════════════════════════════════════════ */
-
-const CLINICAL_STUDIES = {
-  'creatina-mono': [
-    { title: 'Efeito da Creatina na Força Máxima', year: 2021, journal: 'Journal of Strength & Conditioning', result: 'Aumento médio de 8-14% na força máxima em exercícios compostos após 4 semanas de suplementação com carga.', tags: ['Força', 'Hipertrofia', 'Duplo-cego'] },
-    { title: 'Creatina e Cognição em Idosos', year: 2022, journal: 'Nutrients', result: 'Melhora significativa na memória de trabalho e velocidade de processamento após 12 semanas de uso.', tags: ['Cognição', 'Longevidade', 'RCT'] },
-  ],
-  'ashwagandha': [
-    { title: 'Ashwagandha e Redução de Cortisol', year: 2019, journal: 'Medicine (Baltimore)', result: 'Redução de 27,9% nos níveis de cortisol sérico vs. placebo após 60 dias de 300mg/dia.', tags: ['Cortisol', 'Estresse', 'Placebo-controlado'] },
-    { title: 'Efeito Adaptogênico em Atletas', year: 2020, journal: 'Journal of the International Society of Sports Nutrition', result: 'Melhora de 18% na potência máxima e recuperação muscular em atletas recreacionais.', tags: ['Performance', 'Recuperação', 'RCT'] },
-  ],
-  'cafeina': [
-    { title: 'Cafeína e Performance Aeróbica', year: 2020, journal: 'British Journal of Sports Medicine', result: 'Meta-análise de 21 estudos: melhora média de 3% na performance de endurance com 3-6mg/kg.', tags: ['Endurance', 'Meta-análise', 'Dose-resposta'] },
-  ],
-};
-
-/** Retorna estudos disponíveis para um suplemento (ou array vazio). */
-function _getStudies(supplementId) {
-  return CLINICAL_STUDIES[supplementId] || [];
-}
-
-/* ══════════════════════════════════════════════════════════════
    CLASSE PRINCIPAL — SupplementDrawer
    ══════════════════════════════════════════════════════════════ */
 
@@ -602,7 +579,7 @@ class SupplementDrawer {
 
     this._renderHeader(enriched);
     this._renderOverview(enriched);
-    this._renderStudies(supplementId);
+    this._renderStudies(enriched.supplement);
     this._renderMarket(enriched);
     this._updateFavButton(enriched.isFavorite);
     this._switchTab('overview');
@@ -628,9 +605,9 @@ class SupplementDrawer {
   /* ─── Renderização dos Painéis ───────────────────────────── */
 
   _renderHeader({ supplement, isFavorite }) {
-    const imgEl   = this._drawerEl.querySelector('#sd-img');
-    const nameEl  = this._drawerEl.querySelector('#sd-name');
-    const metaEl  = this._drawerEl.querySelector('#sd-meta');
+    const imgEl = this._drawerEl.querySelector('#sd-img');
+    const nameEl = this._drawerEl.querySelector('#sd-name');
+    const metaEl = this._drawerEl.querySelector('#sd-meta');
 
     imgEl.src = supplement.image || '';
     imgEl.alt = supplement.name;
@@ -661,7 +638,7 @@ class SupplementDrawer {
       : '';
 
     const daysColor = daysLeft === null ? '' : daysLeft <= 7 ? 'warning' : 'success';
-    const daysText  = daysLeft === null ? '—' : formatDaysLeft(daysLeft);
+    const daysText = daysLeft === null ? '—' : formatDaysLeft(daysLeft);
 
     panel.innerHTML = `
       <!-- Mecanismo de ação -->
@@ -724,11 +701,11 @@ class SupplementDrawer {
     });
   }
 
-  _renderStudies(supplementId) {
-    const panel  = this._drawerEl.querySelector('#sd-panel-studies');
-    const studies = _getStudies(supplementId);
+  _renderStudies(supplement) {
+    const panel = this._drawerEl.querySelector('#sd-panel-studies');
+    const sciData = STUDIES[supplement.id];
 
-    if (!studies.length) {
+    if (!sciData) {
       panel.innerHTML = `
         <div style="text-align:center;padding:40px 20px;color:#71717a;">
           <div style="font-size:32px;margin-bottom:12px;">🔬</div>
@@ -741,30 +718,98 @@ class SupplementDrawer {
       return;
     }
 
-    panel.innerHTML = studies.map((study, i) => `
+    // 1. Mecanismo de Ação
+    const mecanismoHtml = (sciData.mecanismo || []).map(m => `
+      <li style="margin-bottom:10px;font-family:'Inter',sans-serif;font-size:12px;color:var(--t2);line-height:1.5;display:flex;gap:8px;">
+        <span style="flex-shrink:0;">${m.ico}</span>
+        <span><strong>${m.label}:</strong> ${m.val}</span>
+      </li>
+    `).join('');
+
+    // 2. Sinergias (Lookup em RECIPE_SYNERGIES)
+    const suppIdNum = Number(supplement.id);
+    const sinergias = RECIPE_SYNERGIES.filter(syn => syn[0].includes(suppIdNum));
+    const sinergiaHtml = sinergias.length ? sinergias.map(syn => `
+      <li style="margin-bottom:10px;font-family:'Inter',sans-serif;font-size:12px;color:var(--t2);line-height:1.5;display:flex;gap:8px;">
+        <span style="flex-shrink:0;">✨</span>
+        <span><strong>${syn[1]}:</strong> ${syn[2]}</span>
+      </li>
+    `).join('') : '<li style="font-family:\\'Inter\\',sans-serif;font-size:12px;color:var(--t3);list-style:none;">Nenhuma sinergia primária catalogada.</li>';
+
+    // 3. Segurança
+    const segurancaHtml = (sciData.seguranca || []).map(s => {
+      const icon = s.tipo === 'bad' ? '🚫' : s.tipo === 'warn' ? '⚠️' : '✅';
+      return `
+      <li style="margin-bottom:10px;font-family:'Inter',sans-serif;font-size:12px;color:var(--t2);line-height:1.5;display:flex;gap:8px;">
+        <span style="flex-shrink:0;">${icon}</span>
+        <span><strong>${s.label}:</strong> ${s.texto}</span>
+      </li>
+    `}).join('');
+
+    // 4. Estudos Clínicos (Top 3 apenas)
+    const estudosHtml = (sciData.estudos || []).slice(0, 3).map((study, i) => {
+      const pubMedLink = study.pmid
+        ? `<a href="https://pubmed.ncbi.nlm.nih.gov/${study.pmid}/" target="_blank" rel="noopener noreferrer" style="color:var(--brand-primary);text-decoration:none;font-size:11px;font-weight:700;margin-top:8px;display:inline-flex;align-items:center;padding:4px 10px;border:1px solid var(--brand-primary);border-radius:6px;background:var(--shadow-glow);">Ver estudo no PubMed ➔</a>`
+        : '';
+
+      return `
       <div class="sd-study" id="sd-study-${i}">
         <div class="sd-study-header" data-study="${i}">
-          <span class="sd-study-title">${study.title} (${study.year})</span>
+          <span class="sd-study-title">${study.title} (${study.ano})</span>
           <span class="sd-study-arrow">▼</span>
         </div>
         <div class="sd-study-body">
           <div class="sd-study-meta">
-            ${study.tags.map(t => `<span class="sd-study-tag">${t}</span>`).join('')}
+            <span class="sd-study-tag">${study.tipo}</span>
             <span class="sd-study-tag" style="background:var(--bg-darker);color:var(--t3);border-color:var(--border-color);">${study.journal}</span>
           </div>
-          <p style="font-family:'Inter',sans-serif;font-size:12px;color:var(--t2);line-height:1.7;margin:0;">${study.result}</p>
+          <p style="font-family:'Inter',sans-serif;font-size:12px;color:var(--t2);line-height:1.6;margin:0 0 6px 0;">
+            <strong>Achado:</strong> ${study.achado}<br>
+            <strong>Detalhe:</strong> ${study.detalhe}
+          </p>
+          ${pubMedLink}
         </div>
       </div>
-    `).join('');
+    `}).join('');
 
-    // Accordion toggle
-    panel.addEventListener('click', (e) => {
-      const header = e.target.closest('[data-study]');
+    panel.innerHTML = `
+      <div style="margin-bottom: 24px;">
+        <div class="sd-section-title">Mecanismo de Ação</div>
+        <div class="sd-card">
+          <ul style="padding:0;list-style:none;margin:0;">${mecanismoHtml}</ul>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <div class="sd-section-title">Sinergias & Combos</div>
+        <div class="sd-card">
+          <ul style="padding:0;list-style:none;margin:0;">${sinergiaHtml}</ul>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <div class="sd-section-title">Segurança & Precauções</div>
+        <div class="sd-card">
+          <ul style="padding:0;list-style:none;margin:0;">${segurancaHtml}</ul>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div class="sd-section-title">Top 3 Estudos Clínicos</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${estudosHtml || '<p style="color:var(--t3);font-size:12px;">Sem estudos catalogados.</p>'}
+        </div>
+      </div>
+    `;
+
+    // Accordion toggle (agora usa .onclick para não duplicar eventos em múltiplas aberturas do drawer)
+    panel.onclick = (e) => {
+      const header = e.target.closest('.sd-study-header');
       if (!header) return;
       const idx = header.dataset.study;
-      const studyEl = panel.querySelector(`#sd-study-${idx}`);
+      const studyEl = panel.querySelector(\`#sd-study-\${idx}\`);
       studyEl?.classList.toggle('expanded');
-    });
+    };
   }
 
   _renderMarket({ supplement }) {
@@ -786,7 +831,7 @@ class SupplementDrawer {
         const isBest = mkt === bestMkt;
         const link   = links[mkt] || '#';
         return `
-          <div class="sd-market-card ${isBest ? 'best' : ''}">
+        < div class= "sd-market-card ${isBest ? 'best' : ''}" >
             <div>
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <span class="sd-market-label">${mkt}</span>
@@ -801,15 +846,15 @@ class SupplementDrawer {
                data-mkt="${mkt}" data-supp="${supplement.id}">
               Comprar 🛒
             </a>
-          </div>
+          </div >
         `;
       }).join('');
 
     panel.innerHTML = cardsHtml || `
-      <p style="text-align:center;color:var(--t3);font-size:13px;padding:20px;">
-        Nenhum marketplace disponível.
-      </p>
-    `;
+        < p style = "text-align:center;color:var(--t3);font-size:13px;padding:20px;" >
+          Nenhum marketplace disponível.
+      </p >
+        `;
 
     // Telemetria nos cliques de marketplace
     panel.querySelectorAll('.sd-market-btn').forEach(btn => {
@@ -832,7 +877,7 @@ class SupplementDrawer {
       btn.setAttribute('aria-selected', String(isActive));
     });
     this._drawerEl.querySelectorAll('.sd-panel').forEach(panel => {
-      panel.classList.toggle('active', panel.id === `sd-panel-${tabId}`);
+      panel.classList.toggle('active', panel.id === `sd - panel - ${ tabId } `);
     });
   }
 

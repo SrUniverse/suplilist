@@ -7,7 +7,6 @@
  * @version 3.0.0
  */
 
-import Fuse from 'fuse.js';
 import { eventBus } from '../core/eventbus.js';
 import { ErrorBoundary } from '../core/error-boundary.js';
 import { logger } from '../utils/logger.js';
@@ -16,10 +15,11 @@ import { supplementService } from '../features/supplements/supplementService.js'
 import { favoritesRepo } from '../features/favorites/favoritesRepo.js';
 import { inventoryRepo } from '../features/inventory/inventoryRepo.js';
 import { stateManager } from '../core/state-manager.js';
-import { CATEGORIES, GOALS, EVIDENCE_LEVELS, INVENTORY_URGENT_DAYS } from '../utils/constants.js';
+import { INVENTORY_URGENT_DAYS } from '../utils/constants.js';
 import { formatPrice } from '../utils/formatters.js';
 import { toast } from './toast.js';
-import { Modal } from './modal.js';
+import { ListFilterController } from './list-filter-controller.js';
+import { AdvancedFilterModal } from './advanced-filter-modal.js';
 
 /**
  * Renderiza o donut SVG com as métricas fornecidas.
@@ -56,7 +56,7 @@ function _animateDonutEl(wrapEl) {
   const circle = wrapEl.querySelector('circle[data-target]');
   if (!circle) return;
   const target = parseFloat(circle.dataset.target);
-  const circ   = parseFloat(circle.dataset.circ);
+  const circ = parseFloat(circle.dataset.circ);
   // Duplo rAF: garante que o browser calculou o layout antes de iniciar a transição
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -78,30 +78,7 @@ class ListPageController {
       return;
     }
 
-    /**
-     * Parâmetros e estados ativos de busca e filtragem.
-     * @type {string}
-     */
-    this.searchQuery = '';
-    this.selectedCategory = 'Todos';
-    this.activeSort = 'cost';
-
-    /**
-     * Filtros ativos no painel modal de buscas avançadas.
-     * @type {{ categories: string[], evidenceLevel: string[], goals: string[], maxCostPerDose: number }}
-     */
-    this.activePanelFilters = {
-      categories: [],
-      evidenceLevel: [],
-      goals: [],
-      maxCostPerDose: 0
-    };
-
-    /**
-     * Instância do buscador inteligente Fuse.js.
-     * @type {Fuse | null}
-     */
-    this.fuse = null;
+    this.filterController = new ListFilterController();
 
     /**
      * Instância do Intersection Observer para lazy rendering.
@@ -130,7 +107,7 @@ class ListPageController {
   init() {
     const safeInit = ErrorBoundary.wrap(() => {
       this._setupHTMLCasca();
-      this._initSearchEngine();
+      this.filterController.initSearchEngine();
       this._setupEventDelegation();
       this._setupInterfaceListeners();
       this._subscribeToEvents();
@@ -558,23 +535,6 @@ class ListPageController {
   }
 
   /**
-   * Inicializa a base do Fuse.js indexada por propriedades de busca.
-   * @private
-   * @returns {void}
-   */
-  _initSearchEngine() {
-    const list = supplementRepo.getAll();
-    this.fuse = new Fuse(list, {
-      keys: [
-        { name: 'name', weight: 0.6 },
-        { name: 'aliases', weight: 0.4 }
-      ],
-      threshold: 0.3,
-      includeScore: true
-    });
-  }
-
-  /**
    * Configura o ouvinte central com delegação de eventos para o grid de cards.
    * @private
    * @returns {void}
@@ -599,11 +559,11 @@ class ListPageController {
         case 'toggle-fav':
         case 'favorite':
           const isFav = favoritesRepo.toggle(id);
-          
+
           // Emite os eventos conforme tipagem e contratos canônicos
           eventBus.emit('supplement:favorite:toggle', { supplementId: id, isFavorite: isFav });
           eventBus.emit('favorite:toggled', { supplementId: id, isFavorite: isFav });
-          
+
           toast.show(isFav ? 'Adicionado aos favoritos!' : 'Removido dos favoritos', 'success');
           break;
         case 'buy':
@@ -648,7 +608,7 @@ class ListPageController {
     }
 
     window.open(url, '_blank', 'noopener');
-    
+
     // Dispara eventos correspondentes
     eventBus.emit('supplement:buy', {
       supplementId: id,
@@ -657,117 +617,6 @@ class ListPageController {
     eventBus.emit('checkout:initiated', {
       supplementId: id,
       marketplace: cheapestMarketplace
-    });
-  }
-
-  /**
-   * Abre o Modal lateral/centralizado de filtros avançados.
-   * @private
-   * @returns {void}
-   */
-  _openFilterModal() {
-    const modalDiv = document.createElement('div');
-    modalDiv.className = 'flex flex-col gap-5 text-zinc-300';
-
-    const currentFilters = this.activePanelFilters;
-    const maxCost = currentFilters.maxCostPerDose || 10;
-
-    modalDiv.innerHTML = `
-      <!-- Slider custo por dose -->
-      <div class="flex flex-col gap-2">
-        <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Custo Máximo / Dose</span>
-          <span class="text-xs font-bold text-purple-400" id="modal-cost-value">R$ ${maxCost.toFixed(2)}</span>
-        </div>
-        <input type="range" id="modal-cost-slider" min="0.5" max="10" step="0.5" value="${maxCost}" class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-purple-500">
-      </div>
-
-      <!-- Checkbox por nível de evidência -->
-      <div class="flex flex-col gap-2">
-        <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Nível de Evidência</span>
-        <div class="flex flex-col gap-2">
-          ${EVIDENCE_LEVELS.map(ev => {
-            const isChecked = currentFilters.evidenceLevel.includes(ev) ? 'checked' : '';
-            return `
-              <label class="flex items-center gap-3 cursor-pointer text-xs select-none py-1">
-                <input type="checkbox" class="modal-ev-checkbox form-checkbox rounded border-zinc-800 bg-zinc-950 text-purple-600 focus:ring-purple-500" value="${ev}" ${isChecked}>
-                <span>Nível ${ev} ${ev === 'A' ? '(Alta comprovação)' : ev === 'B' ? '(Média comprovação)' : '(Evidência preliminar)'}</span>
-              </label>
-            `;
-          }).join('')}
-        </div>
-      </div>
-
-      <!-- Checkbox por objetivo -->
-      <div class="flex flex-col gap-2">
-        <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Objetivos Saudáveis</span>
-        <div class="grid grid-cols-2 gap-2">
-          ${GOALS.map(goal => {
-            const isChecked = currentFilters.goals.includes(goal) ? 'checked' : '';
-            return `
-              <label class="flex items-center gap-3 cursor-pointer text-xs select-none py-1">
-                <input type="checkbox" class="modal-goal-checkbox form-checkbox rounded border-zinc-800 bg-zinc-950 text-purple-600 focus:ring-purple-500" value="${goal}" ${isChecked}>
-                <span>${goal}</span>
-              </label>
-            `;
-          }).join('')}
-        </div>
-      </div>
-
-      <!-- Footer Buttons -->
-      <div class="flex justify-between items-center pt-4 border-t border-zinc-800/40 mt-2">
-        <button id="modal-clear-btn" class="text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-colors py-2 px-1 focus:outline-none">Limpar Tudo</button>
-        <div class="flex gap-2">
-          <button id="modal-cancel-btn" class="btn-outline text-xs px-4 py-2 rounded-xl font-semibold">Cancelar</button>
-          <button id="modal-apply-btn" class="btn-primary text-xs px-5 py-2.5 rounded-xl font-bold hover:shadow-[0_0_12px_rgba(124,58,237,0.4)]">Aplicar Filtros</button>
-        </div>
-      </div>
-    `;
-
-    const modal = new Modal('Filtros Avançados', modalDiv);
-    modal.open();
-
-    const costSlider = modalDiv.querySelector('#modal-cost-slider');
-    const costValue = modalDiv.querySelector('#modal-cost-value');
-    const clearBtn = modalDiv.querySelector('#modal-clear-btn');
-    const cancelBtn = modalDiv.querySelector('#modal-cancel-btn');
-    const applyBtn = modalDiv.querySelector('#modal-apply-btn');
-
-    costSlider.addEventListener('input', (e) => {
-      const val = parseFloat(e.target.value);
-      costValue.textContent = `R$ ${val.toFixed(2)}`;
-    });
-
-    cancelBtn.addEventListener('click', () => {
-      modal.close();
-    });
-
-    clearBtn.addEventListener('click', () => {
-      costSlider.value = '10';
-      costValue.textContent = 'R$ 10.00';
-      modalDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        cb.checked = false;
-      });
-    });
-
-    applyBtn.addEventListener('click', () => {
-      const maxCostVal = parseFloat(costSlider.value);
-      
-      const selectedEvs = Array.from(modalDiv.querySelectorAll('.modal-ev-checkbox:checked')).map(cb => cb.value);
-      const selectedGoals = Array.from(modalDiv.querySelectorAll('.modal-goal-checkbox:checked')).map(cb => cb.value);
-
-      this.activePanelFilters = {
-        categories: currentFilters.categories,
-        evidenceLevel: selectedEvs,
-        goals: selectedGoals,
-        maxCostPerDose: maxCostVal === 10 ? 0 : maxCostVal
-      };
-
-      // Emite evento informando alteração de filtros
-      eventBus.emit('list:filter:changed', this.activePanelFilters);
-
-      this.updateList();
-      modal.close();
     });
   }
 
@@ -785,7 +634,7 @@ class ListPageController {
     // Dropdown de Ordenação
     if (sortSelect) {
       sortSelect.addEventListener('change', (e) => {
-        this.activeSort = e.target.value;
+        this.filterController.setSort(e.target.value);
         this.updateList();
       });
     }
@@ -796,7 +645,7 @@ class ListPageController {
       searchInput.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-          this.searchQuery = e.target.value;
+          this.filterController.setSearchQuery(e.target.value);
           this.updateList();
         }, 300);
       });
@@ -804,7 +653,7 @@ class ListPageController {
       searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           searchInput.value = '';
-          this.searchQuery = '';
+          this.filterController.setSearchQuery('');
           this.updateList();
         }
       });
@@ -814,7 +663,7 @@ class ListPageController {
     if (filterToggle) {
       filterToggle.addEventListener('click', (e) => {
         e.preventDefault();
-        this._openFilterModal();
+        AdvancedFilterModal.open(this.filterController.activePanelFilters);
       });
     }
 
@@ -838,10 +687,10 @@ class ListPageController {
         const activeCat = btn.getAttribute('data-category');
         btn.textContent = `● ${activeCat}`;
 
-        this.selectedCategory = activeCat;
-        
+        this.filterController.setCategory(activeCat);
+
         // Emite sinal informativo de mudança de filtro de categoria
-        eventBus.emit('list:filter:changed', { category: this.selectedCategory });
+        eventBus.emit('list:filter:changed', { category: activeCat });
 
         this.updateList();
       });
@@ -853,39 +702,7 @@ class ListPageController {
    * @returns {void}
    */
   updateList() {
-    let list = supplementRepo.getAll();
-
-    // 1. Busca textual inteligente via Fuse.js
-    if (this.searchQuery && this.searchQuery.trim().length > 0) {
-      list = this.fuse.search(this.searchQuery).map(res => res.item);
-    }
-
-    // 2. Filtro rápido por abas (Tab Filters)
-    if (this.selectedCategory && this.selectedCategory !== 'Todos') {
-      if (this.selectedCategory === 'Saúde Geral') {
-        list = list.filter(item => item.goals.includes('Saúde Geral'));
-      } else {
-        list = list.filter(item => item.category === this.selectedCategory);
-      }
-    }
-
-    // 3. Filtros do painel colapsável de buscas avançadas
-    if (
-      this.activePanelFilters.categories.length > 0 ||
-      this.activePanelFilters.evidenceLevel.length > 0 ||
-      this.activePanelFilters.goals.length > 0 ||
-      this.activePanelFilters.maxCostPerDose > 0
-    ) {
-      list = supplementRepo.filter({
-        categories: this.activePanelFilters.categories,
-        evidenceLevel: this.activePanelFilters.evidenceLevel,
-        goals: this.activePanelFilters.goals,
-        maxCostPerDose: this.activePanelFilters.maxCostPerDose
-      }, list);
-    }
-
-    // 4. Ordenação síncrona pelo custo financeiro de dose
-    list = supplementRepo.sort(list, this.activeSort);
+    const list = this.filterController.getFilteredList();
 
     // 5. Renderização dos cards via Intersection Observer (Lazy Render)
     this.renderCards(list);
@@ -972,7 +789,7 @@ class ListPageController {
   renderCards(supplements) {
     const grid = this.container.querySelector('#catalog-grid');
     const countEl = this.container.querySelector('#results-count');
-    
+
     if (!grid) return;
 
     grid.innerHTML = '';
@@ -1027,7 +844,7 @@ class ListPageController {
                 wrapper.style.background = 'transparent';
                 card.style.opacity = '0';
                 card.style.transition = 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
-                
+
                 requestAnimationFrame(() => {
                   card.style.opacity = '1';
                 });
@@ -1112,29 +929,29 @@ class ListPageController {
         }
       });
 
-      const totalEl   = this.container.querySelector('#stat-total');
+      const totalEl = this.container.querySelector('#stat-total');
       const pendingEl = this.container.querySelector('#stat-pending');
-      const boughtEl  = this.container.querySelector('#stat-bought');
-      const urgentEl  = this.container.querySelector('#stat-urgent');
+      const boughtEl = this.container.querySelector('#stat-bought');
+      const urgentEl = this.container.querySelector('#stat-urgent');
 
-      if (totalEl)   { totalEl.textContent   = totalCount.toString();   totalEl.setAttribute('aria-label', `Total: ${totalCount}`); }
+      if (totalEl) { totalEl.textContent = totalCount.toString(); totalEl.setAttribute('aria-label', `Total: ${totalCount}`); }
       if (pendingEl) { pendingEl.textContent = pendingCount.toString(); pendingEl.setAttribute('aria-label', `Pendentes: ${pendingCount}`); }
-      if (boughtEl)  { boughtEl.textContent  = boughtCount.toString();  boughtEl.setAttribute('aria-label', `Comprados: ${boughtCount}`); }
-      if (urgentEl)  { urgentEl.textContent  = urgentCount.toString();  urgentEl.setAttribute('aria-label', `Urgentes: ${urgentCount}`); }
+      if (boughtEl) { boughtEl.textContent = boughtCount.toString(); boughtEl.setAttribute('aria-label', `Comprados: ${boughtCount}`); }
+      if (urgentEl) { urgentEl.textContent = urgentCount.toString(); urgentEl.setAttribute('aria-label', `Urgentes: ${urgentCount}`); }
 
-      const donutTotal   = this.container.querySelector('#donut-total');
+      const donutTotal = this.container.querySelector('#donut-total');
       const donutPending = this.container.querySelector('#donut-pending');
-      const donutBought  = this.container.querySelector('#donut-bought');
-      const donutUrgent  = this.container.querySelector('#donut-urgent');
+      const donutBought = this.container.querySelector('#donut-bought');
+      const donutUrgent = this.container.querySelector('#donut-urgent');
 
       const base = totalCount || 1;
 
       // BUG-03: renderDonut() gera HTML com stroke zerado;
       // _animateDonutEl() dispara a transição CSS DEPOIS da inserção no DOM.
-      if (donutTotal)   { donutTotal.innerHTML   = renderDonut(100, '#7c3aed');                          _animateDonutEl(donutTotal); }
-      if (donutPending) { donutPending.innerHTML = renderDonut((pendingCount / base) * 100, '#7c3aed');  _animateDonutEl(donutPending); }
-      if (donutBought)  { donutBought.innerHTML  = renderDonut((boughtCount  / base) * 100, '#22c55e');  _animateDonutEl(donutBought); }
-      if (donutUrgent)  { donutUrgent.innerHTML  = renderDonut((urgentCount  / base) * 100, '#ef4444');  _animateDonutEl(donutUrgent); }
+      if (donutTotal) { donutTotal.innerHTML = renderDonut(100, '#7c3aed'); _animateDonutEl(donutTotal); }
+      if (donutPending) { donutPending.innerHTML = renderDonut((pendingCount / base) * 100, '#7c3aed'); _animateDonutEl(donutPending); }
+      if (donutBought) { donutBought.innerHTML = renderDonut((boughtCount / base) * 100, '#22c55e'); _animateDonutEl(donutBought); }
+      if (donutUrgent) { donutUrgent.innerHTML = renderDonut((urgentCount / base) * 100, '#ef4444'); _animateDonutEl(donutUrgent); }
     } catch (err) {
       logger.error('ListPageController: Erro ao calcular estatísticas no topo.', err);
     }
@@ -1150,20 +967,24 @@ class ListPageController {
     this._cleanupFns.push(eventBus.on('supplement:favorite:toggle', this._handleFavoriteToggled));
     this._cleanupFns.push(eventBus.on('inventory:updated', this._handleInventoryUpdated));
     this._cleanupFns.push(eventBus.on('state:imported', this._handleInventoryUpdated));
-    
+
     // Escuta o carregamento assíncrono dos suplementos para re-calcular stats e atualizar catálogo
     this._cleanupFns.push(eventBus.on('supplements:loaded', () => {
-      this._initSearchEngine();
+      this.filterController.initSearchEngine();
       this.updateList();
     }));
-    
+
     // Escuta mudanças de estado gerais (localStorage, importação, etc) para manter catálogo e stats atualizados
     this._cleanupFns.push(eventBus.on('state:changed', () => {
       this.updateList();
     }));
-    
+
     // list:filter:changed atualiza os contadores
     this._cleanupFns.push(eventBus.on('list:filter:changed', () => this._updateKPIStats()));
+    this._cleanupFns.push(eventBus.on('list:advanced-filter:applied', (filters) => {
+      this.filterController.setPanelFilters(filters);
+      this.updateList();
+    }));
   }
 
   /**

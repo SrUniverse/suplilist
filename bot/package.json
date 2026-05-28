@@ -1,0 +1,12 @@
+{
+  "name": "suplilist-updater",
+  "version": "1.0.0",
+  "description": "Atualizador automático de preços — SupliList",
+  "main": "updater.js",
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^22.0.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

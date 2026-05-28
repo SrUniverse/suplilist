@@ -5,8 +5,8 @@
  * Projetado para navegação síncrona instantânea com sincronização de URL assíncrona.
  */
 
-import { logger } from '../utils/logger.js';
 import { eventBus } from './eventbus.js';
+import { logger } from '../utils/logger.js';
 
 export class PageRouter {
   /**
@@ -174,6 +174,18 @@ export class PageRouter {
       }
     } catch (err) {
       logger.error(`PageRouter: Falha catastrófica ao criar página para "${route}":`, err);
+      const container = document.querySelector('#page-content');
+      if (container) {
+        container.innerHTML = `
+          <div class="flex flex-col items-center justify-center p-8 text-center animate-fade-in w-full min-h-[50vh]">
+            <span class="text-6xl mb-4 drop-shadow-lg">⚠️</span>
+            <h2 class="text-2xl font-extrabold text-red-500 mb-2" style="font-family: 'Outfit', sans-serif;">Ops! Falha ao carregar a página</h2>
+            <p class="text-sm text-zinc-400 max-w-md mb-6">A rota <strong>${route}</strong> encontrou um problema técnico. Nossa equipe já registrou o evento.</p>
+            <code class="bg-zinc-900/80 border border-zinc-800/80 p-4 rounded-2xl text-xs text-red-400/90 font-mono text-left w-full max-w-lg overflow-x-auto mb-8 shadow-inner">${err.message || err}</code>
+            <a href="#/list" class="btn btn-primary px-8 py-3 rounded-full font-bold text-sm transition-transform hover:scale-105 shadow-[0_0_15px_rgba(124,58,237,0.3)]">Voltar ao Catálogo</a>
+          </div>
+        `;
+      }
     }
 
     // 4. Persiste a rota atual no armazenamento local

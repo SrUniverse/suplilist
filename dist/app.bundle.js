@@ -710,6 +710,9 @@ export class PageRouter {
  * @version 3.0.0
  */
 
+import '../css/design-system.css';
+import '../css/main.css';
+
 import { logger } from './utils/logger.js';
 import { eventBus } from './core/eventbus.js';
 import { stateManager } from './core/state-manager.js';
@@ -767,15 +770,15 @@ async function init() {
     document.documentElement.className = theme;
 
     const routes = {
-      '/home':       (container) => createDashboardPage(container),
-      '/list':       (container) => createListPage(container),
-      '/favorites':  (container) => createFavoritesPage(container),
-      '/my-stack':   (container) => createMyStackPage(container),
-      '/history':    (container) => createHistoryPage(container),
-      '/settings':   (container) => createSettingsPage(container),
-      '/dosage':     (container) => createDosageCalculatorPage(container),
-      '/legal':      (container) => createLegalPage(container),
-      '/':           (container) => createLandingPage(container),
+      '/home': (container) => createDashboardPage(container),
+      '/list': (container) => createListPage(container),
+      '/favorites': (container) => createFavoritesPage(container),
+      '/my-stack': (container) => createMyStackPage(container),
+      '/history': (container) => createHistoryPage(container),
+      '/settings': (container) => createSettingsPage(container),
+      '/dosage': (container) => createDosageCalculatorPage(container),
+      '/legal': (container) => createLegalPage(container),
+      '/': (container) => createLandingPage(container),
     };
 
     // 7. Inicializa router
@@ -795,7 +798,7 @@ async function init() {
       const hashRoute = '#' + (route === '/' ? '/' : route);
       if (sidebar) sidebar.updateActiveRoute(hashRoute);
       if (topBar) topBar.updateBreadcrumb(hashRoute);
-      
+
       // Normaliza a rota para rastreamento de PageView
       const to = route || '/';
       Analytics.trackPageView(to);
@@ -843,7 +846,7 @@ async function init() {
     document.body.style.opacity = '1';
 
     logger.info('SupliList v3.0 initialized successfully');
-    
+
     // 12. Track que app foi aberto (analytics)
     Analytics.trackEvent('app_opened', {
       version: '3.0',
@@ -884,12 +887,12 @@ function calculateDaysRemaining(item) {
 function checkInventoryUrgent() {
   const stackData = stateManager.getState('stack') || stateManager.getState('stack.items') || [];
   const stacks = Array.isArray(stackData) ? stackData : (stackData.items || []);
-  
+
   const urgentItems = stacks.filter(item => {
     const daysLeft = calculateDaysRemaining(item);
     return daysLeft <= INVENTORY_URGENT_DAYS;
   });
-  
+
   if (urgentItems.length > 0) {
     eventBus.emit('inventory:urgent', { items: urgentItems });
   }
@@ -910,7 +913,7 @@ function _createComingSoonPage(container, emoji, title, description, analyticsEv
     ? document.querySelector(container)
     : container) || document.querySelector('#page-content');
 
-  if (!target) return { destroy: () => {} };
+  if (!target) return { destroy: () => { } };
 
   target.innerHTML = `
     <div style="padding:40px; color:var(--t1); text-align:center; min-height:400px;
@@ -933,7 +936,7 @@ function _createComingSoonPage(container, emoji, title, description, analyticsEv
     window.gtag('event', analyticsEvent);
   }
 
-  return { destroy: () => {} };
+  return { destroy: () => { } };
 }
 
 // BUG-01: guard contra dupla inicialização (DOMContentLoaded + readyState simultâneos)

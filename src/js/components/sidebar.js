@@ -1,11 +1,11 @@
-import { stateManager } from '../core/state-manager.js';
-import { supplementRepo } from '../features/supplements/supplementRepo.js';
+import { eventBus } from '../core/eventbus.js';
 
 export class Sidebar {
-  constructor(containerId) {
+  constructor(containerId, props = {}) {
     this.container = document.getElementById(containerId);
     this.isCollapsed = window.innerWidth <= 1024;
     this.currentHash = window.location.hash || '#/';
+    this.props = props;
     this.render();
     this.attachEvents();
   }
@@ -13,6 +13,12 @@ export class Sidebar {
   updateActiveRoute(hash) {
     this.currentHash = hash;
     this.render(); // Re-render to ensure badges and active classes are computed and updated correctly
+    this.attachEvents();
+  }
+
+  updateProps(newProps = {}) {
+    this.props = { ...this.props, ...newProps };
+    this.render();
     this.attachEvents();
   }
 
@@ -27,13 +33,8 @@ export class Sidebar {
   }
 
   render() {
-    let totalSuppCount = 57;
-    try {
-      totalSuppCount = supplementRepo.getAll().length;
-    } catch(e) {}
-
-    const stackData = stateManager.getState('stack') || stateManager.getState('stack.items') || [];
-    const stackCount = Array.isArray(stackData) ? stackData.length : (stackData.items || []).length;
+    const totalSuppCount = this.props.totalSuppCount || 0;
+    const stackCount = this.props.stackCount || 0;
 
     this.container.innerHTML = `
       <div class="sidebar-header">
@@ -89,7 +90,7 @@ export class Sidebar {
         </div>
       </div>
     `;
-    
+
     // Default collapsed state
     if (this.isCollapsed) {
       document.getElementById('sidebar').classList.add('collapsed');
@@ -117,9 +118,8 @@ export class Sidebar {
     themeBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const selectedTheme = e.target.dataset.theme;
-        stateManager.setState('settings.theme', selectedTheme);
-        document.documentElement.className = selectedTheme;
-        
+        eventBus.emit('ui:theme:changed', { theme: selectedTheme });
+
         // Efeito visual ativo
         themeBtns.forEach(b => b.style.transform = 'scale(1)');
         e.target.style.transform = 'scale(1.2)';

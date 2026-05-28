@@ -8,36 +8,20 @@
  * @version 3.0.0
  */
 
-import { stateManager } from '../core/state-manager.js';
 import { eventBus } from '../core/eventbus.js';
 import { ErrorBoundary } from '../core/error-boundary.js';
 import { logger } from '../utils/logger.js';
+import { stateManager } from '../core/state-manager.js';
 import { toast } from './toast.js';
 import { supplementRepo } from '../features/supplements/supplementRepo.js';
-import { inventoryRepo } from '../features/inventory/inventoryRepo.js';
-
-/**
- * Utilitário interno para envio de eventos GA4 de forma resiliente contra falhas globais.
- * @private
- * @param {string} eventName - Nome do evento no Analytics.
- * @param {Object} [params] - Parâmetros e metadados.
- */
-function _trackAnalytics(eventName, params = {}) {
-  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-    window.gtag('event', eventName, params);
-  }
-}
+import { Analytics } from '../utils/analytics.js';
 
 export class MyStackPage {
   /**
-   * Construtor da página MyStackPage.
+   * Construtor do componente apresentacional MyStackPage.
    * @param {HTMLElement | string} container - Contêiner DOM onde a página será montada.
    */
   constructor(container) {
-    /**
-     * Elemento DOM contêiner da página.
-     * @type {HTMLElement | null}
-     */
     this.container = typeof container === 'string' ? document.querySelector(container) : container;
 
     if (!this.container) {
@@ -52,33 +36,16 @@ export class MyStackPage {
      */
     this._cleanupFns = [];
 
-    // Vincula o escopo do objeto aos métodos ouvintes
-    this._handleDosageAdded = this._handleDosageAdded.bind(this);
     this._handleDragStart = this._handleDragStart.bind(this);
     this._handleDragOver = this._handleDragOver.bind(this);
     this._handleDragEnd = this._handleDragEnd.bind(this);
     this._handleDrop = this._handleDrop.bind(this);
-
-    this.init();
   }
 
-  /**
-   * Inicializa o ciclo de vida da página de stack.
-   * @returns {HTMLElement} Contêiner da página.
-   */
-  init() {
+  mount() {
     const safeInit = ErrorBoundary.wrap(() => {
-      this._ensureStackInitialized();
       this._setupHTMLCasca();
       this._setupInterfaceListeners();
-      this._subscribeToEvents();
-      this._checkShareLink();
-
-      // Força a primeira renderização do painel e itens
-      this.render();
-
-      // Dispara a telemetria do GA4 de visualização de página
-      _trackAnalytics('stack_page_view');
 
       return this.container;
     }, 'MyStackPage');
@@ -361,15 +328,14 @@ export class MyStackPage {
   }
 
   /**
-   * Renderiza a listagem de suplementos carregados reativamente do estado global.
+   * Atualiza a UI baseado nos dados repassados pelo Controller.
+   * @param {Array} stackItems - Os itens enriquecidos para exibição.
    * @returns {void}
    */
-  render() {
+  render(stackItems = []) {
     const listContainer = this.container.querySelector('#stack-items-list');
     const totalCostEl = this.container.querySelector('#stack-total-cost');
     if (!listContainer) return;
-
-    const stackItems = stateManager.getState('stack') || [];
 
     // Se estiver vazio, renderiza o empty state premium
     if (stackItems.length === 0) {
@@ -389,7 +355,7 @@ export class MyStackPage {
       const emptyCalcBtn = listContainer.querySelector('#stack-empty-go-calc');
       if (emptyCalcBtn) {
         emptyCalcBtn.addEventListener('click', () => {
-          window.location.hash = '#/dosage';
+          eventBus.emit('router:navigate', { route: '/dosage' });
         });
       }
       return;
@@ -404,7 +370,7 @@ export class MyStackPage {
     // Renderiza itens
     listContainer.innerHTML = stackItems.map((item, index) => {
       const days = item.estimatedDaysRemaining;
-      
+
       // Classificação das 3 faixas de criticidade do status de estoque
       let badgeClass = 'green';
       let badgeEmoji = '🟢';
@@ -550,7 +516,8 @@ export class MyStackPage {
 
       // Define dias restantes (se já havia estoque, preserva, senão inicia com 30 dias)
       let estimatedDaysRemaining = 30;
-      const existingInventory = inventoryRepo.getDaysLeft(supplementId);
+      const inventory = stateManager.getState('inventory') || {};
+      const existingInventory = inventory[supplementId] ? Math.floor(inventory[supplementId].qty / (supplement.defaultDose || dose)) : null;
       if (existingInventory !== null) {
         estimatedDaysRemaining = existingInventory;
       } else if (existingIdx !== -1) {
@@ -576,8 +543,7 @@ export class MyStackPage {
 
       // Atualiza estado e sincroniza inventário físico
       stateManager.setState('stack', updatedStack);
-      
-      const inventory = stateManager.getState('inventory') || {};
+
       const defDose = supplement.defaultDose || dose;
       inventory[supplementId] = {
         qty: estimatedDaysRemaining * defDose,
@@ -608,14 +574,18 @@ export class MyStackPage {
       stateManager.setState('stack', updated);
 
       // Opcional: remove do inventário também para manter badges alinhados
-      inventoryRepo.remove(id);
+      const inventory = stateManager.getState('inventory') || {};
+      if (inventory[id]) {
+        delete inventory[id];
+        stateManager.setState('inventory', inventory);
+      }
 
       eventBus.emit('stack:item:removed', { supplementId: id });
       eventBus.emit('stack:updated', updated);
 
       // Dispara Analytics GA4
-      _trackAnalytics('stack_item_removed', { supplement_id: id });
-      
+      Analytics.trackEvent('stack_item_removed', { supplement_id: id });
+
       toast.show('Composto removido do protocolo com sucesso.', 'info');
     } catch (err) {
       logger.error(`MyStackPage: Falha ao remover composto "${id}".`, err);
@@ -652,7 +622,7 @@ export class MyStackPage {
       URL.revokeObjectURL(url);
 
       eventBus.emit('stack:exported', payload);
-      _trackAnalytics('stack_exported');
+      Analytics.trackEvent('stack_exported');
 
       toast.show('Arquivo JSON do protocolo exportado para download!', 'success');
     } catch (err) {
@@ -777,7 +747,7 @@ export class MyStackPage {
     if (!draggingCard) return;
 
     const siblings = [...listContainer.querySelectorAll('.stack-item:not(.dragging)')];
-    
+
     // Encontra o próximo irmão baseado na posição central vertical do cursor
     const nextSibling = siblings.find(sibling => {
       const box = sibling.getBoundingClientRect();
@@ -796,23 +766,13 @@ export class MyStackPage {
    */
   _handleDrop(e) {
     e.preventDefault();
-    
+
     try {
       const listContainer = this.container.querySelector('#stack-items-list');
       const cards = [...listContainer.querySelectorAll('.stack-item')];
-      
+
       const newOrder = cards.map(c => c.getAttribute('data-supplement-id')).filter(Boolean);
-      const currentStack = stateManager.getState('stack') || [];
-
-      // Reconstrói o array sob a nova indexação ordenada do DOM
-      const reorderedStack = newOrder.map(id => {
-        return currentStack.find(item => item.supplementId === id);
-      }).filter(Boolean);
-
-      stateManager.setState('stack', reorderedStack);
-      eventBus.emit('stack:updated', reorderedStack);
-
-      toast.show('Protocolo reordenado com sucesso.', 'info');
+      eventBus.emit('ui:stack:reorder:requested', { newOrder });
     } catch (err) {
       logger.error('MyStackPage: Falha ao salvar reordenação de stack.', err);
     }
@@ -843,10 +803,21 @@ export class MyStackPage {
 }
 
 /**
- * Factory SPA padrão-ouro da página de Stack para o PageRouter.
+ * Factory para manter a compatibilidade com o roteador no main.js.
  * @param {HTMLElement | string} container - Contêiner de destino.
- * @returns {MyStackPage} Instância do controlador.
+ * @returns {MyStackPage} Instância do componente.
  */
 export function createMyStackPage(container = '#page-content') {
-  return new MyStackPage(container);
+  const page = new MyStackPage(container);
+
+  // Orquestra o ciclo de vida inicial ausente
+  page.mount();
+  page._ensureStackInitialized();
+  page._checkShareLink();
+  page._subscribeToEvents();
+
+  const items = stateManager.getState('stack') || [];
+  page.render(items);
+
+  return page;
 }

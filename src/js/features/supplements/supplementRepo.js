@@ -4,12 +4,17 @@
  * além do sincronismo com o estado global e cache.
  */
 
-import { logger } from '../../utils/logger.js';
-import { SupplementSchema } from '../../types/supplement.schema.js';
 import { stateManager } from '../../core/state-manager.js';
 import { eventBus } from '../../core/eventbus.js';
-import { supplementCache } from './supplementCache.js';
+
+import { logger } from '../../utils/logger.js';
+
+import { SupplementSchema } from '../../types/supplement.schema.js';
+
 import { getRawSupplements, getRawLinks } from '../../data/adapters.js';
+
+import { supplementCache } from './supplementCache.js';
+import { searchSupplements } from '../../data/searchAdapter.js';
 
 class SupplementRepository {
   /**
@@ -35,7 +40,7 @@ class SupplementRepository {
     }
 
     logger.info('Carregando e normalizando base de suplementos legada...');
-    
+
     const rawSupplements = getRawSupplements();
     const rawLinks = getRawLinks();
     const normalizedSupplements = {};
@@ -112,40 +117,7 @@ class SupplementRepository {
       return list;
     }
 
-    const cleanQuery = query.toLowerCase().trim();
-
-    // Filtra e pontua a relevância para ordenação inteligente
-    const scored = list
-      .map((item) => {
-        let score = 0;
-        const nameLower = item.name.toLowerCase();
-        const mechLower = item.mechanism.toLowerCase();
-        const catLower = item.category.toLowerCase();
-
-        if (nameLower === cleanQuery) {
-          score += 100; // Match exato no nome
-        } else if (nameLower.startsWith(cleanQuery)) {
-          score += 50;  // Prefixo do nome
-        } else if (nameLower.includes(cleanQuery)) {
-          score += 20;  // Contido no nome
-        }
-
-        if (mechLower.includes(cleanQuery)) {
-          score += 10;  // Contido no mecanismo de ação
-        }
-
-        if (catLower.includes(cleanQuery)) {
-          score += 5;   // Contido na categoria
-        }
-
-        return { item, score };
-      })
-      .filter((entry) => entry.score > 0);
-
-    // Ordena decrescente por relevância e desempatando pelo nome alfabeticamente
-    return scored
-      .sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name))
-      .map((entry) => entry.item);
+    return searchSupplements(query, list);
   }
 
   /**
@@ -159,8 +131,8 @@ class SupplementRepository {
    * @returns {import('../../types/supplement.schema.js').Supplement[]} Lista filtrada.
    */
   filter(filters, inputList) {
-    const list = Array.isArray(inputList) 
-      ? inputList 
+    const list = Array.isArray(inputList)
+      ? inputList
       : Object.values(stateManager.getState('supplements') || {});
 
     if (!filters || typeof filters !== 'object') {

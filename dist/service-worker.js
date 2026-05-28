@@ -1,279 +1,176 @@
-/**
- * @fileoverview Service Worker do SupliList v3.0.
- * Implementa cache offline completo, estratégias diferenciadas por tipo de recurso,
- * background sync para check-ins offline, push notifications de recompra e offline fallback page.
- */
+// ============================================================
+// Service Worker v4 — SupliList PWA
+// Strategy: Cache-first for assets, Network-first for data
+// ============================================================
 
-const CACHE_VERSION = 'v3.0.0';
-const STATIC_CACHE = `suplilist-static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `suplilist-dynamic-${CACHE_VERSION}`;
-const SUPPLEMENTS_CACHE = `suplilist-supplements-${CACHE_VERSION}`;
+const CACHE_VERSION = 'suplilist-v4.0.0';
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
+const DATA_CACHE = `${CACHE_VERSION}-data`;
+const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 
-// Recursos estáticos fundamentais para o funcionamento offline
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/offline.html',
-  '/manifest.json',
+  '/app.html',
   '/src/css/design-system.css',
-  '/src/css/main.css',
-  '/src/js/main.js',
+  '/offline.html',
   '/icon-192.png',
   '/icon-512.png',
   '/icon-maskable-192.png',
   '/icon-dosage.png',
-  '/icon-history.png',
-  '/screenshot-1.png',
-  '/screenshot-2.png',
-  '/apple-touch-icon.png'
+  '/icon-history.png'
 ];
 
-/**
- * Evento de Instalação: Pré-cacheia a casca (App Shell) e a página de fallback offline.
- */
+// INSTALL: Cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      console.log('[Service Worker] Pré-cacheando App Shell e offline fallback...');
-      return Promise.allSettled(
-        STATIC_ASSETS.map((asset) => {
-          return cache.add(asset).catch((err) => {
-            console.warn(`[Service Worker] Falha ao pré-cachear asset opcional: ${asset}`, err);
-          });
-        })
-      );
-    }).then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
+      .catch(err => console.error('[SW] Install failed:', err))
   );
 });
 
-/**
- * Evento de Ativação: Limpa caches antigos para garantir integridade da versão 3.0.
- */
+// ACTIVATE: Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (
-            cacheName !== STATIC_CACHE &&
-            cacheName !== DYNAMIC_CACHE &&
-            cacheName !== SUPPLEMENTS_CACHE
-          ) {
-            console.log(`[Service Worker] Removendo cache obsoleto: ${cacheName}`);
-            return caches.delete(cacheName);
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.map(key => {
+          const isCurrentCache = [STATIC_CACHE, DYNAMIC_CACHE, DATA_CACHE, IMAGE_CACHE].includes(key);
+          if (!isCurrentCache) {
+            console.log('[SW] Deleting stale cache:', key);
+            return caches.delete(key);
           }
         })
-      );
-    }).then(() => self.clients.claim())
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-/**
- * Auxiliar para determinar se uma requisição é de suplementos (Cache-First).
- * Identifica chamadas ao arquivo database.js, ou endpoints simulados de suplementos.
- */
-function isSupplementsRequest(url) {
-  return (
-    url.pathname.includes('database.js') ||
-    url.pathname.includes('supplements') ||
-    url.search.includes('supplements')
-  );
-}
-
-/**
- * Auxiliar para determinar se uma requisição é de dados dinâmicos (Network-First).
- * Identifica dados históricos de check-ins, sincronizações e dados de terceiros.
- */
-function isDynamicDataRequest(url) {
-  return (
-    url.pathname.includes('/api/history') ||
-    url.pathname.includes('/api/checkins') ||
-    url.pathname.includes('/api/sync') ||
-    url.pathname.includes('/share')
-  );
-}
-
-/**
- * Evento de Interceptação de Requisições (Fetch).
- */
+// FETCH: Smart routing
 self.addEventListener('fetch', (event) => {
-  const requestUrl = new URL(event.request.url);
+  const { request } = event;
+  const url = new URL(request.url);
 
-  // Apenas intercepta requisições de mesma origem (ou APIs explicitamente suportadas) e método GET
-  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
-    return;
-  }
+  if (request.method !== 'GET') return;
+  if (url.protocol === 'chrome-extension:') return;
 
-  // 1. ESTRATÉGIA CACHE-FIRST: Lista de Suplementos (muda muito raramente)
-  if (isSupplementsRequest(requestUrl)) {
-    event.respondWith(
-      caches.open(SUPPLEMENTS_CACHE).then((cache) => {
-        return cache.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            fetch(event.request).then((networkResponse) => {
-              if (networkResponse.status === 200) {
-                cache.put(event.request, networkResponse);
-              }
-            }).catch(() => {});
-            return cachedResponse;
-          }
+  if (isStaticAsset(request)) { event.respondWith(cacheFirstStrategy(request)); return; }
+  if (url.pathname.startsWith('/api/')) { event.respondWith(networkFirstStrategy(request)); return; }
+  if (request.destination === 'image') { event.respondWith(staleWhileRevalidate(request)); return; }
+  if (request.mode === 'navigate') { event.respondWith(navigationStrategy(request)); return; }
 
-          return fetch(event.request).then((networkResponse) => {
-            if (networkResponse.status === 200) {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
-          });
-        });
-      })
-    );
-    return;
-  }
+  event.respondWith(networkFirstStrategy(request));
+});
 
-  // 2. ESTRATÉGIA NETWORK-FIRST: Dados dinâmicos e históricos
-  if (isDynamicDataRequest(requestUrl)) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(DYNAMIC_CACHE).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          console.log('[Service Worker] Rede indisponível. Servindo do cache.');
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
+// BACKGROUND SYNC
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-checkins') event.waitUntil(syncCheckins());
+  if (event.tag === 'sync-stack') event.waitUntil(syncStack());
+});
 
-  // 3. ESTRATÉGIA STALE-WHILE-REVALIDATE: Assets estáticos e HTML
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse.status === 200) {
-              caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, networkResponse));
-            }
-          })
-          .catch(() => {});
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (
-            networkResponse.status === 200 &&
-            (event.request.destination === 'style' ||
-              event.request.destination === 'script' ||
-              event.request.destination === 'image' ||
-              requestUrl.pathname.endsWith('.woff2'))
-          ) {
-            const responseClone = networkResponse.clone();
-            caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, responseClone));
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          if (event.request.mode === 'navigate' || event.request.destination === 'document') {
-            return caches.match('/offline.html');
-          }
-        });
+// PUSH NOTIFICATIONS
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() ?? {};
+  event.waitUntil(
+    self.registration.showNotification(data.title ?? 'SupliList', {
+      body: data.message ?? 'Nova notificação',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: data.tag ?? 'suplilist',
+      actions: data.actions ?? [
+        { action: 'open', title: 'Abrir' },
+        { action: 'close', title: 'Fechar' }
+      ]
     })
   );
 });
 
-/**
- * Evento de Background Sync: Sincroniza offline check-ins.
- */
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-checkins' || event.tag === 'sync-history') {
-    event.waitUntil(
-      self.clients.matchAll().then((clients) => {
-        clients.forEach((client) => {
-          client.postMessage({
-            type: 'SYNC_OFFLINE_DATA',
-            tag: event.tag
-          });
-        });
-      })
-    );
-  }
-});
-
-/**
- * Evento de Push Notifications.
- */
-self.addEventListener('push', (event) => {
-  let data = {
-    title: 'SupliList — Lembrete de Suplementação',
-    body: 'Hora de tomar sua creatina ou verificar seu estoque!',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
-    tag: 'recompra-alert',
-    data: { url: '/app.html#/history' }
-  };
-
-  if (event.data) {
-    try {
-      const pushData = event.data.json();
-      data = { ...data, ...pushData };
-    } catch (e) {
-      data.body = event.data.text();
-    }
-  }
-
-  const options = {
-    body: data.body,
-    icon: data.icon,
-    badge: data.badge,
-    tag: data.tag,
-    vibrate: [200, 100, 200],
-    data: data.data,
-    actions: [
-      { action: 'open_app', title: 'Abrir SupliList' },
-      { action: 'dismiss', title: 'Fechar' }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
-});
-
-/**
- * Evento de Clique na Notificação.
- */
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-
-  if (event.action === 'dismiss') {
-    return;
+  if (event.action !== 'close') {
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then(clientList => {
+          const found = clientList.find(c => c.url.startsWith('/app.html') && 'focus' in c);
+          return found ? found.focus() : self.clients.openWindow('/app.html');
+        })
+    );
   }
-
-  const destinationUrl = (event.notification.data && event.notification.data.url) 
-    ? event.notification.data.url 
-    : '/';
-
-  event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          return client.focus().then(() => {
-            if ('navigate' in client) {
-              return client.navigate(destinationUrl);
-            }
-          });
-        }
-      }
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(destinationUrl);
-      }
-    })
-  );
 });
+
+// ---- Strategy helpers ----
+
+async function cacheFirstStrategy(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response.status === 200) {
+      const clone = response.clone();
+      caches.open(DYNAMIC_CACHE).then(c => c.put(request, clone));
+    }
+    return response;
+  } catch {
+    return caches.match(request) ?? offlineResponse();
+  }
+}
+
+async function networkFirstStrategy(request) {
+  try {
+    const response = await fetch(request);
+    if (response.status === 200) {
+      const clone = response.clone();
+      caches.open(DATA_CACHE).then(c => c.put(request, clone));
+    }
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    return cached ?? offlineResponse();
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cached = await caches.match(request);
+  const fetchPromise = fetch(request).then(r => {
+    if (r.status === 200) caches.open(IMAGE_CACHE).then(c => c.put(request, r.clone()));
+    return r;
+  });
+  return cached ?? fetchPromise;
+}
+
+async function navigationStrategy(request) {
+  try {
+    return await fetch(request);
+  } catch {
+    return (await caches.match('/offline.html')) ?? offlineResponse();
+  }
+}
+
+function isStaticAsset(request) {
+  const url = new URL(request.url);
+  return ['font', 'script', 'style'].includes(request.destination)
+    || url.pathname.startsWith('/assets/')
+    || url.pathname.endsWith('.woff2');
+}
+
+function offlineResponse() {
+  return new Response(
+    JSON.stringify({ error: 'Offline', code: 'OFFLINE' }),
+    { status: 503, headers: { 'Content-Type': 'application/json', 'X-Offline': 'true' } }
+  );
+}
+
+async function syncCheckins() {
+  // Read pending checkins from IndexedDB and POST to /api/checkins/sync
+  // Implementation filled in Sprint 4 (CheckinStreakSystem)
+  console.log('[SW] Sync checkins placeholder');
+}
+
+async function syncStack() {
+  console.log('[SW] Sync stack placeholder');
+}
+
+console.log('[SW] Service Worker v4 loaded');

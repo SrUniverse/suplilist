@@ -31,9 +31,7 @@
   <meta name="twitter:image:alt"
     content="Interface do Suplilist mostrando comparação de preços e eficácia de suplementos" />
   <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
-  <!-- CSS injected by Vite at build time -->
   <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
-  <!-- CSS injected by Vite at build time -->
   <link rel="dns-prefetch" href="//shopee.com.br" />
   <link rel="dns-prefetch" href="//mercadolivre.com.br" />
   <link rel="dns-prefetch" href="//amazon.com.br" />
@@ -2410,6 +2408,66 @@
 
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" defer></script>
   <!-- Ponto de entrada único — ES Modules -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function buildProgressBar() {
+        var wrapper = document.getElementById('stats-bar-wrapper');
+        if (!wrapper) return;
+        var app = window._app;
+        var total = 0, pendentes = 0, comprados = 0, urgentes = 0;
+        if (app && app.supps) {
+          total = app.supps.length;
+          comprados = app.supps.filter(function (s) { return s.done; }).length;
+          urgentes = app.supps.filter(function (s) { return s.urgent; }).length;
+          pendentes = total - comprados;
+        }
+        var pct = total > 0 ? Math.round((comprados / total) * 100) : 0;
+        wrapper.innerHTML =
+          '<div class="progress-bar-wrap">' +
+          '<span class="progress-label">Progresso da Suplementação</span>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<span class="progress-pct">' + pct + '%</span>' +
+          '<div class="progress-stats">' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + total + '</span><span class="progress-stat-label">Total</span></div>' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + pendentes + '</span><span class="progress-stat-label">Pendentes</span></div>' +
+          (urgentes > 0 ? '<div class="progress-stat"><span class="progress-stat-num urgent">' + urgentes + ' Urgentes</span><span class="progress-stat-label"></span></div>' : '') +
+          '</div>' +
+          '</div>';
+      }
+      setTimeout(buildProgressBar, 800);
+      setTimeout(buildProgressBar, 2000);
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function buildProgressBar() {
+        var wrapper = document.getElementById('stats-bar-wrapper');
+        if (!wrapper) return;
+        var app = window._app;
+        var total = 0, pendentes = 0, comprados = 0, urgentes = 0;
+        if (app && app.supps) {
+          total = app.supps.length;
+          comprados = app.supps.filter(function (s) { return s.done; }).length;
+          urgentes = app.supps.filter(function (s) { return s.urgent; }).length;
+          pendentes = total - comprados;
+        }
+        var pct = total > 0 ? Math.round((comprados / total) * 100) : 0;
+        wrapper.innerHTML =
+          '<div class="progress-bar-wrap">' +
+          '<span class="progress-label">Progresso da Suplementação</span>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<span class="progress-pct">' + pct + '%</span>' +
+          '<div class="progress-stats">' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + total + '</span><span class="progress-stat-label">Total</span></div>' +
+          '<div class="progress-stat"><span class="progress-stat-num">' + pendentes + '</span><span class="progress-stat-label">Pendentes</span></div>' +
+          (urgentes > 0 ? '<div class="progress-stat"><span class="progress-stat-num urgent">' + urgentes + ' Urgentes</span><span class="progress-stat-label"></span></div>' : '') +
+          '</div>' +
+          '</div>';
+      }
+      setTimeout(buildProgressBar, 800);
+      setTimeout(buildProgressBar, 2000);
+    });
+  </script>
   <script type="module" src="database.js" defer></script>
   <script type="module" src="calculations.js" defer></script>
   <script type="module" src="links.js" defer></script>

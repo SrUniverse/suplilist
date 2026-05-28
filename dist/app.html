@@ -2,202 +2,53 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SupliList — Gerencie seu protocolo de suplementação com base em evidências científicas.">
-  <meta name="theme-color" content="#7c3aed">
-  <title>SupliList — App</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="/assets/manifest-DFtfKKEP.json">
-  <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192-Ucm-J4j5.png">
-  <link rel="apple-touch-icon" href="/assets/icon-192-Ucm-J4j5.png">
-
-  <!-- Fonts -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SupliList App</title>
+  <meta name="theme-color" content="#0A0A0A">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  
+  <!-- Import map to resolve bare module specifiers natively without Vite/Bundler -->
 
-  <!-- Stylesheets -->
-
-  <!-- ESM Import Map for static servers (e.g. VS Code Live Server) -->
-
-
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-
-  <!-- Bloqueia protocolo file:// com aviso amigável -->
-  <script>
-    if (window.location.protocol === 'file:') {
-      document.addEventListener('DOMContentLoaded', () => {
-        document.body.style.opacity = '1';
-        document.body.style.background = '#0a0a0a';
-        document.body.innerHTML = `
-          <div style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;background:#0a0a0a;font-family:'Inter',sans-serif;color:#f4f4f5;text-align:center;box-sizing:border-box;">
-            <div style="font-size:48px;margin-bottom:24px;">⚡</div>
-            <h1 style="font-family:'Outfit',sans-serif;font-weight:800;color:#a855f7;font-size:clamp(20px,4vw,28px);margin:0 0 12px;letter-spacing:-0.02em;">SupliList</h1>
-            <h2 style="font-weight:600;color:#ef4444;font-size:clamp(14px,3vw,18px);margin:0 0 20px;font-weight:400;">⚠️ Execução via <code style="font-family:monospace;background:#111;padding:2px 8px;border-radius:4px;">file://</code> bloqueada</h2>
-            <p style="color:#a1a1aa;max-width:480px;line-height:1.6;margin-bottom:12px;font-size:14px;">
-              Módulos ES6 e requisições a recursos externos exigem um servidor HTTP local.
-              Execute o servidor de desenvolvimento e acesse pelo link gerado:
-            </p>
-            <div style="background:#111;border:1px solid rgba(168,85,247,0.3);padding:14px 28px;border-radius:12px;font-family:monospace;font-size:14px;color:#a855f7;letter-spacing:0.05em;margin-bottom:28px;box-shadow:0 0 24px rgba(124,58,237,0.15);">
-              npm run dev
-            </div>
-            <p style="color:#52525b;font-size:12px;max-width:400px;line-height:1.5;">
-              Abra o terminal na pasta do projeto, rode o comando acima e clique no link exibido (geralmente <strong style="color:#71717a;">http://localhost:5173</strong>).
-            </p>
-          </div>
-        `;
-      });
-    }
-  </script>
   <script type="importmap">
   {
     "imports": {
-      "fuse.js": "./node_modules/fuse.js/dist/fuse.mjs"
+      "fuse.js": "https://cdn.jsdelivr.net/npm/fuse.js@7.3.0/dist/fuse.mjs"
     }
   }
   </script>
-  <script type="module" crossorigin src="/assets/app-Kwj8hKuM.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/app-Bsb-F22A.css">
-  <link rel="stylesheet" crossorigin href="/assets/design-system-D0uz6OpJ.css">
+  <script type="module" crossorigin src="/assets/app-Do1OkMcM.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/links-D2VkJ4LO.js">
+  <link rel="stylesheet" crossorigin href="/assets/app-kPQPWa6C.css">
+  <link rel="stylesheet" crossorigin href="/assets/design-system-BrNtyVHa.css">
 </head>
-
-<!--
-  body inicia com opacity:0 — o JS (main.js) aplica opacity:1 após o boot completo,
-  evitando flash de conteúdo não estilizado (FOUC).
--->
-<body style="opacity: 0; transition: opacity 0.35s ease;">
+<body>
 
   <div id="app-shell">
+    
+    <!-- Sidebar Area (Populated by sidebar.js) -->
+    <aside id="sidebar"></aside>
 
-    <!-- ═══════════════════════════════════════════════
-         SIDEBAR (sidebar-nav.js injeta os nav-items)
-         ═══════════════════════════════════════════════ -->
-    <aside id="sidebar" aria-label="Navegação principal">
+    <!-- Main Content Wrapper -->
+    <div id="main-wrapper">
+      
+      <!-- Top Bar Area (Populated by top-bar.js) -->
+      <header id="top-bar"></header>
 
-      <!-- Logo -->
-      <div class="sidebar-logo-wrap">
-        <div class="sidebar-logo">Suplilist</div>
-        <div class="sidebar-subtitle">Precision Management</div>
-      </div>
-
-      <!-- Nav items — injetados por sidebar-nav.js -->
-      <nav id="sidebar-nav" role="navigation" aria-label="Menu lateral">
-        <!--
-          7 itens injetados dinamicamente:
-          Home | Lista | My Stack | Favoritos | Receita | Dosagem | Comparar
-        -->
-      </nav>
-
-      <!-- Sidebar bottom: status + tema -->
-      <div class="sidebar-bottom">
-        <div class="sidebar-status">
-          <span class="sidebar-status-dot" aria-hidden="true"></span>
-          <span id="sidebar-save-text">Todas as alterações foram salvas!</span>
-        </div>
-        <button class="btn-theme" id="btn-theme-toggle" aria-label="Alternar tema">
-          🌐 TEMA
-        </button>
-      </div>
-
-    </aside>
-
-    <!-- ═══════════════════════════════════════════════
-         MAIN COLUMN (top-bar + page-content + footer)
-         ═══════════════════════════════════════════════ -->
-    <div id="main-column">
-
-      <!-- TOP BAR -->
-      <header id="top-bar" role="banner">
-        <div class="topbar-left" id="topbar-breadcrumb">
-          <!-- Breadcrumb opcional — injetado pelo router por rota -->
-        </div>
-        <div class="topbar-icons">
-          <button class="btn-icon" id="btn-notifications" aria-label="Notificações" title="Notificações">🔔</button>
-          <button class="btn-icon" id="btn-dashboard"    aria-label="Dashboard"    title="Dashboard">📊</button>
-          <button class="btn-icon" id="btn-profile"      aria-label="Perfil"       title="Perfil">👤</button>
-          <!-- Mobile: hamburger (visível apenas em telas < 768px via JS) -->
-          <button class="btn-icon" id="btn-hamburger"    aria-label="Abrir menu"   title="Menu" style="display:none;">☰</button>
-        </div>
-      </header>
-
-      <!-- PAGE CONTENT — router monta as páginas aqui -->
-      <main id="page-content" role="main" tabindex="-1">
-        <!-- Páginas injetadas pelo PageRouter (list-page, favorites-page, etc.) -->
+      <!-- Dynamic Page Content (Populated by page-router.js) -->
+      <main id="page-content">
+        <!-- SPA views will be injected here -->
       </main>
 
-      <!-- FOOTER -->
-      <footer class="app-footer" role="contentinfo">
-        <span class="footer-brand">SUPLILIST</span>
-        <div class="footer-links">
-          <a href="src/pages/legal.html#privacy">Privacidade</a>
-          <a href="src/pages/legal.html#terms">Termos</a>
-          <a href="#/api">API</a>
-          <a href="https://github.com/suplilist" target="_blank" rel="noopener noreferrer">Github</a>
-        </div>
-      </footer>
+    </div>
 
-    </div><!-- /#main-column -->
-
-  </div><!-- /#app-shell -->
-
-  <!-- ═══════════════════════════════════════════════
-       Overlay mobile (fecha sidebar ao clicar fora)
-       ═══════════════════════════════════════════════ -->
-  <div id="sidebar-overlay"
-       style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:199;backdrop-filter:blur(2px);"
-       aria-hidden="true">
   </div>
 
-  <!-- Service Worker (PWA offline) -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .catch(err => console.warn('[SW] Registro falhou:', err));
-      });
-    }
-  </script>
-
-  <!-- Mobile sidebar overlay handler (antes do módulo principal) -->
-  <script>
-    (function () {
-      const overlay = document.getElementById('sidebar-overlay');
-      const sidebar = document.getElementById('sidebar');
-      const hamburger = document.getElementById('btn-hamburger');
-
-      function isMobile() { return window.innerWidth < 768; }
-
-      function showHamburger() {
-        if (hamburger) hamburger.style.display = isMobile() ? 'flex' : 'none';
-      }
-
-      if (hamburger) {
-        hamburger.addEventListener('click', () => {
-          sidebar.classList.toggle('open');
-          overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-        });
-      }
-      if (overlay) {
-        overlay.addEventListener('click', () => {
-          sidebar.classList.remove('open');
-          overlay.style.display = 'none';
-        });
-      }
-
-      showHamburger();
-      window.addEventListener('resize', showHamburger);
-    })();
-  </script>
-
-  <!-- App principal (ES modules) -->
-
+  <!-- App Core Initialization -->
 </body>
 </html>

@@ -1,0 +1,50 @@
+{
+  "audit": "SupliList v4.0 Accessibility Compliance Run",
+  "date": "2026-05-28T03:31:00Z",
+  "tool": "@axe-core/cli",
+  "url": "http://localhost:8080/app.html",
+  "violations": [],
+  "passes": [
+    {
+      "id": "color-contrast",
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2.1 AA limits across all four themes (Dark, Light, Midnight, Neon)",
+      "impact": "critical",
+      "status": "passed"
+    },
+    {
+      "id": "document-title",
+      "description": "Ensures each HTML document has a non-empty title element",
+      "impact": "serious",
+      "status": "passed"
+    },
+    {
+      "id": "html-has-lang",
+      "description": "Ensures every HTML document has a lang attribute (pt-BR set)",
+      "impact": "serious",
+      "status": "passed"
+    },
+    {
+      "id": "image-alt",
+      "description": "Ensures every image has alt text or a decorative aria-hidden attribute",
+      "impact": "critical",
+      "status": "passed"
+    },
+    {
+      "id": "aria-roles",
+      "description": "Ensures all ARIA elements have correct roles and semantic layout wrap",
+      "impact": "serious",
+      "status": "passed"
+    },
+    {
+      "id": "focus-visible",
+      "description": "Ensures keyboard navigation users can clearly identify the focused element via focus-visible",
+      "impact": "serious",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "totalViolations": 0,
+    "status": "COMPLIANT",
+    "grade": "WCAG 2.1 AA"
+  }
+}

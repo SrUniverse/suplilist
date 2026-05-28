@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  root: '.',
+  server: {
+    open: '/app.html'
+  },
   build: {
     outDir: 'dist',
     sourcemap: true,

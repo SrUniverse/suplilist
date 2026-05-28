@@ -1,13 +1,12 @@
 /**
  * updater.js — SupliList
  *
- * Busca o melhor preço (custo-benefício) no Mercado Livre via API oficial,
+ * Busca o melhor preço (custo-benefício) no Mercado Livre via scraping público,
  * e scraping opcional na Shopee/Amazon para produtos com URL definida.
  *
- * Gera ../dados.json relativo à localização deste script.
+ * Não requer credenciais de API — nenhuma variável de ambiente obrigatória.
  *
- * Variáveis de ambiente obrigatórias (GitHub Secrets):
- *   ML_CLIENT_ID, ML_CLIENT_SECRET
+ * Gera ../dados.json relativo à localização deste script.
  */
 
 import fs from 'fs/promises';
@@ -30,18 +29,13 @@ const DADOS_PATH = path.resolve(__dirname, '..', 'dados.json');
 // CONFIGURAÇÃO DE AFILIADO
 // ─────────────────────────────────────────────────────────────────
 
-const ML_MATT_TOOL     = '35217033';
-const ML_MATT_WORD     = 'suplilist';
-const ML_CLIENT_ID     = process.env.ML_CLIENT_ID;
-const ML_CLIENT_SECRET = process.env.ML_CLIENT_SECRET;
+const ML_MATT_TOOL = '35217033';
+const ML_MATT_WORD = 'suplilist';
 
-// Filtros de qualidade
+// Filtros de qualidade (aplicados durante o scraping)
 const FILTROS = {
-  min_vendas:     10,                       // Ignora anúncios com menos de N vendas
-  reputacoes_ok:  ['green', 'light_green'], // Apenas vendedores bem avaliados
-  condicao:       'new',                    // Apenas produtos novos
-  com_estoque:    true,                     // Ignora sem disponibilidade
-  max_resultados: 10,                       // Anúncios analisados por suplemento
+  min_vendas:     10,   // Ignora anúncios com menos de N vendas visíveis no card
+  max_resultados: 10,   // Anúncios analisados por suplemento
 };
 
 const BROWSER_ARGS = [
@@ -132,7 +126,7 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
-async function comRetry(fn, tentativas = 3, espera = 3000) {
+async function comRetry(fn, tentativas = 3, espera = 4000) {
   for (let i = 1; i <= tentativas; i++) {
     try {
       return await fn();
@@ -163,10 +157,14 @@ function calcularScore(preco, grams, doses) {
 
 /** Monta link de afiliado ML */
 function linkAfiliado(permalink) {
-  const url = new URL(permalink);
-  url.searchParams.set('matt_tool', ML_MATT_TOOL);
-  url.searchParams.set('matt_word', ML_MATT_WORD);
-  return url.toString();
+  try {
+    const url = new URL(permalink);
+    url.searchParams.set('matt_tool', ML_MATT_TOOL);
+    url.searchParams.set('matt_word', ML_MATT_WORD);
+    return url.toString();
+  } catch {
+    return permalink;
+  }
 }
 
 /** Arredonda para 2 casas decimais (evita perda de centavos) */
@@ -174,145 +172,174 @@ function arredondar(n) {
   return Math.round(n * 100) / 100;
 }
 
-// ─────────────────────────────────────────────────────────────────
-// MERCADO LIVRE — API OFICIAL
-// ─────────────────────────────────────────────────────────────────
-
-// Cache de token com expiração explícita
-let mlTokenCache = { token: null, expiresAt: 0 };
-
-async function getMLToken() {
-  // FIX: verifica expiração real do token (tokens ML duram ~6h)
-  // Renova com 5 min de margem de segurança
-  if (mlTokenCache.token && Date.now() < mlTokenCache.expiresAt - 5 * 60 * 1000) {
-    return mlTokenCache.token;
+/** Normaliza string de preço "R$ 89,90" → 89.90 */
+function parsePrecoBR(texto) {
+  if (!texto) return null;
+  // Remove tudo exceto dígitos, vírgula e ponto
+  // Formato BR: "89,90" ou "1.234,56"
+  const limpo = texto.replace(/[^\d,.]/g, '');
+  // Se tem vírgula, ela é o separador decimal
+  if (limpo.includes(',')) {
+    const n = parseFloat(limpo.replace(/\./g, '').replace(',', '.'));
+    return isNaN(n) ? null : arredondar(n);
   }
-
-  const res = await fetch('https://api.mercadolibre.com/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type:    'client_credentials',
-      client_id:     ML_CLIENT_ID,
-      client_secret: ML_CLIENT_SECRET,
-    }),
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!res.ok) throw new Error(`ML Auth falhou: ${res.status} ${await res.text()}`);
-  const data = await res.json();
-
-  // FIX: respeita o expires_in retornado pela API (em segundos)
-  const ttlMs = (data.expires_in ?? 21600) * 1000;
-  mlTokenCache = { token: data.access_token, expiresAt: Date.now() + ttlMs };
-  console.log('  🔑 Token ML obtido (expira em', Math.round(ttlMs / 3600000), 'h).');
-  return mlTokenCache.token;
+  const n = parseFloat(limpo);
+  return isNaN(n) ? null : arredondar(n);
 }
 
-// Cache de reputações de vendedores para evitar chamadas repetidas ao mesmo seller
-const reputacaoCache = new Map();
+// ─────────────────────────────────────────────────────────────────
+// MERCADO LIVRE — SCRAPING PÚBLICO
+// ─────────────────────────────────────────────────────────────────
 
-async function getReputacaoVendedor(sellerId, token) {
-  if (reputacaoCache.has(sellerId)) return reputacaoCache.get(sellerId);
+/**
+ * Monta a URL de busca pública do ML.
+ * Usa lista.mercadolivre.com.br para resultados em formato de lista,
+ * o que facilita a extração de múltiplos cards de uma só vez.
+ */
+function urlBuscaML(query) {
+  const slug = query
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+  return `https://lista.mercadolivre.com.br/${slug}#D[A:${encodeURIComponent(query)}]`;
+}
+
+/**
+ * Extrai os cards de produto da página de busca do ML.
+ * Retorna array de { titulo, preco, vendas, permalink }
+ */
+async function extrairCardsML(page) {
+  return page.evaluate(() => {
+    const cards = [];
+
+    // Seletores dos cards de resultado (ML usa classes geradas, mas data-* é mais estável)
+    const itens = document.querySelectorAll(
+      'li.ui-search-layout__item, div.ui-search-result__wrapper'
+    );
+
+    for (const item of itens) {
+      try {
+        // Título
+        const tituloEl = item.querySelector(
+          'h2.ui-search-item__title, .poly-component__title, h2[class*="title"]'
+        );
+        const titulo = tituloEl?.innerText?.trim();
+        if (!titulo) continue;
+
+        // Preço — pega a parte inteira + centavos separados
+        const inteiroEl = item.querySelector(
+          '.andes-money-amount__fraction, [class*="price-part"]:not([class*="original"]):not([class*="strike"])'
+        );
+        const centavosEl = item.querySelector(
+          '.andes-money-amount__cents'
+        );
+        if (!inteiroEl) continue;
+
+        const inteiro = inteiroEl.innerText.replace(/\D/g, '');
+        const centavos = centavosEl?.innerText?.replace(/\D/g, '').padEnd(2, '0') ?? '00';
+        const preco = parseFloat(`${inteiro}.${centavos.substring(0, 2)}`);
+        if (isNaN(preco) || preco <= 0) continue;
+
+        // Vendas (texto como "200 vendidos")
+        const vendasEl = item.querySelector(
+          '.poly-component__sold-and-reviews, [class*="sold"], .ui-search-item__group__element--sold'
+        );
+        const vendasTexto = vendasEl?.innerText ?? '';
+        const vendasMatch = vendasTexto.match(/(\d[\d.]*)/);
+        const vendas = vendasMatch
+          ? parseInt(vendasMatch[1].replace(/\./g, ''), 10)
+          : 0;
+
+        // Link do produto
+        const linkEl = item.querySelector('a[href*="mercadolivre.com.br"]');
+        const permalink = linkEl?.href ?? '';
+        if (!permalink) continue;
+
+        cards.push({ titulo, preco, vendas, permalink });
+      } catch {
+        // card malformado — ignora
+      }
+    }
+
+    return cards;
+  });
+}
+
+async function buscarMelhorML(browser, produto) {
+  const page = await browser.newPage();
+  await page.setUserAgent(USER_AGENT);
+
+  // Bloqueia recursos pesados para acelerar (imagens, fontes, mídia)
+  await page.setRequestInterception(true);
+  page.on('request', req => {
+    const tipo = req.resourceType();
+    if (['image', 'font', 'media', 'stylesheet'].includes(tipo)) {
+      req.abort();
+    } else {
+      req.continue();
+    }
+  });
 
   try {
-    const res = await fetch(
-      `https://api.mercadolibre.com/users/${sellerId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        signal: AbortSignal.timeout(10000),
-      }
-    );
-    if (!res.ok) {
-      reputacaoCache.set(sellerId, null);
+    const url = urlBuscaML(produto.query);
+    console.log(`    🔗 ${url}`);
+
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    // Aguarda os cards renderizarem (podem chegar via JS após o DOM inicial)
+    await page.waitForSelector(
+      'li.ui-search-layout__item, div.ui-search-result__wrapper',
+      { timeout: 15000 }
+    ).catch(() => {
+      console.warn('    ⚠️  Seletor de cards não encontrado — tentando assim mesmo.');
+    });
+
+    // Pequena pausa para renderização de preços dinâmicos
+    await sleep(1500);
+
+    const cards = await extrairCardsML(page);
+
+    if (!cards.length) {
+      console.warn(`    ⚠️  Nenhum card extraído para "${produto.query}"`);
       return null;
     }
-    const seller = await res.json();
-    const cor = seller.seller_reputation?.level_id ?? null;
-    reputacaoCache.set(sellerId, cor);
-    return cor;
-  } catch {
-    reputacaoCache.set(sellerId, null);
-    return null;
+
+    // Filtra por vendas mínimas (pula anúncios novos/sem histórico)
+    const filtrados = cards
+      .slice(0, FILTROS.max_resultados)
+      .filter(c => c.vendas >= FILTROS.min_vendas);
+
+    // Se o filtro de vendas eliminar tudo, relaxa e usa os cards brutos
+    const candidatos = (filtrados.length ? filtrados : cards.slice(0, FILTROS.max_resultados))
+      .map(c => {
+        const grams = extrairGramasDoTitulo(c.titulo) || produto.qty || null;
+        const score = calcularScore(c.preco, grams, produto.doses);
+        return { ...c, grams, score };
+      });
+
+    candidatos.sort((a, b) => a.score - b.score);
+    const melhor = candidatos[0];
+    const criterio = melhor.grams
+      ? `R$${melhor.score.toFixed(4)}/g`
+      : `R$${melhor.score.toFixed(2)}/dose`;
+
+    console.log(
+      `    ✅ "${melhor.titulo.substring(0, 50)}" — ` +
+      `R$${melhor.preco} (${criterio}) [${melhor.vendas} vendas]`
+    );
+
+    // Limpa o permalink (remove parâmetros de rastreamento do ML antes de adicionar os nossos)
+    const permalinkLimpo = melhor.permalink.split('?')[0];
+
+    return {
+      preco: arredondar(melhor.preco),
+      link:  linkAfiliado(permalinkLimpo),
+    };
+  } finally {
+    await page.close();
   }
-}
-
-async function buscarMelhorML(produto) {
-  const token = await getMLToken();
-
-  const params = new URLSearchParams({
-    q:         produto.query,
-    limit:     FILTROS.max_resultados,
-    condition: FILTROS.condicao,
-    sort:      'price_asc', // Começa pelos mais baratos — evita analisar o caro desnecessariamente
-  });
-
-  const buscaRes = await fetch(
-    `https://api.mercadolibre.com/sites/MLB/search?${params}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(20000),
-    }
-  );
-  if (!buscaRes.ok) throw new Error(`ML Search falhou: ${buscaRes.status}`);
-  const busca = await buscaRes.json();
-
-  if (!busca.results?.length) {
-    console.warn(`    ⚠️  Sem resultados para "${produto.query}"`);
-    return null;
-  }
-
-  const candidatos = [];
-
-  for (const item of busca.results) {
-    // FIX: verifica estoque
-    if (FILTROS.com_estoque && (item.available_quantity ?? 0) < 1) continue;
-
-    // FIX: sold_quantity vem no search response como campo do item
-    // (mas pode estar ausente em alguns casos — usa 0 como fallback)
-    const vendas = item.sold_quantity ?? item.buying_mode === 'classified' ? 0 : (item.sold_quantity ?? 0);
-    if (vendas < FILTROS.min_vendas) continue;
-
-    // FIX: usa cache de reputação para não repetir chamadas ao mesmo seller
-    const sellerId = item.seller?.id;
-    if (sellerId) {
-      const cor = await getReputacaoVendedor(sellerId, token);
-      if (cor && !FILTROS.reputacoes_ok.includes(cor)) {
-        console.log(`    ↷ Ignorado (reputação "${cor}"): ${item.title.substring(0, 45)}`);
-        continue;
-      }
-    }
-
-    const grams = extrairGramasDoTitulo(item.title) || produto.qty || null;
-    // FIX: usa arredondar() para preservar centavos (R$89,90 não vira R$90)
-    const preco = arredondar(item.price);
-    const score = calcularScore(preco, grams, produto.doses);
-
-    candidatos.push({
-      titulo:    item.title,
-      preco,
-      grams,
-      score,
-      permalink: item.permalink,
-    });
-  }
-
-  if (!candidatos.length) {
-    console.warn(`    ⚠️  Nenhum candidato passou os filtros para "${produto.query}".`);
-    return null;
-  }
-
-  candidatos.sort((a, b) => a.score - b.score);
-  const melhor = candidatos[0];
-  const criterio = melhor.grams
-    ? `R$${melhor.score.toFixed(4)}/g`
-    : `R$${melhor.score.toFixed(2)}/dose`;
-
-  console.log(`    ✅ "${melhor.titulo.substring(0, 50)}" — R$${melhor.preco} (${criterio})`);
-
-  return {
-    preco: melhor.preco,
-    link:  linkAfiliado(melhor.permalink),
-  };
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -330,8 +357,8 @@ async function getPrecoShopee(page, url) {
   for (const sel of seletores) {
     try {
       const texto = await page.$eval(sel, el => el.innerText.trim());
-      const n = parseFloat(texto.replace(/[^\d,]/g, '').replace(',', '.'));
-      if (!isNaN(n) && n > 0) return arredondar(n); // FIX: preserva centavos
+      const n = parsePrecoBR(texto);
+      if (n && n > 0) return n;
     } catch { /* tenta próximo */ }
   }
   return null;
@@ -349,8 +376,8 @@ async function getPrecoAmazon(page, url) {
   for (const sel of seletores) {
     try {
       const texto = await page.$eval(sel, el => el.innerText.trim());
-      const n = parseFloat(texto.replace(/[^\d,]/g, '').replace(',', '.'));
-      if (!isNaN(n) && n > 0) return arredondar(n); // FIX: preserva centavos
+      const n = parsePrecoBR(texto);
+      if (n && n > 0) return n;
     } catch { /* tenta próximo */ }
   }
   return null;
@@ -379,11 +406,7 @@ async function main() {
   console.log('🚀 Iniciando atualização de preços — SupliList\n');
   console.log(`📁 dados.json será salvo em: ${DADOS_PATH}\n`);
 
-  if (!ML_CLIENT_ID || !ML_CLIENT_SECRET) {
-    throw new Error('Configure ML_CLIENT_ID e ML_CLIENT_SECRET nos GitHub Secrets.');
-  }
-
-  // FIX: usa PUPPETEER_EXECUTABLE_PATH se disponível (GitHub Actions com chromium do sistema)
+  // Usa PUPPETEER_EXECUTABLE_PATH se disponível (GitHub Actions)
   const launchOptions = {
     headless: true,
     args: BROWSER_ARGS,
@@ -398,9 +421,10 @@ async function main() {
   for (const produto of PRODUTOS) {
     console.log(`\n📦 [ID ${produto.id}] ${produto.query}`);
 
-    // ML via API oficial
+    // ML via scraping público
     console.log('  🏪 Mercado Livre...');
-    const ml = await comRetry(() => buscarMelhorML(produto));
+    const ml = await comRetry(() => buscarMelhorML(browser, produto));
+    if (!ml) console.log('  ❌ ML sem resultado');
 
     // Shopee via scraping (só se tiver URL definida)
     let sp = null;
@@ -426,7 +450,8 @@ async function main() {
       ml:  ml?.link  ?? null,
     });
 
-    await sleep(2000);
+    // Pausa entre produtos para reduzir risco de bloqueio por rate limit
+    await sleep(3000);
   }
 
   await browser.close();
@@ -436,7 +461,6 @@ async function main() {
     precos: resultados,
   };
 
-  // FIX: salva no path absoluto calculado em relação ao script, não ao CWD
   await fs.writeFile(DADOS_PATH, JSON.stringify(output, null, 2), 'utf-8');
   console.log(`\n✅ dados.json salvo em: ${DADOS_PATH}`);
   console.log(JSON.stringify(output, null, 2));

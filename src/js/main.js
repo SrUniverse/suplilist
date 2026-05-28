@@ -36,6 +36,8 @@ import { createRecipePage } from './components/recipe-page.js';
 import { createComparePage } from './components/compare-page.js';
 import { createLegalPage } from './components/legal-page.js';
 import { notificationScheduler } from './features/settings/notificationScheduler.js';
+import { aplicarPrecos } from '../../js/price-loader.js';
+import { IT } from '../../database.js';
 
 import { toast } from './components/toast.js';
 import { ErrorBoundary } from './core/error-boundary.js';
@@ -55,6 +57,9 @@ async function init() {
 
     // 3. StateManager já inicializa no construtor (carrega do localStorage automaticamente)
     logger.info('StateManager initialized');
+
+    // 3.5. Atualiza os preços dinamicamente a partir do dados.json
+    await aplicarPrecos(IT);
 
     // 4. Carrega suplementos na memória
     await supplementRepo.loadAll();

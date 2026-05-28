@@ -5,14 +5,13 @@ on:
     - cron: "0 */6 * * *"   # A cada 6 horas
   workflow_dispatch:          # Execução manual pelo botão do GitHub
 
-# FIX: permissão explícita para o GITHUB_TOKEN poder fazer git push
 permissions:
   contents: write
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
-    timeout-minutes: 30       # 57 produtos × ~10s cada ≈ ~10min; 30min dá margem
+    timeout-minutes: 60       # Scraping de 57 produtos × ~15s cada ≈ ~15min; 60min com margem
 
     steps:
       - name: Checkout do Repositório
@@ -21,15 +20,12 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"  # Usa LTS mais recente (v22 disponível no Actions)
+          node-version: "22"
 
-      # FIX: instala dependências DENTRO da pasta bot/ onde está o package.json
       - name: Instalar dependências Node
         working-directory: bot
         run: npm install
 
-      # FIX: expõe o caminho do Chromium baixado pelo Puppeteer para o updater.js
-      #      evita conflito entre o chromium do apt e o do Puppeteer
       - name: Verificar Chromium do Puppeteer
         working-directory: bot
         run: |
@@ -40,7 +36,6 @@ jobs:
           echo "PUPPETEER_EXECUTABLE_PATH=${CHROMIUM_PATH}" >> $GITHUB_ENV
           echo "Chromium encontrado em: ${CHROMIUM_PATH}"
 
-      # Dependências de sistema que o Chromium do Puppeteer precisa no Ubuntu
       - name: Instalar dependências do sistema para Chromium
         run: |
           sudo apt-get update -q
@@ -51,16 +46,10 @@ jobs:
             libxext6 libxfixes3 libxrandr2 libxshmfence1 \
             fonts-liberation ca-certificates
 
-      # FIX: roda o script de DENTRO da pasta bot/ para que __dirname funcione corretamente
       - name: Executar script de atualização
         working-directory: bot
-        env:
-          ML_CLIENT_ID:     ${{ secrets.ML_CLIENT_ID }}
-          ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
         run: node updater.js
 
-      # FIX: git add a partir da raiz do repo; pull --rebase antes de push
-      #      para evitar conflito se outro job rodou no intervalo
       - name: Commit e push do dados.json
         run: |
           git config --global user.name "GitHub Action Bot"

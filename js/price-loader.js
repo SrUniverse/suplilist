@@ -46,7 +46,7 @@ async function carregarPrecos() {
 
   // Busca do servidor
   try {
-    const res = await fetch('/dados.json', { cache: 'no-cache' });
+    const res = await fetch('./dados.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
@@ -91,10 +91,10 @@ export async function aplicarPrecos(suplementos) {
     const novo = mapa.get(String(sup.id));
     if (!novo) continue;
 
-    if (novo.sp  != null) sup.pm  = novo.sp;   // Shopee → preço base
+    if (novo.sp != null) sup.pm = novo.sp;   // Shopee → preço base
     if (novo.mlp != null) sup.mlp = novo.mlp;  // Mercado Livre preço
     if (novo.azp != null) sup.azp = novo.azp;  // Amazon preço
-    if (novo.ml  != null) sup.ml  = novo.ml;   // ML link atualizado (melhor produto + afiliado)
+    if (novo.ml != null) sup.ml = novo.ml;   // ML link atualizado (melhor produto + afiliado)
 
     atualizados++;
   }

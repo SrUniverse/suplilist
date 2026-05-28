@@ -112,11 +112,18 @@ class StateManager {
    * @returns {any} Cópia imutável do fragmento do estado ou todo o estado.
    */
   getState(path) {
-    const stateClone = JSON.parse(JSON.stringify(this.state));
-    if (!path) return stateClone;
+    if (!path) return JSON.parse(JSON.stringify(this.state));
 
     const parts = path.split('.');
-    const value = parts.reduce((acc, part) => (acc ? acc[part] : undefined), stateClone);
+    let value = this.state;
+
+    for (let i = 0; i < parts.length; i++) {
+      if (value === undefined || value === null) {
+        value = undefined;
+        break;
+      }
+      value = value[parts[i]];
+    }
     
     return value !== undefined ? JSON.parse(JSON.stringify(value)) : undefined;
   }

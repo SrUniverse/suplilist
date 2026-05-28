@@ -1,0 +1,3 @@
+## 2024-05-28 - Avoid deep cloning full state for specific path lookups
+**Learning:** In `stateManager.getState(path)`, doing `JSON.parse(JSON.stringify(this.state))` before resolving the path causes a massive performance hit because it deep clones the ENTIRE global state even if we only want to read a small sub-object (like `state.settings.theme`).
+**Action:** When querying a path, first navigate the immutable state object directly to find the target `value`, and ONLY THEN deep clone the resulting `value`. This saves substantial memory and CPU cycles when reading specific values from a large state tree.

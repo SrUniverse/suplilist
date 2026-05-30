@@ -46,8 +46,8 @@ export default defineConfig({
         ],
         categories: ["health", "productivity"],
         shortcuts: [
-          { name: "Calculadora de Dosagem", short_name: "Dosagem", description: "Calcule a dosagem ideal baseada no seu peso", url: "/#/dosage", icons: [{ src: "/icon-dosage.png", sizes: "96x96" }] },
-          { name: "Minhas Compras", short_name: "Compras", description: "Histórico de suplementação e check-ins", url: "/#/history", icons: [{ src: "/icon-history.png", sizes: "96x96" }] }
+          { name: "Calculadora de Dosagem", short_name: "Dosagem", description: "Calcule a dosagem ideal baseada no seu peso", url: "/dosage", icons: [{ src: "/icon-dosage.png", sizes: "96x96" }] },
+          { name: "Minhas Compras", short_name: "Compras", description: "Histórico de suplementação e check-ins", url: "/history", icons: [{ src: "/icon-history.png", sizes: "96x96" }] }
         ]
       }
     })

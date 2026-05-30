@@ -103,7 +103,7 @@ function formatPrice(val) {
 // ─── Main Class ───────────────────────────────────────────────────────────────
 
 export default class ListPage {
-  constructor(container) {
+  constructor(container, params = {}) {
     this.container = container;
     this._unsubscribe = null;
     this._fuse = null;
@@ -112,7 +112,7 @@ export default class ListPage {
     this._page = 0;
     this._query = '';
     this._category = 'Todos';
-    this._objective = '';
+    this._objective = params.objective || '';
     this._prices = null;
     this._modalOpen = null; // supplement id
     this._debounceTimer = null;
@@ -140,6 +140,7 @@ export default class ListPage {
       .catch(() => {});
 
     this._render();
+    this._syncObjectiveChip();
     this._applyFilters();
     this._renderStats();
     this._renderGrid();
@@ -907,6 +908,16 @@ export default class ListPage {
 
   _onKeydown(e) {
     if (e.key === 'Escape' && this._modalOpen) this._closeModal();
+  }
+
+  // ─── Sync initial filter UI from params ──────────────────────────────────
+
+  _syncObjectiveChip() {
+    if (!this._objective) return;
+    const objRow = this.container.querySelector('#lp-obj-row');
+    if (!objRow) return;
+    const btn = objRow.querySelector(`[data-obj="${this._objective}"]`);
+    if (btn) btn.classList.add('active');
   }
 
   // ─── Event Listeners ──────────────────────────────────────────────────────

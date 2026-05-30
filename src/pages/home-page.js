@@ -60,7 +60,7 @@ export default class HomePage {
 
     const features = [
       {
-        icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v2m0 8v2m-2.5-6.5a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5"/><path d="M12 16h.01"/></svg>`,
+        icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
         title: 'Comparação de Preços',
         text: 'Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app.',
       },
@@ -164,7 +164,7 @@ export default class HomePage {
             <div class="lp-chips">
               ${goals
                 .map(
-                  (g) => `<button class="lp-chip" data-nav="/list" type="button">${g}</button>`
+                  (g) => `<button class="lp-chip" data-nav="/list?objective=${encodeURIComponent(g)}" type="button">${g}</button>`
                 )
                 .join('')}
             </div>

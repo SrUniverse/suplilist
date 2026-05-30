@@ -1,7 +1,139 @@
 ﻿# Audit Findings — 2026-05-30
 
 ## Summary
-<!-- Filled in at the end -->
+
+**Audit date:** 2026-05-30
+**Total findings:** 120 (P1: 16, P2: 62, P3: 42)
+
+### P1 — Must Fix
+- EVENT-BUS — Test Suite Cannot Execute (Broken vitest Install) — `node_modules/vitest/dist/` (missing cli.js)
+- STATE-MANAGER — Test Suite Cannot Execute (Broken vitest Install) — `node_modules/vitest/dist/` (missing cli.js)
+- ROUTER — No Error Boundary Around Dynamic `import()` and `mount()` — `src/core/router.js:52-55`
+- DOSAGE-CALCULATOR — `supplement.dosage.multiplier` Accessed Without Optional Chaining — `src/ai/dosage-calculator.js:83`
+- PAGES/CALCULATOR-PAGE — XSS via `rationale` and `timing` Inserted Into `innerHTML` Without Sanitization — `src/pages/calculator-page.js:245, 272`
+- PAGES/FAQ-PAGE — `aHtml` Values Inserted Unsanitized Into `innerHTML` — `src/pages/faq-page.js:272-274`
+- PAGES/FAVORITES-PAGE — `stateManager.addToStack(id)` Passes Only ID, Creating Malformed Stack Item — `src/pages/favorites-page.js:321`
+- PAGES/LIST-PAGE — `item.name`, `item.category`, `item.benefits` Inserted Into `innerHTML` Without Escaping — `src/pages/list-page.js:685-700, 819`
+- PAGES/MY-STACK-PAGE — `document.addEventListener('click', ...)` in `_openModal()` Never Removed — `src/pages/my-stack-page.js:945-948`
+- PAGES/SETTINGS-PAGE — `stateManager.dispatch({ type: 'CLEAR_CHECKINS' })` Passes Object Instead of String Action Type — `src/pages/settings-page.js:412`
+- TESTS — Coverage infrastructure broken on fresh clone (`npm ci` fails for `@vitest/coverage-v8`) — `package.json / package-lock.json`
+- INFRA — No `.nojekyll` Inside `docs/` Folder — `docs/` folder
+- CSS — `main.css` Uses Undefined Token Namespace (`--space-*`, `--bg-*`, `--text-*`, `--brand-*`) — `src/css/main.css`
+- CSS — `main.css` Redefines `:root` Variables, Overriding `design-system.css` — `src/css/main.css:1375-1408`
+- UX — HOME (Landing) — Hero Section Overflows Horizontally on Mobile — `src/css/main.css` (`.lp-hero__inner`)
+- UX — APP SHELL — Entire App Layout Not Responsive Below 769px — `src/css/main.css` (body grid)
+
+### P2 — Should Fix
+- EVENT-BUS — Listener Leak Risk Without DOM Element Reference — `src/core/event-bus.js:165`
+- EVENT-BUS — Silent non-function callback suppression in non-debug mode — `src/core/event-bus.js:168-173`
+- EVENT-BUS — `error:system` Re-Emit Can Recurse Deeply — `src/core/event-bus.js:295-302`
+- APP/EVENT-BUS — Missing Test Cases for Edge Behaviors — `src/core/event-bus.test.js`
+- ROUTER — Silent No-Op on Unknown Route — `src/core/router.js:42`
+- ROUTER — `unmount()` Not Guarded Against Throws — `src/core/router.js:46-48`
+- APP — `applyLandingMode()` Runs Before DOM Is Ready — `src/core/app.js:21-25`
+- APP — EventBus Wired Last, After Router Start — `src/core/app.js:46, 77`
+- APP — Router Instance Not Retained; Navigation Requires Direct Hash Manipulation — `src/core/app.js:46`
+- APP — No Global Error Boundary for Unhandled Promise Rejections — `src/core/app.js`
+- STATE-MANAGER — `undo()` Does Not Wrap Subscriber Calls in try/catch — `src/state/state-manager.js:453`
+- STATE-MANAGER — Cross-Tab Sync Overwrites Active Session `ui` Slice With `DEFAULT_STATE.ui` — `src/state/state-manager.js:569-596`
+- STATE-MANAGER — `setState()` Bypasses Reducer and `_emitEventBus()` — `src/state/state-manager.js:776-828`
+- STATE-MANAGER — `_pruneStorage()` Schedules a Second `_persist()` Via `dispatch()` After Quota Error — `src/state/state-manager.js:547-564`
+- STATE-MANAGER — Missing Test Coverage for `undo()`, Cross-Tab Sync, `hydrate()`, and Corrupt localStorage Init — `src/state/state-manager.test.js`
+- DOSAGE-CALCULATOR — `calculateStack()` Does Not Guard Against `calculate()` Throwing — `src/ai/dosage-calculator.js:160-166`
+- DOSAGE-CALCULATOR — Falsy Guard on `weight`/`age`/`freq` Silently Uses Defaults for `0` Values — `src/ai/dosage-calculator.js:73-76`
+- DOSAGE-CALCULATOR — No Tests for Invalid/Edge Inputs — `src/ai/dosage-calculator.test.js`
+- STACK-RECOMMENDER — `recommend()` Emits EventBus Event Directly, Duplicating StateManager Emission — `src/ai/stack-recommender.js:208`
+- STACK-RECOMMENDER — No Tests for `null`/`undefined` Profile or Fully-Filtered Stack — `src/ai/stack-recommender.test.js`
+- DATABASE — 2 Entries Have Extra Fields Absent From the Rest of the Array — `database.js` (indices 8, 10)
+- DATABASE — `CAT` Constants and `IT[n].cat` Values Are Not Cross-Validated at Startup — `database.js:40-60, 174+`
+- DATABASE — `GOAL_MAP` Numeric IDs Are Not Validated Against `IT` Entries — `database.js:63-75`
+- PAGES/CALCULATOR-PAGE — `unmount()` Does Not Remove Event Listeners — `src/pages/calculator-page.js:53-55`
+- PAGES/CHECKIN-PAGE — `item.dosage?.timing` Treats `dosage` as Object When It Is a Number — `src/pages/checkin-page.js:212`
+- PAGES/CHECKIN-PAGE — Full Re-render on Every Check-in Creates DOM Thrash — `src/pages/checkin-page.js:380-383`
+- PAGES/FAVORITES-PAGE — `getStack()` Has Direct `localStorage` Fallback Creating Dual Source of Truth — `src/pages/favorites-page.js:20-27`
+- PAGES/HISTORY-PAGE — Full Re-render on Every Search Keystroke Without Debounce — `src/pages/history-page.js:438-443`
+- PAGES/HISTORY-PAGE — `stateManager.subscribe()` Re-renders on Every Unrelated State Change — `src/pages/history-page.js:55-57`
+- PAGES/HOME-PAGE — `unmount()` Removes Style Element Inconsistently With All Other Pages — `src/pages/home-page.js:22-30`
+- PAGES/LEGAL-PAGE — Production UI Shows an Editorial "Draft Needs Lawyer Review" Warning Banner — `src/pages/legal-page.js:269-272`
+- PAGES/LIST-PAGE — `clearTimeout(this._debounceTimer)` Missing From `unmount()` — `src/pages/list-page.js:158-163`
+- PAGES/LIST-PAGE — `document.body.style.overflow` Not Unconditionally Reset in `unmount()` — `src/pages/list-page.js:861, 901-908`
+- PAGES/PROFILE-PAGE — `unmount()` Is Empty With No Teardown — `src/pages/profile-page.js:61`
+- PAGES/PROFILE-PAGE — Avatar Initial Updated Via Fragile `querySelector('div[style*="72px"]')` — `src/pages/profile-page.js:266`
+- PAGES/PROFILE-PAGE — `ACTIONS.CLEAR_CHECKINS || 'CLEAR_CHECKINS'` Fallback Hides Missing Constant — `src/pages/profile-page.js:376`
+- PAGES/SETTINGS-PAGE — Notification Toggles Are Decorative: No Notification API Is Wired — `src/pages/settings-page.js:364-376`
+- TESTS — state-manager.js has <50% coverage across all metrics — `src/state/state-manager.test.js`
+- TESTS — event-bus.js branch coverage at 47.77% — `src/core/event-bus.test.js`
+- TESTS — dosage-calculator.js test 7 uses toBeDefined() for all output fields — `src/ai/dosage-calculator.test.js`
+- TESTS — stack-recommender.js test 5 budget scoring is a conditional no-op — `src/ai/stack-recommender.test.js`
+- TESTS — stack-recommender.js test 8 evidence scoring is a conditional no-op — `src/ai/stack-recommender.test.js`
+- TESTS — No tests for router.js, app.js, or any of the 11 page modules — `src/core/router.js, src/core/app.js, src/pages/*.js`
+- INFRA — No JS Lint Step in CI — `.github/workflows/deploy.yml`
+- INFRA — Single Monolithic CI Job (Lint + Test + Build + Deploy) — `.github/workflows/deploy.yml`
+- INFRA — PWA manifest.json `start_url` Points to `/app.html` (Will 404 on GitHub Pages subpath) — `public/manifest.json:6`
+- INFRA — Service Worker Cache Version Hardcoded (v4.0.0) — `docs/service-worker.js`
+- CSS — `modal-overlay` z-index Conflict (9999 vs Token `--z-modal: 200`) — `src/css/main.css:165-170`
+- CSS — Hardcoded Hex/RGBA Colors Bypassing Token System in `main.css` — `src/css/main.css`
+- CSS — Duplicate `.btn-primary` and `.btn-outline` Selectors Across Files — `src/css/main.css:2201-2251`
+- CLEANLINESS — Dead Code: `console.log` Debug Statement in event-bus — `src/core/event-bus.js:274`
+- CLEANLINESS — SRP Violation: `_render()` in history-page is 223 Lines — `src/pages/history-page.js:209-432`
+- CLEANLINESS — SRP Violation: `_openModal()` in my-stack-page is 138 Lines — `src/pages/my-stack-page.js:839-977`
+- CLEANLINESS — SRP Violation: `_attachStyles()` Inlines 340-Line CSS in list-page — `src/pages/list-page.js:167-507`
+- CLEANLINESS — DRY Violation: `todayISO()` Duplicated Across 5 Locations — `src/pages/history-page.js, src/pages/checkin-page.js, src/pages/my-stack-page.js, src/state/state-manager.js`
+- CLEANLINESS — DRY Violation: Evidence Badge Helper Duplicated in 4 Files — `src/pages/my-stack-page.js, src/pages/favorites-page.js, src/pages/list-page.js, src/pages/calculator-page.js`
+- CLEANLINESS — DRY Violation: `getFavoritesFromState()` Inconsistently Duplicated — `src/pages/list-page.js:85-94, src/pages/favorites-page.js:11-18`
+- CLEANLINESS — DRY Violation: `supplementId ?? item.id` Normalization Pattern Repeated 11+ Times — `src/state/state-manager.js, src/pages/my-stack-page.js, src/pages/history-page.js`
+- CLEANLINESS — Magic Literal: localStorage Key Strings Repeated Without Constants — `src/core/app.js, src/pages/favorites-page.js, src/pages/list-page.js, src/pages/settings-page.js, src/pages/profile-page.js`
+- UX — APP SHELL — Bottom Nav Has 9 Items, Labels Truncate on Mobile — `src/css/main.css` (`#sidebar-nav`)
+- UX — APP SHELL — Card Action Buttons Below 44px Touch Target — `src/css/main.css` (`.lp-btn-stack`, `.lp-btn-fav`)
+- UX — NAVIGATION — Unknown Route Shows No 404 — `src/core/router.js`
+
+### P3 — Out of Scope (logged for future)
+- EVENT-BUS — Legacy Duplicate Event Constants — `src/core/event-bus.js:38-39`
+- EVENT-BUS — `on()` and `once()` Share Duplicated Logic — `src/core/event-bus.js:165-235`
+- EVENT-BUS — `AFFILIATE_CLICK` Uses Underscore Instead of Colon Namespace — `src/core/event-bus.js:126`
+- ROUTER — Hash-Only Navigation (No History API) — `src/core/router.js:7, 14`
+- ROUTER — Routes Registered as String Literals, Not Constants — `src/core/app.js:6-18`
+- ROUTER — `updateNav()` Uses Fragile String Normalization — `src/core/router.js:61-67`
+- APP — Theme Initialization Is Split Across Two `localStorage` Keys — `src/core/app.js:58`
+- APP — No Exported API; Integration Testing Is Impossible — `src/core/app.js`
+- STATE-MANAGER — Optional Fields in `DEFAULT_STATE` Are Not Documented — `src/state/state-manager.js:38-98`
+- STACK-RECOMMENDER — `_calculatePersonalDosage()` Called Twice Per Supplement — `src/ai/stack-recommender.js:193, 299`
+- DATABASE — 145 Explicit `null` Values Across Optional Fields (Schema Documentation Gap) — `database.js:174+`
+- DATABASE — `IT` Array Is Mutable (Intentional but Risky) — `database.js:173`
+- PAGES/CALCULATOR-PAGE — SRP Violation: Styles, Layout, Business Logic, and State Mutation in One 853-Line File — `src/pages/calculator-page.js`
+- PAGES/FAVORITES-PAGE — Hover Handlers Registered Via JS Instead of CSS hover — `src/pages/favorites-page.js:336-363`
+- PAGES/HOME-PAGE — `_injectStyle()` Does Not Guard Against Duplicate Injection — `src/pages/home-page.js:227`
+- PAGES/LEGAL-PAGE — `unmount()` Removes Style Element Causing FOUC on Re-navigation — `src/pages/legal-page.js:247-250`
+- PAGES/MY-STACK-PAGE — `PRICES_DB` Module-Level Singleton Never Invalidated — `src/pages/my-stack-page.js:10-20`
+- CLEANLINESS — Single-Letter Variable `f` in profile-page — `src/pages/profile-page.js:73`
+- CLEANLINESS — Single-Letter Variable `u` in profile-page — `src/pages/profile-page.js:49`
+- CLEANLINESS — Single-Letter Variable `d` in history-page helpers — `src/pages/history-page.js:11-13`
+- CLEANLINESS — Abbreviated Variable Name `fmtBRL` — `src/pages/my-stack-page.js:34`
+- CLEANLINESS — Timer Variable `debounce` Should Be `debounceTimer` — `src/pages/my-stack-page.js:901`
+- CLEANLINESS — Dead Code: `_modalSelectedName` Assigned But Never Read — `src/pages/my-stack-page.js:889, 935, 982-983`
+- CLEANLINESS — Dead Code: `_hydrateFromStorage()` Method Never Called — `src/state/state-manager.js:624-626`
+- CLEANLINESS — Dead Code: `dump()` Alias for `export()` — `src/state/state-manager.js:767-769`
+- CLEANLINESS — Magic Literal: Timeout `300` Used in Two Unrelated Contexts — `src/core/app.js:73, 86`
+- CLEANLINESS — Magic Literal: Debounce Delays Inconsistent (80ms / 180ms / 250ms) — `src/pages/list-page.js, src/pages/my-stack-page.js, src/pages/calculator-page.js`
+- CLEANLINESS — Style Inconsistency: Mixed localStorage Theme Key (`theme` vs `suplilist:theme`) — `src/core/app.js:58, src/pages/profile-page.js:325`
+- TESTS — checkin auto-ID/timestamp only verified with toBeDefined() — `src/state/state-manager.test.js`
+- TESTS — streak calculation missing gap-in-sequence edge case — `src/state/state-manager.test.js`
+- INFRA — Service Worker Precache Contains Duplicate Icon Entries — `docs/service-worker.js`
+- INFRA — @playwright/test Installed But Unused (Dead Dependency) — `package.json`
+- INFRA — No Coverage Report Generated in CI — `.github/workflows/deploy.yml`
+- CSS — `design-system.css`: Hardcoded Values in Component Styles — `src/css/design-system.css`
+- CSS — Missing Type Scale Tokens in `design-system.css` — `src/css/design-system.css`
+- CSS — Vendor Prefixes: `-webkit-user-select` Unnecessary for Modern Targets — `src/css/design-system.css:409, 550`
+- CSS — `outline: none` on Focus Without Focus-Visible Replacement — `src/css/main.css:60`
+- UX — NAVIGATION — Document Title Does Not Change Per Page — `src/core/router.js` / page modules
+- UX — PROFILE — Page Has No h1 Heading — `src/pages/profile-page.js`
+- UX — VISUAL — Inconsistent h1 Font Sizes Across Pages — `src/pages/*.js`
+- UX — VISUAL — Mixed Button Class Conventions on List Page — `src/pages/list-page.js`
+
+### Areas with zero issues found
+- CSS linter (Stylelint) — zero errors and zero warnings against `src/css/design-system.css` and `src/css/main.css`
+- UX — Empty States — all audited pages (Favorites, Check-in, History, My Stack) display appropriate empty states with correct fallback UI
+- Build output — build completes cleanly with zero warnings; 23 modules transformed; no broken imports detected
 
 ## Findings
 <!-- Appended per task -->

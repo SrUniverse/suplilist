@@ -1391,8 +1391,8 @@ body.landing-body {
   min-height: 100vh;
   /* Fundo gradiente sutil do Void System */
   background-image:
-    radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%) !important;
+    radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0, transparent 50%) !important;
 
   /* Force variables to remain dark theme even when light theme is active globally */
   --t1: #f4f4f5 !important;

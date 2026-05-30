@@ -16,7 +16,7 @@
 
 ## EVENT-BUS — `on()` and `once()` Share Duplicated Logic
 - **Priority:** P3
-- **File:** src/core/event-bus.js:165-235
+- **File:** src/core/event-bus.js:165-198 / 203-235
 - **Issue:** `on()` and `once()` are near-identical — element extraction, validation, and listener object construction are copy-pasted. Any future change to listener shape must be applied in two places, risking divergence.
 - **Fix:** Extract a shared private `#createListener(eventName, callback, options, once)` helper and call it from both `on()` and `once()`.
 
@@ -25,6 +25,12 @@
 - **File:** src/core/event-bus.js:165
 - **Issue:** Auto-pruning via `WeakRef` only activates when callers pass an `HTMLElement` as the third argument. Page modules that subscribe in `connectedCallback` / `init` without passing `this` (the element) and do not call the returned unsubscribe function on teardown will silently accumulate listeners. The prune mechanism does not help non-element subscribers (plain objects, service classes, etc.).
 - **Fix:** Audit every `eventBus.on()` call site in `src/pages/` and `src/core/` to verify: (a) element ref is passed, OR (b) the returned unsubscribe function is stored and called on destruction. Add a lint rule or JSDoc @param note to make the contract explicit.
+
+## EVENT-BUS — Silent non-function callback suppression in non-debug mode
+- **Priority:** P2
+- **File:** src/core/event-bus.js:168-173
+- **Issue:** If `callback` is not a function and `#debug` is `false`, the invalid call is silently ignored and a no-op unsubscribe is returned with no signal to the caller. This means wiring bugs (passing the wrong argument to `on()`) are invisible in production.
+- **Fix:** Always throw or warn when callback is not a function, regardless of debug mode. Silent failure modes hide bugs.
 
 ## EVENT-BUS — `error:system` Re-Emit Can Recurse Deeply
 - **Priority:** P2
@@ -36,7 +42,7 @@
 - **Priority:** P3
 - **File:** src/core/event-bus.js:126
 - **Issue:** `AFFILIATE_CLICK: 'affiliate_click'` breaks the `namespace:action` convention used by every other event. This inconsistency makes wildcard pattern matching and log filtering harder.
-- **Fix:** Rename the string value to `'affiliate:click'` (confirm no external integrations depend on the literal string value first).
+- **Fix:** Rename the string value to `'affiliate:click'` (confirm no external integrations depend on the literal string value first). Note: this string is likely sent to third-party affiliate networks as a literal event name — check all outbound network calls and analytics integrations before renaming. This may not be safe to rename at all.
 
 ## EVENT-BUS — Test Suite Cannot Execute (Broken vitest Install)
 - **Priority:** P1

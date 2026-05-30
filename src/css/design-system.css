@@ -65,6 +65,16 @@
   --shadow-lg:    0 8px 32px rgba(0, 0, 0, 0.6);
   --shadow-brand: 0 4px 24px rgba(124, 58, 237, 0.25);
 
+  /* Font sizes */
+  --font-size-xs:   10px;
+  --font-size-sm:   12px;
+  --font-size-base: 14px;
+  --font-size-md:   16px;
+  --font-size-lg:   18px;
+  --font-size-xl:   20px;
+  --font-size-2xl:  24px;
+  --font-size-3xl:  30px;
+
   /* Transitions */
   --transition-fast:   150ms ease;
   --transition-normal: 220ms ease;
@@ -103,6 +113,61 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.14);
+}
+
+/* ---------------------------------------------------------------
+   COMPAT ALIASES — legacy tokens used in main.css
+   Maps old namespace → canonical design-system tokens.
+   Do NOT use these in new code — use canonical tokens directly.
+--------------------------------------------------------------- */
+:root {
+  /* Spacing */
+  --space-xs: var(--spacing-xs);
+  --space-sm: var(--spacing-sm);
+  --space-md: var(--spacing-md);
+  --space-lg: var(--spacing-lg);
+  --space-xl: var(--spacing-xl);
+
+  /* Surfaces */
+  --bg-dark:     var(--color-surface-primary);
+  --bg-darker:   var(--color-bg-secondary);
+  --bg-darkest:  var(--color-bg-primary);
+  --bg-card:     var(--color-surface-secondary);
+  --bg-elevated: var(--color-surface-hover);
+  --bg-surface:  var(--color-surface-secondary);
+
+  /* Borders */
+  --border-color: var(--color-border);
+  --border-light: var(--color-border);
+  --border-hover: var(--color-border-strong);
+
+  /* Text */
+  --text-primary:   var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted:     var(--color-text-muted);
+  --t1: var(--color-text-primary);
+  --t2: var(--color-text-secondary);
+  --t3: var(--color-text-muted);
+
+  /* Brand */
+  --brand-primary: var(--color-brand);
+  --brand:         var(--color-brand);
+  --brand-hover:   var(--color-brand-hover);
+  --brand-light:   var(--color-brand-muted);
+  --brand-green:   var(--color-success);
+  --brand-glow:    var(--shadow-brand);
+  --brand-glow-strong: 0 4px 40px rgba(124, 58, 237, 0.5);
+
+  /* Shadows */
+  --shadow-glow:       var(--shadow-brand);
+  --shadow-xl:         var(--shadow-lg);
+  --shadow-card-hover: var(--shadow-md);
+
+  /* Typography */
+  --font-family: var(--font-body);
+  --text-small:  var(--font-size-sm);
+  --text-h2:     var(--font-size-2xl);
+  --text-h3:     var(--font-size-xl);
 }
 
 /* ---------------------------------------------------------------

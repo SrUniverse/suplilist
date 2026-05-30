@@ -712,3 +712,92 @@
 - **File:** build output
 - **Issue:** Build completes cleanly with zero warnings. 23 modules transformed. Total precached: 34 entries / 4680.97 KiB. Largest JS chunk: `list-page` at 31.27 kB (7.71 kB gzip). CSS bundle: 44.64 kB (8.54 kB gzip). Service worker: 3.53 kB (1.47 kB gzip).
 - **Fix:** No action required. Monitor `list-page` chunk growth — consider lazy-loading supplements DB parsing if it exceeds 50 kB gzip.
+
+---
+
+# CSS Audit — Task 11
+
+## CSS — Linter: No Configuration Errors
+
+The CSS linter (`stylelint`) ran with zero errors and zero warnings against both `src/css/design-system.css` and `src/css/main.css`. No P2 linter findings to report.
+
+---
+
+## CSS — main.css Uses Undefined Token Namespace (`--space-*`, `--bg-*`, `--text-*`, `--brand-*`)
+
+- **Priority:** P1
+- **File:** `src/css/main.css` (lines 7, 179, 187, 207, 209 — pervasive throughout)
+- **Issue:** `main.css` references ~30 CSS custom properties from a completely different token namespace than what `design-system.css` defines. Properties used include `--space-md`, `--space-xl`, `--bg-dark`, `--bg-darker`, `--bg-darkest`, `--bg-card`, `--bg-elevated`, `--bg-surface`, `--border-color`, `--border-light`, `--border-hover`, `--text-primary`, `--text-secondary`, `--text-muted`, `--brand-primary`, `--brand-green`, `--brand-light`, `--brand-glow`, `--brand-glow-strong`, `--brand`, `--brand-hover`, `--t1`, `--t2`, `--t3`, `--shadow-glow`, `--shadow-xl`, `--shadow-card-hover`, `--font-family`, `--text-h2`, `--text-h3`, `--text-small`. None of these are defined in `design-system.css`, which uses the `--color-*`, `--spacing-*`, `--font-*`, `--shadow-*`, `--transition-*`, `--z-*`, `--radius-*` namespace. These variables silently resolve to the browser initial value (often zero or empty), breaking the entire layout and color intent of app pages (history, calculator, favorites, landing page).
+- **Fix:** Migrate all `--space-*` to `--spacing-*`, `--bg-dark` to `--color-surface-primary`, etc. in `main.css` to match `design-system.css` tokens. Alternatively, add legacy token aliases to `design-system.css` pointing to canonical values. Option (a) is preferred to keep a single source of truth.
+
+---
+
+## CSS — `main.css` Redefines `:root` Variables, Overriding `design-system.css`
+
+- **Priority:** P1
+- **File:** `src/css/main.css:1375-1408`
+- **Issue:** `main.css` contains a second `:root` block (the landing page section) that redefines `--font-body` (overriding the value set in `design-system.css`) and introduces additional tokens. Because `main.css` is imported after `design-system.css` via `@import`, this `:root` block takes effect in cascade order and changes the body font globally. Additionally, `body.landing-body` sets `--text-primary`, `--brand-primary`, etc. using `!important`, which cannot be overridden by the design system for any element inside `.landing-body`.
+- **Fix:** Move landing-page-specific variables into a scoped block only for the landing page, or into a separate `landing.css` file. Remove the `:root` block from `main.css` entirely; keep only `body.landing-body`-scoped overrides.
+
+---
+
+## CSS — `modal-overlay` z-index Conflict (9999 vs Token `--z-modal: 200`)
+
+- **Priority:** P2
+- **File:** `src/css/main.css:165-170`
+- **Issue:** The block `.modal-overlay, .toast, .floating-panel { position: fixed; z-index: 9999; }` hardcodes `z-index: 9999`, overriding the design system token `--z-modal: 200` set in `design-system.css:77`. The token-based `.modal-overlay` definition in `design-system.css` uses `z-index: var(--z-modal)`. The hardcoded rule in `main.css` wins due to cascade order, bypassing the token scale entirely.
+- **Fix:** Remove the duplicate `.modal-overlay` rule from `main.css`. If `z-index: 9999` is intentional, update `--z-modal` in `design-system.css` to the desired value and remove the hardcoded override.
+
+---
+
+## CSS — Hardcoded Hex/RGBA Colors Bypassing Token System in `main.css`
+
+- **Priority:** P2
+- **File:** `src/css/main.css` (multiple lines)
+- **Issue:** Numerous rules use hardcoded color values instead of design-system tokens, making theme changes brittle. Key instances: `.hist-tab-btn.active` uses `color: #fff` (line 343); `.badge-category` uses `rgba(167, 139, 250, 0.12)` — a different brand purple (`167, 139, 250`) than the design system's `124, 58, 237` (lines 424-427); `.interactions-title` uses `color: #ef4444` (line 848); `.fav-marketplace-badge` variants use fully hardcoded brand colors (lines 1224-1231); landing section uses hardcoded backgrounds `#11111a`, `#11111e`, `#06060c`, `#0c0c16` (lines 1621, 1727, 1863).
+- **Fix:** Map these to design system tokens or landing-specific tokens. The brand purple inconsistency (`167, 139, 250` vs `124, 58, 237`) is particularly problematic and must be unified.
+
+---
+
+## CSS — Duplicate `.btn-primary` and `.btn-outline` Selectors Across Files
+
+- **Priority:** P2
+- **File:** `src/css/main.css:2201-2251` vs `src/css/design-system.css:422-469`
+- **Issue:** `main.css` defines `.btn-primary` and `.btn-outline` as standalone classes (landing page button system), while `design-system.css` defines `.btn--primary` and `.btn--outline` (BEM modifier pattern). The non-BEM classes in `main.css` duplicate all button styling without inheriting from `.btn`, creating two separate, diverging button implementations that must be kept in sync manually.
+- **Fix:** Consolidate into a single button system. Use the `.btn` base class with a landing-specific modifier such as `.btn--landing-primary` rather than a new top-level class.
+
+---
+
+## CSS — `design-system.css`: Hardcoded Values in Component Styles
+
+- **Priority:** P3
+- **File:** `src/css/design-system.css`
+- **Issue:** Several component definitions use hardcoded values where tokens exist: `color: #FFFFFF` in `.btn--primary` (line 425) should use a `--color-text-on-brand` token; `.badge` uses raw `gap: 4px`, `padding: 2px 7px`, `border-radius: 5px` instead of `--spacing-xs` and `--radius-sm` (lines 482, 488); `.badge--a/b/c` use hardcoded RGBA/hex instead of semantic tokens (lines 494-506); `pulseBrand` keyframes hardcode `rgba(124, 58, 237, ...)` instead of `--color-brand` (line 229).
+- **Fix:** Extract `--color-text-on-brand: #FFFFFF` token. Replace remaining hardcoded values with tokens.
+
+---
+
+## CSS — Missing Type Scale Tokens in `design-system.css`
+
+- **Priority:** P3
+- **File:** `src/css/design-system.css`
+- **Issue:** The design system defines a type scale as utility classes only (`.text-sm`, `.text-base`, etc.) but not as CSS custom properties (`--font-size-sm`, `--font-size-base`, etc.). As a result, `main.css` cannot reference font sizes via tokens and hardcodes pixel values throughout (10px, 11px, 12px, 13px, 14px, etc.).
+- **Fix:** Add `--font-size-xs: 10px`, `--font-size-sm: 12px`, `--font-size-base: 14px`, `--font-size-md: 16px`, `--font-size-lg: 18px` etc. to the `:root` token block in `design-system.css`.
+
+---
+
+## CSS — Vendor Prefixes: `-webkit-user-select` Unnecessary for Modern Targets
+
+- **Priority:** P3
+- **File:** `src/css/design-system.css:409`, `src/css/design-system.css:550`
+- **Issue:** `-webkit-user-select: none` is paired with `user-select: none` in `.btn` and `.chip`. Since Chrome 54+ and Safari 15.4+ support the unprefixed property, the `-webkit-` prefix is no longer needed for a modern PWA.
+- **Fix:** Remove `-webkit-user-select: none` lines. The `user-select: none` unprefixed property is sufficient.
+
+---
+
+## CSS — `outline: none` on Focus Without Focus-Visible Replacement
+
+- **Priority:** P3
+- **File:** `src/css/main.css:60`
+- **Issue:** The block `input, select, button { outline: none; }` removes the browser default focus indicator globally for all interactive elements without providing a `:focus-visible` alternative. This is a keyboard accessibility regression.
+- **Fix:** Replace with `:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }`, or remove the `outline: none` rule and rely on the custom `border-color` focus styles already defined per-component.

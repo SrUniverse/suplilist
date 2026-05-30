@@ -59,6 +59,60 @@
   }
   </script>
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "O SupliList é gratuito?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sim, 100% gratuito. Sem plano pago, sem assinatura oculta, sem anúncios no app." }
+      },
+      {
+        "@type": "Question",
+        "name": "Preciso criar uma conta?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Não. O SupliList não tem sistema de login. Tudo funciona localmente no seu dispositivo, sem nenhum cadastro." }
+      },
+      {
+        "@type": "Question",
+        "name": "Funciona sem internet?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sim. É um PWA (Progressive Web App). Após o primeiro acesso, funciona completamente offline. Você pode instalá-lo na tela inicial do celular como um app nativo." }
+      },
+      {
+        "@type": "Question",
+        "name": "As dosagens são recomendações médicas?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Não. As dosagens exibidas são baseadas em literatura científica e têm caráter exclusivamente educativo e informativo. Sempre consulte um médico ou nutricionista antes de iniciar qualquer suplementação." }
+      },
+      {
+        "@type": "Question",
+        "name": "De onde vêm as informações dos suplementos?",
+        "acceptedAnswer": { "@type": "Answer", "text": "De estudos clínicos, revisões sistemáticas e meta-análises publicadas em bases científicas. Cada suplemento possui um Nível de Evidência (A, B ou C) que reflete a robustez das evidências disponíveis." }
+      },
+      {
+        "@type": "Question",
+        "name": "Os preços são atualizados em tempo real?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Os preços exibidos são referências e podem não refletir o valor atual. Sempre confirme o preço final diretamente no site do vendedor antes de comprar." }
+      },
+      {
+        "@type": "Question",
+        "name": "Vocês ganham comissão nas compras?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sim, alguns links são de programas de afiliados (Amazon Associates, ML Afiliados, Shopee Afiliados). Ao comprar por esses links, podemos receber uma pequena comissão sem custo adicional para você." }
+      },
+      {
+        "@type": "Question",
+        "name": "Meus dados são seguros?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sim. Toda a sua informação fica armazenada exclusivamente no localStorage do seu navegador. Não possuímos servidores, não coletamos dados pessoais." }
+      },
+      {
+        "@type": "Question",
+        "name": "Como faço backup dos meus dados?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Acesse Configurações → Dados & Privacidade → Exportar meus dados. Um arquivo JSON com todos os seus dados será baixado para o seu dispositivo." }
+      }
+    ]
+  }
+  </script>
+
   <!-- ═══ PWA ═══ -->
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
@@ -69,13 +123,16 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://plausible.io">
+  <meta name="twitter:creator" content="@suplilist">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Privacy-friendly analytics by Plausible -->
-  <script async src="https://plausible.io/js/pa-LaL2LVjzBHnIOJGPIJ9Gh.js"></script>
+  <script defer data-domain="suplilist.com" src="https://plausible.io/js/script.js"></script>
   <script>
-    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-    plausible.init()
+    window.plausible = window.plausible || function() {
+      (window.plausible.q = window.plausible.q || []).push(arguments);
+    };
   </script>
 
   <!-- Dark mode sem flash -->
@@ -577,6 +634,22 @@
   </style>
 
   <!-- CSS carregado via src/core/app.js → Vite processa Tailwind + design-system -->
+
+  <noscript>
+    <style>body { display: block !important; }</style>
+    <div style="font-family:sans-serif;max-width:600px;margin:40px auto;padding:0 20px">
+      <h1>SupliList — Suplementação Baseada em Evidências</h1>
+      <p>Compare preços de 57+ suplementos na Amazon, Mercado Livre e Shopee. Calcule doses personalizadas baseadas em evidência científica. 100% offline e gratuito.</p>
+      <h2>Funcionalidades</h2>
+      <ul>
+        <li>Comparação de preços entre 3 marketplaces</li>
+        <li>Calculadora de dosagem por peso e objetivo</li>
+        <li>Stack personalizado de suplementos</li>
+        <li>Evidência científica (Grau A, B, C) para cada suplemento</li>
+      </ul>
+      <p><a href="https://suplilist.com">Acesse suplilist.com</a></p>
+    </div>
+  </noscript>
 </head>
 
 <body>

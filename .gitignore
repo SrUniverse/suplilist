@@ -73,5 +73,4 @@ Thumbs.db
 # Claude Code (configs locais de sessão)
 .claude/
 
-# Duplicatas de raiz
-service-worker.js
+# (service-worker.js é fonte do PWA — commitado intencionalmente)

@@ -1,6 +1,7 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import Fuse from 'fuse.js';
+import { escapeHtml } from '../utils/escape.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -681,9 +682,9 @@ export default class ListPage {
           ${ev ? `<span class="lp-card-ev-badge" style="background:${evStyle.bg};color:${evStyle.color};">EV. ${ev}</span>` : ''}
         </div>
         <div class="lp-card-info">
-          <p class="lp-card-name">${item.name}</p>
-          <p class="lp-card-cat">${item.category ?? ''}</p>
-          ${desc ? `<p class="lp-card-desc">${desc}</p>` : ''}
+          <p class="lp-card-name">${escapeHtml(item.name)}</p>
+          <p class="lp-card-cat">${escapeHtml(item.category ?? '')}</p>
+          ${desc ? `<p class="lp-card-desc">${escapeHtml(desc)}</p>` : ''}
           <div class="lp-card-price-row">
             <span class="lp-card-price">${formatPrice(priceInfo.price)}</span>
             <span class="lp-card-dose">${doseStr}</span>
@@ -811,12 +812,12 @@ export default class ListPage {
         <div class="lp-modal-top">
           <div class="lp-modal-img-col">
             <div class="lp-modal-img-wrap">
-              <img class="lp-modal-img" src="/assets/${slug}.png" alt="${item.name}" onerror="this.style.display='none'" />
+              <img class="lp-modal-img" src="/assets/${slug}.png" alt="${escapeHtml(item.name)}" onerror="this.style.display='none'" />
             </div>
-            <p class="lp-modal-img-col-name">${item.name}</p>
-            <p class="lp-modal-img-col-cat">${item.category ?? ''}</p>
+            <p class="lp-modal-img-col-name">${escapeHtml(item.name)}</p>
+            <p class="lp-modal-img-col-cat">${escapeHtml(item.category ?? '')}</p>
             ${ev ? `<span style="display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:${evStyle.bg};color:${evStyle.color};">Evidência ${ev}</span>` : ''}
-            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin:4px 0 0;">${item.benefits?.join(' · ') ?? ''}</p>
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin:4px 0 0;">${escapeHtml(item.benefits?.join(' · ') ?? '')}</p>
           </div>
 
           <div class="lp-modal-info-col">
@@ -833,12 +834,12 @@ export default class ListPage {
               </div>
               <div class="lp-tab-content">
                 <div class="lp-tab-pane active" id="lp-tab-dose">
-                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Dose de manutenção:</strong> ${item.dosage?.maintenance ?? '—'} ${item.dosage?.unit ?? ''}</p>
-                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Limite superior:</strong> ${item.dosage?.upperLimit ?? '—'} ${item.dosage?.unit ?? ''}</p>
-                  <p style="margin:0;"><strong style="color:var(--color-text-primary);">Quando tomar:</strong> ${item.dosage?.timing ?? '—'}</p>
+                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Dose de manutenção:</strong> ${escapeHtml(String(item.dosage?.maintenance ?? '—'))} ${escapeHtml(item.dosage?.unit ?? '')}</p>
+                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Limite superior:</strong> ${escapeHtml(String(item.dosage?.upperLimit ?? '—'))} ${escapeHtml(item.dosage?.unit ?? '')}</p>
+                  <p style="margin:0;"><strong style="color:var(--color-text-primary);">Quando tomar:</strong> ${escapeHtml(item.dosage?.timing ?? '—')}</p>
                 </div>
                 <div class="lp-tab-pane" id="lp-tab-benefits">
-                  ${item.benefits?.length ? `<ul>${item.benefits.map(b => `<li>${b}</li>`).join('')}</ul>` : '<p style="color:var(--color-text-muted)">Sem dados.</p>'}
+                  ${item.benefits?.length ? `<ul>${item.benefits.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>` : '<p style="color:var(--color-text-muted)">Sem dados.</p>'}
                 </div>
                 <div class="lp-tab-pane" id="lp-tab-safety">
                   ${warnings}

@@ -6,6 +6,7 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import dosageCalculator from '../ai/dosage-calculator.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const ACTIVITY_LEVELS = [
   { value: 'sedentary',  label: 'Sedentário' },
@@ -242,7 +243,7 @@ export default class CalculatorPage {
 
         <div class="calcp-sci-section">
           <p class="calcp-sci-label">Racional da Dosagem</p>
-          <p class="calcp-sci-text">${rationale || 'Dosagem baseada em estudos clínicos controlados.'}</p>
+          <p class="calcp-sci-text">${escapeHtml(rationale || 'Dosagem baseada em estudos clínicos controlados.')}</p>
         </div>
 
         <div class="calcp-sci-section">
@@ -271,7 +272,7 @@ export default class CalculatorPage {
         ${supp.dosage?.timing ? `
           <div class="calcp-sci-section">
             <p class="calcp-sci-label">Timing Recomendado</p>
-            <p class="calcp-timing-text">⏱ ${supp.dosage.timing}</p>
+            <p class="calcp-timing-text">⏱ ${escapeHtml(supp.dosage.timing)}</p>
           </div>` : ''}
       </div>
     `;

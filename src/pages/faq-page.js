@@ -269,6 +269,9 @@ export default class FaqPage {
   }
 
   _renderItem(item, ci, ii) {
+    // aHtml contains only static, hardcoded anchor tags defined in this module.
+    // Values are reviewed strings, not user input — no escaping needed.
+    // If aHtml ever becomes dynamic or user-supplied, use DOMPurify.sanitize() here.
     const bodyContent = item.aHtml
       ? item.aHtml
       : this._escapeHtml(item.a || '');

@@ -5,30 +5,29 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node build.js",
-    "build:audit": "npx live-server public/ --port=8080 --no-browser & node build.js --audit",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "echo 'Add eslint later'",
+    "test:ui": "vitest --ui",
+    "build:audit": "npx live-server dist/ --port=8080 --no-browser & vite build",
     "lint:css": "npx stylelint 'src/css/**/*.css'",
     "lint:a11y": "npx @axe-core/cli http://localhost:8080"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@vitest/ui": "^4.1.7",
-    "autoprefixer": "^10.4.0",
     "jsdom": "^29.1.1",
-    "postcss": "^8.4.0",
     "stylelint": "^16.0.0",
     "stylelint-config-standard": "^36.0.0",
-    "tailwindcss": "^3.4.0",
     "vite": "^5.0.0",
+    "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.1.7"
   },
   "dependencies": {
-    "fuse.js": "^7.3.0",
-    "puppeteer": "^25.1.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "exceljs": "^4.4.0",
+    "fuse.js": "^7.3.0"
   }
 }

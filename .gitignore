@@ -15,6 +15,10 @@ pnpm-debug.log*
 .yarn/
 .eslintcache
 
+# Vite artefatos temporários (nunca commitar)
+vite.config.js.timestamp-*
+
+
 # Relatórios de Teste
 coverage/
 .vitest-cache/

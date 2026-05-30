@@ -1,113 +1,128 @@
-# Plano de Ação — Qualidade Técnica + UI Redesign
+# Action Plan — Technical Quality + UI Redesign
 
-**Data:** 2026-05-30  
-**Horizonte:** 2–4 semanas  
-**Abordagem:** Auditoria completa → Feature Freeze + Correção
-
----
-
-## Contexto
-
-O SupliList está em v2.0 com 11 páginas implementadas, arquitetura event-bus/state-manager e PWA funcional. O código cresceu sem cobertura de testes adequada e a UI não está satisfazendo o padrão desejado. O objetivo é estabilizar a base técnica e visual do app. O que vem depois deste plano será definido após a conclusão das duas fases.
+**Date:** 2026-05-30
+**Horizon:** 2–4 weeks
+**Approach:** Full audit → feature freeze → systematic remediation
 
 ---
 
-## Estrutura do Plano
+## Context
 
-### Fase 1 — Auditoria (3–5 dias)
+SupliList v2.0 — vanilla JS SPA, Vite build, PWA. Architecture: custom EventBus, Router, StateManager. 11 pages implemented under `src/pages/`. AI modules: `dosage-calculator.js`, `stack-recommender.js`. Supplement data: `database.js` (constant `IT`).
 
-#### Code Review — `src/`
-- **core/** — app.js, event-bus.js, router.js: padrões, acoplamento, dead code
-- **state/** — state-manager.js: mutações diretas, consistência, persistência
-- **pages/** — cada página: lógica misturada com UI, duplicação, erros silenciosos
-- **ai/** — dosage-calculator.js, stack-recommender.js: edge cases, entradas inválidas
-- **Cobertura de testes** — o que existe vs o que falta (Vitest + Playwright)
-- **database.js** — estrutura da constante `IT`, qualidade dos dados
-
-#### Code Cleanliness — `src/`
-- Naming: variáveis, funções e arquivos com nomes claros e consistentes
-- Funções com responsabilidade única — identificar funções longas que fazem coisas demais
-- Dead code — código comentado, imports não usados, variáveis nunca lidas
-- Duplicação — lógica repetida que deveria estar centralizada
-- Consistência de estilo — indentação, aspas, ponto-e-vírgula (verificar alinhamento com ESLint/config existente)
-- Magic numbers/strings — valores hardcoded que deveriam ser constantes nomeadas
-
-#### UX Audit — Páginas
-- Consistência visual entre as 11 páginas
-- Responsividade mobile (tamanhos, espaçamentos, touch targets)
-- Hierarquia tipográfica e uso do design-system.css
-- Fluxos de navegação — onde o usuário se perde
-- Estados vazios, loading e erro — tratamento visual
-
-#### Infra
-- Build Vite — warnings, bundle size, code splitting
-- CI/CD — GitHub Actions: o que passa, falha ou falta
-- PWA — service-worker funcional, manifest correto
-- Deploy GitHub Pages — processo estável
-
-#### Saída da Fase 1
-Lista priorizada de problemas em 3 níveis:
-- **P1** — Crítico: quebra funcionalidade ou experiência principal
-- **P2** — Importante: degrada qualidade mas não bloqueia
-- **P3** — Melhoria: nice-to-have para depois
+Current state: codebase has grown without adequate test coverage; UI does not meet quality bar. Goal: stabilize technical and visual foundations. Post-plan direction TBD after both phases complete.
 
 ---
 
-### Fase 2 — Feature Freeze + Correção (10–15 dias)
+## Phase 1 — Audit (3–5 days)
 
-**Regra:** Zero features novas até todos os critérios de saída serem atendidos.
+### Static Analysis — `src/`
 
-#### Dias 1–3 — P1 Críticos
-- Bugs que quebram funcionalidade core
-- Código inseguro ou com comportamento imprevisível
-- Páginas inutilizáveis em mobile
-- Erros silenciosos no state-manager ou router
+**`src/core/`**
+- `app.js` — initialization order, side effects, module boundaries
+- `event-bus.js` — event naming conventions, listener leak risk, unsubscribe patterns
+- `router.js` — route matching logic, history API usage, error handling on unknown routes
 
-#### Dias 2–8 — UI Redesign (paralelo ao P1)
-- Revisão completa do `design-system.css` — tokens de cor, tipografia, espaçamento
-- Redesign das páginas identificadas na auditoria
-- Consistência visual entre todas as páginas
-- Mobile-first: touch targets, scroll, navegação bottom-tab
-- Estados vazios e de loading com visual adequado
+**`src/state/`**
+- `state-manager.js` — direct mutation vs immutable updates, state shape consistency, persistence strategy (localStorage coupling)
 
-#### Dias 4–10 — Testes
-- Vitest: cobrir `core/`, `state/` e `ai/` com testes unitários
-- Playwright: fluxos críticos E2E (navegar, adicionar suplemento, checkin)
-- Meta: 0 módulos core sem cobertura ao final
+**`src/pages/`**
+- Each page module: separation of concerns (DOM logic vs business logic), error boundaries, event listener cleanup on page unmount
 
-#### Dias 4–10 — P2 Importantes + Code Cleanliness
-Após os P1s resolvidos, atacar os P2s levantados na auditoria:
-- Melhorias de código que degradam qualidade mas não bloqueiam (ex: duplicação, inconsistências de padrão)
-- Páginas com UX ruim mas funcionais
-- Itens de infra secundários
+**`src/ai/`**
+- `dosage-calculator.js` — input validation, edge cases (null, NaN, out-of-range), output contracts
+- `stack-recommender.js` — algorithm correctness, dependency on state shape, fallback behavior
 
-Code cleanliness — aplicar nas áreas auditadas:
-- Renomear variáveis/funções com nomes ruins
-- Extrair funções longas em unidades menores e focadas
-- Remover dead code e imports não usados
-- Centralizar lógica duplicada
-- Substituir magic numbers/strings por constantes nomeadas
+**`database.js`**
+- Shape of constant `IT` — consistency of supplement objects, missing required fields, data integrity
 
-P3s ficam fora do escopo desta fase — registrados para revisão futura.
+**Test coverage baseline**
+- Vitest: which modules have unit tests, which have zero coverage
+- Playwright: which critical flows have E2E tests, which are untested
 
-#### Dias 8–12 — Infra
-- Limpar warnings do build Vite
-- CI estável: lint + testes passando no GitHub Actions
-- Verificar PWA: service-worker, cache, install prompt
+### Code Cleanliness — `src/`
+- **Naming** — ambiguous identifiers (single-letter vars, abbreviated names, mismatched semantics)
+- **SRP violations** — functions exceeding ~20 lines doing multiple unrelated things
+- **Dead code** — unreachable branches, commented-out code, unused imports, variables written but never read
+- **DRY violations** — repeated logic that should be extracted to shared utilities
+- **Style inconsistencies** — mixed quote styles, inconsistent semicolons, indentation deviations (cross-reference ESLint config)
+- **Magic literals** — hardcoded numbers/strings that should be named constants (e.g., timeout values, DOM selectors, localStorage keys)
+
+### UX Audit — Pages
+- Visual consistency across all 11 pages (spacing scale, color tokens, component reuse)
+- Responsive breakpoints: 375px / 768px / 1280px — layout integrity, touch target sizing (min 44x44px)
+- Typography hierarchy — correct use of `design-system.css` tokens vs inline overrides
+- Navigation flows — dead ends, back-navigation issues, missing active states
+- Empty states — pages with no data: is there a visual treatment or blank render?
+- Loading states — async operations: spinner/skeleton or UI freeze?
+- Error states — failed operations: silent failure or user-facing feedback?
+
+### Infra
+- **Vite build** — `npm run build` output: warnings, chunk sizes, tree-shaking gaps
+- **GitHub Actions** — CI pipeline: which jobs pass/fail, missing jobs (type check, E2E, coverage report)
+- **PWA** — service worker registration flow, cache strategy correctness, `manifest.json` completeness, install prompt behavior
+- **Deploy** — GitHub Pages pipeline: build artifact correctness, cache headers
+
+### Phase 1 Output
+Prioritized issue list:
+- **P1** — Breaks core functionality or primary UX flow; must fix before ship
+- **P2** — Degrades quality but does not block core usage; fix in Phase 2
+- **P3** — Improvement; out of scope for this plan, logged for future
 
 ---
 
-## Critérios de Saída
+## Phase 2 — Feature Freeze + Remediation (10–15 days)
 
-- [ ] Todos os P1s resolvidos
-- [ ] Code cleanliness aplicado: sem dead code, sem funções com responsabilidade múltipla, sem magic numbers nas áreas auditadas
-- [ ] P2s resolvidos ou conscientemente adiados com justificativa
-- [ ] UI aprovada: consistente em mobile (375px), tablet (768px) e desktop (1280px); design-system.css aplicado em 100% das páginas; estados vazios e de loading com visual adequado em todas as páginas
-- [ ] `core/`, `state/` e `ai/` com testes passando
-- [ ] CI verde no GitHub
+**Constraint:** No new features merged until all exit criteria pass.
+
+### Days 1–3 — P1 Resolution
+- Runtime bugs causing incorrect behavior or crashes
+- Unsafe patterns: direct DOM manipulation bypassing state, unhandled promise rejections, XSS vectors
+- Mobile-broken pages: layout overflow, unresponsive touch targets, scroll issues
+- Silent failures in `state-manager.js` or `router.js` (swallowed errors, undefined state reads)
+
+### Days 2–8 — UI Redesign (overlaps P1)
+- Audit and consolidate `design-system.css` — define token set: color palette, type scale, spacing scale, border-radius, shadow levels
+- Refactor pages flagged in audit: apply design tokens, remove inline style overrides
+- Implement consistent empty/loading/error state components across all pages
+- Mobile-first pass: fix all breakpoint failures identified in audit (375px baseline)
+- Bottom navigation consistency: active state, icon sizing, tap area
+
+### Days 4–10 — Tests + Code Cleanliness
+**Tests:**
+- Vitest unit tests: `core/event-bus.js`, `core/router.js`, `state/state-manager.js`, `ai/dosage-calculator.js`, `ai/stack-recommender.js`
+- Playwright E2E: supplement browse → add to stack → check-in → history view flow
+- Target: 0 core/state/ai modules without unit test coverage
+
+**Code Cleanliness (applied to audited areas):**
+- Rename ambiguous identifiers to semantically accurate names
+- Extract multi-responsibility functions into single-purpose units
+- Delete all dead code; remove unused imports
+- Extract duplicated logic into shared utility functions under `src/utils/`
+- Replace magic literals with named constants in a dedicated `src/constants.js`
+
+P3 issues are out of scope — logged for post-plan triage.
+
+### Days 8–12 — Infra
+- Resolve all Vite build warnings; verify bundle size is reasonable
+- CI pipeline: all jobs green (lint, unit tests, E2E, build)
+- PWA: verify service worker caches correct assets, unregister stale workers in dev
+- Confirm deploy pipeline produces correct artifact on merge to `main`
 
 ---
 
-## Próximo passo
+## Exit Criteria
 
-Após a conclusão das duas fases, avaliar o estado do app e decidir a direção seguinte. Nenhuma feature nova antes disso.
+- [ ] All P1 issues resolved and verified
+- [ ] Code cleanliness pass complete: no dead code, no SRP violations, no magic literals in audited modules
+- [ ] P2 issues resolved or explicitly deferred with documented rationale
+- [ ] UI passes visual QA at 375px / 768px / 1280px; `design-system.css` tokens applied to 100% of pages; all empty/loading/error states implemented
+- [ ] Unit tests passing for all modules in `core/`, `state/`, `ai/`
+- [ ] E2E critical flow passing in CI
+- [ ] CI pipeline fully green on `main`
+
+---
+
+## Next Step
+
+After both phases complete: assess app state and determine next direction. No feature work before exit criteria are met.

@@ -24,6 +24,14 @@ O SupliList está em v2.0 com 11 páginas implementadas, arquitetura event-bus/s
 - **Cobertura de testes** — o que existe vs o que falta (Vitest + Playwright)
 - **database.js** — estrutura da constante `IT`, qualidade dos dados
 
+#### Code Cleanliness — `src/`
+- Naming: variáveis, funções e arquivos com nomes claros e consistentes
+- Funções com responsabilidade única — identificar funções longas que fazem coisas demais
+- Dead code — código comentado, imports não usados, variáveis nunca lidas
+- Duplicação — lógica repetida que deveria estar centralizada
+- Consistência de estilo — indentação, aspas, ponto-e-vírgula (verificar alinhamento com ESLint/config existente)
+- Magic numbers/strings — valores hardcoded que deveriam ser constantes nomeadas
+
 #### UX Audit — Páginas
 - Consistência visual entre as 11 páginas
 - Responsividade mobile (tamanhos, espaçamentos, touch targets)
@@ -67,11 +75,18 @@ Lista priorizada de problemas em 3 níveis:
 - Playwright: fluxos críticos E2E (navegar, adicionar suplemento, checkin)
 - Meta: 0 módulos core sem cobertura ao final
 
-#### Dias 4–10 — P2 Importantes
+#### Dias 4–10 — P2 Importantes + Code Cleanliness
 Após os P1s resolvidos, atacar os P2s levantados na auditoria:
 - Melhorias de código que degradam qualidade mas não bloqueiam (ex: duplicação, inconsistências de padrão)
 - Páginas com UX ruim mas funcionais
 - Itens de infra secundários
+
+Code cleanliness — aplicar nas áreas auditadas:
+- Renomear variáveis/funções com nomes ruins
+- Extrair funções longas em unidades menores e focadas
+- Remover dead code e imports não usados
+- Centralizar lógica duplicada
+- Substituir magic numbers/strings por constantes nomeadas
 
 P3s ficam fora do escopo desta fase — registrados para revisão futura.
 
@@ -85,6 +100,7 @@ P3s ficam fora do escopo desta fase — registrados para revisão futura.
 ## Critérios de Saída
 
 - [ ] Todos os P1s resolvidos
+- [ ] Code cleanliness aplicado: sem dead code, sem funções com responsabilidade múltipla, sem magic numbers nas áreas auditadas
 - [ ] P2s resolvidos ou conscientemente adiados com justificativa
 - [ ] UI aprovada: consistente em mobile (375px), tablet (768px) e desktop (1280px); design-system.css aplicado em 100% das páginas; estados vazios e de loading com visual adequado em todas as páginas
 - [ ] `core/`, `state/` e `ai/` com testes passando

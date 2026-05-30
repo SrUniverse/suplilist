@@ -4,11 +4,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; manifest-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://plausible.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://plausible.io; manifest-src 'self'">
   <meta name="theme-color" content="#7C3AED">
-  <title>SupliList v4.0 — Suplementação Inteligente</title>
-  <meta name="description"
-    content="Rastreie suplementos, compare preços, receba recomendações de IA. 100% offline, privacidade total.">
+
+  <!-- ═══ SEO PRIMARY ═══ -->
+  <title>SupliList | Suplementos com Evidência Científica — Compare Preços e Doses</title>
+  <meta name="description" content="Compare preços de creatina, whey protein, vitaminas e 57+ suplementos na Amazon, Mercado Livre e Shopee. Calcule doses baseadas no seu peso. 100% offline e gratuito.">
+  <meta name="keywords" content="suplementos, creatina, whey protein, vitaminas, comparador de preços, dosagem, suplementação, stack de suplementos, Amazon suplementos, Mercado Livre suplementos">
+  <link rel="canonical" href="https://suplilist.com/">
+
+  <!-- ═══ OPEN GRAPH (Facebook, Instagram, WhatsApp) ═══ -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://suplilist.com/">
+  <meta property="og:title" content="SupliList | Suplementação Baseada em Evidências">
+  <meta property="og:description" content="Compare preços de 57+ suplementos na Amazon, Mercado Livre e Shopee. Calcule doses personalizadas. 100% offline e gratuito.">
+  <meta property="og:image" content="https://suplilist.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SupliList — Compare preços de suplementos">
+  <meta property="og:site_name" content="SupliList">
+  <meta property="og:locale" content="pt_BR">
+
+  <!-- ═══ TWITTER CARD ═══ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@suplilist">
+  <meta name="twitter:title" content="SupliList | Suplementação Baseada em Evidências">
+  <meta name="twitter:description" content="Compare preços de 57+ suplementos na Amazon, Mercado Livre e Shopee. Calcule doses personalizadas. 100% offline e gratuito.">
+  <meta name="twitter:image" content="https://suplilist.com/og-image.png">
+
+  <!-- ═══ SCHEMA.ORG JSON-LD ═══ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "SupliList",
+    "url": "https://suplilist.com",
+    "description": "Compare preços de suplementos na Amazon, Mercado Livre e Shopee. Calcule doses baseadas em evidência científica.",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "BRL"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "SupliList",
+      "url": "https://suplilist.com",
+      "sameAs": ["https://www.instagram.com/suplilist/"]
+    },
+    "keywords": "suplementos, creatina, whey protein, vitaminas, comparador de preços",
+    "inLanguage": "pt-BR",
+    "screenshot": "https://suplilist.com/screenshot-1.png"
+  }
+  </script>
+
+  <!-- ═══ PWA ═══ -->
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
   <link rel="apple-touch-icon" href="/icon-192.png">
@@ -20,6 +71,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- ═══ PLAUSIBLE ANALYTICS (sem cookies, LGPD-friendly) ═══ -->
+  <script defer data-domain="suplilist.com" src="https://plausible.io/js/script.js"></script>
+
   <!-- Dark mode sem flash -->
   <script>
     (function () {
@@ -27,6 +81,13 @@
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const isDark = saved ? saved === 'dark' : prefersDark;
       document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
+      // ═══ GitHub Pages SPA History API: restaura path após redirect do 404.html ═══
+      var redirect = sessionStorage.getItem('spa-redirect');
+      if (redirect) {
+        sessionStorage.removeItem('spa-redirect');
+        window.history.replaceState(null, null, '/' + redirect);
+      }
     })();
   </script>
 

@@ -461,7 +461,8 @@ export default class HistoryPage {
     const ctaBtn = this.container.querySelector('#hp-cta-checkin');
     if (ctaBtn) {
       ctaBtn.addEventListener('click', () => {
-        window.location.hash = '#/checkin';
+        window.history.pushState(null, null, '/checkin');
+        window.dispatchEvent(new PopStateEvent('popstate'));
       });
     }
   }

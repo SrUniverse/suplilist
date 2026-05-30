@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
     // strictPort removido: Vite auto-incrementa a porta se 5173 estiver ocupada
-    open: '/'
+    open: '/',
+    historyApiFallback: true
   },
   plugins: [
     VitePWA({

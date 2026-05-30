@@ -387,7 +387,8 @@ export default class ProfilePage {
         if (confirmation === 'RESETAR') {
           stateManager.reset();
           eventBus.emit('ui:toastRequested', { message: 'App resetado com sucesso.', type: 'info' });
-          window.location.hash = '#/home';
+          window.history.pushState(null, null, '/home');
+          window.dispatchEvent(new PopStateEvent('popstate'));
         } else if (confirmation !== null) {
           eventBus.emit('ui:toastRequested', { message: 'Texto incorreto. Reset cancelado.', type: 'error' });
         }

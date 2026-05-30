@@ -1,0 +1,47 @@
+<h2>Seção 2 — Fase 1: Auditoria</h2>
+<p class="subtitle">O que vamos investigar em cada área (3–5 dias)</p>
+
+<div class="section">
+  <h3>🔍 Code Review — <code>src/</code></h3>
+  <ul>
+    <li><strong>core/</strong> — app.js, event-bus.js, router.js: padrões, acoplamento, dead code</li>
+    <li><strong>state/</strong> — state-manager.js: mutações diretas, consistência, persistência</li>
+    <li><strong>pages/</strong> — cada página: lógica misturada com UI, duplicação, erros silenciosos</li>
+    <li><strong>ai/</strong> — dosage-calculator.js, stack-recommender.js: edge cases, entradas inválidas</li>
+    <li><strong>Cobertura de testes</strong> — o que existe vs o que falta (Vitest + Playwright)</li>
+    <li><strong>database.js</strong> — estrutura da constante <code>IT</code>, qualidade dos dados</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>🎨 UX Audit — Páginas</h3>
+  <ul>
+    <li>Consistência visual entre todas as 11 páginas</li>
+    <li>Responsividade mobile (tamanhos, espaçamentos, touch targets)</li>
+    <li>Hierarquia tipográfica e uso do design-system.css</li>
+    <li>Fluxos de navegação — onde o usuário se perde</li>
+    <li>Estados vazios, loading e erro — estão tratados visualmente?</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>⚙️ Infra</h3>
+  <ul>
+    <li>Build Vite — warnings, bundle size, code splitting</li>
+    <li>CI/CD — GitHub Actions: o que passa, o que falha, o que está faltando</li>
+    <li>PWA — service-worker funcional? manifest correto?</li>
+    <li>Deploy para GitHub Pages — processo estável?</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>📋 Saída da Fase 1</h3>
+  <p>Uma lista priorizada de problemas em 3 níveis:</p>
+  <ul>
+    <li><strong>P1</strong> — Crítico: quebra funcionalidade ou experiência principal</li>
+    <li><strong>P2</strong> — Importante: degrada qualidade mas não bloqueia</li>
+    <li><strong>P3</strong> — Melhoria: nice-to-have para depois</li>
+  </ul>
+</div>
+
+<p class="subtitle">Essa cobertura de auditoria está completa? Tem algo que quer adicionar ou remover?</p>

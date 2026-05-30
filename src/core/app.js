@@ -4,6 +4,7 @@ import { eventBus } from './event-bus.js';
 import { Router } from './router.js';
 
 const routes = [
+  { path: '/',          load: () => import('../pages/home-page.js') },
   { path: '/home',      load: () => import('../pages/home-page.js') },
   { path: '/list',      load: () => import('../pages/list-page.js') },
   { path: '/my-stack',  load: () => import('../pages/my-stack-page.js') },
@@ -19,8 +20,8 @@ const routes = [
 
 // Landing mode: hide app shell (sidebar/topbar) on the marketing home
 function applyLandingMode() {
-  const hash = window.location.hash.replace('#', '') || '/home';
-  const isLanding = hash === '/home' || hash === '/';
+  const path = window.location.pathname;
+  const isLanding = path === '/' || path === '/home';
   document.body.classList.toggle('body--landing', isLanding);
 }
 
@@ -34,21 +35,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Landing mode (initial + on every navigation)
   applyLandingMode();
-  window.addEventListener('hashchange', applyLandingMode);
+  window.addEventListener('popstate', applyLandingMode);
 
-  // Default route: se não há hash, vai para /home
-  if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#/') {
-    window.location.hash = '#/home';
+  // Default route: se não há pathname específico, vai para /home
+  const currentPath = window.location.pathname;
+  if (currentPath === '/' || currentPath === '') {
+    window.history.replaceState(null, null, '/home');
+    applyLandingMode();
   }
 
   // Init router
   const container = document.querySelector('#router-outlet');
-  new Router(routes, container).start();
+  const router = new Router(routes, container);
+  router.start();
 
-  // Nav item clicks
+  // Expor o router globalmente para uso nos data-nav
+  window.__router = router;
+
+  // Nav item clicks — migrado de data-route (hash) para pathname
   document.querySelectorAll('[data-route]').forEach(btn => {
     btn.addEventListener('click', () => {
-      window.location.hash = '#' + btn.dataset.route;
+      const path = btn.dataset.route;
+      window.history.pushState(null, null, path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     });
   });
 

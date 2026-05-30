@@ -339,7 +339,9 @@ export default class FaqPage {
     e.preventDefault();
     const href = link.dataset.href;
     if (href) {
-      window.location.hash = href;
+      const path = href.replace(/^#/, '');
+      window.history.pushState(null, null, path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   }
 

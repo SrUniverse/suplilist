@@ -34,8 +34,11 @@ export default class HomePage {
       const navTarget = e.target.closest('[data-nav]');
       if (navTarget) {
         e.preventDefault();
-        const hash = navTarget.getAttribute('data-nav');
-        if (hash) window.location.hash = hash;
+        const path = navTarget.getAttribute('data-nav');
+        if (path && path.startsWith('/')) {
+          window.history.pushState(null, null, path);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
         return;
       }
       const actionTarget = e.target.closest('[data-action]');
@@ -88,10 +91,16 @@ export default class HomePage {
 
         <nav class="lp-nav" aria-label="Navegação principal">
           <div class="lp-nav__inner">
-            <a class="lp-logo" data-nav="#/home" href="#/home" aria-label="SupliList — início">SupliList</a>
-            <button class="lp-btn lp-btn--primary lp-btn--sm" data-nav="#/list" type="button">
-              Entrar no App →
-            </button>
+            <a class="lp-logo" data-nav="/home" href="/home" aria-label="SupliList — início">SupliList</a>
+            <div class="lp-nav__actions">
+              <a class="lp-nav__ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener" aria-label="Instagram SupliList">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                @suplilist
+              </a>
+              <button class="lp-btn lp-btn--primary lp-btn--sm" data-nav="/list" type="button">
+                Entrar no App →
+              </button>
+            </div>
           </div>
         </nav>
 
@@ -109,7 +118,7 @@ export default class HomePage {
                 100% offline, sem assinatura.
               </p>
               <div class="lp-hero__cta lp-anim" style="--d:.24s">
-                <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="#/list" type="button">Começar Agora →</button>
+                <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Começar Agora →</button>
                 <button class="lp-btn lp-btn--outline lp-btn--lg" data-action="scroll-features" type="button">Ver Recursos ↓</button>
               </div>
               <p class="lp-hero__stats lp-anim" style="--d:.32s">
@@ -155,7 +164,7 @@ export default class HomePage {
             <div class="lp-chips">
               ${goals
                 .map(
-                  (g) => `<button class="lp-chip" data-nav="#/list" type="button">${g}</button>`
+                  (g) => `<button class="lp-chip" data-nav="/list" type="button">${g}</button>`
                 )
                 .join('')}
             </div>
@@ -176,10 +185,37 @@ export default class HomePage {
             </div>
           </section>
 
+          <section class="lp-section lp-instagram" aria-label="Instagram">
+            <div class="lp-ig__card">
+              <div class="lp-ig__inner">
+                <div class="lp-ig__left">
+                  <div class="lp-ig__icon" aria-hidden="true">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                  </div>
+                  <div>
+                    <p class="lp-ig__handle">@suplilist</p>
+                    <p class="lp-ig__bio">Suplementação baseada em ciência. Compare preços, calcule doses, monte seu stack. 💊🔬</p>
+                  </div>
+                </div>
+                <a
+                  class="lp-btn lp-btn--ig"
+                  href="https://www.instagram.com/suplilist/?utm_source=site&utm_medium=landing&utm_campaign=seguir"
+                  target="_blank"
+                  rel="noopener"
+                  aria-label="Seguir @suplilist no Instagram"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                  Seguir no Instagram
+                </a>
+              </div>
+            </div>
+            <p class="lp-ig__cta-text">Dicas semanais de suplementação, promoções e novidades do app — tudo no Instagram.</p>
+          </section>
+
           <section class="lp-cta" aria-label="Comece agora">
             <h2 class="lp-cta__title">PARE DE ADIVINHAR.<br>COMECE COM CIÊNCIA.</h2>
             <p class="lp-cta__sub">Sem cadastro. Sem assinatura. Tudo no seu dispositivo.</p>
-            <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="#/list" type="button">Abrir o App →</button>
+            <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Abrir o App →</button>
           </section>
 
         </main>
@@ -194,23 +230,31 @@ export default class HomePage {
 
             <div class="lp-footer__col">
               <h3 class="lp-footer__head">Produto</h3>
-              <a class="lp-footer__link" data-nav="#/list" href="#/list">Catálogo</a>
-              <a class="lp-footer__link" data-nav="#/dosage" href="#/dosage">Calculadora</a>
-              <a class="lp-footer__link" data-nav="#/my-stack" href="#/my-stack">Meu Stack</a>
+              <a class="lp-footer__link" data-nav="/list" href="/list">Catálogo</a>
+              <a class="lp-footer__link" data-nav="/dosage" href="/dosage">Calculadora</a>
+              <a class="lp-footer__link" data-nav="/my-stack" href="/my-stack">Meu Stack</a>
             </div>
 
             <div class="lp-footer__col">
               <h3 class="lp-footer__head">Suporte</h3>
-              <a class="lp-footer__link" data-nav="#/faq" href="#/faq">FAQ</a>
-              <a class="lp-footer__link" data-nav="#/settings" href="#/settings">Configurações</a>
+              <a class="lp-footer__link" data-nav="/faq" href="/faq">FAQ</a>
+              <a class="lp-footer__link" data-nav="/settings" href="/settings">Configurações</a>
             </div>
 
             <div class="lp-footer__col">
               <h3 class="lp-footer__head">Legal</h3>
-              <a class="lp-footer__link" data-nav="#/legal?doc=termos" href="#/legal?doc=termos">Termos de Uso</a>
-              <a class="lp-footer__link" data-nav="#/legal?doc=privacidade" href="#/legal?doc=privacidade">Privacidade</a>
-              <a class="lp-footer__link" data-nav="#/legal?doc=medico" href="#/legal?doc=medico">Aviso Médico</a>
-              <a class="lp-footer__link" data-nav="#/legal?doc=afiliados" href="#/legal?doc=afiliados">Afiliados</a>
+              <a class="lp-footer__link" data-nav="/legal?doc=termos" href="/legal?doc=termos">Termos de Uso</a>
+              <a class="lp-footer__link" data-nav="/legal?doc=privacidade" href="/legal?doc=privacidade">Privacidade</a>
+              <a class="lp-footer__link" data-nav="/legal?doc=medico" href="/legal?doc=medico">Aviso Médico</a>
+              <a class="lp-footer__link" data-nav="/legal?doc=afiliados" href="/legal?doc=afiliados">Afiliados</a>
+            </div>
+
+            <div class="lp-footer__col">
+              <h3 class="lp-footer__head">Redes Sociais</h3>
+              <a class="lp-footer__link lp-footer__link--ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                Instagram
+              </a>
             </div>
           </div>
 
@@ -254,6 +298,16 @@ export default class HomePage {
         max-width: 1160px; margin: 0 auto; padding: 14px 24px;
         display: flex; align-items: center; justify-content: space-between;
       }
+      .lp-nav__actions {
+        display: flex; align-items: center; gap: 16px;
+      }
+      .lp-nav__ig {
+        display: flex; align-items: center; gap: 7px;
+        font-size: 14px; font-weight: 500; text-decoration: none;
+        color: var(--color-text-secondary, #9A9A9A);
+        transition: color .15s ease;
+      }
+      .lp-nav__ig:hover { color: var(--color-text-primary, #F2F2F2); }
       .lp-logo {
         font-family: 'Syne', sans-serif; font-weight: 800;
         font-size: 22px; letter-spacing: -0.02em;
@@ -397,6 +451,53 @@ export default class HomePage {
         letter-spacing: -0.03em; margin: 0 0 20px;
       }
       .lp-cta__sub { font-size: 17px; color: var(--color-text-secondary, #9A9A9A); margin: 0 0 32px; }
+
+      /* ── INSTAGRAM SECTION ── */
+      .lp-instagram { padding-top: 40px; padding-bottom: 40px; }
+      .lp-ig__card {
+        max-width: 720px; margin: 0 auto 20px;
+        padding: 2px; border-radius: 20px;
+        background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+      }
+      .lp-ig__inner {
+        background: var(--color-bg-primary, #0A0A0A);
+        border-radius: 18px; padding: 28px 32px;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 24px; flex-wrap: wrap;
+      }
+      .lp-ig__left {
+        display: flex; align-items: center; gap: 20px; flex: 1;
+      }
+      .lp-ig__icon {
+        width: 60px; height: 60px; border-radius: 16px; flex-shrink: 0;
+        background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .lp-ig__handle {
+        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-size: 20px; margin: 0 0 6px;
+        background: linear-gradient(135deg, #c056ff, #ff6b35);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .lp-ig__bio {
+        font-size: 14px; line-height: 1.5; margin: 0;
+        color: var(--color-text-secondary, #9A9A9A);
+      }
+      .lp-btn--ig {
+        display: flex; align-items: center; gap: 8px;
+        font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+        padding: 12px 20px; border-radius: 12px; border: none;
+        background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+        color: #fff; cursor: pointer; text-decoration: none; white-space: nowrap;
+        transition: opacity .18s ease, transform .12s ease;
+      }
+      .lp-btn--ig:hover { opacity: 0.88; transform: translateY(-1px); }
+      .lp-btn--ig:active { transform: translateY(1px); }
+      .lp-ig__cta-text {
+        text-align: center; font-size: 14px;
+        color: var(--color-text-muted, #555555); max-width: 480px; margin: 0 auto;
+      }
 
       /* ── FOOTER ── */
       .lp-footer {

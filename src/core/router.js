@@ -4,7 +4,7 @@ export class Router {
     this.container = container;
     this.currentPage = null;
 
-    window.addEventListener('hashchange', () => this.handleRoute());
+    window.addEventListener('popstate', () => this.handleRoute());
   }
 
   start() {
@@ -12,13 +12,14 @@ export class Router {
   }
 
   navigate(path) {
-    window.location.hash = path;
+    window.history.pushState(null, null, path);
+    this.handleRoute();
   }
 
-  matchRoute(hash) {
-    // Strip query string before matching (e.g. #/legal?doc=termos → legal)
-    const full = hash.replace(/^#\/?/, '') || '/';
-    const [path, query] = full.split('?');
+  matchRoute(pathname) {
+    // Strip query string and normalize
+    const [path, query] = pathname.split('?');
+    const normalizedPath = path || '/';
     const queryParams = {};
     if (query) {
       query.split('&').forEach(pair => {
@@ -27,7 +28,7 @@ export class Router {
       });
     }
     for (const route of this.routes) {
-      const params = matchPath(route.path, path);
+      const params = matchPath(route.path, normalizedPath);
       if (params !== null) {
         return { route, params: { ...params, ...queryParams } };
       }
@@ -36,8 +37,9 @@ export class Router {
   }
 
   async handleRoute() {
-    const hash = window.location.hash || '#/';
-    const match = this.matchRoute(hash);
+    const pathname = window.location.pathname || '/';
+    const search = window.location.search || '';
+    const match = this.matchRoute(pathname + search);
 
     if (!match) return;
 
@@ -65,14 +67,14 @@ export class Router {
       this.container.innerHTML = '<p style="color:var(--color-error);padding:2rem;">Erro ao carregar a página. Tente novamente.</p>';
     }
 
-    this.updateNav(hash);
+    this.updateNav(pathname);
   }
 
-  updateNav(hash) {
-    const path = hash.replace(/^#\/?/, '') || 'home';
+  updateNav(pathname) {
+    const path = pathname.replace(/^\//, '') || 'home';
     document.querySelectorAll('.nav-item').forEach(el => {
       const route = el.dataset.route || el.getAttribute('href') || '';
-      const navPath = route.replace(/^#?\/?/, '');
+      const navPath = route.replace(/^\//, '');
       el.classList.toggle('active', navPath === path);
     });
   }

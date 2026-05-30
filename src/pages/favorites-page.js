@@ -283,7 +283,8 @@ export default class FavoritesPage {
     const btnCatalog = this.container.querySelector('#btn-go-catalog');
     if (btnCatalog) {
       btnCatalog.addEventListener('click', () => {
-        window.location.hash = '#/list';
+        window.history.pushState(null, null, '/list');
+        window.dispatchEvent(new PopStateEvent('popstate'));
       });
     }
 

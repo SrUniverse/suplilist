@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h2 { font-size: 1.6rem; font-weight: 700; color: #ffffff; margin-bottom: 0.4rem; }
+    .subtitle { color: #a0a0b0; margin-bottom: 2rem; font-size: 0.95rem; }
+    h3 { font-size: 1.05rem; font-weight: 600; color: #c084fc; margin-bottom: 0.5rem; }
+    .section {
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    ul { margin-left: 1.25rem; }
+    li { color: #d0d0e0; margin-bottom: 0.35rem; font-size: 0.92rem; }
+    strong { color: #f0f0ff; }
+    code {
+      background: #2a2a4a;
+      color: #a78bfa;
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .tag {
+      display: inline-block;
+      background: #2a2a4a;
+      color: #818cf8;
+      font-size: 0.75rem;
+      padding: 0.2em 0.6em;
+      border-radius: 20px;
+      margin-bottom: 0.5rem;
+    }
+    .criteria {
+      background: #0f3460;
+      border: 1px solid #1a4a8a;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .criteria li { color: #a5f3fc; }
+  </style>
+</head>
+<body>
+  <h2>Fase 2 — Feature Freeze + Correção</h2>
+  <p class="subtitle">10–15 dias de foco total em qualidade. Zero features novas.</p>
+
+  <div class="section">
+    <span class="tag">Dias 1–3</span>
+    <h3>🚨 P1 — Críticos primeiro</h3>
+    <ul>
+      <li>Bugs que quebram funcionalidade core</li>
+      <li>Código inseguro ou com comportamento imprevisível</li>
+      <li>Páginas inutilizáveis em mobile</li>
+      <li>Erros silenciosos no <strong>state-manager</strong> ou <strong>router</strong></li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <span class="tag">Dias 2–8</span>
+    <h3>🎨 UI Redesign</h3>
+    <ul>
+      <li>Revisão completa do <code>design-system.css</code> — tokens de cor, tipografia, espaçamento</li>
+      <li>Redesign das páginas que você não está gostando</li>
+      <li>Consistência visual entre todas as páginas</li>
+      <li>Mobile-first: touch targets, scroll, navegação bottom-tab</li>
+      <li>Estados vazios e de loading com visual adequado</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <span class="tag">Dias 4–10</span>
+    <h3>🧪 Testes</h3>
+    <ul>
+      <li>Vitest: cobrir <code>core/</code>, <code>state/</code> e <code>ai/</code> com testes unitários</li>
+      <li>Playwright: fluxos críticos E2E (navegar, adicionar suplemento, checkin)</li>
+      <li>Meta: 0 módulos core sem cobertura ao final</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <span class="tag">Dias 8–12</span>
+    <h3>⚙️ Infra</h3>
+    <ul>
+      <li>Limpar warnings do build Vite</li>
+      <li>CI estável: lint + testes passando no GitHub Actions</li>
+      <li>Verificar PWA: service-worker, cache, install prompt</li>
+    </ul>
+  </div>
+
+  <div class="criteria">
+    <h3>✅ Critérios de saída da Fase 2</h3>
+    <ul>
+      <li>Todos os P1s resolvidos</li>
+      <li>UI consistente e aprovada por você</li>
+      <li>Core, state e ai com testes passando</li>
+      <li>CI verde no GitHub</li>
+      <li>Pronto para retomar features (Sprint 23+)</li>
+    </ul>
+  </div>
+
+  <p style="color:#a0a0b0; font-size:0.9rem; margin-top:1rem;">Essa fase está alinhada? Algum ajuste antes de fecharmos o design?</p>
+</body>
+</html>

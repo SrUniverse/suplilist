@@ -321,23 +321,23 @@ export default class SettingsPage {
         <div class="sp-card">
           <h2 class="sp-section-label">Sobre &amp; Legal</h2>
           <p class="sp-version">SupliList v4.0.0 · Feito com ❤️ e ciência</p>
-          <button class="sp-link-btn" data-hash="#/faq">
+          <button class="sp-link-btn" data-path="/faq">
             <span>❓ Perguntas Frequentes (FAQ)</span>
             <span class="sp-link-arrow">→</span>
           </button>
-          <button class="sp-link-btn" data-hash="#/legal?doc=termos">
+          <button class="sp-link-btn" data-path="/legal?doc=termos">
             <span>📋 Termos de Uso</span>
             <span class="sp-link-arrow">→</span>
           </button>
-          <button class="sp-link-btn" data-hash="#/legal?doc=privacidade">
+          <button class="sp-link-btn" data-path="/legal?doc=privacidade">
             <span>🔒 Política de Privacidade</span>
             <span class="sp-link-arrow">→</span>
           </button>
-          <button class="sp-link-btn" data-hash="#/legal?doc=medico">
+          <button class="sp-link-btn" data-path="/legal?doc=medico">
             <span>⚕️ Aviso Médico</span>
             <span class="sp-link-arrow">→</span>
           </button>
-          <button class="sp-link-btn" data-hash="#/legal?doc=afiliados">
+          <button class="sp-link-btn" data-path="/legal?doc=afiliados">
             <span>🔗 Divulgação de Afiliados</span>
             <span class="sp-link-arrow">→</span>
           </button>
@@ -423,10 +423,12 @@ export default class SettingsPage {
     }
 
     // Legal / nav links
-    const linkBtns = this.container.querySelectorAll('.sp-link-btn[data-hash]');
+    const linkBtns = this.container.querySelectorAll('.sp-link-btn[data-path]');
     linkBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        window.location.hash = btn.getAttribute('data-hash');
+        const path = btn.getAttribute('data-path');
+        window.history.pushState(null, null, path);
+        window.dispatchEvent(new PopStateEvent('popstate'));
       });
     });
   }

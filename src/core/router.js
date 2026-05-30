@@ -63,8 +63,6 @@ export class Router {
       this.currentPage = new PageClass(this.container, params);
       await this.currentPage.mount();
       if (typeof window.plausible === 'function') {
-        const pathname = window.location.pathname;
-        const search = window.location.search;
         window.plausible('pageview', {
           u: 'https://suplilist.com' + pathname + search,
         });

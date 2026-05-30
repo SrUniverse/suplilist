@@ -5,7 +5,11 @@ export default [
   {
     files: ['src/**/*.js'],
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      }],
       'no-undef': 'error',
       'no-useless-assignment': 'warn',
     },
@@ -52,6 +56,23 @@ export default [
         indexedDB: 'readonly',
         IDBKeyRange: 'readonly',
         crypto: 'readonly',
+      },
+    },
+  },
+  {
+    // Vitest globals for test files
+    files: ['src/**/*.test.js'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        vi: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
       },
     },
   },

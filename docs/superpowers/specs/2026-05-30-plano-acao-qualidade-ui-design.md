@@ -8,7 +8,7 @@
 
 ## Contexto
 
-O SupliList está em v2.0 com 11 páginas implementadas, arquitetura event-bus/state-manager e PWA funcional. O código cresceu sem cobertura de testes adequada e a UI não está satisfazendo o padrão desejado. O objetivo é estabilizar a base antes de avançar para o Sprint 23+.
+O SupliList está em v2.0 com 11 páginas implementadas, arquitetura event-bus/state-manager e PWA funcional. O código cresceu sem cobertura de testes adequada e a UI não está satisfazendo o padrão desejado. O objetivo é estabilizar a base técnica e visual do app. O que vem depois deste plano será definido após a conclusão das duas fases.
 
 ---
 
@@ -67,6 +67,14 @@ Lista priorizada de problemas em 3 níveis:
 - Playwright: fluxos críticos E2E (navegar, adicionar suplemento, checkin)
 - Meta: 0 módulos core sem cobertura ao final
 
+#### Dias 4–10 — P2 Importantes
+Após os P1s resolvidos, atacar os P2s levantados na auditoria:
+- Melhorias de código que degradam qualidade mas não bloqueiam (ex: duplicação, inconsistências de padrão)
+- Páginas com UX ruim mas funcionais
+- Itens de infra secundários
+
+P3s ficam fora do escopo desta fase — registrados para revisão futura.
+
 #### Dias 8–12 — Infra
 - Limpar warnings do build Vite
 - CI estável: lint + testes passando no GitHub Actions
@@ -77,13 +85,13 @@ Lista priorizada de problemas em 3 níveis:
 ## Critérios de Saída
 
 - [ ] Todos os P1s resolvidos
-- [ ] UI consistente e aprovada
+- [ ] P2s resolvidos ou conscientemente adiados com justificativa
+- [ ] UI aprovada: consistente em mobile (375px), tablet (768px) e desktop (1280px); design-system.css aplicado em 100% das páginas; estados vazios e de loading com visual adequado em todas as páginas
 - [ ] `core/`, `state/` e `ai/` com testes passando
 - [ ] CI verde no GitHub
-- [ ] Pronto para retomar features (Sprint 23+)
 
 ---
 
 ## Próximo passo
 
-Após aprovação deste spec: criar plano de implementação detalhado com tarefas executáveis por sprint de trabalho.
+Após a conclusão das duas fases, avaliar o estado do app e decidir a direção seguinte. Nenhuma feature nova antes disso.

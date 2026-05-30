@@ -22,7 +22,7 @@ const FAQ_DATA = [
       {
         q: 'As dosagens são recomendações médicas?',
         aHtml:
-          'NÃO. As dosagens exibidas são baseadas em literatura científica e têm caráter exclusivamente educativo e informativo. Elas não constituem prescrição ou aconselhamento médico. Sempre consulte um médico ou nutricionista antes de iniciar, alterar ou interromper qualquer suplementação. Acesse nosso <a class="faq-link" data-href="#/legal?doc=medico">Aviso Médico</a> completo.',
+          'NÃO. As dosagens exibidas são baseadas em literatura científica e têm caráter exclusivamente educativo e informativo. Elas não constituem prescrição ou aconselhamento médico. Sempre consulte um médico ou nutricionista antes de iniciar, alterar ou interromper qualquer suplementação. Acesse nosso <a class="faq-link" data-href="/legal?doc=medico">Aviso Médico</a> completo.',
       },
       {
         q: 'De onde vêm as informações dos suplementos?',
@@ -44,7 +44,7 @@ const FAQ_DATA = [
       {
         q: 'Vocês ganham comissão nas compras?',
         aHtml:
-          'Sim, alguns links são de programas de afiliados (Amazon Associates, ML Afiliados, Shopee Afiliados). Ao comprar por esses links, podemos receber uma pequena comissão, sem nenhum custo adicional para você. Isso ajuda a manter o SupliList gratuito. Veja nossa política completa de <a class="faq-link" data-href="#/legal?doc=afiliados">afiliados</a>.',
+          'Sim, alguns links são de programas de afiliados (Amazon Associates, ML Afiliados, Shopee Afiliados). Ao comprar por esses links, podemos receber uma pequena comissão, sem nenhum custo adicional para você. Isso ajuda a manter o SupliList gratuito. Veja nossa política completa de <a class="faq-link" data-href="/legal?doc=afiliados">afiliados</a>.',
       },
     ],
   },
@@ -54,12 +54,12 @@ const FAQ_DATA = [
       {
         q: 'Meus dados são seguros?',
         aHtml:
-          'Sim. Toda a sua informação (stack, check-ins, perfil) fica armazenada exclusivamente no localStorage do seu navegador. Não possuímos servidores, não coletamos dados pessoais e não temos acesso a nenhuma informação sua. Consulte nossa <a class="faq-link" data-href="#/legal?doc=privacidade">Política de Privacidade</a>.',
+          'Sim. Toda a sua informação (stack, check-ins, perfil) fica armazenada exclusivamente no localStorage do seu navegador. Não possuímos servidores, não coletamos dados pessoais e não temos acesso a nenhuma informação sua. Consulte nossa <a class="faq-link" data-href="/legal?doc=privacidade">Política de Privacidade</a>.',
       },
       {
         q: 'Como faço backup dos meus dados?',
         aHtml:
-          'Acesse <a class="faq-link" data-href="#/settings">Configurações</a> → Dados &amp; Privacidade → Exportar meus dados. Um arquivo JSON com todos os seus dados será baixado para o seu dispositivo.',
+          'Acesse <a class="faq-link" data-href="/settings">Configurações</a> → Dados &amp; Privacidade → Exportar meus dados. Um arquivo JSON com todos os seus dados será baixado para o seu dispositivo.',
       },
       {
         q: 'Como apago tudo?',
@@ -253,7 +253,7 @@ export default class FaqPage {
         </div>
 
         <div class="faq-footer">
-          <p>Não encontrou sua resposta? <a class="faq-footer-link" data-href="#/legal">Consulte os Termos de Uso</a></p>
+          <p>Não encontrou sua resposta? <a class="faq-footer-link" data-href="/legal">Consulte os Termos de Uso</a></p>
         </div>
       </div>
     `;
@@ -339,8 +339,7 @@ export default class FaqPage {
     e.preventDefault();
     const href = link.dataset.href;
     if (href) {
-      const path = href.replace(/^#/, '');
-      window.history.pushState(null, null, path);
+      window.history.pushState(null, null, href);
       window.dispatchEvent(new PopStateEvent('popstate'));
     }
   }

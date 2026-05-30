@@ -129,9 +129,9 @@ describe('StackRecommender AI Engine', () => {
     const richWhey = richResults.find(r => r.id === 'whey-protein');
     const tightWhey = tightResults.find(r => r.id === 'whey-protein');
 
-    if (richWhey && tightWhey) {
-      expect(tightWhey.score).toBeLessThanOrEqual(richWhey.score);
-    }
+    expect(richWhey).toBeDefined();
+    expect(tightWhey).toBeDefined();
+    expect(tightWhey.score).toBeLessThanOrEqual(richWhey.score);
   });
 
   // 6. topN=5 → returns max 5 results
@@ -182,17 +182,18 @@ describe('StackRecommender AI Engine', () => {
     expect(['HIGH', 'MEDIUM', 'LOW']).toContain(res.priority);
   });
 
-  // 8. Evidence A supplements score higher than D for same objective
-  it('8. Evidence A supplements score higher than D for same objective', () => {
+  // 8. Evidence A supplements score higher than B for same objective
+  it('8. Evidence A supplements score higher than B for same objective', () => {
     const profile = { objective: 'bulk', weight: 70, restrictions: [], budget: 200, age: 25, currentStack: [] };
     const results = recommender.recommend(profile, 100);
 
+    // creatina-monohidratada is evidence 'A'; l-carnitina is evidence 'B'
     const aSupplement = results.find(r => r.id === 'creatina-monohidratada');
-    const dSupplement = results.find(r => r.evidenceLevel === 'D');
+    const bSupplement = results.find(r => r.id === 'l-carnitina');
 
-    if (aSupplement && dSupplement) {
-      expect(aSupplement.score).toBeGreaterThan(dSupplement.score);
-    }
+    expect(aSupplement).toBeDefined();
+    expect(bSupplement).toBeDefined();
+    expect(aSupplement.score).toBeGreaterThan(bSupplement.score);
   });
 
   // 9. profileHash changes when objective changes

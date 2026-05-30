@@ -139,6 +139,36 @@ describe('EventBus v4.0 Unit Tests', () => {
     }).not.toThrow();
   });
 
+});
+
+describe('EventBus — edge cases', () => {
+  beforeEach(() => {
+    eventBus.clear();
+  });
+
+  it('off() with a never-registered callback is a no-op (does not throw)', () => {
+    const unregistered = vi.fn();
+    expect(() => eventBus.off('test:event', unregistered)).not.toThrow();
+  });
+
+  it('emit() with no registered listeners for that event does not throw', () => {
+    expect(() => eventBus.emit('test:no-listeners-xyz', {})).not.toThrow();
+  });
+
+  it('once() returned unsubscribe cancels before first fire', () => {
+    const handler = vi.fn();
+    const unsub = eventBus.once('test:once-cancel', handler);
+    unsub(); // cancel before firing
+    eventBus.emit('test:once-cancel', {});
+    expect(handler).not.toHaveBeenCalled();
+  });
+});
+
+describe('EventBus — validation checklist', () => {
+  beforeEach(() => {
+    eventBus.clear();
+  });
+
   // Extra Validation: on() returns unsubscribe function
   it('Validation Checklist: on() returns unsubscribe function', () => {
     const handler = vi.fn();

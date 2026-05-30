@@ -131,21 +131,52 @@ describe('DosageCalculator v4.0 Unit Tests', () => {
 
     const res = DosageCalculator.calculate(supplement, profile);
 
-    expect(res.daily).toBeDefined();
-    expect(res.unit).toBeDefined();
-    expect(res.weekly).toBeDefined();
-    expect(res.monthly).toBeDefined();
-    expect(res.frequency).toBeDefined();
-    expect(res.timing).toBeDefined();
-    expect(res.withFood).toBeDefined();
-    expect(res.withWater).toBeDefined();
-    expect(res.withinSafetyLimits).toBeDefined();
-    expect(res.upperLimit).toBeDefined();
+    // Deterministic numeric fields
+    expect(typeof res.daily).toBe('number');
+    expect(res.daily).toBeGreaterThan(0);
+    expect(typeof res.weekly).toBe('number');
+    expect(res.weekly).toBeGreaterThan(0);
+    expect(typeof res.monthly).toBe('number');
+    expect(res.monthly).toBeGreaterThan(0);
+    expect(typeof res.upperLimit).toBe('number');
+    expect(res.upperLimit).toBeGreaterThan(0);
+
+    // Deterministic string/boolean fields
+    expect(typeof res.unit).toBe('string');
+    expect(res.unit.length).toBeGreaterThan(0);
+    expect(typeof res.frequency).toBe('string');
+    expect(typeof res.timing).toBe('string');
+    expect(typeof res.withinSafetyLimits).toBe('boolean');
+    expect(typeof res.withFood).toBe('boolean');
+    expect(res.withWater).toBeDefined(); // string recommendation
+
+    // Variable text fields — toBeDefined is appropriate
     expect(res.rationale).toBeDefined();
-    expect(Array.isArray(res.warnings)).toBe(true);
     expect(res.methodology).toBeDefined();
+    expect(Array.isArray(res.warnings)).toBe(true);
   });
 
+});
+
+describe('DosageCalculator — edge inputs', () => {
+  // calculateStack() with empty array returns []
+  it('calculateStack() with empty array returns []', () => {
+    const profile = { weight: 70, trainingFrequency: 3, objective: 'general', age: 25 };
+    const result = DosageCalculator.calculateStack([], profile);
+    expect(result).toEqual([]);
+  });
+
+  // calculateStack() with null/undefined supplements returns [] without throwing
+  it('calculateStack() with null/undefined supplements returns []', () => {
+    const profile = { weight: 70, trainingFrequency: 3, objective: 'general', age: 25 };
+    expect(() => DosageCalculator.calculateStack(null, profile)).not.toThrow();
+    const result = DosageCalculator.calculateStack(null, profile);
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBe(0);
+  });
+});
+
+describe('DosageCalculator v4.0 Unit Tests (continued)', () => {
   // 8. calculateStack() returns one result per supplement in input array
   it('8. calculateStack() returns one result per supplement in input array', () => {
     const supplements = [

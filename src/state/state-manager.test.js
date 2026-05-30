@@ -269,6 +269,34 @@ describe('StateManager v4.0', () => {
     );
   });
 
+  // 18. CLEAR_CHECKINS empties the checkins array
+  it('18. CLEAR_CHECKINS empties the checkins array', () => {
+    const sm = createTestSM();
+    sm.dispatch(ACTIONS.ADD_CHECKIN, { supplementId: 'creatina', date: '2026-01-01', note: '' });
+    expect(sm.checkins.length).toBe(1);
+
+    sm.dispatch(ACTIONS.CLEAR_CHECKINS);
+    expect(sm.checkins).toEqual([]);
+  });
+
+  // 19. undo() reverts the last dispatched action
+  it('19. undo() reverts the last dispatched action', () => {
+    const sm = createTestSM();
+    const before = sm.stack.length;
+
+    sm.dispatch(ACTIONS.ADD_TO_STACK, {
+      supplementId: 'test-9999',
+      name: 'Test Supplement',
+      dosage: 5,
+      unit: 'g',
+      quantity: 0
+    });
+    expect(sm.stack.length).toBe(before + 1);
+
+    sm.undo();
+    expect(sm.stack.length).toBe(before);
+  });
+
   // 17. QuotaExceededError safety (No infinite loop/stack overflow)
   it('17. Gracefully handles QuotaExceededError and prevents infinite recursion loops', () => {
     const sm = createTestSM();

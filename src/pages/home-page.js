@@ -4,6 +4,7 @@
 // ============================================================
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { escapeHtml } from '../utils/escape.js';
 
 export default class HomePage {
   constructor(container) {
@@ -109,21 +110,26 @@ export default class HomePage {
           <section class="lp-hero" aria-label="Apresentação">
             <div class="lp-hero__bg" aria-hidden="true"></div>
             <div class="lp-hero__inner">
-              <span class="lp-pill lp-anim" style="--d:0s">✦ Suplementação com Ciência</span>
-              <h1 class="lp-hero__title lp-anim" style="--d:.08s">
-                SUPLEMENTAÇÃO BASEADA EM <span class="lp-accent">EVIDÊNCIAS.</span>
-              </h1>
-              <p class="lp-hero__sub lp-anim" style="--d:.16s">
-                Compare preços, calcule dosagens personalizadas e monitore sua adesão.
-                100% offline, sem assinatura.
-              </p>
-              <div class="lp-hero__cta lp-anim" style="--d:.24s">
-                <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Começar Agora →</button>
-                <button class="lp-btn lp-btn--outline lp-btn--lg" data-action="scroll-features" type="button">Ver Recursos ↓</button>
+              <div class="lp-hero__left">
+                <span class="lp-pill lp-anim" style="--d:0s">✦ Suplementação com Ciência</span>
+                <h1 class="lp-hero__title lp-anim" style="--d:.08s">
+                  SUPLEMENTAÇÃO BASEADA EM <span class="lp-accent">EVIDÊNCIAS.</span>
+                </h1>
+                <p class="lp-hero__sub lp-anim" style="--d:.16s">
+                  Compare preços, calcule dosagens personalizadas e monitore sua adesão.
+                  100% offline, sem assinatura.
+                </p>
+                <div class="lp-hero__cta lp-anim" style="--d:.24s">
+                  <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Começar Agora →</button>
+                  <button class="lp-btn lp-btn--outline lp-btn--lg" data-action="scroll-features" type="button">Ver Recursos ↓</button>
+                </div>
+                <p class="lp-hero__stats lp-anim" style="--d:.32s">
+                  ${count}+ Suplementos · 3 Marketplaces · 100% Offline · Evidência Clínica
+                </p>
               </div>
-              <p class="lp-hero__stats lp-anim" style="--d:.32s">
-                ${count}+ Suplementos · 3 Marketplaces · 100% Offline · Evidência Clínica
-              </p>
+              <div class="lp-hero__right lp-anim" style="--d:.2s" aria-hidden="true">
+                ${this._heroMockupCards()}
+              </div>
             </div>
           </section>
 
@@ -271,6 +277,27 @@ export default class HomePage {
   }
 
   // ──────────────────────────────────────────────────────────
+  // Hero mock product cards
+  // ──────────────────────────────────────────────────────────
+  _heroMockupCards() {
+    const items = SUPPLEMENTS_DB.slice(0, 3);
+    return `<div class="lp-mock-stack">
+      ${items.map(item => {
+        const monthPrice = ((item.dosage?.maintenance ?? 5) * (item.pricePerGram ?? 0.3) * 30)
+          .toFixed(2).replace('.', ',');
+        const ev = item.evidenceLevel || 'A';
+        return `
+          <div class="lp-mock-card">
+            <div class="lp-mock-card__ev">EV. ${escapeHtml(String(ev))}</div>
+            <div class="lp-mock-card__name">${escapeHtml(item.name)}</div>
+            <div class="lp-mock-card__cat">${escapeHtml(item.category || '')}</div>
+            <div class="lp-mock-card__price">R$ ${monthPrice}<span class="lp-mock-card__dose"> / mês</span></div>
+          </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  // ──────────────────────────────────────────────────────────
   // Estilos
   // ──────────────────────────────────────────────────────────
   _injectStyle() {
@@ -344,7 +371,19 @@ export default class HomePage {
           radial-gradient(60% 50% at 50% 0%, var(--color-brand-muted, rgba(124,58,237,0.12)), transparent 70%),
           var(--color-bg-primary, #080808);
       }
-      .lp-hero__inner { position: relative; z-index: 1; max-width: 760px; }
+      /* Two-column hero layout */
+      .lp-hero__inner {
+        position: relative; z-index: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 64px;
+        align-items: center;
+        max-width: 1160px;
+      }
+      .lp-hero__left {
+        display: flex; flex-direction: column; align-items: flex-start;
+        text-align: left;
+      }
       .lp-pill {
         display: inline-block; font-size: 13px; font-weight: 500;
         color: var(--color-text-secondary, #9A9A9A);
@@ -361,12 +400,40 @@ export default class HomePage {
       .lp-hero__sub {
         font-size: 18px; line-height: 1.6;
         color: var(--color-text-secondary, #9A9A9A);
-        max-width: 560px; margin: 0 auto 36px;
+        margin: 0 0 36px;
       }
       .lp-hero__cta {
-        display: flex; gap: 14px; justify-content: center;
+        display: flex; gap: 14px;
         flex-wrap: wrap; margin-bottom: 40px;
+        justify-content: flex-start;
       }
+
+      /* Mock product cards */
+      .lp-mock-stack {
+        display: flex; flex-direction: column; gap: 12px;
+      }
+      .lp-mock-card {
+        background: var(--color-surface-primary, #111111);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        border-radius: 14px; padding: 20px 22px;
+        display: flex; flex-direction: column; gap: 6px;
+        transition: transform .3s ease, border-color .3s ease;
+      }
+      .lp-mock-card:hover {
+        transform: translateX(-4px);
+        border-color: var(--color-border-strong, rgba(255,255,255,0.14));
+      }
+      .lp-mock-card__ev {
+        font-size: 10px; font-weight: 700; letter-spacing: .08em;
+        color: var(--color-success, #22C55E);
+        background: rgba(34,197,94,0.12);
+        padding: 2px 8px; border-radius: 999px;
+        width: fit-content;
+      }
+      .lp-mock-card__name { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
+      .lp-mock-card__cat  { font-size: 12px; color: var(--color-text-muted); }
+      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand); margin-top: 4px; }
+      .lp-mock-card__dose  { font-size: 11px; color: var(--color-text-muted); font-weight: 400; }
       .lp-hero__stats {
         font-size: 14px; color: var(--color-text-muted, #555555);
         margin: 0; letter-spacing: 0.01em;
@@ -543,6 +610,17 @@ export default class HomePage {
         to   { opacity: 1; transform: translateY(0); }
       }
       .lp-anim { opacity: 0; animation: lp-fade-in-up .6s ease forwards; animation-delay: var(--d, 0s); }
+
+      /* Mobile: single column, hide right panel */
+      @media (max-width: 860px) {
+        .lp-hero__inner {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+        .lp-hero__left { align-items: center; }
+        .lp-hero__cta  { justify-content: center; }
+        .lp-hero__right { display: none; }
+      }
 
       /* ── RESPONSIVO ── */
       @media (max-width: 768px) {

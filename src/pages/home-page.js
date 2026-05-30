@@ -60,17 +60,17 @@ export default class HomePage {
 
     const features = [
       {
-        icon: '💰',
+        icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v2m0 8v2m-2.5-6.5a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5"/><path d="M12 16h.01"/></svg>`,
         title: 'Comparação de Preços',
         text: 'Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app.',
       },
       {
-        icon: '⚗️',
+        icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>`,
         title: 'Dosagem Científica',
         text: 'Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência.',
       },
       {
-        icon: '⭐',
+        icon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
         title: 'Stack Personalizado',
         text: 'Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo.',
       },
@@ -393,7 +393,12 @@ export default class HomePage {
         border-color: var(--color-border-strong, rgba(255,255,255,0.14));
         transform: translateY(-3px);
       }
-      .lp-card__icon { font-size: 30px; margin-bottom: 18px; }
+      .lp-card__icon {
+        width: 52px; height: 52px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+        margin-bottom: 20px;
+      }
       .lp-card__title {
         font-size: 19px; font-weight: 700; margin: 0 0 10px;
         color: var(--color-text-primary, #F2F2F2);

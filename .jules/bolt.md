@@ -1,0 +1,4 @@
+## 2024-05-30 - Deep Clone Performance Issue in StateManager
+
+**Learning:** The application uses a custom Redux-inspired `StateManager`. The method `setState` was making a deep clone of the entire state tree on every update by calling `this.export()`. This is an O(N) operation where N is the size of the state tree. As the state tree grows (e.g. accumulating user check-ins), this operation becomes increasingly expensive and can lead to performance bottlenecks, particularly when updates occur frequently or in loops. The `_setPath` helper was designed to create shallow path clones (similar to Redux reducers), but calling it with `this.export()` completely defeated this purpose.
+**Action:** Always modify state via targeted immutable updates utilizing shallow cloning. Do not use `export()` or deep clone the state unnecessarily, especially within generic updater functions like `setState`. Pass the current internal state directly to `_setPath`.

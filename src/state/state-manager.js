@@ -794,7 +794,8 @@ export class StateManager {
     const next = typeof value === 'function' ? value(this.get(path)) : value;
 
     const prev = this._state;
-    const updated = this._setPath(this.export(), keys, next);
+    // ⚡ Bolt: Avoid O(N) full state deep cloning; _setPath already does shallow path cloning.
+    const updated = this._setPath(this._state, keys, next);
     const frozen = this._deepFreeze({ ...updated, _lastUpdated: Date.now() });
 
     // #2 FIX: Registrar no histórico para que undo() funcione

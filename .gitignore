@@ -40,6 +40,16 @@ debug.js
 *.backup
 minha_tree.txt
 tailwind.config.js
+calculations.js
+database.js
+links.js
+runner.js
+SOUL.md
+AGENTS.md
+TROUBLESHOOTING.md
+agent-profiles.json
+playwright-report/
+playwright.config.js
 
 # Sistema Operacional
 .DS_Store

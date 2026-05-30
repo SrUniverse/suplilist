@@ -1,26 +1,4 @@
-import { stateManager } from '../state/state-manager.js';
-
-export default class SettingsPage {
-  constructor(container, params) {
-    this.container = container;
-    this.params = params;
-  }
-
-  mount() {
-    this._injectStyles();
-    this.container.innerHTML = this._render();
-    this._bindEvents();
-  }
-
-  unmount() {
-    this.container.innerHTML = '';
-  }
-
-  _injectStyles() {
-    if (document.getElementById('settings-page-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'settings-page-styles';
-    style.textContent = `
+import{s as h}from"./main-7QosEGf5.js";class m{constructor(e,o){this.container=e,this.params=o}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const e=document.createElement("style");e.id="settings-page-styles",e.textContent=`
       .sp-page {
         padding: 24px;
         max-width: 700px;
@@ -240,41 +218,18 @@ export default class SettingsPage {
         font-size: 14px;
         flex-shrink: 0;
       }
-    `;
-    document.head.appendChild(style);
-  }
-
-  _getThemeState() {
-    const stored = localStorage.getItem('suplilist:theme');
-    if (stored) return stored === 'dark';
-    return document.documentElement.getAttribute('data-theme') === 'dark';
-  }
-
-  _getBoolPref(key) {
-    return localStorage.getItem(key) === 'true';
-  }
-
-  _switchHTML(id, checked, label, icon) {
-    return `
+    `,document.head.appendChild(e)}_getThemeState(){const e=localStorage.getItem("suplilist:theme");return e?e==="dark":document.documentElement.getAttribute("data-theme")==="dark"}_getBoolPref(e){return localStorage.getItem(e)==="true"}_switchHTML(e,o,r,c){return`
       <div class="sp-toggle-row">
         <span class="sp-toggle-label">
-          <span class="sp-toggle-icon" id="${id}-icon">${icon}</span>
-          ${label}
+          <span class="sp-toggle-icon" id="${e}-icon">${c}</span>
+          ${r}
         </span>
-        <label class="sp-switch" aria-label="${label}">
-          <input type="checkbox" id="${id}"${checked ? ' checked' : ''}>
+        <label class="sp-switch" aria-label="${r}">
+          <input type="checkbox" id="${e}"${o?" checked":""}>
           <span class="sp-switch-track"></span>
         </label>
       </div>
-    `;
-  }
-
-  _render() {
-    const isDark = this._getThemeState();
-    const notifCheckin = this._getBoolPref('suplilist:notif-checkin');
-    const notifRestock = this._getBoolPref('suplilist:notif-restock');
-
-    return `
+    `}_render(){const e=this._getThemeState(),o=this._getBoolPref("suplilist:notif-checkin"),r=this._getBoolPref("suplilist:notif-restock");return`
       <div class="sp-page">
 
         <!-- Header -->
@@ -286,14 +241,14 @@ export default class SettingsPage {
         <!-- Aparência -->
         <div class="sp-card">
           <h2 class="sp-section-label">Aparência</h2>
-          ${this._switchHTML('sp-theme-toggle', isDark, 'Tema escuro', isDark ? '🌙' : '☀️')}
+          ${this._switchHTML("sp-theme-toggle",e,"Tema escuro",e?"🌙":"☀️")}
         </div>
 
         <!-- Notificações -->
         <div class="sp-card">
           <h2 class="sp-section-label">Notificações</h2>
-          ${this._switchHTML('sp-notif-checkin', notifCheckin, 'Lembrete diário de check-in', '💊')}
-          ${this._switchHTML('sp-notif-restock', notifRestock, 'Alertas de reposição de estoque', '📦')}
+          ${this._switchHTML("sp-notif-checkin",o,"Lembrete diário de check-in","💊")}
+          ${this._switchHTML("sp-notif-restock",r,"Alertas de reposição de estoque","📦")}
           <p class="sp-notif-note">Notificações são locais e não requerem cadastro. Nada é enviado para servidores.</p>
         </div>
 
@@ -344,100 +299,4 @@ export default class SettingsPage {
         </div>
 
       </div>
-    `;
-  }
-
-  _bindEvents() {
-    // Theme toggle
-    const themeToggle = this.container.querySelector('#sp-theme-toggle');
-    if (themeToggle) {
-      themeToggle.addEventListener('change', () => {
-        const isDark = themeToggle.checked;
-        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        localStorage.setItem('suplilist:theme', isDark ? 'dark' : 'light');
-        const iconEl = this.container.querySelector('#sp-theme-toggle-icon');
-        if (iconEl) iconEl.textContent = isDark ? '🌙' : '☀️';
-      });
-    }
-
-    // Notif: check-in
-    const notifCheckin = this.container.querySelector('#sp-notif-checkin');
-    if (notifCheckin) {
-      notifCheckin.addEventListener('change', () => {
-        localStorage.setItem('suplilist:notif-checkin', notifCheckin.checked ? 'true' : 'false');
-      });
-    }
-
-    // Notif: restock
-    const notifRestock = this.container.querySelector('#sp-notif-restock');
-    if (notifRestock) {
-      notifRestock.addEventListener('change', () => {
-        localStorage.setItem('suplilist:notif-restock', notifRestock.checked ? 'true' : 'false');
-      });
-    }
-
-    // Export data
-    const exportBtn = this.container.querySelector('#sp-export-btn');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        const data = {};
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('suplilist')) {
-            try {
-              data[key] = JSON.parse(localStorage.getItem(key));
-            } catch {
-              data[key] = localStorage.getItem(key);
-            }
-          }
-        }
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `suplilist-export-${new Date().toISOString().slice(0, 10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
-    }
-
-    // Clear check-ins
-    const clearBtn = this.container.querySelector('#sp-clear-checkins-btn');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        if (!confirm('Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita.')) return;
-        try {
-          stateManager.dispatch({ type: 'CLEAR_CHECKINS' });
-        } catch (e) {
-          const keysToRemove = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.includes('checkin')) keysToRemove.push(key);
-          }
-          keysToRemove.forEach(k => localStorage.removeItem(k));
-          location.reload();
-        }
-      });
-    }
-
-    // Reset all
-    const resetBtn = this.container.querySelector('#sp-reset-btn');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        if (!confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.')) return;
-        localStorage.clear();
-        location.reload();
-      });
-    }
-
-    // Legal / nav links
-    const linkBtns = this.container.querySelectorAll('.sp-link-btn[data-hash]');
-    linkBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        window.location.hash = btn.getAttribute('data-hash');
-      });
-    });
-  }
-}
+    `}_bindEvents(){const e=this.container.querySelector("#sp-theme-toggle");e&&e.addEventListener("change",()=>{const t=e.checked;document.documentElement.setAttribute("data-theme",t?"dark":"light"),localStorage.setItem("suplilist:theme",t?"dark":"light");const n=this.container.querySelector("#sp-theme-toggle-icon");n&&(n.textContent=t?"🌙":"☀️")});const o=this.container.querySelector("#sp-notif-checkin");o&&o.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-checkin",o.checked?"true":"false")});const r=this.container.querySelector("#sp-notif-restock");r&&r.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-restock",r.checked?"true":"false")});const c=this.container.querySelector("#sp-export-btn");c&&c.addEventListener("click",()=>{const t={};for(let l=0;l<localStorage.length;l++){const i=localStorage.key(l);if(i&&i.startsWith("suplilist"))try{t[i]=JSON.parse(localStorage.getItem(i))}catch{t[i]=localStorage.getItem(i)}}const n=new Blob([JSON.stringify(t,null,2)],{type:"application/json"}),a=URL.createObjectURL(n),s=document.createElement("a");s.href=a,s.download=`suplilist-export-${new Date().toISOString().slice(0,10)}.json`,document.body.appendChild(s),s.click(),document.body.removeChild(s),URL.revokeObjectURL(a)});const p=this.container.querySelector("#sp-clear-checkins-btn");p&&p.addEventListener("click",()=>{if(confirm("Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita."))try{h.dispatch({type:"CLEAR_CHECKINS"})}catch{const n=[];for(let a=0;a<localStorage.length;a++){const s=localStorage.key(a);s&&s.includes("checkin")&&n.push(s)}n.forEach(a=>localStorage.removeItem(a)),location.reload()}});const d=this.container.querySelector("#sp-reset-btn");d&&d.addEventListener("click",()=>{confirm("⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.")&&(localStorage.clear(),location.reload())}),this.container.querySelectorAll(".sp-link-btn[data-hash]").forEach(t=>{t.addEventListener("click",()=>{window.location.hash=t.getAttribute("data-hash")})})}}export{m as default};

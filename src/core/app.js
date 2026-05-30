@@ -36,6 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
   applyLandingMode();
   window.addEventListener('hashchange', applyLandingMode);
 
+  // Default route: se não há hash, vai para /home
+  if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#/') {
+    window.location.hash = '#/home';
+  }
+
   // Init router
   const container = document.querySelector('#router-outlet');
   new Router(routes, container).start();

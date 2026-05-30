@@ -1,17 +1,4 @@
-const TABS = [
-  { key: 'termos', label: 'Termos de Uso' },
-  { key: 'privacidade', label: 'Privacidade (LGPD)' },
-  { key: 'medico', label: 'Aviso Médico' },
-  { key: 'afiliados', label: 'Afiliados' },
-];
-
-const DOC_TO_INDEX = { termos: 0, privacidade: 1, medico: 2, afiliados: 3 };
-
-const LAST_UPDATED = '<p class="lg-updated">Última atualização: Janeiro de 2025</p>';
-
-const TAB_CONTENTS = [
-  // 0 — Termos de Uso
-  `${LAST_UPDATED}
+const l=[{key:"termos",label:"Termos de Uso"},{key:"privacidade",label:"Privacidade (LGPD)"},{key:"medico",label:"Aviso Médico"},{key:"afiliados",label:"Afiliados"}],c={termos:0,privacidade:1,medico:2,afiliados:3},s='<p class="lg-updated">Última atualização: Janeiro de 2025</p>',n=[`${s}
   <h3>1. Aceitação dos Termos</h3>
   <p>Ao acessar ou utilizar o SupliList, você concorda com estes Termos de Uso. Se não concordar, não utilize o serviço.</p>
 
@@ -37,10 +24,7 @@ const TAB_CONTENTS = [
   <p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca do domicílio do usuário para dirimir quaisquer controvérsias.</p>
 
   <h3>9. Contato</h3>
-  <p>E-mail: contato@suplilist.com</p>`,
-
-  // 1 — Privacidade (LGPD)
-  `${LAST_UPDATED}
+  <p>E-mail: contato@suplilist.com</p>`,`${s}
   <p class="lg-subtitle">Como tratamos (ou melhor: não tratamos) seus dados.</p>
 
   <h3>1. Nosso Compromisso com a Privacidade</h3>
@@ -68,10 +52,7 @@ const TAB_CONTENTS = [
   <p>O SupliList não é direcionado a pessoas menores de 18 anos e não coleta intencionalmente dados de crianças ou adolescentes.</p>
 
   <h3>9. Encarregado de Dados (DPO)</h3>
-  <p>Para questões relacionadas à privacidade: dpo@suplilist.com</p>`,
-
-  // 2 — Aviso Médico
-  `${LAST_UPDATED}
+  <p>Para questões relacionadas à privacidade: dpo@suplilist.com</p>`,`${s}
   <div class="lg-medical-banner">
     ⚕️ IMPORTANTE: O SupliList é uma ferramenta educativa e NÃO substitui, em nenhuma hipótese, consulta, diagnóstico ou tratamento médico, nutricional ou farmacêutico.
   </div>
@@ -98,10 +79,7 @@ const TAB_CONTENTS = [
   <p>Suplementos alimentares no Brasil são regulados pela RDC ANVISA nº 243/2018. Eles não passam pelos mesmos critérios de eficácia e segurança exigidos para medicamentos. A Calculadora de Dosagem do SupliList é uma ferramenta de referência educativa, não uma prescrição.</p>
 
   <h3>8. Responsabilidade do Usuário</h3>
-  <p>As decisões sobre saúde, suplementação e estilo de vida são de responsabilidade exclusiva do usuário. O SupliList e seus desenvolvedores se isentam de qualquer responsabilidade por danos, diretos ou indiretos, decorrentes do uso das informações disponibilizadas.</p>`,
-
-  // 3 — Afiliados
-  `${LAST_UPDATED}
+  <p>As decisões sobre saúde, suplementação e estilo de vida são de responsabilidade exclusiva do usuário. O SupliList e seus desenvolvedores se isentam de qualquer responsabilidade por danos, diretos ou indiretos, decorrentes do uso das informações disponibilizadas.</p>`,`${s}
 
   <h3>1. Transparência Total</h3>
   <p>O SupliList participa de programas de marketing de afiliados. Alguns links para produtos nos marketplaces parceiros são links de afiliados.</p>
@@ -122,10 +100,7 @@ const TAB_CONTENTS = [
   <p>Você é completamente livre para comprar onde preferir, com ou sem nossos links. A comparação de preços entre marketplaces existe justamente para que você possa tomar a melhor decisão, independentemente de qualquer comissão.</p>
 
   <h3>7. Conformidade Legal</h3>
-  <p>Esta divulgação está em conformidade com as diretrizes do CONAR (Conselho Nacional de Autorregulamentação Publicitária), com os Termos de Serviço dos programas de afiliados participantes e com o Código de Defesa do Consumidor (Lei nº 8.078/90).</p>`,
-];
-
-const STYLES = `
+  <p>Esta divulgação está em conformidade com as diretrizes do CONAR (Conselho Nacional de Autorregulamentação Publicitária), com os Termos de Serviço dos programas de afiliados participantes e com o Código de Defesa do Consumidor (Lei nº 8.078/90).</p>`],p=`
   .lg-wrap {
     max-width: 760px;
     margin: 0 auto;
@@ -227,41 +202,7 @@ const STYLES = `
     font-size: 15px;
     line-height: 1.6;
   }
-`;
-
-export default class LegalPage {
-  constructor(container, params) {
-    this.container = container;
-    this.params = params || {};
-    this._activeIndex = DOC_TO_INDEX[this.params.doc] ?? 0;
-    this._handleTabClick = this._handleTabClick.bind(this);
-  }
-
-  mount() {
-    this._injectStyles();
-    this._render();
-    this._bindEvents();
-  }
-
-  unmount() {
-    const styleEl = document.getElementById('legal-page-styles');
-    if (styleEl) styleEl.remove();
-    this.container.innerHTML = '';
-  }
-
-  // --- private ---
-
-  _injectStyles() {
-    if (!document.getElementById('legal-page-styles')) {
-      const style = document.createElement('style');
-      style.id = 'legal-page-styles';
-      style.textContent = STYLES;
-      document.head.appendChild(style);
-    }
-  }
-
-  _render() {
-    this.container.innerHTML = `
+`;class g{constructor(e,o){this.container=e,this.params=o||{},this._activeIndex=c[this.params.doc]??0,this._handleTabClick=this._handleTabClick.bind(this)}mount(){this._injectStyles(),this._render(),this._bindEvents()}unmount(){const e=document.getElementById("legal-page-styles");e&&e.remove(),this.container.innerHTML=""}_injectStyles(){if(!document.getElementById("legal-page-styles")){const e=document.createElement("style");e.id="legal-page-styles",e.textContent=p,document.head.appendChild(e)}}_render(){this.container.innerHTML=`
       <div class="lg-wrap">
         <h1>Centro Legal</h1>
         <p class="lg-tagline">Termos, privacidade e informações regulatórias</p>
@@ -271,51 +212,18 @@ export default class LegalPage {
         </div>
 
         <div class="lg-tabs" role="tablist">
-          ${TABS.map((t, i) => `
+          ${l.map((e,o)=>`
             <button
-              class="lg-tab${i === this._activeIndex ? ' active' : ''}"
+              class="lg-tab${o===this._activeIndex?" active":""}"
               role="tab"
-              data-index="${i}"
-              aria-selected="${i === this._activeIndex}"
-            >${t.label}</button>
-          `).join('')}
+              data-index="${o}"
+              aria-selected="${o===this._activeIndex}"
+            >${e.label}</button>
+          `).join("")}
         </div>
 
         <div class="lg-content" id="lg-tab-content">
-          ${TAB_CONTENTS[this._activeIndex]}
+          ${n[this._activeIndex]}
         </div>
       </div>
-    `;
-  }
-
-  _bindEvents() {
-    const tabsBar = this.container.querySelector('.lg-tabs');
-    if (tabsBar) {
-      tabsBar.addEventListener('click', this._handleTabClick);
-    }
-  }
-
-  _handleTabClick(e) {
-    const btn = e.target.closest('.lg-tab');
-    if (!btn) return;
-
-    const idx = parseInt(btn.dataset.index, 10);
-    if (idx === this._activeIndex) return;
-
-    this._activeIndex = idx;
-
-    // update tab states
-    const allTabs = this.container.querySelectorAll('.lg-tab');
-    allTabs.forEach((t, i) => {
-      const isActive = i === idx;
-      t.classList.toggle('active', isActive);
-      t.setAttribute('aria-selected', String(isActive));
-    });
-
-    // update content
-    const contentEl = this.container.querySelector('#lg-tab-content');
-    if (contentEl) {
-      contentEl.innerHTML = TAB_CONTENTS[idx];
-    }
-  }
-}
+    `}_bindEvents(){const e=this.container.querySelector(".lg-tabs");e&&e.addEventListener("click",this._handleTabClick)}_handleTabClick(e){const o=e.target.closest(".lg-tab");if(!o)return;const a=parseInt(o.dataset.index,10);if(a===this._activeIndex)return;this._activeIndex=a,this.container.querySelectorAll(".lg-tab").forEach((r,d)=>{const t=d===a;r.classList.toggle("active",t),r.setAttribute("aria-selected",String(t))});const i=this.container.querySelector("#lg-tab-content");i&&(i.innerHTML=n[a])}}export{g as default};

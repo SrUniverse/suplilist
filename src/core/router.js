@@ -16,11 +16,20 @@ export class Router {
   }
 
   matchRoute(hash) {
-    const path = hash.replace(/^#\/?/, '') || '/';
+    // Strip query string before matching (e.g. #/legal?doc=termos → legal)
+    const full = hash.replace(/^#\/?/, '') || '/';
+    const [path, query] = full.split('?');
+    const queryParams = {};
+    if (query) {
+      query.split('&').forEach(pair => {
+        const [k, v] = pair.split('=');
+        if (k) queryParams[decodeURIComponent(k)] = decodeURIComponent(v || '');
+      });
+    }
     for (const route of this.routes) {
       const params = matchPath(route.path, path);
       if (params !== null) {
-        return { route, params };
+        return { route, params: { ...params, ...queryParams } };
       }
     }
     return null;

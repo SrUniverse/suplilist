@@ -635,13 +635,6 @@ export class StateManager {
   }
 
   /**
-   * Legacy call wrapper to hydrate state.
-   */
-  _hydrateFromStorage() {
-    return this._initializeState();
-  }
-
-  /**
    * State schema migrations.
    */
   _migrateState(data) {
@@ -775,13 +768,6 @@ export class StateManager {
   getTodayCheckins() {
     const todayStr = todayISO();
     return this.checkins.filter(c => c.date === todayStr);
-  }
-
-  /**
-   * Returns a copy of the state for debugging/inspection.
-   */
-  dump() {
-    return this.export();
   }
 
   // ─── Backward Compatibility Getters & Methods ────────────────────────────────

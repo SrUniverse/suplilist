@@ -270,9 +270,6 @@ export class EventBus {
       this.#history.shift();
     }
 
-    if (this.#debug) {
-      console.log(`[EventBus] 📡 ${eventName}`, payload);
-    }
 
     // Prune disconnected listeners first
     this.#pruneListeners(eventName);

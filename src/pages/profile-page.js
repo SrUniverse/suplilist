@@ -46,13 +46,13 @@ export default class ProfilePage {
   }
 
   mount() {
-    const u = stateManager.user || {};
+    const user = stateManager.user || {};
     this._form = {
-      name:              u.name              || 'Usuário',
-      objective:         u.objective         || 'general',
-      weight:            u.weight            || '',
-      height:            u.height            || '',
-      age:               u.age               || '',
+      name:              user.name              || 'Usuário',
+      objective:         user.objective         || 'general',
+      weight:            user.weight            || '',
+      height:            user.height            || '',
+      age:               user.age               || '',
     };
     this._render();
     this._attachListeners();
@@ -70,7 +70,7 @@ export default class ProfilePage {
   }
 
   _render() {
-    const f = this._form;
+    const form = this._form;
     const initial = this._getInitial();
     const objLabel = this._getObjectiveLabel();
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -90,13 +90,13 @@ export default class ProfilePage {
 
           <div style="text-align:center;">
             <div id="name-display" style="display:flex;align-items:center;gap:8px;justify-content:center;">
-              <span id="name-text" style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:-0.02em;">${f.name}</span>
+              <span id="name-text" style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:-0.02em;">${form.name}</span>
               <button id="btn-edit-name" title="Editar nome" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:2px;display:flex;align-items:center;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </button>
             </div>
             <div id="name-edit" style="display:none;margin-top:6px;">
-              <input id="inline-name-input" type="text" value="${f.name}" style="${inputStyle};text-align:center;font-size:16px;font-weight:700;max-width:220px;" />
+              <input id="inline-name-input" type="text" value="${form.name}" style="${inputStyle};text-align:center;font-size:16px;font-weight:700;max-width:220px;" />
               <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
                 <button id="btn-name-confirm" style="background:var(--color-brand);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">OK</button>
                 <button id="btn-name-cancel" style="background:transparent;border:1px solid var(--color-border-strong);color:var(--color-text-secondary);border-radius:8px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Cancelar</button>
@@ -119,22 +119,22 @@ export default class ProfilePage {
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
             <div>
               ${fieldLabel('Peso (kg)')}
-              <input id="field-weight" type="number" min="30" max="300" value="${f.weight}" placeholder="—" style="${inputStyle}" />
+              <input id="field-weight" type="number" min="30" max="300" value="${form.weight}" placeholder="—" style="${inputStyle}" />
             </div>
             <div>
               ${fieldLabel('Altura (cm)')}
-              <input id="field-height" type="number" min="100" max="250" value="${f.height}" placeholder="—" style="${inputStyle}" />
+              <input id="field-height" type="number" min="100" max="250" value="${form.height}" placeholder="—" style="${inputStyle}" />
             </div>
             <div>
               ${fieldLabel('Idade')}
-              <input id="field-age" type="number" min="10" max="100" value="${f.age}" placeholder="—" style="${inputStyle}" />
+              <input id="field-age" type="number" min="10" max="100" value="${form.age}" placeholder="—" style="${inputStyle}" />
             </div>
           </div>
           <div>
             ${fieldLabel('Objetivo Principal')}
             <div style="position:relative;">
               <select id="field-objective" style="${selectStyle}">
-                ${OBJECTIVES.map(o => `<option value="${o.value}" ${f.objective === o.value ? 'selected' : ''}>${o.label} — ${o.desc}</option>`).join('')}
+                ${OBJECTIVES.map(o => `<option value="${o.value}" ${form.objective === o.value ? 'selected' : ''}>${o.label} — ${o.desc}</option>`).join('')}
               </select>
               <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-secondary);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>

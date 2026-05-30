@@ -226,13 +226,13 @@ export default class HistoryPage {
     const calDays = [];
     for (let i = 6; i >= 0; i--) {
       const iso = offsetISO(i);
-      const d = new Date(iso + 'T12:00:00');
+      const now = new Date(iso + 'T12:00:00');
       calDays.push({
         iso,
-        label: DAY_LABELS[d.getDay()],
+        label: DAY_LABELS[now.getDay()],
         isToday: i === 0,
         hasCk: daysSet.has(iso),
-        dayNum: d.getDate()
+        dayNum: now.getDate()
       });
     }
 

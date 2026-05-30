@@ -23,7 +23,7 @@ async function fetchPrices() {
 }
 
 // ─── Format helpers ──────────────────────────────────────────────────────────
-function fmtBRL(value) {
+function formatBRL(value) {
   return 'R$ ' + value.toFixed(2).replace('.', ',');
 }
 
@@ -625,7 +625,7 @@ export class MyStackPage {
     const total = calcMonthlyInvestment(stack);
     const el = this.container.querySelector('#msp-subtitle');
     if (!el) return;
-    el.textContent = `${stack.length} suplemento${stack.length !== 1 ? 's' : ''} ativo${stack.length !== 1 ? 's' : ''} · ${fmtBRL(total)}/mês estimado`;
+    el.textContent = `${stack.length} suplemento${stack.length !== 1 ? 's' : ''} ativo${stack.length !== 1 ? 's' : ''} · ${formatBRL(total)}/mês estimado`;
   }
 
   _renderStats() {
@@ -638,7 +638,7 @@ export class MyStackPage {
     el.innerHTML = `
       <div class="msp-stat-card">
         <span class="msp-stat-label">Investimento Mensal</span>
-        <span class="msp-stat-value brand">${fmtBRL(monthly)}</span>
+        <span class="msp-stat-value brand">${formatBRL(monthly)}</span>
       </div>
       <div class="msp-stat-card">
         <span class="msp-stat-label">Ciclos Ativos</span>
@@ -735,7 +735,7 @@ export class MyStackPage {
       return `
         <div class="msp-replen-item">
           <span class="msp-replen-name">${item.name}</span>
-          <span class="msp-replen-price">Melhor: ${fmtBRL(best.price)}</span>
+          <span class="msp-replen-price">Melhor: ${formatBRL(best.price)}</span>
           <span class="msp-replen-market">${best.label}</span>
         </div>
         ${divider}
@@ -880,7 +880,6 @@ export class MyStackPage {
 
     document.body.appendChild(overlay);
     this._modalSelectedId = null;
-    this._modalSelectedName = null;
 
     // Close on overlay click
     overlay.addEventListener('click', e => {
@@ -892,11 +891,11 @@ export class MyStackPage {
     // Search logic
     const searchInput = document.getElementById('msp-modal-search');
     const resultsBox = document.getElementById('msp-modal-results');
-    let debounce;
+    let debounceTimer;
 
     searchInput?.addEventListener('input', e => {
-      clearTimeout(debounce);
-      debounce = setTimeout(() => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
         const q = e.target.value.trim().toLowerCase();
         if (q.length < 2) { resultsBox.style.display = 'none'; return; }
         const matches = SUPPLEMENTS_DB.filter(s =>
@@ -926,7 +925,6 @@ export class MyStackPage {
           btn.addEventListener('click', ev => {
             ev.preventDefault();
             this._modalSelectedId = btn.dataset.id;
-            this._modalSelectedName = btn.dataset.name;
             searchInput.value = btn.dataset.name;
             document.getElementById('msp-modal-dosage').value = btn.dataset.dosage;
             document.getElementById('msp-modal-unit').value = btn.dataset.unit;
@@ -978,7 +976,6 @@ export class MyStackPage {
     }
     this._modalOpen = false;
     this._modalSelectedId = null;
-    this._modalSelectedName = null;
     const overlay = document.getElementById('msp-modal-overlay');
     overlay?.remove();
   }

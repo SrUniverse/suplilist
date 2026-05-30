@@ -5,14 +5,28 @@ import { todayISO } from '../utils/date.js';
 export default class CheckinPage {
   constructor(container) {
     this.container = container;
+    this._internalNavHandler = null;
   }
 
   mount() {
     this._render();
     this._attachListeners();
+    this._internalNavHandler = (e) => {
+      const el = e.target.closest('[data-nav-internal]');
+      if (!el) return;
+      e.preventDefault();
+      const path = el.getAttribute('data-nav-internal');
+      window.history.pushState(null, null, path);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    };
+    this.container.addEventListener('click', this._internalNavHandler);
   }
 
   unmount() {
+    if (this._internalNavHandler) {
+      this.container.removeEventListener('click', this._internalNavHandler);
+      this._internalNavHandler = null;
+    }
     this.container.innerHTML = '';
   }
 
@@ -331,7 +345,7 @@ export default class CheckinPage {
           margin: 0 0 20px;
           line-height: 1.6;
         ">Adicione suplementos ao seu stack para começar a registrar check-ins diários.</p>
-        <a href="#/my-stack" style="
+        <a href="/my-stack" data-nav-internal="/my-stack" style="
           display: inline-block;
           background: var(--color-brand);
           color: #fff;

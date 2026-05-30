@@ -18,6 +18,26 @@ const routes = [
   { path: '/legal',     load: () => import('../pages/legal-page.js') },
 ];
 
+const PAGE_TITLES = {
+  '/':          'SupliList | Suplementação Baseada em Evidências',
+  '/home':      'SupliList | Suplementação Baseada em Evidências',
+  '/list':      'Catálogo de Suplementos | SupliList',
+  '/my-stack':  'Meu Stack | SupliList',
+  '/favorites': 'Favoritos | SupliList',
+  '/checkin':   'Check-in Diário | SupliList',
+  '/history':   'Histórico | SupliList',
+  '/dosage':    'Calculadora de Dosagem | SupliList',
+  '/profile':   'Meu Perfil | SupliList',
+  '/settings':  'Configurações | SupliList',
+  '/faq':       'Perguntas Frequentes | SupliList',
+  '/legal':     'Termos & Privacidade | SupliList',
+};
+
+function updatePageTitle() {
+  const path = window.location.pathname;
+  document.title = PAGE_TITLES[path] || 'SupliList | Suplementação Baseada em Evidências';
+}
+
 // Landing mode: hide app shell (sidebar/topbar) on the marketing home
 function applyLandingMode() {
   const path = window.location.pathname;
@@ -35,14 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Landing mode (initial + on every navigation)
   applyLandingMode();
-  window.addEventListener('popstate', applyLandingMode);
-
-  // Default route: se não há pathname específico, vai para /home
-  const currentPath = window.location.pathname;
-  if (currentPath === '/' || currentPath === '') {
-    window.history.replaceState(null, null, '/home');
+  updatePageTitle();
+  window.addEventListener('popstate', () => {
     applyLandingMode();
-  }
+    updatePageTitle();
+  });
 
   // Init router
   const container = document.querySelector('#router-outlet');

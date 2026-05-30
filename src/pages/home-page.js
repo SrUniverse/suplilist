@@ -165,6 +165,7 @@ export default class HomePage {
             </div>
           </section>
 
+          <div class="lp-section-wrap lp-section-wrap--alt">
           <section class="lp-section" aria-label="Como funciona">
             <h2 class="lp-h2">3 PASSOS PARA COMPRAR CERTO.</h2>
             <div class="lp-grid lp-grid--3">
@@ -180,6 +181,7 @@ export default class HomePage {
                 .join('')}
             </div>
           </section>
+          </div>
 
           <section class="lp-section" aria-label="Filtro por treino">
             <h2 class="lp-h2">FILTRADO POR COMO VOCÊ TREINA.</h2>
@@ -192,6 +194,7 @@ export default class HomePage {
             </div>
           </section>
 
+          <div class="lp-section-wrap lp-section-wrap--alt">
           <section class="lp-section" aria-label="Marketplaces">
             <h2 class="lp-h2">OS MAIORES MARKETPLACES DO BRASIL.</h2>
             <div class="lp-grid lp-grid--3">
@@ -206,6 +209,7 @@ export default class HomePage {
                 .join('')}
             </div>
           </section>
+          </div>
 
           <section class="lp-section lp-instagram" aria-label="Instagram">
             <div class="lp-ig__card">
@@ -456,6 +460,8 @@ export default class HomePage {
       }
 
       /* ── SEÇÕES ── */
+      .lp-section-wrap { width: 100%; }
+      .lp-section-wrap--alt { background: var(--color-bg-secondary, #0F0F0F); }
       .lp-section { max-width: 1160px; margin: 0 auto; padding: 80px 24px; }
       .lp-h2 {
         font-family: 'Syne', sans-serif; font-weight: 800;

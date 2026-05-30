@@ -85,7 +85,23 @@ export default class HomePage {
 
     const goals = ['Hipertrofia', 'Saúde Geral', 'Longevidade', 'Performance', 'Foco', 'Emagrecimento'];
 
-    const markets = ['Amazon', 'Mercado Livre', 'Shopee'];
+    const markets = [
+      {
+        name: 'Amazon',
+        color: '#FF9900',
+        logo: `<svg width="90" height="28" viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#FF9900">amazon</text></svg>`,
+      },
+      {
+        name: 'Mercado Livre',
+        color: '#FFE600',
+        logo: `<svg width="110" height="28" viewBox="0 0 110 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#FFE600">Mercado Livre</text></svg>`,
+      },
+      {
+        name: 'Shopee',
+        color: '#EE4D2D',
+        logo: `<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#EE4D2D">shopee</text></svg>`,
+      },
+    ];
 
     return `
       <div class="lp-root">
@@ -182,8 +198,8 @@ export default class HomePage {
               ${markets
                 .map(
                   (m) => `
-                <article class="lp-market">
-                  <span class="lp-market__name">${m}</span>
+                <article class="lp-market" style="--mk-color: ${m.color}">
+                  <div class="lp-market__logo">${m.logo}</div>
                   <span class="lp-market__badge">Integrado</span>
                 </article>`
                 )
@@ -503,11 +519,15 @@ export default class HomePage {
         background: var(--color-surface-primary, #111111);
         border: 1px solid var(--color-border, rgba(255,255,255,0.07));
         border-radius: 16px; padding: 28px 32px;
-        display: flex; align-items: center; justify-content: space-between;
-        transition: border-color .2s ease;
+        display: flex; flex-direction: column;
+        align-items: flex-start; gap: 20px;
+        transition: border-color .2s ease, transform .2s ease;
       }
-      .lp-market:hover { border-color: var(--color-border-strong, rgba(255,255,255,0.14)); }
-      .lp-market__name { font-size: 18px; font-weight: 700; }
+      .lp-market:hover {
+        border-color: var(--mk-color, rgba(255,255,255,0.14));
+        transform: translateY(-2px);
+      }
+      .lp-market__logo { display: flex; align-items: center; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;
         color: var(--color-success, #22C55E);

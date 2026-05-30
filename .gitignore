@@ -29,9 +29,6 @@ dist/
 .out/
 build/
 
-# Documentação interna
-docs/
-
 # Lixo de desenvolvimento
 bot/
 build.js

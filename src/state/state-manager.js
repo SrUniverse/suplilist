@@ -794,7 +794,11 @@ export class StateManager {
     const next = typeof value === 'function' ? value(this.get(path)) : value;
 
     const prev = this._state;
-    const updated = this._setPath(this.export(), keys, next);
+
+    // Performance optimization: passing this._state directly instead of this.export()
+    // prevents a costly JSON.parse(JSON.stringify(this._state)) full tree deep clone.
+    // _setPath already performs structural sharing by shallow-copying objects along the updated path.
+    const updated = this._setPath(this._state, keys, next);
     const frozen = this._deepFreeze({ ...updated, _lastUpdated: Date.now() });
 
     // #2 FIX: Registrar no histórico para que undo() funcione

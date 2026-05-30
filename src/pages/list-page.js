@@ -1,26 +1,13 @@
-// ============================================================
-// ListPage v4.0 — SupliList
-// Catálogo com Fuse.js, DocumentFragment, IntersectionObserver
-// ============================================================
-
 import { stateManager, ACTIONS } from '../state/state-manager.js';
-import { eventBus } from '../core/event-bus.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import Fuse from 'fuse.js';
 
 const PAGE_SIZE = 24;
 
-// ── Simple offline fallback ────────────────────────────────────────────────────
-function normalize(str) {
-  return (str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-}
-
 export default class ListPage {
   constructor(container) {
     this.container = container;
-    this._listeners = [];
     this._unsubscribe = null;
-    this._observer = null;
     this._fuse = null;
     this._allItems = [];
     this._filtered = [];
@@ -29,64 +16,74 @@ export default class ListPage {
     this._filters = { objective: '', evidence: '', category: '' };
   }
 
-  // ── Lifecycle ───────────────────────────────────────────────────────────────
-  async mount() {
+  mount() {
     this._attachStyles();
     this._render();
-    await this._loadData();
-    await this._initFuseSearch();
+    this._allItems = SUPPLEMENTS_DB;
+    this._fuse = new Fuse(this._allItems, {
+      keys: ['name', 'category', 'benefits'],
+      threshold: 0.35,
+      includeScore: true,
+      ignoreLocation: true,
+    });
     this._applyFilters();
     this._renderGrid();
     this._initInfiniteScroll();
     this._attachListeners();
-    this._unsubscribe = stateManager.subscribe?.(() => this._refreshCardStates());
+    this._unsubscribe = stateManager.subscribe(() => this._refreshCardStates());
   }
 
   unmount() {
-    this._listeners.forEach(([el, ev, fn]) => el.removeEventListener(ev, fn));
-    this._listeners = [];
-    this._observer?.disconnect();
     this._unsubscribe?.();
   }
 
-  _on(el, event, fn) {
-    el.addEventListener(event, fn);
-    this._listeners.push([el, event, fn]);
-  }
-
-  // ── Styles (idempotent) ─────────────────────────────────────────────────────
   _attachStyles() {
     if (document.getElementById('list-page-styles')) return;
     const style = document.createElement('style');
     style.id = 'list-page-styles';
     style.textContent = `
       #list-root { padding: 16px 16px 80px; display: flex; flex-direction: column; gap: 16px; }
-      .lp-header { display: flex; flex-direction: column; gap: 12px; }
-      .lp-stats  { font-size: 12px; color: var(--color-text-secondary); }
+      .lp-search-input {
+        width: 100%; box-sizing: border-box;
+        background: var(--color-surface-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 12px; padding: 10px 14px;
+        font-size: 14px; color: var(--color-text-primary);
+        outline: none;
+      }
+      .lp-search-input:focus { border-color: var(--color-brand); }
+      .lp-stats { font-size: 12px; color: var(--color-text-secondary); margin: 0; }
       .lp-filters {
         display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
         scrollbar-width: none;
       }
       .lp-filters::-webkit-scrollbar { display: none; }
+      .lp-filter-btn {
+        flex-shrink: 0;
+        background: var(--color-surface-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 20px; padding: 7px 14px;
+        font-size: 13px; font-weight: 600;
+        color: var(--color-text-secondary);
+        cursor: pointer; white-space: nowrap;
+      }
+      .lp-filter-btn.active {
+        background: var(--color-brand);
+        border-color: var(--color-brand);
+        color: #fff;
+      }
+      .lp-filter-btn:hover:not(.active) { border-color: var(--color-brand); color: var(--color-brand); }
       .lp-filter-select {
         flex-shrink: 0;
         background: var(--color-surface-primary);
         border: 1px solid var(--color-border);
         border-radius: 20px; padding: 7px 12px;
         font-size: 13px; font-weight: 600;
-        color: var(--color-text-primary);
+        color: var(--color-text-secondary);
         cursor: pointer; outline: none;
         appearance: none; -webkit-appearance: none;
       }
       .lp-filter-select:focus { border-color: var(--color-brand); }
-      .lp-btn-clear {
-        flex-shrink: 0;
-        background: none; border: 1px solid var(--color-border);
-        border-radius: 20px; padding: 7px 14px;
-        font-size: 13px; font-weight: 600;
-        color: var(--color-text-secondary); cursor: pointer;
-      }
-      .lp-btn-clear:hover { border-color: var(--color-brand); color: var(--color-brand); }
       .lp-grid {
         display: grid;
         grid-template-columns: 1fr;
@@ -94,7 +91,7 @@ export default class ListPage {
       }
       @media (min-width: 480px) { .lp-grid { grid-template-columns: repeat(2, 1fr); } }
       @media (min-width: 768px) { .lp-grid { grid-template-columns: repeat(3, 1fr); } }
-      @media (min-width: 1024px){ .lp-grid { grid-template-columns: repeat(4, 1fr); } }
+      @media (min-width: 1024px) { .lp-grid { grid-template-columns: repeat(4, 1fr); } }
       .lp-card {
         background: var(--color-surface-primary);
         border: 1px solid var(--color-border);
@@ -104,65 +101,60 @@ export default class ListPage {
       }
       .lp-card:hover { border-color: var(--color-brand); box-shadow: 0 0 0 1px var(--color-brand); }
       .lp-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-      .lp-card-name { font-size: 15px; font-weight: 700; color: var(--color-text-primary); }
-      .lp-card-cat  { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
-      .lp-card-ev   {
+      .lp-card-name { font-size: 15px; font-weight: 700; color: var(--color-text-primary); margin: 0; }
+      .lp-card-cat  { font-size: 11px; color: var(--color-text-secondary); margin: 2px 0 0; }
+      .lp-ev-badge  {
         font-size: 10px; font-weight: 700; text-transform: uppercase;
         padding: 2px 8px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.04em;
+        flex-shrink: 0;
       }
-      .lp-card-actions { display: flex; gap: 6px; justify-content: flex-end; }
-      .lp-btn-fav, .lp-btn-add {
+      .lp-card-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.4; flex: 1; margin: 0; }
+      .lp-card-actions { display: flex; gap: 6px; justify-content: flex-end; align-items: center; }
+      .lp-btn-add {
         border: none; border-radius: 20px; cursor: pointer;
-        font-size: 12px; font-weight: 700; font-family: var(--font-sans, system-ui, sans-serif);
-        padding: 6px 12px; transition: opacity 0.15s;
+        font-size: 12px; font-weight: 700;
+        padding: 6px 14px;
+        background: var(--color-brand); color: #fff;
+        transition: opacity 0.15s;
       }
-      .lp-btn-fav { background: var(--color-surface-hover, #1e1e1e); color: var(--color-text-primary); }
-      .lp-btn-add { background: var(--color-brand, #7C3AED); color: #fff; }
-      .lp-btn-fav:hover, .lp-btn-add:hover { opacity: 0.8; }
+      .lp-btn-add:hover { opacity: 0.8; }
+      .lp-in-stack-badge {
+        font-size: 11px; font-weight: 700;
+        padding: 5px 12px; border-radius: 20px;
+        background: var(--color-success, #22C55E22);
+        color: var(--color-success, #22C55E);
+        border: 1px solid var(--color-success, #22C55E44);
+      }
       .lp-empty {
+        grid-column: 1 / -1;
         text-align: center; padding: 40px 20px;
         color: var(--color-text-secondary);
       }
       .lp-sentinel { height: 1px; }
-      .lp-loading  { text-align: center; padding: 20px; color: var(--color-text-secondary); font-size: 13px; }
+      .lp-loading { text-align: center; padding: 20px; color: var(--color-text-secondary); font-size: 13px; }
     `;
     document.head.appendChild(style);
   }
 
-  // ── Shell render ────────────────────────────────────────────────────────────
   _render() {
     this.container.innerHTML = `
       <div id="list-root">
-        <div class="lp-header">
-          <search-bar id="lp-search" placeholder="Buscar suplemento..."></search-bar>
-          <p class="lp-stats" id="lp-stats">Carregando...</p>
-          <div class="lp-filters">
-            <select class="lp-filter-select" id="lp-filter-obj" aria-label="Filtrar por objetivo">
-              <option value="">🎯 Objetivo</option>
-              <option value="bulk">Ganho de massa</option>
-              <option value="cut">Definição</option>
-              <option value="health">Saúde geral</option>
-              <option value="performance">Performance</option>
-              <option value="recovery">Recuperação</option>
-            </select>
-            <select class="lp-filter-select" id="lp-filter-ev" aria-label="Filtrar por evidência">
-              <option value="">🔬 Evidência</option>
-              <option value="A">Nível A — Forte</option>
-              <option value="B">Nível B — Moderada</option>
-              <option value="C">Nível C — Limitada</option>
-              <option value="D">Nível D — Anedótica</option>
-            </select>
-            <select class="lp-filter-select" id="lp-filter-cat" aria-label="Filtrar por categoria">
-              <option value="">📦 Categoria</option>
-              <option value="proteina">Proteína</option>
-              <option value="aminoacido">Aminoácido</option>
-              <option value="vitamina">Vitamina</option>
-              <option value="mineral">Mineral</option>
-              <option value="adaptogeno">Adaptógeno</option>
-              <option value="prebiotico">Prebiótico</option>
-              <option value="omega">Ômega</option>
-            </select>
-            <button class="lp-btn-clear" id="lp-btn-clear" type="button">Limpar</button>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <input id="lp-search" class="lp-search-input" type="search" placeholder="Buscar suplemento..." autocomplete="off" />
+          <p class="lp-stats" id="lp-stats"></p>
+          <div class="lp-filters" id="lp-obj-filters">
+            <button class="lp-filter-btn" data-obj="" type="button">Todos</button>
+            <button class="lp-filter-btn" data-obj="strength" type="button">Força</button>
+            <button class="lp-filter-btn" data-obj="general" type="button">Saúde</button>
+            <button class="lp-filter-btn" data-obj="endurance" type="button">Energia</button>
+            <button class="lp-filter-btn" data-obj="bulk" type="button">Massa</button>
+            <button class="lp-filter-btn" data-obj="cut" type="button">Definição</button>
+          </div>
+          <div class="lp-filters" id="lp-ev-filters">
+            <button class="lp-filter-btn" data-ev="" type="button">Toda evidência</button>
+            <button class="lp-filter-btn" data-ev="A" type="button">Evidência A</button>
+            <button class="lp-filter-btn" data-ev="B" type="button">Evidência B</button>
+            <button class="lp-filter-btn" data-ev="C" type="button">Evidência C</button>
           </div>
         </div>
         <div class="lp-grid" id="lp-grid" role="list"></div>
@@ -172,45 +164,22 @@ export default class ListPage {
     `;
   }
 
-  // ── Data ────────────────────────────────────────────────────────────────────
-  async _loadData() {
-    this._allItems = SUPPLEMENTS_DB;
-  }
-
-  // ── Fuse init ───────────────────────────────────────────────────────────────
-  async _initFuseSearch() {
-    if (!this._allItems.length) { this._fuse = null; return; }
-    this._fuse = new Fuse(this._allItems, {
-      keys: ['name', 'category', 'benefits'],
-      threshold: 0.35,
-      includeScore: true,
-      ignoreLocation: true,
-      useExtendedSearch: false,
-    });
-  }
-
-  // ── Simple offline fallback ─────────────────────────────────────────────────
-  _simpleFuzzySearch(query, items) {
-    const q = normalize(query);
-    return items.filter(item => normalize(item.name).includes(q));
-  }
-
-  // ── Filter pipeline ─────────────────────────────────────────────────────────
   _applyFilters() {
-    const { objective, evidence, category } = this._filters;
+    const { objective, evidence } = this._filters;
     let results = this._allItems;
 
     if (this._query.trim()) {
-      if (this._fuse) {
-        results = this._fuse.search(this._query).map(r => r.item);
-      } else {
-        results = this._simpleFuzzySearch(this._query, results);
-      }
+      results = this._fuse
+        ? this._fuse.search(this._query).map(r => r.item)
+        : results.filter(s => s.name.toLowerCase().includes(this._query.toLowerCase()));
     }
 
-    if (objective) results = results.filter(s => s.objectives?.includes(objective) || s.objective === objective);
-    if (evidence) results = results.filter(s => s.evidenceLevel === evidence || s.evidence === evidence);
-    if (category) results = results.filter(s => normalize(s.category).includes(normalize(category)));
+    if (objective) {
+      results = results.filter(s => s.targets && s.targets[objective] != null);
+    }
+    if (evidence) {
+      results = results.filter(s => s.evidenceLevel === evidence);
+    }
 
     this._filtered = results;
     this._updateStats();
@@ -221,31 +190,24 @@ export default class ListPage {
     if (el) el.textContent = `${this._filtered.length} suplemento(s) encontrado(s)`;
   }
 
-  // ── Grid render (DocumentFragment) ─────────────────────────────────────────
   _renderGrid() {
-    const t0 = performance.now();
     const grid = this.container.querySelector('#lp-grid');
     if (!grid) return;
-
     this._page = 0;
     grid.innerHTML = '';
 
     if (!this._filtered.length) {
       grid.innerHTML = `
-        <div class="lp-empty" style="grid-column:1/-1;">
+        <div class="lp-empty">
           <div style="font-size:32px;margin-bottom:12px;">🔍</div>
           <p style="font-weight:700;margin-bottom:8px;">Nenhum resultado</p>
-          <button class="lp-btn-clear" id="lp-empty-clear" type="button">Limpar filtros</button>
+          <p style="font-size:13px;">Tente outra busca ou remova os filtros.</p>
         </div>`;
-      const clr = grid.querySelector('#lp-empty-clear');
-      if (clr) clr.addEventListener('click', () => this._clearFilters());
       return;
     }
 
-    const frag = this._buildFragment(0, PAGE_SIZE);
-    grid.appendChild(frag);
+    grid.appendChild(this._buildFragment(0, PAGE_SIZE));
     this._page = 1;
-    console.debug(`[ListPage] _renderGrid ${this._filtered.length} items in ${(performance.now() - t0).toFixed(1)}ms`);
   }
 
   _loadMore() {
@@ -264,16 +226,15 @@ export default class ListPage {
 
   _buildFragment(from, to) {
     const frag = document.createDocumentFragment();
-    const favorites = stateManager.getState?.()?.favorites ?? stateManager.favorites ?? [];
-    const stack = stateManager.stack ?? [];
-    const slice = this._filtered.slice(from, to);
+    const stack = stateManager.getState?.()?.stack ?? stateManager.stack ?? [];
+    const evColors = { A: '#22C55E', B: '#F59E0B', C: '#3B82F6', D: '#6B7280' };
 
-    slice.forEach(item => {
-      const div = document.createElement('div');
-      const isFav = favorites.some(f => f === item.id || f.supplementId === item.id);
+    this._filtered.slice(from, to).forEach(item => {
       const inStack = stack.some(s => s.supplementId === item.id);
-      const evColor = { A: '#22C55E', B: '#F59E0B', C: '#3B82F6', D: '#6B7280' }[item.evidenceLevel ?? item.evidence] ?? '#6B7280';
+      const evColor = evColors[item.evidenceLevel] ?? '#6B7280';
+      const desc = item.benefits?.[0] ?? item.description ?? '';
 
+      const div = document.createElement('div');
       div.className = 'lp-card';
       div.role = 'listitem';
       div.dataset.id = item.id;
@@ -283,25 +244,17 @@ export default class ListPage {
             <p class="lp-card-name">${item.name}</p>
             <p class="lp-card-cat">${item.category ?? ''}</p>
           </div>
-          ${item.evidenceLevel || item.evidence ? `
-            <span class="lp-card-ev" style="background:${evColor}22;color:${evColor};border:1px solid ${evColor}44">
-              Ev. ${item.evidenceLevel ?? item.evidence}
+          ${item.evidenceLevel ? `
+            <span class="lp-ev-badge" style="background:${evColor}22;color:${evColor};border:1px solid ${evColor}44;">
+              Evidência ${item.evidenceLevel}
             </span>` : ''}
         </div>
-        <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.4;flex:1;">
-          ${item.benefits?.[0] ?? item.description ?? ''}
-        </p>
+        ${desc ? `<p class="lp-card-desc">${desc}</p>` : ''}
         <div class="lp-card-actions">
-          <button class="lp-btn-fav" data-action="favorite" data-id="${item.id}"
-            aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"
-            aria-pressed="${isFav}">
-            ${isFav ? '❤️' : '🤍'}
-          </button>
-          <button class="lp-btn-add" data-action="add-stack" data-id="${item.id}"
-            ${inStack ? 'disabled style="opacity:.5;cursor:default"' : ''}
-            aria-label="${inStack ? 'Já no stack' : 'Adicionar ao stack'}">
-            ${inStack ? '✓ Stack' : '+ Stack'}
-          </button>
+          ${inStack
+            ? `<span class="lp-in-stack-badge">✓ No Stack</span>`
+            : `<button class="lp-btn-add" data-action="add-stack" data-id="${item.id}" type="button">+ Stack</button>`
+          }
         </div>
       `;
       frag.appendChild(div);
@@ -309,132 +262,109 @@ export default class ListPage {
     return frag;
   }
 
-  // ── IntersectionObserver ────────────────────────────────────────────────────
   _initInfiniteScroll() {
-    this._observer?.disconnect();
     const sentinel = this.container.querySelector('#lp-sentinel');
-    if (!sentinel) return;
-    this._observer = new IntersectionObserver((entries) => {
+    if (!sentinel || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) this._loadMore();
     }, { rootMargin: '200px' });
-    this._observer.observe(sentinel);
+    observer.observe(sentinel);
   }
 
-  // ── Refresh card states (no re-render) ─────────────────────────────────────
   _refreshCardStates() {
-    const favorites = stateManager.getState?.()?.favorites ?? stateManager.favorites ?? [];
-    const stack = stateManager.stack ?? [];
+    const stack = stateManager.getState?.()?.stack ?? stateManager.stack ?? [];
+    const evColors = { A: '#22C55E', B: '#F59E0B', C: '#3B82F6', D: '#6B7280' };
+
     this.container.querySelectorAll('.lp-card').forEach(card => {
       const id = card.dataset.id;
-      const isFav = favorites.some(f => f === id || f.supplementId === id);
       const inStack = stack.some(s => s.supplementId === id);
-      const favBtn = card.querySelector('[data-action="favorite"]');
-      const addBtn = card.querySelector('[data-action="add-stack"]');
-      if (favBtn) { favBtn.textContent = isFav ? '❤️' : '🤍'; favBtn.setAttribute('aria-pressed', isFav); }
-      if (addBtn) {
-        addBtn.textContent = inStack ? '✓ Stack' : '+ Stack';
-        addBtn.disabled = inStack;
-        addBtn.style.opacity = inStack ? '0.5' : '1';
+      const actionsEl = card.querySelector('.lp-card-actions');
+      if (!actionsEl) return;
+
+      const existingBadge = actionsEl.querySelector('.lp-in-stack-badge');
+      const existingBtn = actionsEl.querySelector('[data-action="add-stack"]');
+
+      if (inStack && !existingBadge) {
+        actionsEl.innerHTML = `<span class="lp-in-stack-badge">✓ No Stack</span>`;
+      } else if (!inStack && !existingBtn) {
+        actionsEl.innerHTML = `<button class="lp-btn-add" data-action="add-stack" data-id="${id}" type="button">+ Stack</button>`;
       }
     });
   }
 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
-  _clearFilters() {
-    this._query = '';
-    this._filters = { objective: '', evidence: '', category: '' };
-    const search = this.container.querySelector('#lp-search');
-    const obj = this.container.querySelector('#lp-filter-obj');
-    const ev = this.container.querySelector('#lp-filter-ev');
-    const cat = this.container.querySelector('#lp-filter-cat');
-    if (search) search.setAttribute('value', '');
-    if (obj) obj.value = '';
-    if (ev) ev.value = '';
-    if (cat) cat.value = '';
+  _setObjFilter(value) {
+    this._filters.objective = value;
+    this.container.querySelectorAll('[data-obj]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.obj === value);
+    });
     this._applyFilters();
     this._renderGrid();
   }
 
-  _getItemById(id) {
-    return this._allItems.find(s => s.id === id);
+  _setEvFilter(value) {
+    this._filters.evidence = value;
+    this.container.querySelectorAll('[data-ev]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.ev === value);
+    });
+    this._applyFilters();
+    this._renderGrid();
   }
 
-  // ── Event listeners ─────────────────────────────────────────────────────────
   _attachListeners() {
-    // Search (debounced via web component)
     const searchEl = this.container.querySelector('#lp-search');
     if (searchEl) {
-      this._on(searchEl, 'sl-search', (e) => {
-        this._query = e.detail?.query ?? '';
-        this._applyFilters();
-        this._renderGrid();
-      });
-      this._on(searchEl, 'sl-clear', () => {
-        this._query = '';
-        this._applyFilters();
-        this._renderGrid();
+      let debounceTimer;
+      searchEl.addEventListener('input', e => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          this._query = e.target.value;
+          this._applyFilters();
+          this._renderGrid();
+        }, 250);
       });
     }
 
-    // Filters
-    const filterHandler = () => {
-      this._filters.objective = this.container.querySelector('#lp-filter-obj')?.value ?? '';
-      this._filters.evidence = this.container.querySelector('#lp-filter-ev')?.value ?? '';
-      this._filters.category = this.container.querySelector('#lp-filter-cat')?.value ?? '';
-      this._applyFilters();
-      this._renderGrid();
-    };
-    ['#lp-filter-obj', '#lp-filter-ev', '#lp-filter-cat'].forEach(sel => {
-      const el = this.container.querySelector(sel);
-      if (el) this._on(el, 'change', filterHandler);
-    });
+    const objFilters = this.container.querySelector('#lp-obj-filters');
+    if (objFilters) {
+      // set "Todos" active by default
+      const allBtn = objFilters.querySelector('[data-obj=""]');
+      if (allBtn) allBtn.classList.add('active');
 
-    // Clear button
-    const clrBtn = this.container.querySelector('#lp-btn-clear');
-    if (clrBtn) this._on(clrBtn, 'click', () => this._clearFilters());
+      objFilters.addEventListener('click', e => {
+        const btn = e.target.closest('[data-obj]');
+        if (btn) this._setObjFilter(btn.dataset.obj);
+      });
+    }
 
-    // Card actions (event delegation on grid)
+    const evFilters = this.container.querySelector('#lp-ev-filters');
+    if (evFilters) {
+      const allBtn = evFilters.querySelector('[data-ev=""]');
+      if (allBtn) allBtn.classList.add('active');
+
+      evFilters.addEventListener('click', e => {
+        const btn = e.target.closest('[data-ev]');
+        if (btn) this._setEvFilter(btn.dataset.ev);
+      });
+    }
+
     const grid = this.container.querySelector('#lp-grid');
     if (grid) {
-      this._on(grid, 'click', (e) => {
-        const btn = e.target.closest('[data-action]');
+      grid.addEventListener('click', e => {
+        const btn = e.target.closest('[data-action="add-stack"]');
         if (!btn) return;
         const id = btn.dataset.id;
-        const item = this._getItemById(id);
+        const item = this._allItems.find(s => s.id === id);
         if (!item) return;
 
-        if (btn.dataset.action === 'favorite') {
-          const isFav = stateManager.getState?.()?.favorites?.some(f => f === id || f.supplementId === id)
-            ?? stateManager.favorites?.some(f => f === id) ?? false;
-          stateManager.dispatch(isFav ? ACTIONS.REMOVE_FAVORITE : ACTIONS.ADD_FAVORITE, { supplementId: id });
-          eventBus.emit('ui:toastRequested', {
-            message: isFav ? '💔 Removido dos favoritos' : '❤️ Adicionado aos favoritos',
-            type: 'info',
-          });
-          this._refreshCardStates();
-        }
+        stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
+          supplementId: item.id,
+          name: item.name,
+          dosage: item.dosage?.maintenance ?? item.defaultDose,
+          unit: item.dosage?.unit ?? item.unit ?? 'g',
+          quantity: 0,
+        });
 
-        if (btn.dataset.action === 'add-stack') {
-          if (btn.disabled) return;
-          stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
-            supplementId: item.id,
-            name: item.name,
-            dosage: item.dosage?.maintenance,
-            unit: item.dosage?.unit || 'g',
-            frequency: 'diário',
-          });
-          eventBus.emit('ui:toastRequested', {
-            message: `✅ ${item.name} adicionado ao stack!`,
-            type: 'success',
-          });
-          this._refreshCardStates();
-        }
-
-        if (btn.dataset.action === 'view-detail' || e.target.closest('.lp-card-name')) {
-          window.dispatchEvent(new CustomEvent('sl-navigate', {
-            detail: { route: `/supplement/${id}` },
-          }));
-        }
+        this._refreshCardStates();
       });
     }
   }

@@ -24,6 +24,9 @@ coverage/
 .vitest-cache/
 test-results/
 
+# Documentação interna (apenas local)
+guias/
+
 # Build/Distribuição
 dist/
 .out/

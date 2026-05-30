@@ -1,8 +1,8 @@
-import{s,e as i,A as a}from"./main-4ndHjxTB.js";class l{constructor(o){this.container=o,this._listeners=[]}mount(){this._render(),this._attachListeners()}unmount(){this._listeners.forEach(([o,e,t])=>o.removeEventListener(e,t)),this._listeners=[]}_on(o,e,t){o.addEventListener(e,t),this._listeners.push([o,e,t])}_getTodayStr(){return new Date().toISOString().split("T")[0]}_getCheckedIds(){const o=this._getTodayStr();return new Set(s.checkins.filter(e=>e.date===o).map(e=>e.supplementId))}_render(){const o=s.stack,e=s.calculateStreak(),t=this._getCheckedIds(),r=o.length>0&&t.size>=o.length,n=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});this.container.innerHTML=`
-      <div id="checkin-root" style="padding:20px 16px;display:flex;flex-direction:column;gap:20px;padding-bottom:32px;">
+import{s as n,e as i,A as s}from"./main-CfwEDZr2.js";class l{constructor(o){this.container=o}mount(){this._render(),this._attachListeners()}unmount(){this.container.innerHTML=""}_getTodayStr(){return new Date().toISOString().split("T")[0]}_getCheckedIds(){const o=this._getTodayStr();return new Set(n.checkins.filter(e=>e.date===o).map(e=>e.supplementId))}_render(){const o=n.stack,e=n.calculateStreak(),t=this._getCheckedIds(),r=o.length>0&&t.size>=o.length,a=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});this.container.innerHTML=`
+      <div style="padding:20px 16px;display:flex;flex-direction:column;gap:20px;padding-bottom:32px;">
 
         <header>
-          <p style="color:var(--color-text-secondary);font-size:12px;text-transform:uppercase;letter-spacing:0.07em;">${n}</p>
+          <p style="color:var(--color-text-secondary);font-size:12px;text-transform:uppercase;letter-spacing:0.07em;">${a}</p>
           <h1 style="font-size:26px;font-weight:800;letter-spacing:-0.02em;margin-top:2px;">Check-in</h1>
         </header>
 
@@ -37,7 +37,7 @@ import{s,e as i,A as a}from"./main-4ndHjxTB.js";class l{constructor(o){this.cont
         </h2>
         <div style="display:flex;flex-direction:column;gap:10px;">
           ${o.map(t=>{const r=e.has(t.supplementId);return`
-              <div class="checkin-item" data-id="${t.supplementId}" style="
+              <div style="
                 background:var(--color-surface-primary);
                 border:1px solid ${r?"rgba(34,197,94,0.4)":"var(--color-border)"};
                 border-radius:14px;
@@ -47,20 +47,18 @@ import{s,e as i,A as a}from"./main-4ndHjxTB.js";class l{constructor(o){this.cont
                 gap:14px;
                 cursor:${r?"default":"pointer"};
                 transition:border-color 0.2s,background 0.2s;
-                ${r?"background:var(--color-success-bg);":""}
               ">
-                <!-- Checkbox -->
-                <div class="checkin-checkbox" style="
+                <div style="
                   width:28px;height:28px;border-radius:50%;flex-shrink:0;
                   display:flex;align-items:center;justify-content:center;
                   font-size:16px;
-                  border:2px solid ${r?"var(--color-success)":"var(--color-border-strong)"};
+                  border:2px solid ${r?"var(--color-success)":"var(--color-border)"};
                   background:${r?"var(--color-success)":"transparent"};
+                  color:#fff;
                   transition:all 0.2s;
                 ">
                   ${r?"✓":""}
                 </div>
-                <!-- Info -->
                 <div style="flex:1;min-width:0;">
                   <div style="font-weight:700;font-size:15px;${r?"color:var(--color-success);":""}">${t.name}</div>
                   ${t.dosage?`<div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">${t.dosage}${t.unit||"g"} · ${t.frequency||"diário"}</div>`:""}
@@ -71,7 +69,7 @@ import{s,e as i,A as a}from"./main-4ndHjxTB.js";class l{constructor(o){this.cont
         </div>
       </section>
     `}_allDoneBanner(){return`
-      <div style="background:var(--color-success-bg);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:20px;text-align:center;">
+      <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:20px;text-align:center;">
         <div style="font-size:36px;margin-bottom:8px;">🎉</div>
         <div style="font-weight:700;font-size:17px;color:var(--color-success);">Tudo feito hoje!</div>
         <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Seu streak continua. Até amanhã!</div>
@@ -85,4 +83,4 @@ import{s,e as i,A as a}from"./main-4ndHjxTB.js";class l{constructor(o){this.cont
         </div>
         <a href="#/list" style="display:inline-block;background:var(--color-brand);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;">Ir ao Catálogo</a>
       </div>
-    `}_attachListeners(){this.container.querySelectorAll(".btn-checkin-single").forEach(e=>{this._on(e,"click",t=>{t.stopPropagation();const r=e.dataset.id,n=e.dataset.name;this._doCheckin(r,n)})});const o=this.container.querySelector("#btn-checkin-all");o&&this._on(o,"click",()=>{const e=this._getCheckedIds();s.stack.forEach(t=>{e.has(t.supplementId)||this._doCheckin(t.supplementId,t.name,!1)}),this._refresh(),i.emit("toast:show",{message:"🎉 Check-in completo!",type:"success"})})}_doCheckin(o,e,t=!0){s.dispatch(a.ADD_CHECKIN,{supplementId:o,date:this._getTodayStr()}),t&&i.emit("toast:show",{message:`✅ ${e} marcado!`,type:"success"}),this._refresh()}_refresh(){this.unmount(),this._render(),this._attachListeners()}}export{l as default};
+    `}_attachListeners(){this.container.querySelectorAll(".btn-checkin-single").forEach(e=>{e.addEventListener("click",t=>{t.stopPropagation(),this._doCheckin(e.dataset.id,e.dataset.name)})});const o=this.container.querySelector("#btn-checkin-all");o&&o.addEventListener("click",()=>{const e=this._getCheckedIds();n.stack.forEach(t=>{e.has(t.supplementId)||this._doCheckin(t.supplementId,t.name,!1)}),this._refresh(),i.emit("toast:show",{message:"🎉 Check-in completo!",type:"success"})})}_doCheckin(o,e,t=!0){n.dispatch(s.ADD_CHECKIN,{supplementId:o,date:this._getTodayStr()}),t&&i.emit("toast:show",{message:`✅ ${e} marcado!`,type:"success"}),this._refresh()}_refresh(){this._render(),this._attachListeners()}}export{l as default};

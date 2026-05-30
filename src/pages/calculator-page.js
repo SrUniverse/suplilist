@@ -1,5 +1,5 @@
 /**
- * DosageCalculatorPage v4.0 — SupliList
+ * DosageCalculatorPage — SupliList
  * Calculadora de dosagem personalizada por biometria real
  */
 
@@ -7,7 +7,7 @@ import { stateManager, ACTIONS } from '../state/state-manager.js';
 import recommender, { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import DosageCalculator from '../ai/dosage-calculator.js';
 
-export class DosageCalculatorPage {
+export default class DosageCalculatorPage {
   constructor(container) {
     this.container = container;
     this._profile = this._loadProfile();
@@ -16,6 +16,7 @@ export class DosageCalculatorPage {
   }
 
   mount() {
+    this._attachStyles();
     this._render();
     this._attachListeners();
     this._calculate();
@@ -42,7 +43,6 @@ export class DosageCalculatorPage {
 
   // ── Shell render ──────────────────────────────────────────────────────────
   _render() {
-    this._attachStyles();
     const p = this._profile;
     this.container.innerHTML = `
       <div class="calc-page">
@@ -52,7 +52,7 @@ export class DosageCalculatorPage {
           <p class="page-subtitle">Dosagem personalizada por biometria científica</p>
         </div>
 
-        <section class="profile-form card" aria-label="Perfil biométrico">
+        <section class="calc-card profile-form" aria-label="Perfil biométrico">
           <h2 class="section-title">Seu Perfil</h2>
 
           <!-- Objetivo -->
@@ -60,12 +60,12 @@ export class DosageCalculatorPage {
             <label class="form-label">🎯 Objetivo Principal</label>
             <div class="objective-pills" role="radiogroup" aria-label="Objetivo">
               ${[
-        { value: 'bulk', label: '📈 Bulk', desc: 'Ganho de massa' },
-        { value: 'cut', label: '🔥 Cut', desc: 'Perda de gordura' },
-        { value: 'strength', label: '💪 Força', desc: 'Força máxima' },
-        { value: 'endurance', label: '🏃 Resistência', desc: 'Cardio/endurance' },
-        { value: 'general', label: '🌿 Saúde', desc: 'Bem-estar geral' },
-      ].map(o => `
+                { value: 'bulk',      label: '📈 Bulk',       desc: 'Ganho de massa' },
+                { value: 'cut',       label: '🔥 Cut',        desc: 'Perda de gordura' },
+                { value: 'strength',  label: '💪 Força',      desc: 'Força máxima' },
+                { value: 'endurance', label: '🏃 Resistência', desc: 'Cardio/endurance' },
+                { value: 'general',   label: '🌿 Saúde',      desc: 'Bem-estar geral' },
+              ].map(o => `
                 <button class="objective-pill${p.objective === o.value ? ' active' : ''}"
                   data-value="${o.value}" data-field="objective"
                   role="radio" aria-checked="${p.objective === o.value}" title="${o.desc}"
@@ -106,13 +106,13 @@ export class DosageCalculatorPage {
             <label class="form-label">🚫 Restrições / Alergias</label>
             <div class="restriction-pills" role="group" aria-label="Restrições">
               ${[
-        { value: 'gluten', label: '🌾 Glúten' },
-        { value: 'lactose', label: '🥛 Lactose' },
-        { value: 'shellfish', label: '🦐 Crustáceos' },
-        { value: 'soy', label: '🫘 Soja' },
-        { value: 'vegetarian', label: '🥦 Vegetariano' },
-        { value: 'vegan', label: '🌱 Vegano' },
-      ].map(r => `
+                { value: 'gluten',     label: '🌾 Glúten' },
+                { value: 'lactose',    label: '🥛 Lactose' },
+                { value: 'shellfish',  label: '🦐 Crustáceos' },
+                { value: 'soy',        label: '🫘 Soja' },
+                { value: 'vegetarian', label: '🥦 Vegetariano' },
+                { value: 'vegan',      label: '🌱 Vegano' },
+              ].map(r => `
                 <button class="restriction-pill${p.restrictions.includes(r.value) ? ' active-danger' : ''}"
                   data-value="${r.value}" data-action="toggle-restriction"
                   aria-pressed="${p.restrictions.includes(r.value)}"
@@ -133,7 +133,7 @@ export class DosageCalculatorPage {
           <div class="results-grid" id="results-grid"></div>
         </section>
 
-        <section class="budget-section card" id="budget-section" style="display:none">
+        <section class="calc-card budget-section" id="budget-section" style="display:none">
           <h2 class="section-title">💵 Resumo de Custo</h2>
           <div class="budget-grid" id="budget-grid"></div>
           <div class="budget-total" id="budget-total"></div>
@@ -178,22 +178,18 @@ export class DosageCalculatorPage {
     clearTimeout(this._debounce);
     this._debounce = setTimeout(() => {
       try {
-        // recommender.recommend returns individual supplements sorted by score
         const recs = recommender.recommend(this._profile, 8);
-        // Enrich with DosageCalculator
         this._results = recs.map(supp => {
           let dosage = supp.dosage ?? {};
           try {
-            // #EIXO3 FIX: Mapear recomendação de volta para a entrada clínica bruta do SUPPLEMENTS_DB
             const rawSupp = SUPPLEMENTS_DB.find(s => s.id === supp.id);
             if (rawSupp) {
               const calc = DosageCalculator.calculate(rawSupp, this._profile);
               if (calc) {
-                // #EIXO3 FIX: Corrigir propriedade calc.dose para calc.daily e rationale mapping
-                dosage = { 
-                  ...dosage, 
-                  daily: calc.daily, 
-                  scientificRationale: calc.rationale ?? dosage.scientificRationale 
+                dosage = {
+                  ...dosage,
+                  daily: calc.daily,
+                  scientificRationale: calc.rationale ?? dosage.scientificRationale,
                 };
               }
             }
@@ -237,7 +233,7 @@ export class DosageCalculatorPage {
       card.style.animationDelay = `${index * 60}ms`;
 
       const scorePercent = Math.round((supp.score ?? 0) * 100);
-      const scoreColor = scorePercent >= 80 ? '#00E676' : scorePercent >= 60 ? '#7C3AED' : '#FFB74D';
+      const scoreColor = scorePercent >= 80 ? 'var(--color-success)' : scorePercent >= 60 ? 'var(--color-brand)' : '#FFB74D';
       const isFav = favorites.some(f => f === supp.id || f.supplementId === supp.id);
       const inStack = stack.some(s => s.supplementId === supp.id);
 
@@ -324,16 +320,16 @@ export class DosageCalculatorPage {
     totalEl.innerHTML = `
       <div class="budget-total-row">
         <span>Total do stack</span>
-        <span class="budget-total-value" style="color:${totalCost > this._profile.budget ? '#EF5350' : '#00E676'}">
+        <span class="budget-total-value" style="color:${totalCost > this._profile.budget ? 'var(--color-error)' : 'var(--color-success)'}">
           R$ ${totalCost.toFixed(2)}
         </span>
       </div>
-      <div class="budget-total-row" style="font-size:13px;color:#888">
+      <div class="budget-total-row" style="font-size:13px;color:var(--color-text-muted)">
         <span>Orçamento</span><span>R$ ${this._profile.budget.toFixed(2)}</span>
       </div>
       <div class="budget-total-row" style="font-size:13px">
         <span>${remaining >= 0 ? 'Saldo restante' : 'Excede orçamento em'}</span>
-        <span style="color:${remaining >= 0 ? '#00E676' : '#EF5350'}">
+        <span style="color:${remaining >= 0 ? 'var(--color-success)' : 'var(--color-error)'}">
           ${remaining >= 0 ? '+' : ''}R$ ${Math.abs(remaining).toFixed(2)}
         </span>
       </div>`;
@@ -383,7 +379,7 @@ export class DosageCalculatorPage {
       });
     });
 
-    // Sliders ↔ number inputs (bidirectional)
+    // Sliders <-> number inputs (bidirectional)
     ['weight', 'height', 'age', 'trainingAge', 'budget'].forEach(field => {
       const slider = this.container.querySelector(`#${field}-slider`);
       const input = this.container.querySelector(`#${field}`);
@@ -433,7 +429,6 @@ export class DosageCalculatorPage {
         if (inStack) {
           stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { supplementId: id });
         } else {
-          // #EIXO3 FIX: Incluir dosagem e unidade calculadas no payload do ADD_TO_STACK
           const computed = this._results.find(r => r.id === id);
           const dosage = computed?.dosage?.daily ?? computed?.dosage?.maintenance ?? 0;
           const unit = computed?.dosage?.unit ?? 'g';
@@ -442,7 +437,7 @@ export class DosageCalculatorPage {
             name,
             dosage,
             unit,
-            frequency: 'diário'
+            frequency: 'diário',
           });
         }
         btn.textContent = inStack ? '+ Stack' : '✓ No stack';
@@ -460,78 +455,78 @@ export class DosageCalculatorPage {
     style.id = 'calc-page-styles';
     style.textContent = `
       .calc-page { display:flex; flex-direction:column; gap:24px; padding:20px 16px 100px; max-width:900px; margin:0 auto; }
-      .card { background:#141414; border:1px solid #2A2A2A; border-radius:16px; padding:20px; }
+      .calc-card { background:var(--color-surface-primary); border:1px solid var(--color-border); border-radius:16px; padding:20px; }
       .page-header { margin-bottom:4px; }
-      .page-title { font-size:24px; font-weight:800; color:#FAFAFA; margin:0 0 4px; }
-      .page-subtitle { font-size:14px; color:#888; margin:0; }
-      .section-title { font-size:16px; font-weight:700; color:#FAFAFA; margin:0 0 16px; }
+      .page-title { font-size:24px; font-weight:800; color:var(--color-text-primary); margin:0 0 4px; }
+      .page-subtitle { font-size:14px; color:var(--color-text-muted); margin:0; }
+      .section-title { font-size:16px; font-weight:700; color:var(--color-text-primary); margin:0 0 16px; }
       .form-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
       .form-group { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
-      .form-label { font-size:13px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; }
+      .form-label { font-size:13px; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:.5px; }
       .input-with-unit { display:flex; flex-direction:column; gap:6px; }
-      .range-slider { -webkit-appearance:none; width:100%; height:4px; background:#2A2A2A; border-radius:999px; outline:none; cursor:pointer; }
-      .range-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#7C3AED; cursor:pointer; border:2px solid #FAFAFA; box-shadow:0 0 8px rgba(124,58,237,.5); transition:transform 150ms; }
+      .range-slider { -webkit-appearance:none; width:100%; height:4px; background:var(--color-border); border-radius:999px; outline:none; cursor:pointer; }
+      .range-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--color-brand); cursor:pointer; border:2px solid var(--color-text-primary); box-shadow:0 0 8px rgba(124,58,237,.5); transition:transform 150ms; }
       .range-slider::-webkit-slider-thumb:hover { transform:scale(1.2); }
       .range-value-row { display:flex; align-items:center; gap:6px; }
-      .number-input { width:72px; padding:6px 10px; background:#1E1E1E; border:1px solid #2A2A2A; border-radius:8px; color:#FAFAFA; font-size:15px; font-family:'JetBrains Mono',monospace; font-weight:700; text-align:center; outline:none; }
-      .number-input:focus { border-color:#7C3AED; }
-      .unit-label { font-size:13px; color:#888; white-space:nowrap; }
+      .number-input { width:72px; padding:6px 10px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:8px; color:var(--color-text-primary); font-size:15px; font-family:'JetBrains Mono',monospace; font-weight:700; text-align:center; outline:none; }
+      .number-input:focus { border-color:var(--color-brand); }
+      .unit-label { font-size:13px; color:var(--color-text-muted); white-space:nowrap; }
       .objective-pills, .frequency-pills, .restriction-pills { display:flex; flex-wrap:wrap; gap:8px; }
-      .objective-pill, .freq-pill, .restriction-pill { padding:8px 14px; background:#1E1E1E; border:1px solid #2A2A2A; border-radius:999px; color:#888; font-size:13px; font-weight:600; cursor:pointer; transition:all 150ms; font-family:inherit; }
-      .objective-pill:hover, .freq-pill:hover { border-color:#7C3AED; color:#FAFAFA; }
-      .objective-pill.active, .freq-pill.active { background:#7C3AED22; border-color:#7C3AED; color:#7C3AED; }
+      .objective-pill, .freq-pill, .restriction-pill { padding:8px 14px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:999px; color:var(--color-text-muted); font-size:13px; font-weight:600; cursor:pointer; transition:all 150ms; font-family:inherit; }
+      .objective-pill:hover, .freq-pill:hover { border-color:var(--color-brand); color:var(--color-text-primary); }
+      .objective-pill.active, .freq-pill.active { background:var(--color-brand-muted); border-color:var(--color-brand); color:var(--color-brand); }
       .freq-pill { padding:8px 12px; min-width:44px; text-align:center; }
-      .restriction-pill.active-danger { background:#EF535011; border-color:#EF5350; color:#EF5350; }
-      .btn-save-profile { width:100%; padding:13px; margin-top:8px; background:#7C3AED; color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition:opacity 150ms,transform 150ms; font-family:inherit; }
+      .restriction-pill.active-danger { background:rgba(239,83,80,.07); border-color:var(--color-error); color:var(--color-error); }
+      .btn-save-profile { width:100%; padding:13px; margin-top:8px; background:var(--color-brand); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition:opacity 150ms,transform 150ms; font-family:inherit; }
       .btn-save-profile:hover { opacity:.9; }
       .btn-save-profile:active { transform:scale(.98); }
-      .calc-divider { display:flex; align-items:center; gap:12px; color:#444; font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
-      .calc-divider::before, .calc-divider::after { content:''; flex:1; height:1px; background:#2A2A2A; }
-      .results-loading { display:flex; flex-direction:column; align-items:center; gap:12px; padding:48px 20px; color:#888; }
-      .spinner { width:32px; height:32px; border:3px solid #2A2A2A; border-top-color:#7C3AED; border-radius:50%; animation:spin .8s linear infinite; }
-      @keyframes spin { to { transform:rotate(360deg); } }
+      .calc-divider { display:flex; align-items:center; gap:12px; color:var(--color-text-muted); font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
+      .calc-divider::before, .calc-divider::after { content:''; flex:1; height:1px; background:var(--color-border); }
+      .results-loading { display:flex; flex-direction:column; align-items:center; gap:12px; padding:48px 20px; color:var(--color-text-muted); }
+      .spinner { width:32px; height:32px; border:3px solid var(--color-border); border-top-color:var(--color-brand); border-radius:50%; animation:calc-spin .8s linear infinite; }
+      @keyframes calc-spin { to { transform:rotate(360deg); } }
       .results-grid { display:grid; grid-template-columns:1fr; gap:16px; }
-      .result-card { background:#141414; border:1px solid #2A2A2A; border-radius:16px; padding:20px; position:relative; animation:cardIn 400ms ease both; transition:border-color 150ms,box-shadow 150ms; }
-      .result-card:hover { border-color:#7C3AED44; box-shadow:0 0 20px rgba(124,58,237,.1); }
-      @keyframes cardIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-      .result-rank { position:absolute; top:-10px; left:16px; background:#7C3AED; color:#fff; font-size:11px; font-weight:800; font-family:'JetBrains Mono',monospace; padding:2px 8px; border-radius:999px; }
+      .result-card { background:var(--color-surface-primary); border:1px solid var(--color-border); border-radius:16px; padding:20px; position:relative; animation:calcCardIn 400ms ease both; transition:border-color 150ms,box-shadow 150ms; }
+      .result-card:hover { border-color:rgba(124,58,237,.27); box-shadow:0 0 20px rgba(124,58,237,.1); }
+      @keyframes calcCardIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+      .result-rank { position:absolute; top:-10px; left:16px; background:var(--color-brand); color:#fff; font-size:11px; font-weight:800; font-family:'JetBrains Mono',monospace; padding:2px 8px; border-radius:999px; }
       .result-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:14px; }
-      .result-category { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.5px; margin:0 0 3px; }
-      .result-name { font-size:17px; font-weight:700; color:#FAFAFA; margin:0; line-height:1.2; }
+      .result-category { font-size:11px; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:.5px; margin:0 0 3px; }
+      .result-name { font-size:17px; font-weight:700; color:var(--color-text-primary); margin:0; line-height:1.2; }
       .score-section { margin-bottom:14px; }
-      .score-label { display:flex; justify-content:space-between; font-size:12px; color:#888; margin-bottom:6px; }
-      .score-bar { height:5px; background:#2A2A2A; border-radius:999px; overflow:hidden; }
+      .score-label { display:flex; justify-content:space-between; font-size:12px; color:var(--color-text-muted); margin-bottom:6px; }
+      .score-bar { height:5px; background:var(--color-border); border-radius:999px; overflow:hidden; }
       .score-fill { height:100%; border-radius:999px; transition:width 500ms ease; }
-      .dosage-block { display:flex; flex-direction:column; gap:4px; padding:12px; background:#1E1E1E; border-radius:10px; margin-bottom:12px; }
+      .dosage-block { display:flex; flex-direction:column; gap:4px; padding:12px; background:var(--color-bg-primary); border-radius:10px; margin-bottom:12px; }
       .dosage-main { display:flex; align-items:baseline; gap:4px; }
-      .dosage-value { font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:#7C3AED; }
-      .dosage-unit { font-size:14px; color:#888; font-family:'JetBrains Mono',monospace; }
-      .dosage-rationale { font-size:12px; color:#666; margin:0; line-height:1.4; }
+      .dosage-value { font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:var(--color-brand); }
+      .dosage-unit { font-size:14px; color:var(--color-text-muted); font-family:'JetBrains Mono',monospace; }
+      .dosage-rationale { font-size:12px; color:var(--color-text-secondary); margin:0; line-height:1.4; }
       .benefits-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
-      .benefit-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:#1E1E1E; border:1px solid #2A2A2A; border-radius:999px; font-size:12px; }
-      .benefit-label { color:#FAFAFA; }
-      .benefit-pct { color:#00E676; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; }
-      .result-cost { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#1E1E1E; border-radius:8px; margin-bottom:12px; }
-      .cost-label { font-size:12px; color:#888; }
+      .benefit-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:999px; font-size:12px; }
+      .benefit-label { color:var(--color-text-primary); }
+      .benefit-pct { color:var(--color-success); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; }
+      .result-cost { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--color-bg-primary); border-radius:8px; margin-bottom:12px; }
+      .cost-label { font-size:12px; color:var(--color-text-muted); }
       .cost-value { font-size:14px; font-weight:700; color:#FFB74D; font-family:'JetBrains Mono',monospace; }
       .warnings-section, .interactions-section { margin-bottom:10px; }
       .warning-item, .interaction-item { font-size:12px; color:#FFB74D; margin:4px 0; line-height:1.4; }
       .result-actions { display:flex; gap:8px; margin-top:4px; }
-      .btn-action { flex:1; padding:9px 14px; background:#1E1E1E; border:1px solid #2A2A2A; border-radius:999px; color:#888; font-size:13px; font-weight:600; cursor:pointer; transition:all 150ms; font-family:inherit; }
-      .btn-action:hover { border-color:#7C3AED; color:#FAFAFA; }
-      .btn-action-primary { background:#7C3AED22; border-color:#7C3AED44; color:#7C3AED; }
-      .btn-action-primary:hover { background:#7C3AED; color:#fff; }
-      .active-fav { background:#EF535011; border-color:#EF535044; color:#EF5350; }
-      .active-stack { background:#00E67611; border-color:#00E67644; color:#00E676; }
-      .budget-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-      .budget-item { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #1E1E1E; font-size:14px; }
-      .budget-item-name { color:#FAFAFA; }
-      .budget-item-cost { color:#888; font-family:'JetBrains Mono',monospace; }
-      .budget-total { display:flex; flex-direction:column; gap:6px; padding-top:10px; border-top:1px solid #2A2A2A; }
-      .budget-total-row { display:flex; justify-content:space-between; font-size:15px; font-weight:600; color:#FAFAFA; }
+      .btn-action { flex:1; padding:9px 14px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:999px; color:var(--color-text-muted); font-size:13px; font-weight:600; cursor:pointer; transition:all 150ms; font-family:inherit; }
+      .btn-action:hover { border-color:var(--color-brand); color:var(--color-text-primary); }
+      .btn-action-primary { background:var(--color-brand-muted); border-color:rgba(124,58,237,.27); color:var(--color-brand); }
+      .btn-action-primary:hover { background:var(--color-brand); color:#fff; }
+      .active-fav { background:rgba(239,83,80,.07); border-color:rgba(239,83,80,.27); color:var(--color-error); }
+      .active-stack { background:rgba(0,230,118,.07); border-color:rgba(0,230,118,.27); color:var(--color-success); }
+      .budget-section .budget-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+      .budget-item { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--color-bg-primary); font-size:14px; }
+      .budget-item-name { color:var(--color-text-primary); }
+      .budget-item-cost { color:var(--color-text-muted); font-family:'JetBrains Mono',monospace; }
+      .budget-total { display:flex; flex-direction:column; gap:6px; padding-top:10px; border-top:1px solid var(--color-border); }
+      .budget-total-row { display:flex; justify-content:space-between; font-size:15px; font-weight:600; color:var(--color-text-primary); }
       .budget-total-value { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:800; }
-      .disclaimer { font-size:12px; color:#555; line-height:1.6; padding:12px; border:1px solid #2A2A2A; border-radius:10px; background:#141414; margin:0; }
-      .empty-state { text-align:center; padding:48px 20px; color:#888; display:flex; flex-direction:column; align-items:center; gap:12px; grid-column:1/-1; }
+      .disclaimer { font-size:12px; color:var(--color-text-secondary); line-height:1.6; padding:12px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-surface-primary); margin:0; }
+      .empty-state { text-align:center; padding:48px 20px; color:var(--color-text-muted); display:flex; flex-direction:column; align-items:center; gap:12px; grid-column:1/-1; }
       @media (max-width:560px) { .form-row { grid-template-columns:1fr; gap:0; } .calc-page { padding:16px 12px 100px; } }
       @media (min-width:640px) { .results-grid { grid-template-columns:repeat(2,1fr); } }
       @media (min-width:1024px) { .results-grid { grid-template-columns:repeat(4,1fr); } .calc-page { padding:32px 24px 80px; } }
@@ -539,5 +534,3 @@ export class DosageCalculatorPage {
     document.head.appendChild(style);
   }
 }
-
-export default DosageCalculatorPage;

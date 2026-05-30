@@ -1,15 +1,9 @@
-// ============================================================
-// CheckinPage v4.0 — SupliList
-// Check-in por suplemento, streak real, persistido no state.
-// ============================================================
-
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 
 export default class CheckinPage {
   constructor(container) {
     this.container = container;
-    this._listeners = [];
   }
 
   mount() {
@@ -18,13 +12,7 @@ export default class CheckinPage {
   }
 
   unmount() {
-    this._listeners.forEach(([el, ev, fn]) => el.removeEventListener(ev, fn));
-    this._listeners = [];
-  }
-
-  _on(el, event, fn) {
-    el.addEventListener(event, fn);
-    this._listeners.push([el, event, fn]);
+    this.container.innerHTML = '';
   }
 
   // ── Data ─────────────────────────────────────────────────
@@ -52,7 +40,7 @@ export default class CheckinPage {
     const today      = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
     this.container.innerHTML = `
-      <div id="checkin-root" style="padding:20px 16px;display:flex;flex-direction:column;gap:20px;padding-bottom:32px;">
+      <div style="padding:20px 16px;display:flex;flex-direction:column;gap:20px;padding-bottom:32px;">
 
         <header>
           <p style="color:var(--color-text-secondary);font-size:12px;text-transform:uppercase;letter-spacing:0.07em;">${today}</p>
@@ -96,7 +84,7 @@ export default class CheckinPage {
           ${stack.map(item => {
             const done = checkedIds.has(item.supplementId);
             return `
-              <div class="checkin-item" data-id="${item.supplementId}" style="
+              <div style="
                 background:var(--color-surface-primary);
                 border:1px solid ${done ? 'rgba(34,197,94,0.4)' : 'var(--color-border)'};
                 border-radius:14px;
@@ -106,20 +94,18 @@ export default class CheckinPage {
                 gap:14px;
                 cursor:${done ? 'default' : 'pointer'};
                 transition:border-color 0.2s,background 0.2s;
-                ${done ? 'background:var(--color-success-bg);' : ''}
               ">
-                <!-- Checkbox -->
-                <div class="checkin-checkbox" style="
+                <div style="
                   width:28px;height:28px;border-radius:50%;flex-shrink:0;
                   display:flex;align-items:center;justify-content:center;
                   font-size:16px;
-                  border:2px solid ${done ? 'var(--color-success)' : 'var(--color-border-strong)'};
+                  border:2px solid ${done ? 'var(--color-success)' : 'var(--color-border)'};
                   background:${done ? 'var(--color-success)' : 'transparent'};
+                  color:#fff;
                   transition:all 0.2s;
                 ">
                   ${done ? '✓' : ''}
                 </div>
-                <!-- Info -->
                 <div style="flex:1;min-width:0;">
                   <div style="font-weight:700;font-size:15px;${done ? 'color:var(--color-success);' : ''}">${item.name}</div>
                   ${item.dosage ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">${item.dosage}${item.unit || 'g'} · ${item.frequency || 'diário'}</div>` : ''}
@@ -138,7 +124,7 @@ export default class CheckinPage {
 
   _allDoneBanner() {
     return `
-      <div style="background:var(--color-success-bg);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:20px;text-align:center;">
+      <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:20px;text-align:center;">
         <div style="font-size:36px;margin-bottom:8px;">🎉</div>
         <div style="font-weight:700;font-size:17px;color:var(--color-success);">Tudo feito hoje!</div>
         <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Seu streak continua. Até amanhã!</div>
@@ -162,20 +148,16 @@ export default class CheckinPage {
   // ── Listeners ─────────────────────────────────────────────
 
   _attachListeners() {
-    // Marcar check-in individual
     this.container.querySelectorAll('.btn-checkin-single').forEach(btn => {
-      this._on(btn, 'click', (e) => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const id   = btn.dataset.id;
-        const name = btn.dataset.name;
-        this._doCheckin(id, name);
+        this._doCheckin(btn.dataset.id, btn.dataset.name);
       });
     });
 
-    // Marcar todos
     const allBtn = this.container.querySelector('#btn-checkin-all');
     if (allBtn) {
-      this._on(allBtn, 'click', () => {
+      allBtn.addEventListener('click', () => {
         const checkedIds = this._getCheckedIds();
         stateManager.stack.forEach(item => {
           if (!checkedIds.has(item.supplementId)) {
@@ -197,7 +179,6 @@ export default class CheckinPage {
   }
 
   _refresh() {
-    this.unmount();
     this._render();
     this._attachListeners();
   }

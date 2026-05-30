@@ -71,4 +71,7 @@ Thumbs.db
 !.env.template
 
 # Claude Code (configs locais de sessão)
-.claude/service-worker.js
+.claude/
+
+# Duplicatas de raiz
+service-worker.js

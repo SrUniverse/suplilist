@@ -423,3 +423,125 @@
 - **File:** src/pages/settings-page.js:364-376
 - **Issue:** The "Lembrete diário de check-in" and "Alertas de reposição" toggles persist to `localStorage` but do not call `Notification.requestPermission()`, register a SW push handler, or schedule any local notification. The UI implies functionality that does not exist.
 - **Fix:** Either implement notification scheduling (Notifications API + SW), or replace the toggles with a "coming soon" label.
+
+---
+
+## CLEANLINESS — Single-Letter Variable `f` in profile-page
+- **Priority:** P3
+- **File:** src/pages/profile-page.js:73
+- **Issue:** `const f = this._form;` uses a single-letter alias for the form object. At call sites like `f.weight`, `f.height`, `f.name`, the intent is clear only to someone who has read the line above.
+- **Fix:** Rename to `const form = this._form;` and update all references.
+
+## CLEANLINESS — Single-Letter Variable `u` in profile-page
+- **Priority:** P3
+- **File:** src/pages/profile-page.js:49
+- **Issue:** `const u = stateManager.user || {};` aliases the user object as `u`, used only 5 lines later.
+- **Fix:** Rename to `const user = stateManager.user || {};`.
+
+## CLEANLINESS — Single-Letter Variable `d` in history-page helpers
+- **Priority:** P3
+- **File:** src/pages/history-page.js:11-13
+- **Issue:** `const d = new Date()` in two helper functions (`todayISO` and `offsetISO`). The single-letter name conflicts with the common iteration variable idiom and reduces readability.
+- **Fix:** Rename to `const now = new Date()` or `const date = new Date()`.
+
+## CLEANLINESS — Abbreviated Variable Name `fmtBRL`
+- **Priority:** P3
+- **File:** src/pages/my-stack-page.js:34
+- **Issue:** `fmtBRL` abbreviates both the verb ("format") and currency. The full-word convention is used elsewhere in the codebase (`formatPrice` in list-page.js).
+- **Fix:** Rename `fmtBRL` to `formatBRL` or `formatCurrency`.
+
+## CLEANLINESS — Timer Variable `debounce` Should Be `debounceTimer`
+- **Priority:** P3
+- **File:** src/pages/my-stack-page.js:901
+- **Issue:** `let debounce` is used as a setTimeout ID but named as if it were a verb or boolean. Obscures that it holds a numeric timer reference.
+- **Fix:** Rename to `let debounceTimer`.
+
+## CLEANLINESS — SRP Violation: `_render()` in history-page is 223 Lines With Six Responsibilities
+- **Priority:** P2
+- **File:** src/pages/history-page.js:209-432 (~223 lines)
+- **Issue:** `_render()` performs six distinct operations in sequence: reads state, computes adherence stats, builds the 7-day calendar data, groups check-ins by supplement, builds all HTML string fragments, then sets innerHTML and attaches listeners. A change to the stats formula requires reading through calendar and grouping logic.
+- **Fix:** Extract `_computeStats(checkins, stack)`, `_buildCalendarData(checkins)`, `_groupBySupplements(checkins, supMap)` as pure data-transformation helpers; `_renderStats(stats)`, `_renderCalendar(calData)`, `_renderList(entries)` as HTML-producing methods. `_render()` becomes an orchestrator of ~20 lines.
+
+## CLEANLINESS — SRP Violation: `_openModal()` in my-stack-page is 138 Lines
+- **Priority:** P2
+- **File:** src/pages/my-stack-page.js:839-977 (~138 lines)
+- **Issue:** `_openModal()` handles DOM construction, inline event registration for search debounce, result-list rendering, item selection, form submission, and document-level click-outside detection all in one method.
+- **Fix:** Extract `_renderModalSearchResults(query)` and `_handleModalSubmit()` as separate methods. Move the document click handler to a named method cleaned up in `_closeModal()`.
+
+## CLEANLINESS — SRP Violation: `_attachStyles()` Inlines 340-Line CSS in list-page
+- **Priority:** P2
+- **File:** src/pages/list-page.js:167-507 (~340 lines)
+- **Issue:** A 340-line CSS string literal is inlined in `_attachStyles()`. Logic changes and style changes live in the same file, making diffs noisy.
+- **Fix:** Move all page styles to `src/css/list-page.css`, import at the top, and remove `_attachStyles()`.
+
+## CLEANLINESS — Dead Code: `console.log` Debug Statement in event-bus
+- **Priority:** P2
+- **File:** src/core/event-bus.js:274
+- **Issue:** `console.log('[EventBus] emoji eventName', payload)` is guarded by `this.#debug` (default `false`) but the code path and string are present in production bundles. When debug mode is accidentally enabled it leaks event payloads to the console.
+- **Fix:** Annotate with a `/* debug-only */` comment and verify the build pipeline handles it. Consider using a compile-time `DEBUG` constant instead of a runtime flag.
+
+## CLEANLINESS — Dead Code: `_modalSelectedName` Assigned But Never Read
+- **Priority:** P3
+- **File:** src/pages/my-stack-page.js:889, 935, 982-983
+- **Issue:** `this._modalSelectedName` is assigned and cleared but never read anywhere. The modal submit handler uses the search input value directly.
+- **Fix:** Remove all references to `this._modalSelectedName`.
+
+## CLEANLINESS — Dead Code: `_hydrateFromStorage()` Method Never Called
+- **Priority:** P3
+- **File:** src/state/state-manager.js:624-626
+- **Issue:** `_hydrateFromStorage()` is a one-line wrapper around `_initializeState()` documented as a "legacy call wrapper." No code in the codebase calls it.
+- **Fix:** Remove `_hydrateFromStorage()`.
+
+## CLEANLINESS — Dead Code: `dump()` Alias for `export()`
+- **Priority:** P3
+- **File:** src/state/state-manager.js:767-769
+- **Issue:** `dump()` returns `this.export()` and appears nowhere in any test or page file. It is an undocumented alias that adds to the class public surface area.
+- **Fix:** Remove `dump()`.
+
+## CLEANLINESS — DRY Violation: `todayISO()` Duplicated Across 5 Locations
+- **Priority:** P2
+- **File:** src/pages/history-page.js:6-9, src/pages/checkin-page.js:21, src/pages/my-stack-page.js:57, src/state/state-manager.js:727, src/state/state-manager.js:760
+- **Issue:** The pattern `new Date().toISOString().split('T')[0]` to get today's ISO date appears in at least 5 locations across 4 files. Each is an independent re-implementation.
+- **Fix:** Extract `export function todayISO() { return new Date().toISOString().split('T')[0]; }` to `src/utils/date.js` and import everywhere. `history-page.js` already has a local version that should become the canonical source.
+
+## CLEANLINESS — DRY Violation: Evidence Badge Helper Duplicated in 4 Files
+- **Priority:** P2
+- **File:** src/pages/my-stack-page.js:23-31, src/pages/favorites-page.js:30-38, src/pages/list-page.js:56-63, src/pages/calculator-page.js:25-30
+- **Issue:** The evidence level color map and/or HTML badge template are independently defined in 4 page files. Any update to evidence-level colors must be applied in all 4 places.
+- **Fix:** Extract `export const EVIDENCE_COLORS` and `export function renderEvidenceBadge(level)` to `src/utils/evidence.js` and import from all four pages.
+
+## CLEANLINESS — DRY Violation: `getFavoritesFromState()` Inconsistently Duplicated
+- **Priority:** P2
+- **File:** src/pages/list-page.js:85-94, src/pages/favorites-page.js:11-18
+- **Issue:** Two pages implement favorites-reading logic with different fallback strategies: `list-page.js` uses stateManager then falls back to localStorage; `favorites-page.js` reads only from localStorage. A bug fix to one does not fix the other.
+- **Fix:** Extract a single `getFavorites()` helper to `src/utils/favorites.js` encapsulating the stateManager-to-localStorage fallback and import from both pages.
+
+## CLEANLINESS — DRY Violation: `supplementId ?? item.id` Normalization Pattern Repeated 11+ Times
+- **Priority:** P2
+- **File:** src/state/state-manager.js (x4), src/pages/my-stack-page.js (x6), src/pages/history-page.js (x1)
+- **Issue:** The expression `item.supplementId ?? item.id` appears in 11+ locations as a compatibility shim for dual-format stack items. It has never been consolidated.
+- **Fix:** Add `export function getSupplementId(item) { return item.supplementId ?? item.id; }` to `src/utils/stack.js` and replace all usages.
+
+## CLEANLINESS — Magic Literal: Timeout `300` Used in Two Unrelated Contexts
+- **Priority:** P3
+- **File:** src/core/app.js:73, src/core/app.js:86
+- **Issue:** The value `300` appears twice — once as the loading-screen fade-out delay and once as the toast fade-out transition delay. Semantically different durations that happen to share the same value.
+- **Fix:** Extract `const FADE_DURATION_MS = 300;` and reference it in both timeouts, or give each a named constant.
+
+## CLEANLINESS — Magic Literal: localStorage Key Strings Repeated Without Constants
+- **Priority:** P2
+- **File:** src/core/app.js:58,65; src/pages/favorites-page.js:11,17,25; src/pages/list-page.js:89; src/pages/settings-page.js:248,357; src/pages/profile-page.js:325
+- **Issue:** `'suplilist:favorites'`, `'suplilist:theme'`, `'suplilist:stack'`, and legacy `'theme'` are hard-coded string literals scattered across 5+ files. A rename or typo creates a silent mismatch.
+- **Fix:** Export `export const STORAGE_KEYS = { FAVORITES: 'suplilist:favorites', THEME: 'suplilist:theme', STACK: 'suplilist:stack' }` from `src/state/state-manager.js` alongside the existing `STORAGE_KEY` constant, and import in all consumers.
+
+## CLEANLINESS — Magic Literal: Debounce Delays Inconsistent (80ms / 180ms / 250ms)
+- **Priority:** P3
+- **File:** src/pages/list-page.js:928 (250ms), src/pages/my-stack-page.js:905 (180ms), src/pages/calculator-page.js:305 (80ms)
+- **Issue:** Input debounce delays are 80ms, 180ms, and 250ms across different pages with no documented rationale for the variation. Users experience different input responsiveness on different pages.
+- **Fix:** Define `const INPUT_DEBOUNCE_MS = 250;` in `src/utils/constants.js` and use it consistently, or document intentional variations with inline comments.
+
+## CLEANLINESS — Style Inconsistency: Mixed localStorage Theme Key (`theme` vs `suplilist:theme`)
+- **Priority:** P3
+- **File:** src/core/app.js:58; src/pages/profile-page.js:325
+- **Issue:** `app.js` writes theme under `'suplilist:theme'` but `profile-page.js` writes under bare `'theme'`. Both keys co-exist in storage. The startup fallback `||` hides the inconsistency rather than resolving it.
+- **Fix:** Standardize on `'suplilist:theme'` everywhere. In `app.js` startup, copy `'theme'` to `'suplilist:theme'` and delete the old key as a one-time migration.

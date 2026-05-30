@@ -36,40 +36,153 @@ export default class CheckinPage {
     const stack      = stateManager.stack;
     const streak     = stateManager.calculateStreak();
     const checkedIds = this._getCheckedIds();
-    const allDone    = stack.length > 0 && checkedIds.size >= stack.length;
-    const today      = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const total      = stack.length;
+    const done       = checkedIds.size;
+    const allDone    = total > 0 && done >= total;
+    const pct        = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const todayLabel = new Date().toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day:     'numeric',
+      month:   'long'
+    });
+    // Capitalise first letter
+    const todayDisplay = todayLabel.charAt(0).toUpperCase() + todayLabel.slice(1);
 
     this.container.innerHTML = `
-      <div style="padding:20px 16px;display:flex;flex-direction:column;gap:20px;padding-bottom:32px;">
+      <div style="
+        padding: 24px 16px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        font-family: 'Inter', sans-serif;
+      ">
 
-        <header>
-          <p style="color:var(--color-text-secondary);font-size:12px;text-transform:uppercase;letter-spacing:0.07em;">${today}</p>
-          <h1 style="font-size:26px;font-weight:800;letter-spacing:-0.02em;margin-top:2px;">Check-in</h1>
+        <!-- HEADER -->
+        <header style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <div>
+            <p style="
+              font-size: 12px;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.08em;
+              color: var(--color-text-secondary);
+              margin: 0 0 6px;
+            ">${todayDisplay}</p>
+            <h1 style="
+              font-family: 'Syne', sans-serif;
+              font-weight: 800;
+              font-size: 30px;
+              letter-spacing: -0.03em;
+              color: var(--color-text-primary);
+              margin: 0;
+              line-height: 1.1;
+            ">Check-in Diário</h1>
+          </div>
+          <!-- Streak badge -->
+          <div style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(124,58,237,0.15);
+            border: 1px solid rgba(124,58,237,0.35);
+            border-radius: 10px;
+            padding: 8px 14px;
+            flex-shrink: 0;
+          ">
+            <span style="font-size:20px;line-height:1;">🔥</span>
+            <span style="
+              font-weight: 800;
+              font-size: 17px;
+              color: var(--color-brand);
+              letter-spacing: -0.02em;
+              line-height: 1;
+            ">${streak} ${streak === 1 ? 'dia' : 'dias'}</span>
+          </div>
         </header>
 
-        <!-- Streak Banner -->
-        <div style="background:var(--color-surface-primary);border:1px solid var(--color-border);border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;">
-          <div style="font-size:44px;line-height:1;">${streak > 0 ? '🔥' : '⏳'}</div>
-          <div>
-            <div style="font-size:28px;font-weight:800;letter-spacing:-0.02em;">${streak} ${streak === 1 ? 'dia' : 'dias'}</div>
-            <div style="font-size:13px;color:var(--color-text-secondary);margin-top:2px;">
-              ${streak === 0 ? 'Comece o seu streak hoje!' : streak < 7 ? 'Ótimo começo! Continue!' : streak < 30 ? 'Sequência incrível! 🚀' : 'Lendário! 🏆'}
-            </div>
-          </div>
-        </div>
+        <!-- PROGRESS CARD -->
+        ${total > 0 ? this._progressCard(done, total, pct, allDone) : ''}
 
-        ${allDone ? this._allDoneBanner() : ''}
+        <!-- SUPPLEMENT LIST / EMPTY -->
+        ${total === 0 ? this._emptyStack() : this._supplementList(stack, checkedIds)}
 
-        <!-- Supplement List -->
-        ${stack.length === 0 ? this._emptyStack() : this._supplementList(stack, checkedIds)}
-
-        <!-- Check-in All Button -->
-        ${stack.length > 0 && !allDone ? `
-          <button id="btn-checkin-all" style="width:100%;background:var(--color-brand);color:#fff;border:none;border-radius:14px;padding:16px;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px;">
-            ✅ Marcar todos como feitos
-          </button>
+        <!-- CHECK ALL BUTTON -->
+        ${total > 0 && !allDone ? `
+          <button id="btn-checkin-all" style="
+            width: 100%;
+            background: var(--color-brand);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+          ">✅ Marcar todos como feitos</button>
         ` : ''}
 
+      </div>
+    `;
+  }
+
+  _progressCard(done, total, pct, allDone) {
+    const barColor = allDone ? 'var(--color-success)' : 'var(--color-brand)';
+    const bgColor  = allDone ? 'rgba(34,197,94,0.08)' : 'var(--color-surface-primary)';
+    const border   = allDone ? '1px solid rgba(34,197,94,0.30)' : '1px solid var(--color-border)';
+
+    return `
+      <div style="
+        background: ${bgColor};
+        border: ${border};
+        border-radius: 16px;
+        padding: 24px 20px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      ">
+        <!-- Percentage display -->
+        <div style="
+          font-family: 'Syne', sans-serif;
+          font-size: 52px;
+          font-weight: 800;
+          letter-spacing: -0.04em;
+          color: ${allDone ? 'var(--color-success)' : 'var(--color-text-primary)'};
+          line-height: 1;
+        ">${pct}%</div>
+
+        <!-- Progress bar -->
+        <div style="
+          width: 100%;
+          height: 10px;
+          background: var(--color-surface-hover);
+          border-radius: 999px;
+          overflow: hidden;
+        ">
+          <div style="
+            height: 100%;
+            width: ${pct}%;
+            background: ${barColor};
+            border-radius: 999px;
+            transition: width 0.5s ease;
+          "></div>
+        </div>
+
+        <!-- Label -->
+        <p style="
+          font-size: 14px;
+          color: var(--color-text-secondary);
+          margin: 0;
+          text-align: center;
+        ">
+          ${allDone
+            ? `<span style="color:var(--color-success);font-weight:700;">✅ Protocolo completo hoje!</span>`
+            : `<strong style="color:var(--color-text-primary);">${done}</strong> de <strong style="color:var(--color-text-primary);">${total}</strong> suplementos tomados hoje`
+          }
+        </p>
       </div>
     `;
   }
@@ -77,70 +190,156 @@ export default class CheckinPage {
   _supplementList(stack, checkedIds) {
     return `
       <section>
-        <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--color-text-secondary);margin-bottom:12px;">
-          Seu Stack de Hoje — ${checkedIds.size}/${stack.length} marcados
-        </h2>
+        <h2 style="
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.09em;
+          color: var(--color-text-muted);
+          margin: 0 0 12px;
+        ">Seu Stack de Hoje</h2>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          ${stack.map(item => {
-            const done = checkedIds.has(item.supplementId);
-            return `
-              <div style="
-                background:var(--color-surface-primary);
-                border:1px solid ${done ? 'rgba(34,197,94,0.4)' : 'var(--color-border)'};
-                border-radius:14px;
-                padding:16px;
-                display:flex;
-                align-items:center;
-                gap:14px;
-                cursor:${done ? 'default' : 'pointer'};
-                transition:border-color 0.2s,background 0.2s;
-              ">
-                <div style="
-                  width:28px;height:28px;border-radius:50%;flex-shrink:0;
-                  display:flex;align-items:center;justify-content:center;
-                  font-size:16px;
-                  border:2px solid ${done ? 'var(--color-success)' : 'var(--color-border)'};
-                  background:${done ? 'var(--color-success)' : 'transparent'};
-                  color:#fff;
-                  transition:all 0.2s;
-                ">
-                  ${done ? '✓' : ''}
-                </div>
-                <div style="flex:1;min-width:0;">
-                  <div style="font-weight:700;font-size:15px;${done ? 'color:var(--color-success);' : ''}">${item.name}</div>
-                  ${item.dosage ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">${item.dosage}${item.unit || 'g'} · ${item.frequency || 'diário'}</div>` : ''}
-                </div>
-                ${done
-                  ? `<span style="font-size:12px;color:var(--color-success);font-weight:600;white-space:nowrap;">Feito ✓</span>`
-                  : `<button class="btn-checkin-single" data-id="${item.supplementId}" data-name="${item.name}" style="background:var(--color-brand-muted);color:var(--color-brand);border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;">Marcar</button>`
-                }
-              </div>
-            `;
-          }).join('')}
+          ${stack.map(item => this._supplementCard(item, checkedIds.has(item.supplementId))).join('')}
         </div>
       </section>
     `;
   }
 
-  _allDoneBanner() {
+  _supplementCard(item, checked) {
+    const slug  = (item.slug || item.name || '').toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+    const img   = `/assets/${slug}.png`;
+    const dose  = item.dosage ? `${item.dosage}${item.unit || 'g'}/dia` : '';
+    const timing = item.dosage?.timing || item.timing || '';
+
     return `
-      <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:20px;text-align:center;">
-        <div style="font-size:36px;margin-bottom:8px;">🎉</div>
-        <div style="font-weight:700;font-size:17px;color:var(--color-success);">Tudo feito hoje!</div>
-        <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px;">Seu streak continua. Até amanhã!</div>
+      <div style="
+        background: var(--color-surface-primary);
+        border: 1px solid ${checked ? 'rgba(34,197,94,0.35)' : 'var(--color-border)'};
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: border-color 0.2s, background 0.2s;
+        ${checked ? 'background: rgba(34,197,94,0.05);' : ''}
+      ">
+
+        <!-- Checkbox circle -->
+        <div style="
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid ${checked ? 'var(--color-success)' : 'var(--color-brand)'};
+          background: ${checked ? 'var(--color-success)' : 'transparent'};
+          color: #fff;
+          font-size: 15px;
+          font-weight: 700;
+          transition: all 0.25s ease;
+        ">${checked ? '✓' : ''}</div>
+
+        <!-- Supplement image -->
+        <img
+          src="${img}"
+          alt="${item.name}"
+          width="40"
+          height="40"
+          style="
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: var(--color-surface-secondary);
+            flex-shrink: 0;
+          "
+          onerror="this.style.display='none'"
+        />
+
+        <!-- Info -->
+        <div style="flex:1;min-width:0;">
+          <div style="
+            font-weight: 700;
+            font-size: 15px;
+            color: ${checked ? 'var(--color-success)' : 'var(--color-text-primary)'};
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          ">${item.name}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">
+            ${dose ? `<span style="font-size:12px;color:var(--color-text-secondary);">${dose}</span>` : ''}
+            ${timing ? `<span style="font-size:11px;color:var(--color-text-muted);">· ${timing}</span>` : ''}
+          </div>
+        </div>
+
+        <!-- Action -->
+        ${checked
+          ? `<span style="
+              font-size: 12px;
+              color: var(--color-success);
+              font-weight: 700;
+              white-space: nowrap;
+              flex-shrink: 0;
+            ">Feito ✓</span>`
+          : `<button
+              class="btn-checkin-single"
+              data-id="${item.supplementId}"
+              data-name="${item.name}"
+              style="
+                background: var(--color-brand-muted);
+                color: var(--color-brand);
+                border: none;
+                border-radius: 8px;
+                padding: 9px 14px;
+                font-family: 'Inter', sans-serif;
+                font-weight: 700;
+                font-size: 13px;
+                cursor: pointer;
+                white-space: nowrap;
+                flex-shrink: 0;
+                transition: background 0.15s;
+              "
+            >Marcar</button>`
+        }
       </div>
     `;
   }
 
   _emptyStack() {
     return `
-      <div style="background:var(--color-surface-primary);border:1px solid var(--color-border);border-radius:16px;padding:40px 20px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">📋</div>
-        <div style="font-weight:700;font-size:17px;margin-bottom:8px;">Stack vazio</div>
-        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:16px;line-height:1.5;">
-          Adicione suplementos ao seu stack para começar a registrar check-ins.
-        </div>
-        <a href="#/list" style="display:inline-block;background:var(--color-brand);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;">Ir ao Catálogo</a>
+      <div style="
+        background: var(--color-surface-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 48px 24px;
+        text-align: center;
+      ">
+        <div style="font-size:44px;margin-bottom:14px;">📋</div>
+        <div style="
+          font-family: 'Syne', sans-serif;
+          font-weight: 800;
+          font-size: 20px;
+          color: var(--color-text-primary);
+          margin-bottom: 8px;
+        ">Stack vazio</div>
+        <p style="
+          font-size: 14px;
+          color: var(--color-text-secondary);
+          margin: 0 0 20px;
+          line-height: 1.6;
+        ">Adicione suplementos ao seu stack para começar a registrar check-ins diários.</p>
+        <a href="#/my-stack" style="
+          display: inline-block;
+          background: var(--color-brand);
+          color: #fff;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 14px;
+          padding: 12px 28px;
+          border-radius: 10px;
+        ">Ver Meu Stack</a>
       </div>
     `;
   }

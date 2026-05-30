@@ -10,6 +10,7 @@ import { eventBus } from '../core/event-bus.js';
 export const SUPPLEMENTS_DB = [
   {
     id: 'creatina-monohidratada',
+    image: '/assets/creatina.png',
     name: 'Creatina Monohidratada',
     category: 'Força & Performance',
     evidenceLevel: 'A',
@@ -25,6 +26,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'whey-protein',
+    image: '/assets/whey_protein.png',
     name: 'Whey Protein',
     category: 'Proteínas',
     evidenceLevel: 'A',
@@ -40,6 +42,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'cafeina',
+    image: '/assets/cafeina_teanina.png',
     name: 'Cafeína Anidra',
     category: 'Energéticos & Foco',
     evidenceLevel: 'A',
@@ -57,6 +60,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'vitamina-d3',
+    image: '/assets/vitamina_d3_k2.png',
     name: 'Vitamina D3',
     category: 'Vitaminas & Minerais',
     evidenceLevel: 'A',
@@ -72,6 +76,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'omega-3',
+    image: '/assets/omega_3.png',
     name: 'Ômega 3',
     category: 'Saúde Cardiovascular',
     evidenceLevel: 'A',
@@ -87,6 +92,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'beta-alanina',
+    image: '/assets/beta_alanina.png',
     name: 'Beta-Alanina',
     category: 'Força & Performance',
     evidenceLevel: 'A',
@@ -102,6 +108,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'l-carnitina',
+    image: '/assets/l_carnitina.png',
     name: 'L-Carnitina Tartarato',
     category: 'Queima de Gordura & Recovery',
     evidenceLevel: 'B',
@@ -117,6 +124,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'magnesio-bisglicinato',
+    image: '/assets/magnesio_glicinato.png',
     name: 'Magnésio Bisglicinato',
     category: 'Vitaminas & Minerais',
     evidenceLevel: 'A',
@@ -132,6 +140,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'vitamina-c',
+    image: '/assets/vitamina_c.png',
     name: 'Vitamina C',
     category: 'Vitaminas & Minerais',
     evidenceLevel: 'A',
@@ -147,6 +156,7 @@ export const SUPPLEMENTS_DB = [
   },
   {
     id: 'ashwagandha',
+    image: '/assets/ashwagandha.png',
     name: 'Ashwagandha KSM-66',
     category: 'Adaptógenos & Foco',
     evidenceLevel: 'B',

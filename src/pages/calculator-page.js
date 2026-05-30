@@ -1,535 +1,852 @@
 /**
- * DosageCalculatorPage — SupliList
- * Calculadora de dosagem personalizada por biometria real
+ * CalculatorPage — SupliList
+ * Calculadora de dosagem com layout split: dados biométricos | resultado
  */
 
 import { stateManager, ACTIONS } from '../state/state-manager.js';
-import recommender, { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
-import DosageCalculator from '../ai/dosage-calculator.js';
+import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import dosageCalculator from '../ai/dosage-calculator.js';
 
-export default class DosageCalculatorPage {
+const ACTIVITY_LEVELS = [
+  { value: 'sedentary',  label: 'Sedentário' },
+  { value: 'moderate',   label: 'Moderado' },
+  { value: 'active',     label: 'Ativo' },
+  { value: 'athlete',    label: 'Atleta' },
+];
+
+const OBJECTIVES = [
+  { value: 'bulk',      label: 'Bulk' },
+  { value: 'cut',       label: 'Cut' },
+  { value: 'strength',  label: 'Força' },
+  { value: 'endurance', label: 'Resistência' },
+  { value: 'general',   label: 'Saúde Geral' },
+];
+
+const EVIDENCE_COLORS = {
+  A: { bg: 'rgba(34,197,94,0.12)',   color: '#22C55E' },
+  B: { bg: 'rgba(245,158,11,0.12)',  color: '#F59E0B' },
+  C: { bg: 'rgba(163,163,163,0.12)', color: '#9A9A9A' },
+  D: { bg: 'rgba(163,163,163,0.12)', color: '#9A9A9A' },
+};
+
+export default class CalculatorPage {
   constructor(container) {
     this.container = container;
-    this._profile = this._loadProfile();
-    this._results = [];
-    this._debounce = null;
+    this._weight       = stateManager.user?.weight ?? 75;
+    this._bodyfat      = stateManager.user?.bodyfat ?? null;
+    this._activityLevel = 'moderate';
+    this._objective    = stateManager.user?.objective ?? 'general';
+    this._searchQuery  = '';
+    this._selectedSupp = null;
+    this._phase        = 'maintenance'; // 'maintenance' | 'loading'
+    this._calcResult   = null;
+    this._debounce     = null;
+    this._allSupps     = SUPPLEMENTS_DB ?? [];
   }
 
   mount() {
     this._attachStyles();
     this._render();
     this._attachListeners();
-    this._calculate();
   }
 
   unmount() {
     clearTimeout(this._debounce);
   }
 
-  // ── Load saved profile from StateManager ─────────────────────────────────
-  _loadProfile() {
-    const u = stateManager.user ?? {};
-    return {
-      objective: u.objective ?? 'general',
-      weight: u.weight ?? 75,
-      height: u.height ?? 175,
-      age: u.age ?? 28,
-      trainingAge: u.trainingAge ?? 2,
-      trainingFrequency: u.trainingFrequency ?? 4,
-      budget: u.budget ?? 250,
-      restrictions: u.restrictions ? [...u.restrictions] : [],
-    };
-  }
-
-  // ── Shell render ──────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
   _render() {
-    const p = this._profile;
     this.container.innerHTML = `
-      <div class="calc-page">
-
-        <div class="page-header">
-          <h1 class="page-title">⚗️ Calculadora</h1>
-          <p class="page-subtitle">Dosagem personalizada por biometria científica</p>
+      <div class="calcp-root">
+        <div class="calcp-header">
+          <h1 class="calcp-title">Calculadora</h1>
+          <p class="calcp-subtitle">Dosagem personalizada por biometria científica</p>
         </div>
 
-        <section class="calc-card profile-form" aria-label="Perfil biométrico">
-          <h2 class="section-title">Seu Perfil</h2>
+        <div class="calcp-split">
 
-          <!-- Objetivo -->
-          <div class="form-group">
-            <label class="form-label">🎯 Objetivo Principal</label>
-            <div class="objective-pills" role="radiogroup" aria-label="Objetivo">
-              ${[
-                { value: 'bulk',      label: '📈 Bulk',       desc: 'Ganho de massa' },
-                { value: 'cut',       label: '🔥 Cut',        desc: 'Perda de gordura' },
-                { value: 'strength',  label: '💪 Força',      desc: 'Força máxima' },
-                { value: 'endurance', label: '🏃 Resistência', desc: 'Cardio/endurance' },
-                { value: 'general',   label: '🌿 Saúde',      desc: 'Bem-estar geral' },
-              ].map(o => `
-                <button class="objective-pill${p.objective === o.value ? ' active' : ''}"
-                  data-value="${o.value}" data-field="objective"
-                  role="radio" aria-checked="${p.objective === o.value}" title="${o.desc}"
-                >${o.label}</button>`).join('')}
-            </div>
-          </div>
+          <!-- LEFT COLUMN -->
+          <div class="calcp-left">
 
-          <!-- Peso + Altura -->
-          <div class="form-row">
-            ${this._sliderGroup('weight', '⚖️ Peso', 40, 150, 1, p.weight, 'kg')}
-            ${this._sliderGroup('height', '📏 Altura', 140, 220, 1, p.height, 'cm')}
-          </div>
+            <!-- Biometrics -->
+            <div class="calcp-card" id="card-biometrics">
+              <h2 class="calcp-card-title">⚗️ Dados Biométricos</h2>
 
-          <!-- Idade + Anos treino -->
-          <div class="form-row">
-            ${this._sliderGroup('age', '🎂 Idade', 15, 75, 1, p.age, 'anos')}
-            ${this._sliderGroup('trainingAge', '🏋️ Anos treinando', 0, 20, 0.5, p.trainingAge, 'anos')}
-          </div>
+              <div class="calcp-field">
+                <label class="calcp-label" for="inp-weight">Peso (kg)</label>
+                <input id="inp-weight" class="calcp-input" type="number"
+                  min="40" max="200" step="1" value="${this._weight}"
+                  aria-label="Peso em quilogramas">
+              </div>
 
-          <!-- Frequência + Budget -->
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">📅 Dias de treino/semana</label>
-              <div class="frequency-pills" role="radiogroup" aria-label="Frequência">
-                ${[2, 3, 4, 5, 6, 7].map(d => `
-                  <button class="freq-pill${p.trainingFrequency === d ? ' active' : ''}"
-                    data-value="${d}" data-field="trainingFrequency"
-                    role="radio" aria-checked="${p.trainingFrequency === d}"
-                    aria-label="${d} dias por semana"
-                  >${d}×</button>`).join('')}
+              <div class="calcp-field">
+                <label class="calcp-label" for="inp-bodyfat">Gordura Corporal (%) <span class="calcp-optional">opcional</span></label>
+                <input id="inp-bodyfat" class="calcp-input" type="number"
+                  min="5" max="50" step="0.5" value="${this._bodyfat ?? ''}"
+                  placeholder="ex: 18" aria-label="Percentual de gordura corporal">
+              </div>
+
+              <div class="calcp-field">
+                <label class="calcp-label" for="sel-activity">Nível de Atividade</label>
+                <select id="sel-activity" class="calcp-select" aria-label="Nível de atividade">
+                  ${ACTIVITY_LEVELS.map(a => `
+                    <option value="${a.value}"${this._activityLevel === a.value ? ' selected' : ''}>${a.label}</option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <div class="calcp-field">
+                <label class="calcp-label" for="sel-objective">Objetivo</label>
+                <select id="sel-objective" class="calcp-select" aria-label="Objetivo principal">
+                  ${OBJECTIVES.map(o => `
+                    <option value="${o.value}"${this._objective === o.value ? ' selected' : ''}>${o.label}</option>
+                  `).join('')}
+                </select>
               </div>
             </div>
-            ${this._sliderGroup('budget', '💵 Orçamento mensal', 50, 1000, 10, p.budget, 'R$', true)}
+
+            <!-- Compound selection -->
+            <div class="calcp-card" id="card-compounds">
+              <h2 class="calcp-card-title">🔬 Seleção de Composto</h2>
+
+              <div class="calcp-search-wrap">
+                <span class="calcp-search-icon" aria-hidden="true">🔍</span>
+                <input id="inp-search" class="calcp-search" type="search"
+                  placeholder="Buscar suplemento..."
+                  value="${this._searchQuery}"
+                  aria-label="Buscar suplemento">
+              </div>
+
+              <div class="calcp-chips" id="supp-list" role="listbox" aria-label="Lista de suplementos">
+                ${this._renderChips()}
+              </div>
+            </div>
+
           </div>
 
-          <!-- Restrições -->
-          <div class="form-group">
-            <label class="form-label">🚫 Restrições / Alergias</label>
-            <div class="restriction-pills" role="group" aria-label="Restrições">
-              ${[
-                { value: 'gluten',     label: '🌾 Glúten' },
-                { value: 'lactose',    label: '🥛 Lactose' },
-                { value: 'shellfish',  label: '🦐 Crustáceos' },
-                { value: 'soy',        label: '🫘 Soja' },
-                { value: 'vegetarian', label: '🥦 Vegetariano' },
-                { value: 'vegan',      label: '🌱 Vegano' },
-              ].map(r => `
-                <button class="restriction-pill${p.restrictions.includes(r.value) ? ' active-danger' : ''}"
-                  data-value="${r.value}" data-action="toggle-restriction"
-                  aria-pressed="${p.restrictions.includes(r.value)}"
-                >${r.label}</button>`).join('')}
+          <!-- RIGHT COLUMN -->
+          <div class="calcp-right">
+            <div class="calcp-card calcp-result-card" id="result-card">
+              ${this._renderResult()}
             </div>
           </div>
 
-          <button class="btn-save-profile" data-action="save-profile">💾 Salvar perfil</button>
-        </section>
+        </div>
 
-        <div class="calc-divider" aria-hidden="true"><span>Recomendações para você</span></div>
-
-        <section class="results-section" id="results-section" aria-live="polite" aria-label="Resultados">
-          <div class="results-loading" id="results-loading">
-            <div class="spinner"></div>
-            <p>Calculando seu stack ideal...</p>
-          </div>
-          <div class="results-grid" id="results-grid"></div>
-        </section>
-
-        <section class="calc-card budget-section" id="budget-section" style="display:none">
-          <h2 class="section-title">💵 Resumo de Custo</h2>
-          <div class="budget-grid" id="budget-grid"></div>
-          <div class="budget-total" id="budget-total"></div>
-        </section>
-
-        <p class="disclaimer">
-          ⚠️ As recomendações são baseadas em evidências científicas e perfil informado.
+        <p class="calcp-disclaimer">
+          ⚠️ As recomendações são baseadas em evidências científicas e no perfil informado.
           Consulte um médico ou nutricionista antes de iniciar qualquer protocolo.
         </p>
       </div>
     `;
   }
 
-  _sliderGroup(field, label, min, max, step, value, unit, unitBefore = false) {
-    const unitBef = unitBefore ? `<span class="unit-label">${unit}</span>` : '';
-    const unitAft = unitBefore ? '' : `<span class="unit-label">${unit}</span>`;
-    return `
-      <div class="form-group">
-        <label class="form-label">${label}</label>
-        <div class="input-with-unit">
-          <input type="range" id="${field}-slider" class="range-slider"
-            min="${min}" max="${max}" step="${step}" value="${value}"
-            data-field="${field}" aria-label="${label}">
-          <div class="range-value-row">
-            ${unitBef}
-            <input type="number" id="${field}" class="number-input"
-              min="${min}" max="${max}" step="${step}" value="${value}"
-              data-field="${field}" aria-label="${label}">
-            ${unitAft}
-          </div>
-        </div>
-      </div>`;
-  }
+  _renderChips() {
+    const q = this._searchQuery.toLowerCase().trim();
+    const filtered = q
+      ? this._allSupps.filter(s =>
+          s.name.toLowerCase().includes(q) ||
+          (s.category ?? '').toLowerCase().includes(q)
+        )
+      : this._allSupps;
 
-  // ── Calculation ───────────────────────────────────────────────────────────
-  _calculate() {
-    const loading = this.container.querySelector('#results-loading');
-    const grid = this.container.querySelector('#results-grid');
-    if (loading) loading.style.display = 'flex';
-    if (grid) grid.innerHTML = '';
-
-    clearTimeout(this._debounce);
-    this._debounce = setTimeout(() => {
-      try {
-        const recs = recommender.recommend(this._profile, 8);
-        this._results = recs.map(supp => {
-          let dosage = supp.dosage ?? {};
-          try {
-            const rawSupp = SUPPLEMENTS_DB.find(s => s.id === supp.id);
-            if (rawSupp) {
-              const calc = DosageCalculator.calculate(rawSupp, this._profile);
-              if (calc) {
-                dosage = {
-                  ...dosage,
-                  daily: calc.daily,
-                  scientificRationale: calc.rationale ?? dosage.scientificRationale,
-                };
-              }
-            }
-          } catch (err) {
-            console.warn('[DosageCalculatorPage] Dosage calculation error for', supp.id, err);
-          }
-          return { ...supp, dosage };
-        });
-      } catch (e) {
-        console.warn('[DosageCalculatorPage] _calculate error', e);
-        this._results = [];
-      }
-      this._renderResults();
-      this._renderBudget();
-      if (loading) loading.style.display = 'none';
-    }, 180);
-  }
-
-  _renderResults() {
-    const grid = this.container.querySelector('#results-grid');
-    if (!grid) return;
-
-    if (!this._results.length) {
-      grid.innerHTML = `
-        <div class="empty-state">
-          <p style="font-size:32px">🤷</p>
-          <p>Nenhum suplemento encontrado. Ajuste as restrições ou objetivo.</p>
-        </div>`;
-      return;
+    if (!filtered.length) {
+      return `<p class="calcp-empty-chips">Nenhum suplemento encontrado.</p>`;
     }
 
-    const frag = document.createDocumentFragment();
-    const favorites = stateManager.getState?.()?.favorites ?? stateManager.favorites ?? [];
-    const stack = stateManager.stack ?? [];
-
-    this._results.forEach((supp, index) => {
-      const card = document.createElement('div');
-      card.className = 'result-card';
-      card.dataset.id = supp.id;
-      card.role = 'article';
-      card.style.animationDelay = `${index * 60}ms`;
-
-      const scorePercent = Math.round((supp.score ?? 0) * 100);
-      const scoreColor = scorePercent >= 80 ? 'var(--color-success)' : scorePercent >= 60 ? 'var(--color-brand)' : '#FFB74D';
-      const isFav = favorites.some(f => f === supp.id || f.supplementId === supp.id);
-      const inStack = stack.some(s => s.supplementId === supp.id);
-
-      card.innerHTML = `
-        <div class="result-rank" aria-label="Posição ${index + 1}">#${index + 1}</div>
-        <div class="result-header">
-          <div class="result-meta">
-            <p class="result-category">${supp.category ?? ''}</p>
-            <h3 class="result-name">${supp.name}</h3>
-          </div>
-          <evidence-pill level="${supp.evidenceLevel ?? supp.evidence ?? 'D'}"></evidence-pill>
-        </div>
-        <div class="score-section" aria-label="Compatibilidade: ${scorePercent}%">
-          <div class="score-label">
-            <span>Compatibilidade</span>
-            <span style="color:${scoreColor};font-weight:700;font-family:'JetBrains Mono',monospace">${scorePercent}%</span>
-          </div>
-          <div class="score-bar" role="progressbar" aria-valuenow="${scorePercent}" aria-valuemin="0" aria-valuemax="100">
-            <div class="score-fill" style="width:${scorePercent}%;background:${scoreColor}"></div>
-          </div>
-        </div>
-        <div class="dosage-block">
-          <div class="dosage-main">
-            <span class="dosage-value">${supp.dosage?.daily ?? supp.dosage?.maintenance ?? '—'}</span>
-            <span class="dosage-unit">${supp.dosage?.unit ?? 'g'}/dia</span>
-          </div>
-          <p class="dosage-rationale">${supp.dosage?.scientificRationale ?? ''}</p>
-        </div>
-        ${supp.benefits?.length ? `
-          <div class="benefits-row" aria-label="Benefícios">
-            ${supp.benefits.slice(0, 3).map(b => `
-              <span class="benefit-chip">
-                <span class="benefit-label">${typeof b === 'string' ? b : b.label}</span>
-                ${b.likelihood ? `<span class="benefit-pct">${b.likelihood}</span>` : ''}
-              </span>`).join('')}
-          </div>` : ''}
-        <div class="result-cost">
-          <span class="cost-label">Custo estimado</span>
-          <span class="cost-value">R$ ${(supp.cost?.perMonth ?? 0).toFixed(2)}/mês</span>
-        </div>
-        ${supp.warnings?.length > 1 ? `
-          <div class="warnings-section">
-            ${supp.warnings.slice(1).map(w => `<p class="warning-item">⚠️ ${w}</p>`).join('')}
-          </div>` : ''}
-        ${supp.interactions?.length ? `
-          <div class="interactions-section">
-            ${supp.interactions.map(i => `
-              <p class="interaction-item interaction-${i.severity ?? 'info'}">⚡ ${i.message ?? i}</p>`).join('')}
-          </div>` : ''}
-        <div class="result-actions">
-          <button class="btn-action${isFav ? ' active-fav' : ''}" data-action="toggle-fav"
-            data-id="${supp.id}" data-name="${supp.name}"
-            aria-label="${isFav ? 'Remover favorito' : 'Adicionar favorito'}" aria-pressed="${isFav}">
-            ${isFav ? '♥ Favorito' : '♡ Favoritar'}
-          </button>
-          <button class="btn-action btn-action-primary${inStack ? ' active-stack' : ''}" data-action="toggle-stack"
-            data-id="${supp.id}" data-name="${supp.name}"
-            aria-label="${inStack ? 'Remover do stack' : 'Adicionar ao stack'}" aria-pressed="${inStack}">
-            ${inStack ? '✓ No stack' : '+ Stack'}
-          </button>
-        </div>
-      `;
-      frag.appendChild(card);
-    });
-    grid.appendChild(frag);
+    return filtered.map(s => {
+      const active = this._selectedSupp?.id === s.id;
+      const ev = s.evidenceLevel ?? 'D';
+      const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS.D;
+      return `
+        <button class="calcp-chip${active ? ' calcp-chip--active' : ''}"
+          role="option" aria-selected="${active}"
+          data-supp-id="${s.id}" title="${s.name}">
+          <span class="calcp-chip-name">${s.name}</span>
+          <span class="calcp-chip-cat">${s.category ?? ''}</span>
+          <span class="calcp-ev-badge" style="background:${evStyle.bg};color:${evStyle.color}">${ev}</span>
+        </button>`;
+    }).join('');
   }
 
-  _renderBudget() {
-    const section = this.container.querySelector('#budget-section');
-    const bgGrid = this.container.querySelector('#budget-grid');
-    const totalEl = this.container.querySelector('#budget-total');
-    if (!section || !bgGrid || !totalEl || !this._results.length) return;
+  _renderResult() {
+    if (!this._selectedSupp) {
+      return `
+        <div class="calcp-placeholder">
+          <div class="calcp-placeholder-icon">⚗️</div>
+          <p class="calcp-placeholder-title">Selecione um composto</p>
+          <p class="calcp-placeholder-sub">Escolha um suplemento na lista ao lado para ver o resultado de dosagem personalizado.</p>
+        </div>`;
+    }
 
-    section.style.display = 'block';
-    const totalCost = this._results.reduce((sum, s) => sum + (s.cost?.perMonth ?? 0), 0);
-    const remaining = this._profile.budget - totalCost;
+    const supp = this._selectedSupp;
+    const result = this._calcResult;
+    const ev = supp.evidenceLevel ?? 'D';
+    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS.D;
 
-    bgGrid.innerHTML = this._results.map(s => `
-      <div class="budget-item">
-        <span class="budget-item-name">${s.name}</span>
-        <span class="budget-item-cost">R$ ${(s.cost?.perMonth ?? 0).toFixed(2)}</span>
-      </div>`).join('');
+    // Determine displayed dose
+    let doseValue = '—';
+    let doseUnit = supp.dosage?.unit ?? 'g';
+    if (result) {
+      doseValue = this._phase === 'loading'
+        ? (result.loading ?? result.daily ?? '—')
+        : (result.daily ?? result.maintenance ?? '—');
+    } else if (supp.dosage) {
+      doseValue = this._phase === 'loading'
+        ? (supp.dosage.loading ?? supp.dosage.maintenance ?? '—')
+        : (supp.dosage.maintenance ?? '—');
+    }
 
-    totalEl.innerHTML = `
-      <div class="budget-total-row">
-        <span>Total do stack</span>
-        <span class="budget-total-value" style="color:${totalCost > this._profile.budget ? 'var(--color-error)' : 'var(--color-success)'}">
-          R$ ${totalCost.toFixed(2)}
-        </span>
+    const rationale = result?.rationale ?? supp.dosage?.timing ?? '';
+    const safety = supp.safetyScore ?? 0;
+    const hasLoading = !!(supp.dosage?.loading || result?.loading);
+
+    const inStack = (stateManager.stack ?? []).some(s => s.supplementId === supp.id);
+
+    return `
+      <!-- Result header -->
+      <div class="calcp-result-header">
+        <h2 class="calcp-result-title">Resultado da Otimização</h2>
+        ${hasLoading ? `
+          <div class="calcp-phase-toggle" role="group" aria-label="Fase de protocolo">
+            <button class="calcp-phase-btn${this._phase === 'maintenance' ? ' calcp-phase-btn--active' : ''}"
+              data-phase="maintenance">Manutenção</button>
+            <button class="calcp-phase-btn${this._phase === 'loading' ? ' calcp-phase-btn--active' : ''}"
+              data-phase="loading">Carga</button>
+          </div>` : ''}
       </div>
-      <div class="budget-total-row" style="font-size:13px;color:var(--color-text-muted)">
-        <span>Orçamento</span><span>R$ ${this._profile.budget.toFixed(2)}</span>
+
+      <!-- Big dose number -->
+      <div class="calcp-dose-display">
+        <span class="calcp-dose-value">${doseValue}</span>
+        <span class="calcp-dose-unit">${doseUnit}/dia</span>
       </div>
-      <div class="budget-total-row" style="font-size:13px">
-        <span>${remaining >= 0 ? 'Saldo restante' : 'Excede orçamento em'}</span>
-        <span style="color:${remaining >= 0 ? 'var(--color-success)' : 'var(--color-error)'}">
-          ${remaining >= 0 ? '+' : ''}R$ ${Math.abs(remaining).toFixed(2)}
-        </span>
-      </div>`;
+
+      <!-- Validated label -->
+      <div class="calcp-validated">
+        <span class="calcp-validated-dot"></span>
+        Protocolo Validado por Estudos Clínicos
+      </div>
+
+      <!-- Add to protocol button -->
+      <button class="calcp-btn-add${inStack ? ' calcp-btn-add--in' : ''}"
+        id="btn-add-protocol" data-supp-id="${supp.id}" data-supp-name="${supp.name}">
+        ${inStack ? '✓ No meu Protocolo' : '+ Adicionar ao meu Protocolo'}
+      </button>
+
+      <hr class="calcp-sep">
+
+      <!-- Scientific context card -->
+      <div class="calcp-sci-card">
+        <h3 class="calcp-sci-title">Contexto Científico</h3>
+
+        <div class="calcp-sci-section">
+          <p class="calcp-sci-label">Racional da Dosagem</p>
+          <p class="calcp-sci-text">${rationale || 'Dosagem baseada em estudos clínicos controlados.'}</p>
+        </div>
+
+        <div class="calcp-sci-section">
+          <p class="calcp-sci-label">Nível de Evidência</p>
+          <div class="calcp-progress-row">
+            <span class="calcp-ev-badge" style="background:${evStyle.bg};color:${evStyle.color}">${ev}</span>
+            <div class="calcp-progress-bar" role="progressbar"
+              aria-valuenow="${ev === 'A' ? 100 : ev === 'B' ? 65 : 35}" aria-valuemin="0" aria-valuemax="100">
+              <div class="calcp-progress-fill" style="width:${ev === 'A' ? 100 : ev === 'B' ? 65 : 35}%;background:${evStyle.color}"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="calcp-sci-section">
+          <p class="calcp-sci-label">Segurança</p>
+          <div class="calcp-progress-row">
+            <span class="calcp-sci-pct" style="color:${safety >= 90 ? '#22C55E' : safety >= 70 ? '#F59E0B' : '#EF4444'}">${safety}/100</span>
+            <div class="calcp-progress-bar" role="progressbar"
+              aria-valuenow="${safety}" aria-valuemin="0" aria-valuemax="100">
+              <div class="calcp-progress-fill"
+                style="width:${safety}%;background:${safety >= 90 ? '#22C55E' : safety >= 70 ? '#F59E0B' : '#EF4444'}"></div>
+            </div>
+          </div>
+        </div>
+
+        ${supp.dosage?.timing ? `
+          <div class="calcp-sci-section">
+            <p class="calcp-sci-label">Timing Recomendado</p>
+            <p class="calcp-timing-text">⏱ ${supp.dosage.timing}</p>
+          </div>` : ''}
+      </div>
+    `;
+  }
+
+  // ── Calculate ─────────────────────────────────────────────────────────────
+  _calculate() {
+    if (!this._selectedSupp) {
+      this._calcResult = null;
+      return;
+    }
+    const profile = {
+      weight: this._weight,
+      bodyfat: this._bodyfat,
+      activityLevel: this._activityLevel,
+      objective: this._objective,
+      trainingFrequency: this._activityLevel === 'athlete' ? 6 : this._activityLevel === 'active' ? 5 : this._activityLevel === 'moderate' ? 3 : 2,
+    };
+    try {
+      const res = dosageCalculator.calculate(this._selectedSupp, profile);
+      this._calcResult = res ?? null;
+    } catch (err) {
+      console.warn('[CalculatorPage] dosage calc error', err);
+      this._calcResult = null;
+    }
+  }
+
+  // ── Refresh right column only ─────────────────────────────────────────────
+  _refreshResult() {
+    clearTimeout(this._debounce);
+    this._debounce = setTimeout(() => {
+      this._calculate();
+      const card = this.container.querySelector('#result-card');
+      if (card) card.innerHTML = this._renderResult();
+      this._attachResultListeners();
+    }, 80);
+  }
+
+  _refreshChips() {
+    const list = this.container.querySelector('#supp-list');
+    if (list) list.innerHTML = this._renderChips();
   }
 
   // ── Listeners ─────────────────────────────────────────────────────────────
   _attachListeners() {
-    // Objective pills
-    this.container.querySelectorAll('.objective-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.container.querySelectorAll('.objective-pill').forEach(b => {
-          b.classList.remove('active'); b.setAttribute('aria-checked', 'false');
-        });
-        btn.classList.add('active'); btn.setAttribute('aria-checked', 'true');
-        this._profile.objective = btn.dataset.value;
-        this._calculate();
-      });
-    });
-
-    // Frequency pills
-    this.container.querySelectorAll('.freq-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.container.querySelectorAll('.freq-pill').forEach(b => {
-          b.classList.remove('active'); b.setAttribute('aria-checked', 'false');
-        });
-        btn.classList.add('active'); btn.setAttribute('aria-checked', 'true');
-        this._profile.trainingFrequency = parseInt(btn.dataset.value);
-        this._calculate();
-      });
-    });
-
-    // Restriction pills
-    this.container.querySelectorAll('[data-action="toggle-restriction"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const val = btn.dataset.value;
-        const idx = this._profile.restrictions.indexOf(val);
-        if (idx === -1) {
-          this._profile.restrictions.push(val);
-          btn.classList.add('active-danger');
-          btn.setAttribute('aria-pressed', 'true');
-        } else {
-          this._profile.restrictions.splice(idx, 1);
-          btn.classList.remove('active-danger');
-          btn.setAttribute('aria-pressed', 'false');
-        }
-        this._calculate();
-      });
-    });
-
-    // Sliders <-> number inputs (bidirectional)
-    ['weight', 'height', 'age', 'trainingAge', 'budget'].forEach(field => {
-      const slider = this.container.querySelector(`#${field}-slider`);
-      const input = this.container.querySelector(`#${field}`);
-      if (!slider || !input) return;
-
-      const update = (val) => {
-        const num = parseFloat(val);
-        if (isNaN(num)) return;
-        this._profile[field] = num;
-        slider.value = num;
-        input.value = num;
-        this._calculate();
-      };
-
-      slider.addEventListener('input', e => update(e.target.value));
-      input.addEventListener('change', e => {
-        const clamped = Math.min(Math.max(parseFloat(e.target.value), parseFloat(input.min)), parseFloat(input.max));
-        update(clamped);
-      });
-    });
-
-    // Save profile
-    this.container.querySelector('[data-action="save-profile"]')?.addEventListener('click', () => {
-      stateManager.dispatch(ACTIONS.SET_USER_PROFILE ?? 'SET_USER_PROFILE', { ...this._profile });
-      if (window.SupliToast) window.SupliToast.show('✓ Perfil salvo!', 'success');
-    });
-
-    // Result actions (delegated)
-    this.container.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action="toggle-fav"],[data-action="toggle-stack"]');
-      if (!btn) return;
-      const { action } = btn.dataset;
-      const id = btn.dataset.id;
-      const name = btn.dataset.name;
-
-      if (action === 'toggle-fav') {
-        const isFav = stateManager.getState?.()?.favorites?.some(f => f === id || f.supplementId === id) ?? false;
-        stateManager.dispatch(isFav ? ACTIONS.REMOVE_FAVORITE : ACTIONS.ADD_FAVORITE, { supplementId: id });
-        btn.textContent = isFav ? '♡ Favoritar' : '♥ Favorito';
-        btn.classList.toggle('active-fav', !isFav);
-        btn.setAttribute('aria-pressed', String(!isFav));
-        if (window.SupliToast) window.SupliToast.show(isFav ? `${name} removido dos favoritos` : `♥ ${name} favoritado!`, isFav ? 'info' : 'success');
+    // Weight input
+    this.container.querySelector('#inp-weight')?.addEventListener('input', e => {
+      const val = parseFloat(e.target.value);
+      if (!isNaN(val) && val >= 40 && val <= 200) {
+        this._weight = val;
+        this._refreshResult();
       }
+    });
 
-      if (action === 'toggle-stack') {
-        const inStack = stateManager.stack?.some(s => s.supplementId === id) ?? false;
-        if (inStack) {
-          stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { supplementId: id });
+    // Body fat input
+    this.container.querySelector('#inp-bodyfat')?.addEventListener('input', e => {
+      const val = parseFloat(e.target.value);
+      this._bodyfat = isNaN(val) ? null : val;
+      this._refreshResult();
+    });
+
+    // Activity level select
+    this.container.querySelector('#sel-activity')?.addEventListener('change', e => {
+      this._activityLevel = e.target.value;
+      this._refreshResult();
+    });
+
+    // Objective select
+    this.container.querySelector('#sel-objective')?.addEventListener('change', e => {
+      this._objective = e.target.value;
+      this._refreshResult();
+    });
+
+    // Supplement search
+    this.container.querySelector('#inp-search')?.addEventListener('input', e => {
+      this._searchQuery = e.target.value;
+      this._refreshChips();
+      this._attachChipListeners();
+    });
+
+    this._attachChipListeners();
+    this._attachResultListeners();
+  }
+
+  _attachChipListeners() {
+    this.container.querySelectorAll('[data-supp-id]').forEach(btn => {
+      // Only chips in the list (not in result)
+      if (!btn.classList.contains('calcp-chip')) return;
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.suppId;
+        if (this._selectedSupp?.id === id) {
+          this._selectedSupp = null;
         } else {
-          const computed = this._results.find(r => r.id === id);
-          const dosage = computed?.dosage?.daily ?? computed?.dosage?.maintenance ?? 0;
-          const unit = computed?.dosage?.unit ?? 'g';
+          this._selectedSupp = this._allSupps.find(s => s.id === id) ?? null;
+        }
+        this._refreshChips();
+        this._attachChipListeners();
+        this._refreshResult();
+      });
+    });
+  }
+
+  _attachResultListeners() {
+    // Phase toggle
+    this.container.querySelectorAll('[data-phase]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this._phase = btn.dataset.phase;
+        const card = this.container.querySelector('#result-card');
+        if (card) card.innerHTML = this._renderResult();
+        this._attachResultListeners();
+      });
+    });
+
+    // Add to protocol
+    const addBtn = this.container.querySelector('#btn-add-protocol');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        const suppId = addBtn.dataset.suppId;
+        const suppName = addBtn.dataset.suppName;
+        const inStack = (stateManager.stack ?? []).some(s => s.supplementId === suppId);
+        if (inStack) {
+          stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { supplementId: suppId });
+          if (window.SupliToast) window.SupliToast.show(`${suppName} removido do protocolo`, 'info');
+        } else {
+          const supp = this._selectedSupp;
+          const result = this._calcResult;
+          const doseVal = this._phase === 'loading'
+            ? (result?.loading ?? result?.daily ?? supp?.dosage?.loading ?? supp?.dosage?.maintenance ?? 0)
+            : (result?.daily ?? supp?.dosage?.maintenance ?? 0);
+          const unit = supp?.dosage?.unit ?? 'g';
           stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
-            supplementId: id,
-            name,
-            dosage,
+            supplementId: suppId,
+            name: suppName,
+            dosage: doseVal,
             unit,
             frequency: 'diário',
           });
+          if (window.SupliToast) window.SupliToast.show(`✓ ${suppName} adicionado ao protocolo!`, 'success');
         }
-        btn.textContent = inStack ? '+ Stack' : '✓ No stack';
-        btn.classList.toggle('active-stack', !inStack);
-        btn.setAttribute('aria-pressed', String(!inStack));
-        if (window.SupliToast) window.SupliToast.show(inStack ? `${name} removido do stack` : `✓ ${name} adicionado!`, inStack ? 'info' : 'success');
-      }
-    });
+        const card = this.container.querySelector('#result-card');
+        if (card) card.innerHTML = this._renderResult();
+        this._attachResultListeners();
+      });
+    }
   }
 
   // ── Styles ────────────────────────────────────────────────────────────────
   _attachStyles() {
-    if (document.getElementById('calc-page-styles')) return;
+    if (document.getElementById('calcp-styles')) return;
     const style = document.createElement('style');
-    style.id = 'calc-page-styles';
+    style.id = 'calcp-styles';
     style.textContent = `
-      .calc-page { display:flex; flex-direction:column; gap:24px; padding:20px 16px 100px; max-width:900px; margin:0 auto; }
-      .calc-card { background:var(--color-surface-primary); border:1px solid var(--color-border); border-radius:16px; padding:20px; }
-      .page-header { margin-bottom:4px; }
-      .page-title { font-size:24px; font-weight:800; color:var(--color-text-primary); margin:0 0 4px; }
-      .page-subtitle { font-size:14px; color:var(--color-text-muted); margin:0; }
-      .section-title { font-size:16px; font-weight:700; color:var(--color-text-primary); margin:0 0 16px; }
-      .form-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-      .form-group { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
-      .form-label { font-size:13px; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:.5px; }
-      .input-with-unit { display:flex; flex-direction:column; gap:6px; }
-      .range-slider { -webkit-appearance:none; width:100%; height:4px; background:var(--color-border); border-radius:999px; outline:none; cursor:pointer; }
-      .range-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--color-brand); cursor:pointer; border:2px solid var(--color-text-primary); box-shadow:0 0 8px rgba(124,58,237,.5); transition:transform 150ms; }
-      .range-slider::-webkit-slider-thumb:hover { transform:scale(1.2); }
-      .range-value-row { display:flex; align-items:center; gap:6px; }
-      .number-input { width:72px; padding:6px 10px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:8px; color:var(--color-text-primary); font-size:15px; font-family:'JetBrains Mono',monospace; font-weight:700; text-align:center; outline:none; }
-      .number-input:focus { border-color:var(--color-brand); }
-      .unit-label { font-size:13px; color:var(--color-text-muted); white-space:nowrap; }
-      .objective-pills, .frequency-pills, .restriction-pills { display:flex; flex-wrap:wrap; gap:8px; }
-      .objective-pill, .freq-pill, .restriction-pill { padding:8px 14px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:999px; color:var(--color-text-muted); font-size:13px; font-weight:600; cursor:pointer; transition:all 150ms; font-family:inherit; }
-      .objective-pill:hover, .freq-pill:hover { border-color:var(--color-brand); color:var(--color-text-primary); }
-      .objective-pill.active, .freq-pill.active { background:var(--color-brand-muted); border-color:var(--color-brand); color:var(--color-brand); }
-      .freq-pill { padding:8px 12px; min-width:44px; text-align:center; }
-      .restriction-pill.active-danger { background:rgba(239,83,80,.07); border-color:var(--color-error); color:var(--color-error); }
-      .btn-save-profile { width:100%; padding:13px; margin-top:8px; background:var(--color-brand); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; transition:opacity 150ms,transform 150ms; font-family:inherit; }
-      .btn-save-profile:hover { opacity:.9; }
-      .btn-save-profile:active { transform:scale(.98); }
-      .calc-divider { display:flex; align-items:center; gap:12px; color:var(--color-text-muted); font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
-      .calc-divider::before, .calc-divider::after { content:''; flex:1; height:1px; background:var(--color-border); }
-      .results-loading { display:flex; flex-direction:column; align-items:center; gap:12px; padding:48px 20px; color:var(--color-text-muted); }
-      .spinner { width:32px; height:32px; border:3px solid var(--color-border); border-top-color:var(--color-brand); border-radius:50%; animation:calc-spin .8s linear infinite; }
-      @keyframes calc-spin { to { transform:rotate(360deg); } }
-      .results-grid { display:grid; grid-template-columns:1fr; gap:16px; }
-      .result-card { background:var(--color-surface-primary); border:1px solid var(--color-border); border-radius:16px; padding:20px; position:relative; animation:calcCardIn 400ms ease both; transition:border-color 150ms,box-shadow 150ms; }
-      .result-card:hover { border-color:rgba(124,58,237,.27); box-shadow:0 0 20px rgba(124,58,237,.1); }
-      @keyframes calcCardIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-      .result-rank { position:absolute; top:-10px; left:16px; background:var(--color-brand); color:#fff; font-size:11px; font-weight:800; font-family:'JetBrains Mono',monospace; padding:2px 8px; border-radius:999px; }
-      .result-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:14px; }
-      .result-category { font-size:11px; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:.5px; margin:0 0 3px; }
-      .result-name { font-size:17px; font-weight:700; color:var(--color-text-primary); margin:0; line-height:1.2; }
-      .score-section { margin-bottom:14px; }
-      .score-label { display:flex; justify-content:space-between; font-size:12px; color:var(--color-text-muted); margin-bottom:6px; }
-      .score-bar { height:5px; background:var(--color-border); border-radius:999px; overflow:hidden; }
-      .score-fill { height:100%; border-radius:999px; transition:width 500ms ease; }
-      .dosage-block { display:flex; flex-direction:column; gap:4px; padding:12px; background:var(--color-bg-primary); border-radius:10px; margin-bottom:12px; }
-      .dosage-main { display:flex; align-items:baseline; gap:4px; }
-      .dosage-value { font-size:28px; font-weight:900; font-family:'JetBrains Mono',monospace; color:var(--color-brand); }
-      .dosage-unit { font-size:14px; color:var(--color-text-muted); font-family:'JetBrains Mono',monospace; }
-      .dosage-rationale { font-size:12px; color:var(--color-text-secondary); margin:0; line-height:1.4; }
-      .benefits-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
-      .benefit-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:999px; font-size:12px; }
-      .benefit-label { color:var(--color-text-primary); }
-      .benefit-pct { color:var(--color-success); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; }
-      .result-cost { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--color-bg-primary); border-radius:8px; margin-bottom:12px; }
-      .cost-label { font-size:12px; color:var(--color-text-muted); }
-      .cost-value { font-size:14px; font-weight:700; color:#FFB74D; font-family:'JetBrains Mono',monospace; }
-      .warnings-section, .interactions-section { margin-bottom:10px; }
-      .warning-item, .interaction-item { font-size:12px; color:#FFB74D; margin:4px 0; line-height:1.4; }
-      .result-actions { display:flex; gap:8px; margin-top:4px; }
-      .btn-action { flex:1; padding:9px 14px; background:var(--color-bg-primary); border:1px solid var(--color-border); border-radius:999px; color:var(--color-text-muted); font-size:13px; font-weight:600; cursor:pointer; transition:all 150ms; font-family:inherit; }
-      .btn-action:hover { border-color:var(--color-brand); color:var(--color-text-primary); }
-      .btn-action-primary { background:var(--color-brand-muted); border-color:rgba(124,58,237,.27); color:var(--color-brand); }
-      .btn-action-primary:hover { background:var(--color-brand); color:#fff; }
-      .active-fav { background:rgba(239,83,80,.07); border-color:rgba(239,83,80,.27); color:var(--color-error); }
-      .active-stack { background:rgba(0,230,118,.07); border-color:rgba(0,230,118,.27); color:var(--color-success); }
-      .budget-section .budget-grid { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-      .budget-item { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--color-bg-primary); font-size:14px; }
-      .budget-item-name { color:var(--color-text-primary); }
-      .budget-item-cost { color:var(--color-text-muted); font-family:'JetBrains Mono',monospace; }
-      .budget-total { display:flex; flex-direction:column; gap:6px; padding-top:10px; border-top:1px solid var(--color-border); }
-      .budget-total-row { display:flex; justify-content:space-between; font-size:15px; font-weight:600; color:var(--color-text-primary); }
-      .budget-total-value { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:800; }
-      .disclaimer { font-size:12px; color:var(--color-text-secondary); line-height:1.6; padding:12px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-surface-primary); margin:0; }
-      .empty-state { text-align:center; padding:48px 20px; color:var(--color-text-muted); display:flex; flex-direction:column; align-items:center; gap:12px; grid-column:1/-1; }
-      @media (max-width:560px) { .form-row { grid-template-columns:1fr; gap:0; } .calc-page { padding:16px 12px 100px; } }
-      @media (min-width:640px) { .results-grid { grid-template-columns:repeat(2,1fr); } }
-      @media (min-width:1024px) { .results-grid { grid-template-columns:repeat(4,1fr); } .calc-page { padding:32px 24px 80px; } }
+      /* Root */
+      .calcp-root {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding: 24px 16px 100px;
+        max-width: 1100px;
+        margin: 0 auto;
+        font-family: 'Inter', sans-serif;
+      }
+
+      /* Header */
+      .calcp-header { margin-bottom: 4px; }
+      .calcp-title {
+        font-family: 'Syne', sans-serif;
+        font-weight: 800;
+        font-size: 28px;
+        color: var(--color-text-primary);
+        margin: 0 0 6px;
+      }
+      .calcp-subtitle {
+        font-size: 14px;
+        color: var(--color-text-muted);
+        margin: 0;
+      }
+
+      /* Split layout */
+      .calcp-split {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      @media (min-width: 768px) {
+        .calcp-split {
+          grid-template-columns: 380px 1fr;
+          align-items: start;
+        }
+      }
+
+      .calcp-left, .calcp-right {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* Card */
+      .calcp-card {
+        background: var(--color-surface-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .calcp-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin: 0 0 18px;
+      }
+
+      /* Form fields */
+      .calcp-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .calcp-field:last-child { margin-bottom: 0; }
+      .calcp-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: .5px;
+      }
+      .calcp-optional {
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--color-text-muted);
+        opacity: .6;
+        font-size: 11px;
+      }
+      .calcp-input, .calcp-select {
+        padding: 10px 14px;
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        color: var(--color-text-primary);
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        transition: border-color 150ms;
+        -webkit-appearance: none;
+      }
+      .calcp-input:focus, .calcp-select:focus {
+        border-color: var(--color-brand);
+        box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+      }
+      .calcp-input::placeholder { color: var(--color-text-muted); }
+      .calcp-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239A9A9A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 36px;
+        cursor: pointer;
+      }
+
+      /* Search */
+      .calcp-search-wrap {
+        position: relative;
+        margin-bottom: 12px;
+      }
+      .calcp-search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        pointer-events: none;
+      }
+      .calcp-search {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 14px 10px 36px;
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        color: var(--color-text-primary);
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        transition: border-color 150ms;
+      }
+      .calcp-search:focus { border-color: var(--color-brand); }
+      .calcp-search::placeholder { color: var(--color-text-muted); }
+
+      /* Supplement chips */
+      .calcp-chips {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 320px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-border) transparent;
+      }
+      .calcp-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        cursor: pointer;
+        text-align: left;
+        transition: border-color 150ms, background 150ms;
+        font-family: 'Inter', sans-serif;
+        width: 100%;
+      }
+      .calcp-chip:hover {
+        border-color: var(--color-border-strong);
+        background: var(--color-surface-hover);
+      }
+      .calcp-chip--active {
+        border-color: var(--color-brand);
+        background: var(--color-brand-muted);
+      }
+      .calcp-chip-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .calcp-chip-cat {
+        font-size: 11px;
+        color: var(--color-text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100px;
+      }
+      .calcp-ev-badge {
+        flex-shrink: 0;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 5px;
+        text-transform: uppercase;
+      }
+      .calcp-empty-chips {
+        font-size: 13px;
+        color: var(--color-text-muted);
+        text-align: center;
+        padding: 20px 0;
+        margin: 0;
+      }
+
+      /* Result card */
+      .calcp-result-card { position: relative; }
+
+      /* Placeholder */
+      .calcp-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-height: 320px;
+        text-align: center;
+        padding: 32px 16px;
+      }
+      .calcp-placeholder-icon { font-size: 48px; opacity: .3; }
+      .calcp-placeholder-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--color-text-secondary);
+        margin: 0;
+      }
+      .calcp-placeholder-sub {
+        font-size: 13px;
+        color: var(--color-text-muted);
+        margin: 0;
+        max-width: 260px;
+        line-height: 1.5;
+      }
+
+      /* Result header */
+      .calcp-result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 28px;
+      }
+      .calcp-result-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin: 0;
+      }
+
+      /* Phase toggle */
+      .calcp-phase-toggle {
+        display: flex;
+        gap: 4px;
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 3px;
+      }
+      .calcp-phase-btn {
+        padding: 5px 12px;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--color-text-muted);
+        font-size: 12px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: background 150ms, color 150ms;
+      }
+      .calcp-phase-btn--active {
+        background: var(--color-brand);
+        color: #fff;
+      }
+
+      /* Big dose display */
+      .calcp-dose-display {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .calcp-dose-value {
+        font-family: 'Syne', sans-serif;
+        font-weight: 800;
+        font-size: 64px;
+        line-height: 1;
+        color: var(--color-brand);
+        letter-spacing: -2px;
+      }
+      .calcp-dose-unit {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        font-family: 'Inter', sans-serif;
+      }
+
+      /* Validated label */
+      .calcp-validated {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-success);
+        margin-bottom: 20px;
+      }
+      .calcp-validated-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--color-success);
+        flex-shrink: 0;
+      }
+
+      /* Add button */
+      .calcp-btn-add {
+        width: 100%;
+        padding: 13px 20px;
+        background: var(--color-brand);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: background 150ms, transform 100ms;
+        margin-bottom: 20px;
+      }
+      .calcp-btn-add:hover { background: var(--color-brand-hover); }
+      .calcp-btn-add:active { transform: scale(.98); }
+      .calcp-btn-add--in {
+        background: var(--color-success-bg);
+        color: var(--color-success);
+        border: 1px solid rgba(34,197,94,.25);
+      }
+      .calcp-btn-add--in:hover { background: rgba(34,197,94,.18); }
+
+      /* Separator */
+      .calcp-sep {
+        border: none;
+        border-top: 1px solid var(--color-border);
+        margin: 0 0 20px;
+      }
+
+      /* Scientific card */
+      .calcp-sci-card { display: flex; flex-direction: column; gap: 0; }
+      .calcp-sci-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin: 0 0 16px;
+      }
+      .calcp-sci-section { margin-bottom: 16px; }
+      .calcp-sci-section:last-child { margin-bottom: 0; }
+      .calcp-sci-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin: 0 0 6px;
+      }
+      .calcp-sci-text {
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        margin: 0;
+        line-height: 1.55;
+      }
+      .calcp-timing-text {
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        margin: 0;
+        padding: 8px 12px;
+        background: var(--color-bg-primary);
+        border-radius: 8px;
+        border-left: 3px solid var(--color-brand);
+      }
+
+      /* Progress bars */
+      .calcp-progress-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .calcp-progress-bar {
+        flex: 1;
+        height: 6px;
+        background: var(--color-border);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .calcp-progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 500ms ease;
+      }
+      .calcp-sci-pct {
+        font-size: 12px;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        min-width: 44px;
+      }
+
+      /* Disclaimer */
+      .calcp-disclaimer {
+        font-size: 12px;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+        padding: 12px;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        background: var(--color-surface-primary);
+        margin: 0;
+      }
+
+      /* Mobile tweaks */
+      @media (max-width: 767px) {
+        .calcp-root { padding: 16px 12px 100px; }
+        .calcp-title { font-size: 22px; }
+        .calcp-dose-value { font-size: 48px; }
+        .calcp-chips { max-height: 240px; }
+      }
     `;
     document.head.appendChild(style);
   }

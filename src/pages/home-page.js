@@ -1,174 +1,455 @@
-import { stateManager, ACTIONS } from '../state/state-manager.js';
-import { eventBus } from '../core/event-bus.js';
+// ============================================================
+// home-page.js — Landing page de marketing (dark / premium)
+// Estilo Linear / Vercel / Raycast. Sem sidebar/topbar.
+// ============================================================
+
+import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 
 export default class HomePage {
   constructor(container) {
     this.container = container;
-    this._unsub = null;
+    this._styleEl = null;
+    this._onClick = null;
   }
 
   mount() {
-    this._injectStyles();
-    this._render();
-    this._unsub = stateManager.subscribe(() => this._render());
+    this._injectStyle();
+    this.container.innerHTML = this._template();
+    this._bindEvents();
   }
 
   unmount() {
-    if (this._unsub) { this._unsub(); this._unsub = null; }
+    if (this._onClick) {
+      this.container.removeEventListener('click', this._onClick);
+      this._onClick = null;
+    }
+    if (this._styleEl && this._styleEl.parentNode) {
+      this._styleEl.parentNode.removeChild(this._styleEl);
+    }
+    this._styleEl = null;
+    this.container.innerHTML = '';
   }
 
-  _injectStyles() {
-    if (document.getElementById('home-page-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'home-page-styles';
-    style.textContent = `
-      #home-root {
-        padding: 20px 16px 80px;
-        display: flex; flex-direction: column; gap: 20px;
-      }
-      .hp-section-label {
-        font-size: 11px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 0.07em; color: var(--color-text-secondary); margin-bottom: 12px;
-      }
-      .hp-stats-grid {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-      }
-      .hp-stat-card {
-        background: var(--color-surface-primary);
-        border: 1px solid var(--color-border);
-        border-radius: 14px; padding: 14px 10px; text-align: center;
-      }
-      .hp-stat-icon  { font-size: 22px; margin-bottom: 4px; }
-      .hp-stat-value { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--color-text-primary); }
-      .hp-stat-label {
-        font-size: 10px; color: var(--color-text-secondary);
-        text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;
-      }
-      .hp-quick-grid {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-      }
-      @media (min-width: 480px) { .hp-quick-grid { grid-template-columns: repeat(4, 1fr); } }
-    `;
-    document.head.appendChild(style);
+  // ──────────────────────────────────────────────────────────
+  // Eventos — delegação para qualquer [data-nav]
+  // ──────────────────────────────────────────────────────────
+  _bindEvents() {
+    this._onClick = (e) => {
+      const target = e.target.closest('[data-nav]');
+      if (!target) return;
+      e.preventDefault();
+      const hash = target.getAttribute('data-nav');
+      if (hash) window.location.hash = hash;
+    };
+    this.container.addEventListener('click', this._onClick);
   }
 
-  _greeting() {
-    const h = new Date().getHours();
-    if (h < 12) return 'Bom dia';
-    if (h < 18) return 'Boa tarde';
-    return 'Boa noite';
-  }
+  // ──────────────────────────────────────────────────────────
+  // Template
+  // ──────────────────────────────────────────────────────────
+  _template() {
+    const count = SUPPLEMENTS_DB.length;
 
-  _calcAdherence(stack, checkins) {
-    if (!stack.length) return 0;
-    const cutoff = Date.now() - 7 * 86400000;
-    const recent = checkins.filter(c => c.timestamp >= cutoff);
-    return Math.min(100, Math.round((recent.length / (stack.length * 7)) * 100));
-  }
+    const features = [
+      {
+        icon: '💰',
+        title: 'Comparação de Preços',
+        text: 'Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app.',
+      },
+      {
+        icon: '⚗️',
+        title: 'Dosagem Científica',
+        text: 'Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência.',
+      },
+      {
+        icon: '⭐',
+        title: 'Stack Personalizado',
+        text: 'Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo.',
+      },
+    ];
 
-  _statCard(emoji, value, label) {
+    const steps = [
+      { n: '1', title: 'Defina seus Objetivos', text: 'Hipertrofia, longevidade, foco ou performance — você escolhe o caminho.' },
+      { n: '2', title: 'Compare Preços e Doses', text: 'Cruze evidência clínica e o melhor preço entre 3 marketplaces.' },
+      { n: '3', title: 'Monitore e Avance', text: 'Acompanhe sua adesão e ajuste o protocolo conforme você evolui.' },
+    ];
+
+    const goals = ['Hipertrofia', 'Saúde Geral', 'Longevidade', 'Performance', 'Foco', 'Emagrecimento'];
+
+    const markets = ['Amazon', 'Mercado Livre', 'Shopee'];
+
     return `
-      <div class="hp-stat-card">
-        <div class="hp-stat-icon">${emoji}</div>
-        <div class="hp-stat-value">${value}</div>
-        <div class="hp-stat-label">${label}</div>
-      </div>`;
-  }
+      <div class="lp-root">
 
-  _quickAction(href, emoji, title, subtitle) {
-    return `
-      <a href="${href}" style="background:var(--color-surface-primary);border:1px solid var(--color-border);border-radius:14px;padding:16px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px;">
-        <span style="font-size:22px;">${emoji}</span>
-        <div style="font-weight:700;font-size:14px;">${title}</div>
-        <div style="font-size:12px;color:var(--color-text-secondary);">${subtitle}</div>
-      </a>`;
-  }
+        <nav class="lp-nav" aria-label="Navegação principal">
+          <div class="lp-nav__inner">
+            <a class="lp-logo" data-nav="#/home" href="#/home" aria-label="SupliList — início">SupliList</a>
+            <button class="lp-btn lp-btn--primary lp-btn--sm" data-nav="#/list" type="button">
+              Entrar no App →
+            </button>
+          </div>
+        </nav>
 
-  _render() {
-    const user         = stateManager.user;
-    const stack        = stateManager.stack;
-    const streak       = stateManager.calculateStreak();
-    const todayCheckins = stateManager.getTodayCheckins ? stateManager.getTodayCheckins() : [];
-    const allCheckins  = stateManager.getState?.()?.checkins ?? stateManager.checkins ?? [];
-    const adherence    = this._calcAdherence(stack, allCheckins);
-    const checkedToday = todayCheckins.length;
-    const hasStack     = stack.length > 0;
-    const firstName    = user?.name ? user.name.split(' ')[0] : null;
+        <main>
 
-    const checkinSection = (() => {
-      if (!hasStack) return '';
-      if (checkedToday >= stack.length) {
-        return `
-          <div style="background:var(--color-surface-primary);border:1px solid var(--color-success);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
-            <span style="font-size:28px;">🎯</span>
-            <div>
-              <div style="font-weight:700;color:var(--color-success);">Check-in completo!</div>
-              <div style="font-size:13px;color:var(--color-text-secondary);margin-top:2px;">${checkedToday} de ${stack.length} suplemento(s) hoje</div>
+          <section class="lp-hero" aria-label="Apresentação">
+            <div class="lp-hero__bg" aria-hidden="true"></div>
+            <div class="lp-hero__inner">
+              <span class="lp-pill lp-anim" style="--d:0s">✦ Suplementação com Ciência</span>
+              <h1 class="lp-hero__title lp-anim" style="--d:.08s">
+                SUPLEMENTAÇÃO BASEADA EM <span class="lp-accent">EVIDÊNCIAS.</span>
+              </h1>
+              <p class="lp-hero__sub lp-anim" style="--d:.16s">
+                Compare preços, calcule dosagens personalizadas e monitore sua adesão.
+                100% offline, sem assinatura.
+              </p>
+              <div class="lp-hero__cta lp-anim" style="--d:.24s">
+                <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="#/list" type="button">Começar Agora →</button>
+                <button class="lp-btn lp-btn--outline lp-btn--lg" data-nav="#/list" type="button">Ver Catálogo</button>
+              </div>
+              <p class="lp-hero__stats lp-anim" style="--d:.32s">
+                ${count}+ Suplementos · 3 Marketplaces · 100% Offline · Evidência Clínica
+              </p>
             </div>
-          </div>`;
-      }
-      return `
-        <div id="hp-checkin-cta" style="background:linear-gradient(135deg,var(--color-brand),#6D28D9);border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px;">
-          <div>
-            <div style="font-weight:700;font-size:16px;color:#fff;">Check-in de hoje</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:2px;">
-              ${checkedToday > 0
-                ? `${checkedToday} de ${stack.length} registrados`
-                : 'Você ainda não registrou sua adesão'}
+          </section>
+
+          <section class="lp-section" aria-label="Recursos">
+            <h2 class="lp-h2">TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
+            <div class="lp-grid lp-grid--3">
+              ${features
+                .map(
+                  (f) => `
+                <article class="lp-card">
+                  <div class="lp-card__icon" aria-hidden="true">${f.icon}</div>
+                  <h3 class="lp-card__title">${f.title}</h3>
+                  <p class="lp-card__text">${f.text}</p>
+                </article>`
+                )
+                .join('')}
+            </div>
+          </section>
+
+          <section class="lp-section" aria-label="Como funciona">
+            <h2 class="lp-h2">3 PASSOS PARA COMPRAR CERTO.</h2>
+            <div class="lp-grid lp-grid--3">
+              ${steps
+                .map(
+                  (s) => `
+                <article class="lp-step">
+                  <div class="lp-step__num" aria-hidden="true">${s.n}</div>
+                  <h3 class="lp-card__title">${s.title}</h3>
+                  <p class="lp-card__text">${s.text}</p>
+                </article>`
+                )
+                .join('')}
+            </div>
+          </section>
+
+          <section class="lp-section" aria-label="Filtro por treino">
+            <h2 class="lp-h2">FILTRADO POR COMO VOCÊ TREINA.</h2>
+            <div class="lp-chips">
+              ${goals
+                .map(
+                  (g) => `<button class="lp-chip" data-nav="#/list" type="button">${g}</button>`
+                )
+                .join('')}
+            </div>
+          </section>
+
+          <section class="lp-section" aria-label="Marketplaces">
+            <h2 class="lp-h2">OS MAIORES MARKETPLACES DO BRASIL.</h2>
+            <div class="lp-grid lp-grid--3">
+              ${markets
+                .map(
+                  (m) => `
+                <article class="lp-market">
+                  <span class="lp-market__name">${m}</span>
+                  <span class="lp-market__badge">Integrado</span>
+                </article>`
+                )
+                .join('')}
+            </div>
+          </section>
+
+          <section class="lp-cta" aria-label="Comece agora">
+            <h2 class="lp-cta__title">PARE DE ADIVINHAR.<br>COMECE COM CIÊNCIA.</h2>
+            <p class="lp-cta__sub">Sem cadastro. Sem assinatura. Tudo no seu dispositivo.</p>
+            <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="#/list" type="button">Abrir o App →</button>
+          </section>
+
+        </main>
+
+        <footer class="lp-footer" aria-label="Rodapé">
+          <div class="lp-footer__grid">
+            <div class="lp-footer__brand">
+              <span class="lp-logo">SupliList</span>
+              <p class="lp-footer__tagline">Suplementação baseada em evidências.</p>
+              <p class="lp-footer__meta">100% offline · sem cadastro · LGPD</p>
+            </div>
+
+            <div class="lp-footer__col">
+              <h3 class="lp-footer__head">Produto</h3>
+              <a class="lp-footer__link" data-nav="#/list" href="#/list">Catálogo</a>
+              <a class="lp-footer__link" data-nav="#/dosage" href="#/dosage">Calculadora</a>
+              <a class="lp-footer__link" data-nav="#/my-stack" href="#/my-stack">Meu Stack</a>
+            </div>
+
+            <div class="lp-footer__col">
+              <h3 class="lp-footer__head">Suporte</h3>
+              <a class="lp-footer__link" data-nav="#/faq" href="#/faq">FAQ</a>
+              <a class="lp-footer__link" data-nav="#/settings" href="#/settings">Configurações</a>
+            </div>
+
+            <div class="lp-footer__col">
+              <h3 class="lp-footer__head">Legal</h3>
+              <a class="lp-footer__link" data-nav="#/legal?doc=termos" href="#/legal?doc=termos">Termos de Uso</a>
+              <a class="lp-footer__link" data-nav="#/legal?doc=privacidade" href="#/legal?doc=privacidade">Privacidade</a>
+              <a class="lp-footer__link" data-nav="#/legal?doc=medico" href="#/legal?doc=medico">Aviso Médico</a>
+              <a class="lp-footer__link" data-nav="#/legal?doc=afiliados" href="#/legal?doc=afiliados">Afiliados</a>
             </div>
           </div>
-          <div style="background:rgba(255,255,255,0.2);border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;color:#fff;white-space:nowrap;">Fazer ✓</div>
-        </div>`;
-    })();
 
-    const emptyCTA = !hasStack ? `
-      <div style="background:var(--color-surface-primary);border:1px solid var(--color-border);border-radius:16px;padding:32px 20px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">🚀</div>
-        <div style="font-weight:700;font-size:17px;margin-bottom:8px;">Monte seu stack</div>
-        <div style="font-size:14px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:16px;">Explore o catálogo e adicione seus primeiros suplementos.</div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <a href="#/list" style="display:inline-block;background:var(--color-brand);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;">Ver Catálogo</a>
-          <a href="#/profile" style="display:inline-block;background:var(--color-surface-primary);border:1px solid var(--color-border);color:var(--color-text-primary);text-decoration:none;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;">Configurar Perfil</a>
-        </div>
-      </div>` : '';
+          <p class="lp-disclaimer">
+            ⚕️ O SupliList é uma ferramenta educativa e não substitui orientação médica ou
+            nutricional. Consulte um profissional antes de iniciar qualquer suplementação.
+          </p>
 
-    this.container.innerHTML = `
-      <div id="home-root">
-
-        <header>
-          <p style="color:var(--color-text-secondary);font-size:12px;text-transform:uppercase;letter-spacing:0.07em;">${this._greeting()}</p>
-          <h1 style="font-size:26px;font-weight:800;letter-spacing:-0.02em;margin-top:2px;color:var(--color-text-primary);">
-            ${firstName ? `Olá, ${firstName} 👋` : 'Seu Painel'}
-          </h1>
-        </header>
-
-        <section>
-          <div class="hp-stats-grid">
-            ${this._statCard('🔥', streak, 'Streak')}
-            ${this._statCard('💊', stack.length, 'No Stack')}
-            ${this._statCard('📊', adherence + '%', 'Aderência')}
-          </div>
-        </section>
-
-        ${checkinSection}
-
-        ${emptyCTA}
-
-        <section>
-          <p class="hp-section-label">Ações Rápidas</p>
-          <div class="hp-quick-grid">
-            ${this._quickAction('#/list',     '🔍', 'Catálogo',    'Explorar suplementos')}
-            ${this._quickAction('#/my-stack', '📦', 'Meu Stack',   'Gerenciar stack')}
-            ${this._quickAction('#/checkin',  '📋', 'Check-in',    'Adesão de hoje')}
-            ${this._quickAction('#/history',  '📈', 'Histórico',   'Ver evolução')}
-          </div>
-        </section>
+          <p class="lp-copyright">© 2025 SupliList · Feito com ciência</p>
+        </footer>
 
       </div>
     `;
+  }
 
-    // Attach checkin CTA click
-    const cta = this.container.querySelector('#hp-checkin-cta');
-    if (cta) cta.addEventListener('click', () => { window.location.hash = '#/checkin'; });
+  // ──────────────────────────────────────────────────────────
+  // Estilos
+  // ──────────────────────────────────────────────────────────
+  _injectStyle() {
+    const style = document.createElement('style');
+    style.setAttribute('data-page', 'home');
+    style.textContent = `
+      .lp-root {
+        background: var(--color-bg-primary, #080808);
+        color: var(--color-text-primary, #F2F2F2);
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
+      .lp-root *, .lp-root *::before, .lp-root *::after { box-sizing: border-box; }
+
+      /* ── NAV ── */
+      .lp-nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        background: rgba(8, 8, 8, 0.8);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
+      }
+      .lp-nav__inner {
+        max-width: 1160px; margin: 0 auto; padding: 14px 24px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .lp-logo {
+        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-size: 22px; letter-spacing: -0.02em;
+        color: var(--color-brand, #7C3AED); text-decoration: none;
+      }
+
+      /* ── BOTÕES ── */
+      .lp-btn {
+        font-family: 'Inter', sans-serif; font-weight: 600;
+        border-radius: 10px; cursor: pointer; border: 1px solid transparent;
+        transition: background .18s ease, border-color .18s ease, transform .12s ease;
+        white-space: nowrap; line-height: 1;
+      }
+      .lp-btn:active { transform: translateY(1px); }
+      .lp-btn--sm { font-size: 14px; padding: 9px 16px; }
+      .lp-btn--lg { font-size: 16px; padding: 15px 26px; }
+      .lp-btn--primary { background: var(--color-brand, #7C3AED); color: #fff; }
+      .lp-btn--primary:hover { background: var(--color-brand-hover, #6D28D9); }
+      .lp-btn--outline {
+        background: transparent; color: var(--color-text-primary, #F2F2F2);
+        border-color: var(--color-border-strong, rgba(255,255,255,0.14));
+      }
+      .lp-btn--outline:hover { border-color: var(--color-text-secondary, #9A9A9A); }
+
+      /* ── HERO ── */
+      .lp-hero {
+        position: relative; min-height: 100vh;
+        display: flex; align-items: center; justify-content: center;
+        text-align: center; padding: 120px 24px 80px; overflow: hidden;
+      }
+      .lp-hero__bg {
+        position: absolute; inset: 0; z-index: 0; pointer-events: none;
+        background:
+          radial-gradient(60% 50% at 50% 0%, var(--color-brand-muted, rgba(124,58,237,0.12)), transparent 70%),
+          var(--color-bg-primary, #080808);
+      }
+      .lp-hero__inner { position: relative; z-index: 1; max-width: 760px; }
+      .lp-pill {
+        display: inline-block; font-size: 13px; font-weight: 500;
+        color: var(--color-text-secondary, #9A9A9A);
+        background: var(--color-surface-secondary, #161616);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        padding: 7px 16px; border-radius: 999px; margin-bottom: 28px;
+      }
+      .lp-hero__title {
+        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-size: clamp(44px, 8vw, 96px); line-height: 1.05;
+        letter-spacing: -0.03em; margin: 0 0 24px;
+      }
+      .lp-accent { color: var(--color-brand, #7C3AED); }
+      .lp-hero__sub {
+        font-size: 18px; line-height: 1.6;
+        color: var(--color-text-secondary, #9A9A9A);
+        max-width: 560px; margin: 0 auto 36px;
+      }
+      .lp-hero__cta {
+        display: flex; gap: 14px; justify-content: center;
+        flex-wrap: wrap; margin-bottom: 40px;
+      }
+      .lp-hero__stats {
+        font-size: 14px; color: var(--color-text-muted, #555555);
+        margin: 0; letter-spacing: 0.01em;
+      }
+
+      /* ── SEÇÕES ── */
+      .lp-section { max-width: 1160px; margin: 0 auto; padding: 80px 24px; }
+      .lp-h2 {
+        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-size: clamp(28px, 4.5vw, 48px); line-height: 1.1;
+        letter-spacing: -0.02em; text-align: center; margin: 0 0 56px;
+      }
+
+      .lp-grid { display: grid; gap: 20px; }
+      .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
+
+      .lp-card, .lp-step {
+        background: var(--color-surface-primary, #111111);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        border-radius: 16px; padding: 32px;
+        transition: border-color .2s ease, transform .2s ease;
+      }
+      .lp-card:hover, .lp-step:hover {
+        border-color: var(--color-border-strong, rgba(255,255,255,0.14));
+        transform: translateY(-3px);
+      }
+      .lp-card__icon { font-size: 30px; margin-bottom: 18px; }
+      .lp-card__title {
+        font-size: 19px; font-weight: 700; margin: 0 0 10px;
+        color: var(--color-text-primary, #F2F2F2);
+      }
+      .lp-card__text {
+        font-size: 15px; line-height: 1.6; margin: 0;
+        color: var(--color-text-secondary, #9A9A9A);
+      }
+      .lp-step__num {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px;
+        color: var(--color-brand, #7C3AED);
+        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+        margin-bottom: 18px;
+      }
+
+      /* ── CHIPS ── */
+      .lp-chips { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+      .lp-chip {
+        font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
+        color: var(--color-text-primary, #F2F2F2);
+        background: var(--color-surface-secondary, #161616);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        padding: 11px 22px; border-radius: 999px; cursor: pointer;
+        transition: border-color .18s ease, background .18s ease, color .18s ease;
+      }
+      .lp-chip:hover {
+        border-color: var(--color-brand, #7C3AED);
+        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+      }
+
+      /* ── MARKETPLACES ── */
+      .lp-market {
+        background: var(--color-surface-primary, #111111);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        border-radius: 16px; padding: 28px 32px;
+        display: flex; align-items: center; justify-content: space-between;
+        transition: border-color .2s ease;
+      }
+      .lp-market:hover { border-color: var(--color-border-strong, rgba(255,255,255,0.14)); }
+      .lp-market__name { font-size: 18px; font-weight: 700; }
+      .lp-market__badge {
+        font-size: 12px; font-weight: 600;
+        color: var(--color-success, #22C55E);
+        background: rgba(34, 197, 94, 0.12);
+        padding: 5px 12px; border-radius: 999px;
+      }
+
+      /* ── CTA FINAL ── */
+      .lp-cta { max-width: 760px; margin: 0 auto; padding: 110px 24px; text-align: center; }
+      .lp-cta__title {
+        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-size: clamp(32px, 6vw, 64px); line-height: 1.08;
+        letter-spacing: -0.03em; margin: 0 0 20px;
+      }
+      .lp-cta__sub { font-size: 17px; color: var(--color-text-secondary, #9A9A9A); margin: 0 0 32px; }
+
+      /* ── FOOTER ── */
+      .lp-footer {
+        border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        background: var(--color-surface-primary, #111111);
+        padding: 64px 24px 40px;
+      }
+      .lp-footer__grid {
+        max-width: 1160px; margin: 0 auto;
+        display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+      }
+      .lp-footer__brand .lp-logo { display: inline-block; margin-bottom: 14px; }
+      .lp-footer__tagline { font-size: 14px; color: var(--color-text-secondary, #9A9A9A); margin: 0 0 8px; }
+      .lp-footer__meta { font-size: 13px; color: var(--color-text-muted, #555555); margin: 0; }
+      .lp-footer__head {
+        font-size: 13px; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.06em; color: var(--color-text-muted, #555555); margin: 0 0 16px;
+      }
+      .lp-footer__link {
+        display: block; font-size: 15px; text-decoration: none;
+        color: var(--color-text-secondary, #9A9A9A);
+        margin-bottom: 12px; transition: color .15s ease; cursor: pointer;
+      }
+      .lp-footer__link:hover { color: var(--color-text-primary, #F2F2F2); }
+      .lp-disclaimer {
+        max-width: 1160px; margin: 56px auto 0; padding-top: 28px;
+        border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        font-size: 12px; line-height: 1.6; color: var(--color-text-muted, #555555);
+      }
+      .lp-copyright {
+        max-width: 1160px; margin: 20px auto 0;
+        font-size: 12px; color: var(--color-text-muted, #555555);
+      }
+
+      /* ── ANIMAÇÃO ── */
+      @keyframes lp-fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .lp-anim { opacity: 0; animation: lp-fade-in-up .6s ease forwards; animation-delay: var(--d, 0s); }
+
+      /* ── RESPONSIVO ── */
+      @media (max-width: 768px) {
+        .lp-grid--3 { grid-template-columns: 1fr; }
+        .lp-footer__grid { grid-template-columns: 1fr 1fr; }
+        .lp-footer__brand { grid-column: 1 / -1; }
+        .lp-section { padding: 56px 20px; }
+        .lp-hero { padding: 100px 20px 64px; }
+        .lp-hero__cta .lp-btn { flex: 1 1 auto; }
+      }
+      @media (max-width: 480px) {
+        .lp-footer__grid { grid-template-columns: 1fr; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .lp-anim { animation: none; opacity: 1; }
+        .lp-card:hover, .lp-step:hover { transform: none; }
+      }
+    `;
+    document.head.appendChild(style);
+    this._styleEl = style;
   }
 }

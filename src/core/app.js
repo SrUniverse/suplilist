@@ -4,14 +4,25 @@ import { eventBus } from './event-bus.js';
 import { Router } from './router.js';
 
 const routes = [
-  { path: '/home',     load: () => import('../pages/home-page.js') },
-  { path: '/list',     load: () => import('../pages/list-page.js') },
-  { path: '/my-stack', load: () => import('../pages/my-stack-page.js') },
-  { path: '/checkin',  load: () => import('../pages/checkin-page.js') },
-  { path: '/history',  load: () => import('../pages/history-page.js') },
-  { path: '/dosage',   load: () => import('../pages/calculator-page.js') },
-  { path: '/profile',  load: () => import('../pages/profile-page.js') },
+  { path: '/home',      load: () => import('../pages/home-page.js') },
+  { path: '/list',      load: () => import('../pages/list-page.js') },
+  { path: '/my-stack',  load: () => import('../pages/my-stack-page.js') },
+  { path: '/checkin',   load: () => import('../pages/checkin-page.js') },
+  { path: '/history',   load: () => import('../pages/history-page.js') },
+  { path: '/favorites', load: () => import('../pages/favorites-page.js') },
+  { path: '/dosage',    load: () => import('../pages/calculator-page.js') },
+  { path: '/profile',   load: () => import('../pages/profile-page.js') },
+  { path: '/settings',  load: () => import('../pages/settings-page.js') },
+  { path: '/faq',       load: () => import('../pages/faq-page.js') },
+  { path: '/legal',     load: () => import('../pages/legal-page.js') },
 ];
+
+// Landing mode: hide app shell (sidebar/topbar) on the marketing home
+function applyLandingMode() {
+  const hash = window.location.hash.replace('#', '') || '/home';
+  const isLanding = hash === '/home' || hash === '/';
+  document.body.classList.toggle('body--landing', isLanding);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   // Init state
@@ -20,6 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (typeof stateManager.init === 'function') {
     stateManager.init();
   }
+
+  // Landing mode (initial + on every navigation)
+  applyLandingMode();
+  window.addEventListener('hashchange', applyLandingMode);
 
   // Init router
   const container = document.querySelector('#router-outlet');
@@ -35,14 +50,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Theme toggle
   const themeBtn = document.getElementById('btn-theme');
   if (themeBtn) {
-    const saved = localStorage.getItem('theme');
+    const saved = localStorage.getItem('suplilist:theme') || localStorage.getItem('theme');
     if (saved) document.documentElement.setAttribute('data-theme', saved);
 
     themeBtn.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
+      localStorage.setItem('suplilist:theme', next);
     });
   }
 
@@ -55,12 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Toast events
   eventBus.on('toast:show', ({ message, type = 'info', duration = 3000 }) => {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
     const toast = document.createElement('div');
     toast.className = `toast toast--${type}`;
     toast.textContent = message;
-    container.appendChild(toast);
+    toastContainer.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);

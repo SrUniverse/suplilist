@@ -251,3 +251,175 @@
 - **File:** database.js:173
 - **Issue:** The comment explicitly states `IT` is not frozen to allow affiliate link injection at startup. Any module that imports `IT` can mutate it accidentally (e.g., `IT[0].pm = 0` silently corrupts prices for the session).
 - **Fix:** Perform affiliate link injection on a shallow copy or derived structure rather than mutating the canonical exported array. Then `deepFreeze(IT)` at module end to prevent accidental mutation.
+
+---
+
+## PAGES/CALCULATOR-PAGE — `unmount()` Does Not Remove Event Listeners
+- **Priority:** P2
+- **File:** src/pages/calculator-page.js:53-55
+- **Issue:** `unmount()` only calls `clearTimeout(this._debounce)`. All `addEventListener` calls in `_attachListeners()`, `_attachChipListeners()`, and `_attachResultListeners()` are anonymous closures that are never removed. Because the router re-uses the container element, these listeners accumulate on the same DOM nodes every time the page is mounted, firing multiple times per interaction after the first visit.
+- **Fix:** Store named listener references and call `removeEventListener` in `unmount()`, or call `this.container.innerHTML = ''` during teardown (discarding DOM nodes and their attached listeners).
+
+## PAGES/CALCULATOR-PAGE — XSS via `rationale` and `timing` Inserted Into `innerHTML` Without Sanitization
+- **Priority:** P1
+- **File:** src/pages/calculator-page.js:245, 272
+- **Issue:** `result?.rationale` (line 245) and `supp.dosage?.timing` (line 272) are interpolated directly into innerHTML template strings. These values come from `SUPPLEMENTS_DB`, a static build-time file — currently safe — but any future extension from an external or admin-editable source would allow XSS. No `escapeHtml()` helper is applied to these fields.
+- **Fix:** Apply a shared `escapeHtml()` helper to all dynamic string values before inserting into HTML templates.
+
+## PAGES/CALCULATOR-PAGE — SRP Violation: Styles, Layout, Business Logic, and State Mutation in One 853-Line File
+- **Priority:** P3
+- **File:** src/pages/calculator-page.js
+- **Issue:** The file mixes inline CSS injection, DOM rendering, dosage calculation orchestration, event delegation, and StateManager dispatch. A CSS tweak requires navigating the same file as a dosage logic change.
+- **Fix:** Extract the style string to a `.css` file. Extract render helpers into a `calculator-renderer.js` module.
+
+---
+
+## PAGES/CHECKIN-PAGE — `item.dosage?.timing` Treats `dosage` as Object When It Is a Number
+- **Priority:** P2
+- **File:** src/pages/checkin-page.js:212
+- **Issue:** `item.dosage?.timing` optional-chains a `.timing` property off the `dosage` field, but the stack item shape stores `dosage` as a plain number (e.g., `5`). This always evaluates to `undefined`, silently discarding the intended path; `item.timing` is used as the fallback anyway.
+- **Fix:** Remove `item.dosage?.timing` from the fallback chain; use `item.timing` directly. Document the stack item schema.
+
+## PAGES/CHECKIN-PAGE — Full Re-render on Every Check-in Creates DOM Thrash
+- **Priority:** P2
+- **File:** src/pages/checkin-page.js:380-383
+- **Issue:** `_refresh()` calls `_render()` + `_attachListeners()` on every single check-in action, replacing all container DOM. For stacks of 10+ items this rebuilds all supplement cards on every tap. The CSS progress bar `transition: width 0.5s ease` resets on each action instead of animating smoothly.
+- **Fix:** Implement targeted DOM updates: toggle the specific card classes and update only the progress bar width attribute rather than full `innerHTML` re-render.
+
+---
+
+## PAGES/FAQ-PAGE — `aHtml` Values Inserted Unsanitized Into `innerHTML`
+- **Priority:** P1
+- **File:** src/pages/faq-page.js:272-274
+- **Issue:** FAQ items with `aHtml` inject their raw HTML string directly via `innerHTML`. The values are hardcoded module-level strings containing only safe anchor tags — currently not a risk — but the pattern bypasses the available `_escapeHtml()` helper entirely. Any future `aHtml` contribution without review could introduce XSS.
+- **Fix:** Either sanitize `aHtml` with a trusted sanitizer (DOMPurify), or refactor `aHtml` to a structured `{ text, href }` format so the rendering code generates anchor tags with all values passed through `_escapeHtml()`.
+
+---
+
+## PAGES/FAVORITES-PAGE — `stateManager.addToStack(id)` Passes Only ID, Creating Malformed Stack Item
+- **Priority:** P1
+- **File:** src/pages/favorites-page.js:321
+- **Issue:** The "Adicionar ao Stack" button calls `stateManager.addToStack(id)` passing only the ID string. The `ADD_TO_STACK` reducer expects `{ supplementId, name, dosage, unit }`. The resulting stack item will have `name: undefined`, `dosage: undefined`, and `unit: undefined` — silently malformed and unusable in the check-in or history views.
+- **Fix:** Look up the full supplement from `SUPPLEMENTS_DB` and pass the complete payload: `{ supplementId: s.id, name: s.name, dosage: s.dosage?.maintenance, unit: s.dosage?.unit }` — as done in `list-page.js:1001`.
+
+## PAGES/FAVORITES-PAGE — `getStack()` Has Direct `localStorage` Fallback Creating Dual Source of Truth
+- **Priority:** P2
+- **File:** src/pages/favorites-page.js:20-27
+- **Issue:** `getStack()` tries `stateManager.getState()` then falls back to `localStorage` directly. The `inStack` check on line 146 also has a format mismatch: it checks `item.id` but StateManager stack items use `item.supplementId`. The fallback can silently return stale or differently-shaped data.
+- **Fix:** Remove the localStorage fallback. If `stateManager.getState()` is unreliable, that is a StateManager bug to fix — the page should not have a parallel persistence path.
+
+## PAGES/FAVORITES-PAGE — Hover Handlers Registered Via JS Instead of CSS hover
+- **Priority:** P3
+- **File:** src/pages/favorites-page.js:336-363
+- **Issue:** `mouseenter`/`mouseleave` listeners are attached for purely presentational hover effects (border color, background). These could be pure CSS rules.
+- **Fix:** Replace with CSS `:hover` rules to eliminate the event handlers entirely.
+
+---
+
+## PAGES/HISTORY-PAGE — Full Re-render on Every Search Keystroke Without Debounce
+- **Priority:** P2
+- **File:** src/pages/history-page.js:438-443
+- **Issue:** The search `input` event fires `_render()` synchronously on every keystroke, rebuilding the entire container DOM including stats, calendar, and all supplement cards. No debounce is applied.
+- **Fix:** Add a 200ms debounce to the search handler, or filter card visibility in-place without re-rendering.
+
+## PAGES/HISTORY-PAGE — `stateManager.subscribe()` Re-renders on Every Unrelated State Change
+- **Priority:** P2
+- **File:** src/pages/history-page.js:55-57
+- **Issue:** The page subscribes to all state changes and calls the full `_render()` on each one, including unrelated changes such as stack updates or profile edits. For users with months of check-in history this is expensive.
+- **Fix:** Gate the re-render by comparing `state.checkins` identity before rendering, or subscribe to the specific `checkin:added` EventBus event.
+
+---
+
+## PAGES/HOME-PAGE — `_injectStyle()` Does Not Guard Against Duplicate Injection
+- **Priority:** P3
+- **File:** src/pages/home-page.js:227
+- **Issue:** `_injectStyle()` unconditionally creates and appends a new `<style>` element on every page mount. Unlike all other pages which check for an existing element by ID, this page uses a `data-page` attribute but does not query for it before inserting — duplicating a 225-line stylesheet on every navigation to home.
+- **Fix:** Add `if (document.querySelector('[data-page="home"]')) return;` at the top of `_injectStyle()`.
+
+## PAGES/HOME-PAGE — `unmount()` Removes Style Element Inconsistently With All Other Pages
+- **Priority:** P2
+- **File:** src/pages/home-page.js:22-30
+- **Issue:** `unmount()` removes `this._styleEl`, causing a FOUC on every return visit since the style is then re-injected. All other pages leave their injected styles in `<head>` for the session lifetime.
+- **Fix:** Remove the style teardown from `unmount()` and add the duplicate-guard in `_injectStyle()` instead.
+
+---
+
+## PAGES/LEGAL-PAGE — Production UI Shows an Editorial "Draft Needs Lawyer Review" Warning Banner
+- **Priority:** P2
+- **File:** src/pages/legal-page.js:269-272
+- **Issue:** The rendered page displays the text "Modelo para revisão jurídica — Este texto é um rascunho bem fundamentado e deve ser revisado por um advogado antes de entrar em produção." This editorial note is currently visible to all users.
+- **Fix:** Remove or comment-out this banner before the app is used publicly.
+
+## PAGES/LEGAL-PAGE — `unmount()` Removes Style Element Causing FOUC on Re-navigation
+- **Priority:** P3
+- **File:** src/pages/legal-page.js:247-250
+- **Issue:** `unmount()` removes the injected stylesheet. On every return visit, styles are removed and re-injected, causing a brief flash of unstyled content. All other pages leave their styles in place.
+- **Fix:** Remove the style teardown from `unmount()`. The `_injectStyles()` guard already prevents duplicate injection on re-mount.
+
+---
+
+## PAGES/LIST-PAGE — `item.name`, `item.category`, `item.benefits` Inserted Into `innerHTML` Without Escaping
+- **Priority:** P1
+- **File:** src/pages/list-page.js:685-700, 819
+- **Issue:** In `_buildFragment()` and `_openModal()`, supplement field values (`item.name`, `item.category`, `item.benefits[0]`, `item.benefits.join(...)`) are interpolated directly into innerHTML template strings. The pattern is unsafe by construction, even though `SUPPLEMENTS_DB` is currently a static build-time file.
+- **Fix:** Apply `escapeHtml()` (or equivalent) to all dynamic string values before inserting into HTML templates.
+
+## PAGES/LIST-PAGE — `clearTimeout(this._debounceTimer)` Missing From `unmount()`
+- **Priority:** P2
+- **File:** src/pages/list-page.js:158-163
+- **Issue:** `unmount()` cancels the IntersectionObserver and removes the keydown listener but does not cancel the debounce timer. If the user navigates away mid-debounce, the search callback fires against a detached container.
+- **Fix:** Add `clearTimeout(this._debounceTimer)` to `unmount()`.
+
+## PAGES/LIST-PAGE — `document.body.style.overflow = 'hidden'` Not Unconditionally Reset in `unmount()`
+- **Priority:** P2
+- **File:** src/pages/list-page.js:861, 901-908
+- **Issue:** If `unmount()` is called while a modal is open or opening, `document.body.style.overflow` may be left as `'hidden'`, permanently locking body scroll after page navigation.
+- **Fix:** In `unmount()`, add `document.body.style.overflow = ''` unconditionally after calling `_closeModal()`.
+
+---
+
+## PAGES/MY-STACK-PAGE — `document.addEventListener('click', ...)` in `_openModal()` Never Removed
+- **Priority:** P1
+- **File:** src/pages/my-stack-page.js:945-948
+- **Issue:** An anonymous click listener is added to `document` inside `_openModal()` to close the search results dropdown. It is never removed — not in `_closeModal()`, not in `unmount()`. Each modal open adds another permanent listener to `document`. After page unmount these listeners continue firing indefinitely.
+- **Fix:** Store the listener as `this._docClickHandler = e => { ... }`, then call `document.removeEventListener('click', this._docClickHandler)` in `_closeModal()`.
+
+## PAGES/MY-STACK-PAGE — `PRICES_DB` Module-Level Singleton Never Invalidated
+- **Priority:** P3
+- **File:** src/pages/my-stack-page.js:10-20
+- **Issue:** Once fetched, `PRICES_DB` is cached for the entire session with no TTL. Server-side price updates are not reflected until a hard reload.
+- **Fix:** Document the TTL expectation in a comment. If freshness matters, add a maxAge check and refetch when the cached value is older than a configurable threshold.
+
+---
+
+## PAGES/PROFILE-PAGE — `unmount()` Is Empty With No Teardown
+- **Priority:** P2
+- **File:** src/pages/profile-page.js:61
+- **Issue:** `unmount()` is defined as an empty method. Listeners are currently attached to container child nodes (implicitly removed when the router replaces `innerHTML`), but there is no explicit teardown. Any future listener added to `window`, `document`, or `this.container` would silently leak.
+- **Fix:** Add `this.container.innerHTML = ''` and a comment documenting that no external subscriptions currently exist.
+
+## PAGES/PROFILE-PAGE — Avatar Initial Updated Via Fragile `querySelector('div[style*="72px"]')`
+- **Priority:** P2
+- **File:** src/pages/profile-page.js:266
+- **Issue:** `this.container.querySelector('div[style*="72px"]').textContent = val[0].toUpperCase()` uses a CSS attribute substring match. Any reformatting of the inline style string (e.g., adding a space) silently fails the selector with no crash — the avatar just shows a stale initial. No null guard precedes `.textContent` assignment.
+- **Fix:** Add `id="avatar-initial"` to the avatar div in the render template and use `querySelector('#avatar-initial')` with a null guard.
+
+## PAGES/PROFILE-PAGE — `ACTIONS.CLEAR_CHECKINS || 'CLEAR_CHECKINS'` Fallback Hides Missing Constant
+- **Priority:** P2
+- **File:** src/pages/profile-page.js:376
+- **Issue:** The `||` fallback to a string literal suggests `ACTIONS.CLEAR_CHECKINS` may not be exported from `state-manager.js`. If the constant is missing, the dispatch fires with `undefined` as the action type, silently no-oping the clear.
+- **Fix:** Confirm `ACTIONS.CLEAR_CHECKINS` is exported from `state-manager.js`. If not, add it. Remove the `|| 'CLEAR_CHECKINS'` fallback.
+
+---
+
+## PAGES/SETTINGS-PAGE — `stateManager.dispatch({ type: 'CLEAR_CHECKINS' })` Passes Object Instead of String Action Type
+- **Priority:** P1
+- **File:** src/pages/settings-page.js:412
+- **Issue:** `stateManager.dispatch({ type: 'CLEAR_CHECKINS' })` passes a plain object as the first argument. If `StateManager.dispatch()` expects `dispatch(actionType: string, payload)`, the reducer switch never matches the object, silently failing to clear check-ins. The catch-block localStorage fallback then triggers and calls `location.reload()`.
+- **Fix:** Change to `stateManager.dispatch('CLEAR_CHECKINS', {})`. Add the `ACTIONS` import and use `ACTIONS.CLEAR_CHECKINS`.
+
+## PAGES/SETTINGS-PAGE — Notification Toggles Are Decorative: No Notification API Is Wired
+- **Priority:** P2
+- **File:** src/pages/settings-page.js:364-376
+- **Issue:** The "Lembrete diário de check-in" and "Alertas de reposição" toggles persist to `localStorage` but do not call `Notification.requestPermission()`, register a SW push handler, or schedule any local notification. The UI implies functionality that does not exist.
+- **Fix:** Either implement notification scheduling (Notifications API + SW), or replace the toggles with a "coming soon" label.

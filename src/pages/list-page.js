@@ -249,6 +249,13 @@ export default class ListPage {
       .lp-stat-lbl {
         font-size: 11px; color: var(--color-text-muted); font-weight: 500;
       }
+      .stat--empty .lp-stat-val { color: var(--color-text-muted); }
+      .stat--empty .lp-stat-lbl::after {
+        content: ' · adicione';
+        font-size: 10px;
+        color: var(--color-brand);
+        font-weight: 600;
+      }
 
       /* ── Filter rows ── */
       #lp-filters {
@@ -567,12 +574,22 @@ export default class ListPage {
   // ─── Stats ────────────────────────────────────────────────────────────────
 
   _renderStats() {
-    const total = this.container.querySelector('#lp-stat-total');
+    const total   = this.container.querySelector('#lp-stat-total');
     const stackEl = this.container.querySelector('#lp-stat-stack');
-    const favsEl = this.container.querySelector('#lp-stat-favs');
+    const favsEl  = this.container.querySelector('#lp-stat-favs');
     if (total) total.textContent = SUPPLEMENTS_DB.length;
-    if (stackEl) stackEl.textContent = (stateManager.stack || []).length;
-    if (favsEl) favsEl.textContent = getFavoritesFromState().size;
+
+    const stackCount = (stateManager.stack || []).length;
+    const favsCount  = getFavoritesFromState().size;
+
+    if (stackEl) {
+      stackEl.textContent = stackCount;
+      stackEl.closest('.lp-stat-box')?.classList.toggle('stat--empty', stackCount === 0);
+    }
+    if (favsEl) {
+      favsEl.textContent = favsCount;
+      favsEl.closest('.lp-stat-box')?.classList.toggle('stat--empty', favsCount === 0);
+    }
   }
 
   // ─── Filtering ────────────────────────────────────────────────────────────

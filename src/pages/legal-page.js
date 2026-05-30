@@ -244,8 +244,6 @@ export default class LegalPage {
   }
 
   unmount() {
-    const styleEl = document.getElementById('legal-page-styles');
-    if (styleEl) styleEl.remove();
     this.container.innerHTML = '';
   }
 
@@ -265,10 +263,6 @@ export default class LegalPage {
       <div class="lg-wrap">
         <h1>Centro Legal</h1>
         <p class="lg-tagline">Termos, privacidade e informações regulatórias</p>
-
-        <div class="lg-warning-banner">
-          ⚠️ Modelo para revisão jurídica — Este texto é um rascunho bem fundamentado e deve ser revisado por um advogado antes de entrar em produção.
-        </div>
 
         <div class="lg-tabs" role="tablist">
           ${TABS.map((t, i) => `

@@ -161,6 +161,10 @@ export default class ListPage {
     this._observer?.disconnect();
     document.removeEventListener('keydown', this._boundKeydown);
     this._closeModal();
+    // Cancel pending debounce search callback
+    clearTimeout(this._debounceTimer);
+    // Ensure body scroll is not left locked after navigation
+    document.body.style.overflow = '';
   }
 
   // ─── Styles ───────────────────────────────────────────────────────────────

@@ -23,10 +23,6 @@ export default class HomePage {
       this.container.removeEventListener('click', this._onClick);
       this._onClick = null;
     }
-    if (this._styleEl && this._styleEl.parentNode) {
-      this._styleEl.parentNode.removeChild(this._styleEl);
-    }
-    this._styleEl = null;
     this.container.innerHTML = '';
   }
 
@@ -225,6 +221,7 @@ export default class HomePage {
   // Estilos
   // ──────────────────────────────────────────────────────────
   _injectStyle() {
+    if (document.querySelector('[data-page="home"]')) return;
     const style = document.createElement('style');
     style.setAttribute('data-page', 'home');
     style.textContent = `

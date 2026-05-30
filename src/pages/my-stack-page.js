@@ -541,6 +541,7 @@ export class MyStackPage {
     this._editId = null;
     this._modalOpen = false;
     this._prices = null;
+    this._docClickHandler = null;
   }
 
   mount() {
@@ -560,6 +561,10 @@ export class MyStackPage {
   }
 
   unmount() {
+    if (this._docClickHandler) {
+      document.removeEventListener('click', this._docClickHandler);
+      this._docClickHandler = null;
+    }
     this._unsub?.();
     this._closeModal();
   }
@@ -942,11 +947,12 @@ export class MyStackPage {
       }, 180);
     });
 
-    document.addEventListener('click', e => {
+    this._docClickHandler = (e) => {
       if (!searchInput?.contains(e.target) && !resultsBox?.contains(e.target)) {
         resultsBox.style.display = 'none';
       }
-    });
+    };
+    document.addEventListener('click', this._docClickHandler);
 
     // Submit
     document.getElementById('msp-modal-submit')?.addEventListener('click', () => {
@@ -977,6 +983,10 @@ export class MyStackPage {
   }
 
   _closeModal() {
+    if (this._docClickHandler) {
+      document.removeEventListener('click', this._docClickHandler);
+      this._docClickHandler = null;
+    }
     this._modalOpen = false;
     this._modalSelectedId = null;
     this._modalSelectedName = null;

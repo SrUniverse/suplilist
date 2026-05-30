@@ -4,17 +4,19 @@
 // ============================================================
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
-import { stateManager, ACTIONS } from '../state/state-manager.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
+import { renderEvidenceBadge } from '../utils/evidence.js';
+import { getSupplementId } from '../utils/stack.js';
 
 // ─── localStorage helpers ────────────────────────────────────
-const getFavorites = () => JSON.parse(localStorage.getItem('suplilist:favorites') || '[]');
+const getFavorites = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.FAVORITES) || '[]');
 const toggleFavorite = (id) => {
   const favs = getFavorites();
   const idx = favs.indexOf(id);
   if (idx === -1) favs.push(id);
   else favs.splice(idx, 1);
-  localStorage.setItem('suplilist:favorites', JSON.stringify(favs));
+  localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favs));
 };
 
 const getStack = () => {
@@ -22,20 +24,10 @@ const getStack = () => {
     const state = stateManager.getState();
     return (state && state.stack) ? state.stack : [];
   } catch {
-    return JSON.parse(localStorage.getItem('suplilist:stack') || '[]');
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.STACK) || '[]');
   }
 };
 
-// ─── Badge helper ────────────────────────────────────────────
-const evidenceBadge = (level) => {
-  const map = {
-    A: { bg: 'rgba(34,197,94,0.12)', color: '#22C55E' },
-    B: { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B' },
-    C: { bg: 'rgba(163,163,163,0.12)', color: '#9A9A9A' },
-  };
-  const style = map[level] || map['C'];
-  return `<span style="background:${style.bg};color:${style.color};font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:0.04em;">Evidência ${level}</span>`;
-};
 
 export default class FavoritesPage {
   constructor(container) {
@@ -55,7 +47,7 @@ export default class FavoritesPage {
   }
 
   _onStorageChange(e) {
-    if (e.key === 'suplilist:favorites' || e.key === 'suplilist:stack') {
+    if (e.key === STORAGE_KEYS.FAVORITES || e.key === STORAGE_KEYS.STACK) {
       this._render();
     }
   }
@@ -171,7 +163,7 @@ export default class FavoritesPage {
           <!-- Categoria + Badge -->
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span style="font-size:11px;color:var(--color-text-muted,#555);text-transform:uppercase;letter-spacing:0.05em;">${s.category}</span>
-            ${evidenceBadge(s.evidenceLevel)}
+            ${renderEvidenceBadge(s.evidenceLevel)}
           </div>
 
           <!-- Nome -->

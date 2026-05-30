@@ -1,7 +1,8 @@
-import { stateManager, ACTIONS } from '../state/state-manager.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import Fuse from 'fuse.js';
 import { escapeHtml } from '../utils/escape.js';
+import { EVIDENCE_COLORS } from '../utils/evidence.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -54,14 +55,6 @@ function getMaxSaving(item, prices) {
   return maxSaving > 0 ? maxSaving : null;
 }
 
-function evBadgeStyle(level) {
-  const map = {
-    A: { bg: 'rgba(34,197,94,0.12)', color: '#22C55E' },
-    B: { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B' },
-    C: { bg: 'rgba(163,163,163,0.12)', color: '#9A9A9A' },
-  };
-  return map[level] || map['C'];
-}
 
 function matchesCategory(item, cat) {
   if (!cat || cat === 'Todos') return true;
@@ -87,7 +80,7 @@ function getFavoritesFromState() {
   const favs = stateManager.favorites;
   if (Array.isArray(favs)) return new Set(favs);
   try {
-    const raw = localStorage.getItem('suplilist:favorites');
+    const raw = localStorage.getItem(STORAGE_KEYS.FAVORITES);
     return raw ? new Set(JSON.parse(raw)) : new Set();
   } catch {
     return new Set();
@@ -651,7 +644,7 @@ export default class ListPage {
       const inStack = stack.some(s => s.supplementId === item.id);
       const isFav = favs.has(item.id);
       const ev = item.evidenceLevel;
-      const evStyle = evBadgeStyle(ev);
+      const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
       const desc = item.benefits?.[0] ?? '';
       const slug = item.id.replace(/-/g, '_');
 
@@ -764,7 +757,7 @@ export default class ListPage {
     this._modalOpen = supplementId;
 
     const ev = item.evidenceLevel;
-    const evStyle = evBadgeStyle(ev);
+    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
     const slug = item.id.replace(/-/g, '_');
     const stack = stateManager.stack ?? [];
     const inStack = stack.some(s => s.supplementId === item.id);

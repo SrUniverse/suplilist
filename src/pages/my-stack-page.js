@@ -5,6 +5,9 @@
 
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { todayISO, offsetISO } from '../utils/date.js';
+import { renderEvidenceBadge } from '../utils/evidence.js';
+import { getSupplementId } from '../utils/stack.js';
 
 // Prices loaded lazily from /data/prices.json
 let PRICES_DB = null;
@@ -19,17 +22,6 @@ async function fetchPrices() {
   return PRICES_DB;
 }
 
-// ─── Evidence badge helper ───────────────────────────────────────────────────
-function evidenceBadge(level) {
-  const map = {
-    A: { bg: 'rgba(34,197,94,0.12)', color: '#22C55E', label: 'Evidência A' },
-    B: { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B', label: 'Evidência B' },
-    C: { bg: 'rgba(163,163,163,0.12)', color: '#9A9A9A', label: 'Evidência C' },
-  };
-  const s = map[level] ?? map['C'];
-  return `<span style="background:${s.bg};color:${s.color};font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;">${s.label}</span>`;
-}
-
 // ─── Format helpers ──────────────────────────────────────────────────────────
 function fmtBRL(value) {
   return 'R$ ' + value.toFixed(2).replace('.', ',');
@@ -37,7 +29,7 @@ function fmtBRL(value) {
 
 function calcMonthlyInvestment(stack) {
   return stack.reduce((acc, item) => {
-    const dbEntry = SUPPLEMENTS_DB.find(s => s.id === (item.supplementId ?? item.id));
+    const dbEntry = SUPPLEMENTS_DB.find(s => s.id === getSupplementId(item));
     const ppg = dbEntry?.pricePerGram ?? 0;
     const dosage = parseFloat(item.dosage) || 0;
     return acc + dosage * ppg * 30;
@@ -49,12 +41,9 @@ function calcAdherenceRate(stack) {
   const streak = stateManager.calculateStreak?.() ?? 0;
   if (!streak) return '0%';
   // Last 7 days: how many days have at least one checkin of any supplement in stack
-  const today = new Date();
   const days = [];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    days.push(d.toISOString().split('T')[0]);
+    days.push(offsetISO(i));
   }
   const checkins = stateManager.checkins ?? [];
   const checkinDays = new Set(checkins.map(c => c.date));
@@ -63,14 +52,14 @@ function calcAdherenceRate(stack) {
 }
 
 function getSupplementImage(item) {
-  const dbEntry = SUPPLEMENTS_DB.find(s => s.id === (item.supplementId ?? item.id));
+  const dbEntry = SUPPLEMENTS_DB.find(s => s.id === getSupplementId(item));
   if (dbEntry?.image) return dbEntry.image;
   const slug = (item.name ?? '').toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
   return `/assets/${slug}.png`;
 }
 
 function getEvidenceLevel(item) {
-  const dbEntry = SUPPLEMENTS_DB.find(s => s.id === (item.supplementId ?? item.id));
+  const dbEntry = SUPPLEMENTS_DB.find(s => s.id === getSupplementId(item));
   return dbEntry?.evidenceLevel ?? 'C';
 }
 
@@ -682,10 +671,10 @@ export class MyStackPage {
 
     list.innerHTML = '';
     stack.forEach(item => {
-      const itemId = item.supplementId ?? item.id;
+      const itemId = getSupplementId(item);
       const daysLeft = calcDaysLeft(item);
       const imgSrc = getSupplementImage(item);
-      const badge = evidenceBadge(getEvidenceLevel(item));
+      const badge = renderEvidenceBadge(getEvidenceLevel(item));
 
       const el = document.createElement('div');
       el.className = 'msp-item';
@@ -726,7 +715,7 @@ export class MyStackPage {
     const prices = this._prices ?? {};
 
     const withPrices = stack.filter(item => {
-      const id = item.supplementId ?? item.id;
+      const id = getSupplementId(item);
       return !!prices[id];
     });
 
@@ -736,7 +725,7 @@ export class MyStackPage {
     }
 
     el.innerHTML = withPrices.map((item, idx) => {
-      const id = item.supplementId ?? item.id;
+      const id = getSupplementId(item);
       const markets = prices[id] ?? {};
       const entries = Object.values(markets);
       const best = entries.reduce((a, b) => (a.price < b.price ? a : b), entries[0]);

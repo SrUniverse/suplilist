@@ -6,9 +6,18 @@
 // ============================================================
 
 import { eventBus } from '../core/event-bus.js';
+import { todayISO } from '../utils/date.js';
 
 export const STATE_VERSION = '4.0.0';
 export const STORAGE_KEY = 'suplilist-state-v4';
+
+/** Canonical localStorage key constants. Import instead of hardcoding key strings. */
+export const STORAGE_KEYS = Object.freeze({
+  STATE:     'suplilist-state-v4',
+  FAVORITES: 'suplilist:favorites',
+  THEME:     'suplilist:theme',
+  STACK:     'suplilist:stack',
+});
 
 // ─── Actions Registry ────────────────────────────────────────────────────────
 export const ACTIONS = Object.freeze({
@@ -165,7 +174,7 @@ function reducer(state, action) {
         id: action.payload.id || `chk_${Math.random().toString(36).substring(2, 11)}`,
         timestamp: action.payload.timestamp || Date.now(),
         supplementId: action.payload.supplementId,
-        date: action.payload.date || new Date().toISOString().split('T')[0],
+        date: action.payload.date || todayISO(),
         note: action.payload.note || ''
       };
       return {
@@ -731,7 +740,7 @@ export class StateManager {
     const dates = [...new Set(checkins.map(c => c.date))].sort().reverse();
     if (dates.length === 0) return 0;
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = todayISO();
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -764,7 +773,7 @@ export class StateManager {
   }
 
   getTodayCheckins() {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = todayISO();
     return this.checkins.filter(c => c.date === todayStr);
   }
 

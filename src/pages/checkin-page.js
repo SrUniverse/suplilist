@@ -1,5 +1,6 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
+import { todayISO } from '../utils/date.js';
 
 export default class CheckinPage {
   constructor(container) {
@@ -18,7 +19,7 @@ export default class CheckinPage {
   // ── Data ─────────────────────────────────────────────────
 
   _getTodayStr() {
-    return new Date().toISOString().split('T')[0];
+    return todayISO();
   }
 
   _getCheckedIds() {

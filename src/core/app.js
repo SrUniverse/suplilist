@@ -1,5 +1,5 @@
 import '../css/main.css';
-import { stateManager } from '../state/state-manager.js';
+import { stateManager, STORAGE_KEYS } from '../state/state-manager.js';
 import { eventBus } from './event-bus.js';
 import { Router } from './router.js';
 
@@ -55,14 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Theme toggle
   const themeBtn = document.getElementById('btn-theme');
   if (themeBtn) {
-    const saved = localStorage.getItem('suplilist:theme') || localStorage.getItem('theme');
+    const saved = localStorage.getItem(STORAGE_KEYS.THEME) || localStorage.getItem('theme');
     if (saved) document.documentElement.setAttribute('data-theme', saved);
 
     themeBtn.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('suplilist:theme', next);
+      localStorage.setItem(STORAGE_KEYS.THEME, next);
     });
   }
 

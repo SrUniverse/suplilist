@@ -1,4 +1,4 @@
-import { stateManager, ACTIONS } from '../state/state-manager.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 
 export default class SettingsPage {
   constructor(container, params) {
@@ -245,7 +245,7 @@ export default class SettingsPage {
   }
 
   _getThemeState() {
-    const stored = localStorage.getItem('suplilist:theme');
+    const stored = localStorage.getItem(STORAGE_KEYS.THEME);
     if (stored) return stored === 'dark';
     return document.documentElement.getAttribute('data-theme') === 'dark';
   }
@@ -354,7 +354,7 @@ export default class SettingsPage {
       themeToggle.addEventListener('change', () => {
         const isDark = themeToggle.checked;
         document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        localStorage.setItem('suplilist:theme', isDark ? 'dark' : 'light');
+        localStorage.setItem(STORAGE_KEYS.THEME, isDark ? 'dark' : 'light');
         const iconEl = this.container.querySelector('#sp-theme-toggle-icon');
         if (iconEl) iconEl.textContent = isDark ? '🌙' : '☀️';
       });

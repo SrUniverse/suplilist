@@ -7,6 +7,7 @@ import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import dosageCalculator from '../ai/dosage-calculator.js';
 import { escapeHtml } from '../utils/escape.js';
+import { EVIDENCE_COLORS as EVIDENCE_COLORS_MAP } from '../utils/evidence.js';
 
 const ACTIVITY_LEVELS = [
   { value: 'sedentary',  label: 'Sedentário' },
@@ -23,12 +24,8 @@ const OBJECTIVES = [
   { value: 'general',   label: 'Saúde Geral' },
 ];
 
-const EVIDENCE_COLORS = {
-  A: { bg: 'rgba(34,197,94,0.12)',   color: '#22C55E' },
-  B: { bg: 'rgba(245,158,11,0.12)',  color: '#F59E0B' },
-  C: { bg: 'rgba(163,163,163,0.12)', color: '#9A9A9A' },
-  D: { bg: 'rgba(163,163,163,0.12)', color: '#9A9A9A' },
-};
+// Use canonical EVIDENCE_COLORS from utils (aliased; D falls back to C)
+const EVIDENCE_COLORS = EVIDENCE_COLORS_MAP;
 
 export default class CalculatorPage {
   constructor(container) {
@@ -158,7 +155,7 @@ export default class CalculatorPage {
     return filtered.map(s => {
       const active = this._selectedSupp?.id === s.id;
       const ev = s.evidenceLevel ?? 'D';
-      const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS.D;
+      const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
       return `
         <button class="calcp-chip${active ? ' calcp-chip--active' : ''}"
           role="option" aria-selected="${active}"
@@ -183,7 +180,7 @@ export default class CalculatorPage {
     const supp = this._selectedSupp;
     const result = this._calcResult;
     const ev = supp.evidenceLevel ?? 'D';
-    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS.D;
+    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
 
     // Determine displayed dose
     let doseValue = '—';

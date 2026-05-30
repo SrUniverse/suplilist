@@ -1,17 +1,9 @@
 import { stateManager } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { todayISO, offsetISO } from '../utils/date.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const pad = n => String(n).padStart(2, '0');
-const todayISO = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
-const offsetISO = (daysAgo) => {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-};
 const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const formatMonthYear = (isoDate) => {
   if (!isoDate) return '';

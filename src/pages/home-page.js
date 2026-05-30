@@ -101,7 +101,7 @@ export default class HomePage {
               </p>
               <div class="lp-hero__cta lp-anim" style="--d:.24s">
                 <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="#/list" type="button">Começar Agora →</button>
-                <button class="lp-btn lp-btn--outline lp-btn--lg" data-nav="#/list" type="button">Ver Catálogo</button>
+                <button class="lp-btn lp-btn--outline lp-btn--lg" onclick="document.getElementById('lp-features').scrollIntoView({behavior:'smooth'})" type="button">Ver Recursos ↓</button>
               </div>
               <p class="lp-hero__stats lp-anim" style="--d:.32s">
                 ${count}+ Suplementos · 3 Marketplaces · 100% Offline · Evidência Clínica
@@ -109,7 +109,7 @@ export default class HomePage {
             </div>
           </section>
 
-          <section class="lp-section" aria-label="Recursos">
+          <section class="lp-section" id="lp-features" aria-label="Recursos">
             <h2 class="lp-h2">TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
             <div class="lp-grid lp-grid--3">
               ${features
@@ -210,7 +210,7 @@ export default class HomePage {
             nutricional. Consulte um profissional antes de iniciar qualquer suplementação.
           </p>
 
-          <p class="lp-copyright">© 2025 SupliList · Feito com ciência</p>
+          <p class="lp-copyright">© 2026 SupliList · Feito com ciência</p>
         </footer>
 
       </div>

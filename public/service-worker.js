@@ -3,31 +3,52 @@
 // Strategy: Cache-first for assets, Network-first for data
 // ============================================================
 
+// Workbox Manifest Injection Point (VitePWA will inject here)
+self.__WB_MANIFEST = self.__WB_MANIFEST || [];
+
 const CACHE_VERSION = 'suplilist-v4.0.0';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 
+// Combine injected manifest with fallback assets
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/app.html',
   '/src/css/design-system.css',
   '/offline.html',
   '/icon-192.png',
   '/icon-512.png',
   '/icon-maskable-192.png',
   '/icon-dosage.png',
-  '/icon-history.png'
+  '/icon-history.png',
+  // Injected by VitePWA
+  ...self.__WB_MANIFEST.map(item => item.url || item)
 ];
 
 // INSTALL: Cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then(cache => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
+      .then(cache => {
+        // Filter out duplicates and invalid URLs
+        const validAssets = [...new Set(STATIC_ASSETS)].filter(asset => {
+          try {
+            new URL(asset, self.location);
+            return true;
+          } catch {
+            console.warn('[SW] Invalid asset URL:', asset);
+            return false;
+          }
+        });
+
+        return cache.addAll(validAssets);
+      })
+      .then(() => {
+        console.log('[SW] Install complete, skipping waiting');
+        self.skipWaiting();
+      })
       .catch(err => console.error('[SW] Install failed:', err))
   );
 });
@@ -94,8 +115,8 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
       self.clients.matchAll({ type: 'window', includeUncontrolled: true })
         .then(clientList => {
-          const found = clientList.find(c => c.url.startsWith('/app.html') && 'focus' in c);
-          return found ? found.focus() : self.clients.openWindow('/app.html');
+          const found = clientList.find(c => c.url.includes('/index.html') || c.url.endsWith('/') && 'focus' in c);
+          return found ? found.focus() : self.clients.openWindow('/');
         })
     );
   }

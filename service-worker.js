@@ -1,32 +1,17 @@
 /**
- * @fileoverview Service Worker do SupliList v3.0.
+ * @fileoverview Service Worker do SupliList v4.0.
  * Implementa cache offline completo, estratégias diferenciadas por tipo de recurso,
  * background sync para check-ins offline, push notifications de recompra e offline fallback page.
  */
 
-const CACHE_VERSION = 'v3.0.0';
+const CACHE_VERSION = 'v4.0.0';
 const STATIC_CACHE = `suplilist-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `suplilist-dynamic-${CACHE_VERSION}`;
 const SUPPLEMENTS_CACHE = `suplilist-supplements-${CACHE_VERSION}`;
 
-// Recursos estáticos fundamentais para o funcionamento offline
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/offline.html',
-  '/manifest.json',
-  '/src/css/design-system.css',
-  '/src/css/main.css',
-  '/src/js/main.js',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon-maskable-192.png',
-  '/icon-dosage.png',
-  '/icon-history.png',
-  '/screenshot-1.png',
-  '/screenshot-2.png',
-  '/apple-touch-icon.png'
-];
+// O Vite PWA injetará o manifesto de pré-cache (Self.__WB_MANIFEST) contendo todas as rotas em hash magicamente aqui durante o build
+const MANIFEST_ASSETS = self.__WB_MANIFEST || [];
+const STATIC_ASSETS = MANIFEST_ASSETS.map(asset => asset.url || asset).concat(['/']);
 
 /**
  * Evento de Instalação: Pré-cacheia a casca (App Shell) e a página de fallback offline.
@@ -114,7 +99,7 @@ self.addEventListener('fetch', (event) => {
               if (networkResponse.status === 200) {
                 cache.put(event.request, networkResponse);
               }
-            }).catch(() => {});
+            }).catch(() => { });
             return cachedResponse;
           }
 
@@ -153,7 +138,8 @@ self.addEventListener('fetch', (event) => {
 
   // 3. ESTRATÉGIA STALE-WHILE-REVALIDATE: Assets estáticos e HTML
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    // ignoreSearch garante que requisições de atalhos (ex: /?source=pwa) encontrem a raiz '/' no cache
+    caches.match(event.request, { ignoreSearch: event.request.mode === 'navigate' }).then((cachedResponse) => {
       if (cachedResponse) {
         fetch(event.request)
           .then((networkResponse) => {
@@ -161,7 +147,7 @@ self.addEventListener('fetch', (event) => {
               caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, networkResponse));
             }
           })
-          .catch(() => {});
+          .catch(() => { });
         return cachedResponse;
       }
 
@@ -180,8 +166,10 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
+          // SPA Fallback: Se estiver offline, serve a raiz '/' (chave real no STATIC_CACHE).
+          // Não usar '/index.html' pois o Vite registra a entrada como '/' no cache.
           if (event.request.mode === 'navigate' || event.request.destination === 'document') {
-            return caches.match('/offline.html');
+            return caches.match('/');
           }
         });
     })
@@ -216,7 +204,7 @@ self.addEventListener('push', (event) => {
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     tag: 'recompra-alert',
-    data: { url: '/app.html#/history' }
+    data: { url: '/#/history' }
   };
 
   if (event.data) {
@@ -256,18 +244,19 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
 
-  const destinationUrl = (event.notification.data && event.notification.data.url) 
-    ? event.notification.data.url 
+  const destinationUrl = (event.notification.data && event.notification.data.url)
+    ? event.notification.data.url
     : '/';
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           return client.focus().then(() => {
-            if ('navigate' in client) {
-              return client.navigate(destinationUrl);
-            }
+            // Em uma SPA, em vez de recarregar a página inteira com client.navigate(),
+            // enviamos uma mensagem em background para o router atualizar a visão instantaneamente.
+            client.postMessage({ type: 'ROUTER_NAVIGATE', url: destinationUrl });
+            return client;
           });
         }
       }
@@ -277,3 +266,13 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+/**
+ * Evento para escutar mensagens enviadas pelos clientes (ex: SKIP_WAITING).
+ */
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+

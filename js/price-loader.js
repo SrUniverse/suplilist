@@ -95,6 +95,8 @@ export async function aplicarPrecos(suplementos) {
     if (novo.mlp != null) sup.mlp = novo.mlp;  // Mercado Livre preço
     if (novo.azp != null) sup.azp = novo.azp;  // Amazon preço
     if (novo.ml != null) sup.ml = novo.ml;   // ML link atualizado (melhor produto + afiliado)
+    if (novo.shopee != null) sup.shopee = novo.shopee; // Shopee link atualizado (busca/afiliado)
+    if (novo.az != null) sup.az = novo.az;   // Amazon link atualizado (busca/afiliado)
 
     atualizados++;
   }

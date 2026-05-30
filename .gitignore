@@ -22,14 +22,24 @@ vite.config.js.timestamp-*
 # Relatórios de Teste
 coverage/
 .vitest-cache/
+test-results/
 
 # Build/Distribuição
 dist/
 .out/
 build/
 
-# Documentação
+# Documentação interna
 docs/
+
+# Lixo de desenvolvimento
+bot/
+build.js
+compare.css
+debug.js
+*.backup
+minha_tree.txt
+tailwind.config.js
 
 # Sistema Operacional
 .DS_Store
@@ -49,3 +59,6 @@ Thumbs.db
 .env*
 !.env.example
 !.env.template
+
+# Claude Code (configs locais de sessão)
+.claude/

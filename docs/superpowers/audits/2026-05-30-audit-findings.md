@@ -801,3 +801,93 @@ The CSS linter (`stylelint`) ran with zero errors and zero warnings against both
 - **File:** `src/css/main.css:60`
 - **Issue:** The block `input, select, button { outline: none; }` removes the browser default focus indicator globally for all interactive elements without providing a `:focus-visible` alternative. This is a keyboard accessibility regression.
 - **Fix:** Replace with `:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }`, or remove the `outline: none` rule and rely on the custom `border-color` focus styles already defined per-component.
+
+---
+
+## UX — HOME (Landing) — Hero Section Overflows Horizontally on Mobile
+
+- **Priority:** P1
+- **Area:** Responsive-375
+- **Issue:** `.lp-hero__inner` has `max-width: 760px` but no `width: 100%`. The parent `.lp-hero` uses `display: flex; justify-content: center`, so the inner div takes its natural content width (~660px) and is centered, overflowing 142px left and 142px right of the 375px viewport. The H1 ("SUPLEMENTAÇÃO BASEADA EM EVIDÊNCIAS."), subtitle paragraph, and both CTA buttons are all clipped. The "Começar Agora" and "Ver Catálogo" buttons are partially or fully offscreen.
+- **Fix:** Add `width: 100%` to `.lp-hero__inner` in `src/css/main.css` (or in the `@media (max-width: 768px)` block). This constrains the inner to the padded hero width on mobile.
+
+---
+
+## UX — APP SHELL — Entire App Layout Not Responsive Below 769px
+
+- **Priority:** P1
+- **Area:** Responsive-375
+- **Issue:** `body` uses a fixed desktop grid (`grid-template: "sidebar topbar" "sidebar main" 1fr / 240px 1fr`) with no responsive override above 768px. At 375px, the `max-width: 768px` media query fires and switches to a stacked grid (`"topbar" "main" "sidebar" / 1fr`), but both `#topbar` and `#router-outlet` render at 475px wide (not 375px). The 100px overflow causes all page headers, search bars, and content to extend beyond the visible viewport without a scrollbar (body has `overflow-x: hidden`).
+- **Fix:** Investigate the 475px computed width for `#topbar` / `#router-outlet`. Likely a min-width or inline style on a direct child is causing the layout to expand. Ensure `#topbar` and `#router-outlet` receive `width: 100%` and that no child has a fixed width wider than the viewport.
+
+---
+
+## UX — APP SHELL — Bottom Nav Has 9 Items, Labels Truncate on Mobile
+
+- **Priority:** P2
+- **Area:** Responsive-375, Responsive-768
+- **Issue:** The bottom navigation (`#sidebar-nav`) renders 9 items in a horizontal row at mobile breakpoints. At 375px each item is ~53px wide; labels like "CATÁLOGO", "FAVORITOS", "HISTÓRICO", and "CALCULADORA" are truncated with ellipsis. The nav container itself is 475px wide (overflows). At 768px the container is 768px and labels fit but the nav wastes screen space better used for content.
+- **Fix:** Either (a) reduce navigation to 5–6 primary items with a "More" overflow menu, or (b) hide text labels below a breakpoint and show only icons (44×44px minimum touch target). The `.nav-item` button height is 48px (OK) but label truncation signals too many items.
+
+---
+
+## UX — APP SHELL — Card Action Buttons Below 44px Touch Target
+
+- **Priority:** P2
+- **Area:** Responsive-375
+- **Issue:** "+ Stack" and favorite buttons on supplement cards (`.lp-btn-stack`, `.lp-btn-fav`) are 32px tall — below the WCAG 2.5.5 / Apple HIG 44px minimum touch target. All 20 card action buttons on the list page fail this threshold.
+- **Fix:** Increase button height to at least 44px via `min-height: 44px` in `.lp-btn-stack` and `.lp-btn-fav`. Padding can be adjusted to maintain visual proportions if needed.
+
+---
+
+## UX — NAVIGATION — Unknown Route Shows No 404
+
+- **Priority:** P2
+- **Area:** Navigation
+- **Issue:** Navigating to an unknown hash (e.g. `#/nonexistent`) leaves the previously rendered page visible without any error indication. There is no 404 / "page not found" state, no redirect to a default page, and the URL stays at the unknown route. A user who manually edits the URL or follows a broken link gets no feedback.
+- **Fix:** Add a catch-all route in `src/core/router.js` that renders a "Página não encontrada" screen with a CTA to go home, or redirects to `#/` automatically.
+
+---
+
+## UX — NAVIGATION — Document Title Does Not Change Per Page
+
+- **Priority:** P3
+- **Area:** Navigation
+- **Issue:** `document.title` is always "SupliList v4.0 — Suplementação Inteligente" regardless of which page is active. This breaks browser tab identification, browser history readability, and screen-reader announcements for page changes.
+- **Fix:** In each page's mount/render function (or in the router's `navigate()` callback), set `document.title` to a page-specific value (e.g. "Catálogo — SupliList", "Calculadora — SupliList").
+
+---
+
+## UX — PROFILE — Page Has No h1 Heading
+
+- **Priority:** P3
+- **Area:** Visual
+- **Issue:** The profile page (`#/profile`) has no `<h1>` element. The first heading is an `<h2>` ("Dados Biométricos"). All other app pages have an `<h1>` page title. This breaks heading hierarchy and screen-reader landmark navigation.
+- **Fix:** Add an `<h1>` page title (e.g. "Perfil") above the biometric section, consistent with the pattern used on List, History, Calculator, and other pages.
+
+---
+
+## UX — VISUAL — Inconsistent h1 Font Sizes Across Pages
+
+- **Priority:** P3
+- **Area:** Visual
+- **Issue:** Page `<h1>` sizes differ with no apparent pattern: Catálogo = 22px, Histórico = 24px, Meu Stack = 28px. These are not part of a documented type scale — the heading tokens in `design-system.css` define `--font-size-2xl` (24px) and `--font-size-3xl` (30px) but pages pick arbitrary values.
+- **Fix:** Standardize all page `<h1>` elements to a single token (e.g. `var(--font-size-2xl)` = 24px). Apply via a shared `.page-title` class rather than per-page CSS.
+
+---
+
+## UX — VISUAL — Mixed Button Class Conventions on List Page
+
+- **Priority:** P3
+- **Area:** Visual
+- **Issue:** The list page uses both `lp-btn`, `lp-trend-chip`, `lp-chip`, and `lp-btn-stack` classes. The `lp-` prefix is also used on the landing page, suggesting landing-page styles are bleeding into the app. Card action buttons use `lp-btn-stack` (border-radius: 8px) while filter chips use `lp-chip` (border-radius: 20px) and trend chips use `lp-trend-chip` (border-radius: 20px). No unified button design-system class (e.g. `btn--primary`) is applied inside the app shell.
+- **Fix:** Audit which `lp-*` classes are shared between landing and app. Introduce consistent `btn--sm`, `btn--chip`, `btn--primary` classes from the design system for in-app use. Remove `lp-` prefix from app-internal components.
+
+---
+
+## UX — EMPTY STATES — All Pages Have Proper Empty States
+
+- **Priority:** P3 (positive finding)
+- **Area:** EmptyState
+- **Issue:** N/A — all audited pages (Favorites, Check-in, History, My Stack) display appropriate empty states with an icon, descriptive message, and a CTA button when localStorage is cleared. No blank or crashed renders observed on empty data.
+- **Fix:** No action required. Continue this pattern for future pages.

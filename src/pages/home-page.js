@@ -31,11 +31,20 @@ export default class HomePage {
   // ──────────────────────────────────────────────────────────
   _bindEvents() {
     this._onClick = (e) => {
-      const target = e.target.closest('[data-nav]');
-      if (!target) return;
-      e.preventDefault();
-      const hash = target.getAttribute('data-nav');
-      if (hash) window.location.hash = hash;
+      const navTarget = e.target.closest('[data-nav]');
+      if (navTarget) {
+        e.preventDefault();
+        const hash = navTarget.getAttribute('data-nav');
+        if (hash) window.location.hash = hash;
+        return;
+      }
+      const actionTarget = e.target.closest('[data-action]');
+      if (actionTarget) {
+        const action = actionTarget.getAttribute('data-action');
+        if (action === 'scroll-features') {
+          document.getElementById('lp-features')?.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     };
     this.container.addEventListener('click', this._onClick);
   }
@@ -101,7 +110,7 @@ export default class HomePage {
               </p>
               <div class="lp-hero__cta lp-anim" style="--d:.24s">
                 <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="#/list" type="button">Começar Agora →</button>
-                <button class="lp-btn lp-btn--outline lp-btn--lg" onclick="document.getElementById('lp-features').scrollIntoView({behavior:'smooth'})" type="button">Ver Recursos ↓</button>
+                <button class="lp-btn lp-btn--outline lp-btn--lg" data-action="scroll-features" type="button">Ver Recursos ↓</button>
               </div>
               <p class="lp-hero__stats lp-anim" style="--d:.32s">
                 ${count}+ Suplementos · 3 Marketplaces · 100% Offline · Evidência Clínica

@@ -1,4 +1,4 @@
-import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recommender-b07295YU.js";let c=null;async function y(){if(c)return c;try{c=await(await fetch("/data/prices.json")).json()}catch{c={}}return c}function k(n){const e={A:{bg:"rgba(34,197,94,0.12)",color:"#22C55E",label:"Evidência A"},B:{bg:"rgba(245,158,11,0.12)",color:"#F59E0B",label:"Evidência B"},C:{bg:"rgba(163,163,163,0.12)",color:"#9A9A9A",label:"Evidência C"}},t=e[n]??e.C;return`<span style="background:${t.bg};color:${t.color};font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;">${t.label}</span>`}function g(n){return"R$ "+n.toFixed(2).replace(".",",")}function b(n){return n.reduce((e,t)=>{const a=m.find(i=>i.id===(t.supplementId??t.id))?.pricePerGram??0,r=parseFloat(t.dosage)||0;return e+r*a*30},0)}function w(n){if(!n.length||!(d.calculateStreak?.()??0))return"0%";const t=new Date,s=[];for(let l=0;l<7;l++){const o=new Date(t);o.setDate(t.getDate()-l),s.push(o.toISOString().split("T")[0])}const a=d.checkins??[],r=new Set(a.map(l=>l.date)),i=s.filter(l=>r.has(l)).length;return Math.round(i/7*100)+"%"}function E(n){const e=m.find(s=>s.id===(n.supplementId??n.id));return e?.image?e.image:`/assets/${(n.name??"").toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"")}.png`}function _(n){return m.find(t=>t.id===(n.supplementId??n.id))?.evidenceLevel??"C"}function S(n){const e=parseFloat(n.quantity),t=parseFloat(n.dosage);return!e||!t||t<=0?null:Math.max(0,Math.floor(e/t))}const $=`
+import{s as l,A as g,o as k}from"./main-epZNF2O8.js";import{S as u}from"./stack-recommender-b07295YU.js";import{r as _}from"./evidence-D5RtUc7g.js";function c(i){return i==null?null:i.supplementId??i.id??null}let m=null;async function E(){if(m)return m;try{m=await(await fetch("/data/prices.json")).json()}catch{m={}}return m}function f(i){return"R$ "+i.toFixed(2).replace(".",",")}function b(i){return i.reduce((e,t)=>{const a=u.find(n=>n.id===c(t))?.pricePerGram??0,r=parseFloat(t.dosage)||0;return e+r*a*30},0)}function w(i){if(!i.length||!(l.calculateStreak?.()??0))return"0%";const t=[];for(let n=0;n<7;n++)t.push(k(n));const s=l.checkins??[],a=new Set(s.map(n=>n.date)),r=t.filter(n=>a.has(n)).length;return Math.round(r/7*100)+"%"}function S(i){const e=u.find(s=>s.id===c(i));return e?.image?e.image:`/assets/${(i.name??"").toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"")}.png`}function $(i){return u.find(t=>t.id===c(i))?.evidenceLevel??"C"}function I(i){const e=parseFloat(i.quantity),t=parseFloat(i.dosage);return!e||!t||t<=0?null:Math.max(0,Math.floor(e/t))}const C=`
   /* Layout */
   .msp-wrap {
     display: flex;
@@ -448,7 +448,7 @@ import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recomme
     background: var(--color-border);
     margin: 0;
   }
-`;class A{constructor(e){this.container=e,this._unsub=null,this._editId=null,this._modalOpen=!1,this._prices=null}mount(){this._attachStyles(),this._render(),y().then(e=>{this._prices=e,this._renderReplenishment()}),this._unsub=d.subscribe((e,t)=>{(!t||["ADD_TO_STACK","REMOVE_FROM_STACK","UPDATE_STACK_ITEM","SET_STACK_QUANTITY","ADD_CHECKIN"].includes(t.type))&&this._renderAll()})}unmount(){this._unsub?.(),this._closeModal()}_attachStyles(){if(document.getElementById("msp2-styles"))return;const e=document.createElement("style");e.id="msp2-styles",e.textContent=$,document.head.appendChild(e)}_render(){this.container.innerHTML=`
+`;class M{constructor(e){this.container=e,this._unsub=null,this._editId=null,this._modalOpen=!1,this._prices=null,this._docClickHandler=null}mount(){this._attachStyles(),this._render(),E().then(e=>{this._prices=e,this._renderReplenishment()}),this._unsub=l.subscribe((e,t)=>{(!t||["ADD_TO_STACK","REMOVE_FROM_STACK","UPDATE_STACK_ITEM","SET_STACK_QUANTITY","ADD_CHECKIN"].includes(t.type))&&this._renderAll()})}unmount(){this._docClickHandler&&(document.removeEventListener("click",this._docClickHandler),this._docClickHandler=null),this._unsub?.(),this._closeModal()}_attachStyles(){if(document.getElementById("msp2-styles"))return;const e=document.createElement("style");e.id="msp2-styles",e.textContent=C,document.head.appendChild(e)}_render(){this.container.innerHTML=`
       <div class="msp-wrap">
         <!-- Header -->
         <div>
@@ -483,10 +483,10 @@ import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recomme
           </aside>
         </div>
       </div>
-    `,this._renderAll(),this._attachDelegatedListeners(),this.container.querySelector("#msp-open-modal")?.addEventListener("click",()=>this._openModal())}_renderAll(){this._renderSubtitle(),this._renderStats(),this._renderList(),this._prices&&this._renderReplenishment()}_renderSubtitle(){const e=d.stack??[],t=b(e),s=this.container.querySelector("#msp-subtitle");s&&(s.textContent=`${e.length} suplemento${e.length!==1?"s":""} ativo${e.length!==1?"s":""} · ${g(t)}/mês estimado`)}_renderStats(){const e=this.container.querySelector("#msp-stats");if(!e)return;const t=d.stack??[],s=b(t),a=w(t);e.innerHTML=`
+    `,this._renderAll(),this._attachDelegatedListeners(),this.container.querySelector("#msp-open-modal")?.addEventListener("click",()=>this._openModal())}_renderAll(){this._renderSubtitle(),this._renderStats(),this._renderList(),this._prices&&this._renderReplenishment()}_renderSubtitle(){const e=l.stack??[],t=b(e),s=this.container.querySelector("#msp-subtitle");s&&(s.textContent=`${e.length} suplemento${e.length!==1?"s":""} ativo${e.length!==1?"s":""} · ${f(t)}/mês estimado`)}_renderStats(){const e=this.container.querySelector("#msp-stats");if(!e)return;const t=l.stack??[],s=b(t),a=w(t);e.innerHTML=`
       <div class="msp-stat-card">
         <span class="msp-stat-label">Investimento Mensal</span>
-        <span class="msp-stat-value brand">${g(s)}</span>
+        <span class="msp-stat-value brand">${f(s)}</span>
       </div>
       <div class="msp-stat-card">
         <span class="msp-stat-label">Ciclos Ativos</span>
@@ -496,16 +496,16 @@ import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recomme
         <span class="msp-stat-label">Taxa de Adesão</span>
         <span class="msp-stat-value">${a}</span>
       </div>
-    `}_renderList(){const e=this.container.querySelector("#msp-list");if(!e)return;const t=d.stack??[];if(!t.length){e.innerHTML=`
+    `}_renderList(){const e=this.container.querySelector("#msp-list");if(!e)return;const t=l.stack??[];if(!t.length){e.innerHTML=`
         <div class="msp-empty">
           <div class="msp-empty-icon">📭</div>
           <p class="msp-empty-title">Seu stack está vazio</p>
           <p class="msp-empty-desc">Adicione os suplementos que você está tomando para acompanhar seu protocolo.</p>
           <button class="msp-empty-cta" id="msp-empty-cta">Explorar Catálogo →</button>
         </div>
-      `,this.container.querySelector("#msp-empty-cta")?.addEventListener("click",()=>this._openModal());return}e.innerHTML="",t.forEach(s=>{const a=s.supplementId??s.id,r=S(s),i=E(s),l=k(_(s)),o=document.createElement("div");o.className="msp-item",o.dataset.itemId=a,o.innerHTML=`
+      `,this.container.querySelector("#msp-empty-cta")?.addEventListener("click",()=>this._openModal());return}e.innerHTML="",t.forEach(s=>{const a=c(s),r=I(s),n=S(s),p=_($(s)),o=document.createElement("div");o.className="msp-item",o.dataset.itemId=a,o.innerHTML=`
         <img class="msp-item-img"
-          src="${i}"
+          src="${n}"
           alt="${s.name}"
           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'60\\' height=\\'60\\'%3E%3Crect width=\\'60\\' height=\\'60\\' rx=\\'12\\' fill=\\'%23161616\\'/%3E%3Ctext x=\\'50%25\\' y=\\'55%25\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'24\\' fill=\\'%23555555\\'%3E💊%3C/text%3E%3C/svg%3E'">
         <div class="msp-item-info">
@@ -514,20 +514,20 @@ import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recomme
           <p class="msp-item-stock">Estoque: ${s.quantity?`${s.quantity} ${s.unit??"g"}${r!==null?` · ~${r} dias`:""}`:"não informado"}</p>
         </div>
         <div class="msp-item-right">
-          ${l}
+          ${p}
           <div class="msp-item-actions">
             <button class="msp-btn-icon" data-action="edit" data-id="${a}" aria-label="Editar ${s.name}" title="Editar">✏️</button>
             <button class="msp-btn-icon del" data-action="remove" data-id="${a}" aria-label="Remover ${s.name}" title="Remover">🗑️</button>
           </div>
         </div>
-      `;const p=document.createElement("div");p.id=`msp-edit-${a}`,p.style.display="none",e.appendChild(o),e.appendChild(p)})}_renderReplenishment(){const e=this.container.querySelector("#msp-replenishment");if(!e)return;const t=d.stack??[],s=this._prices??{},a=t.filter(r=>{const i=r.supplementId??r.id;return!!s[i]});if(!a.length){e.innerHTML='<p class="msp-replen-empty">Nenhum preço disponível para os itens do seu stack.</p>';return}e.innerHTML=a.map((r,i)=>{const l=r.supplementId??r.id,o=s[l]??{},p=Object.values(o),x=p.reduce((f,v)=>f.price<v.price?f:v,p[0]),h=i<a.length-1?'<hr class="msp-replen-divider">':"";return`
+      `;const d=document.createElement("div");d.id=`msp-edit-${a}`,d.style.display="none",e.appendChild(o),e.appendChild(d)})}_renderReplenishment(){const e=this.container.querySelector("#msp-replenishment");if(!e)return;const t=l.stack??[],s=this._prices??{},a=t.filter(r=>{const n=c(r);return!!s[n]});if(!a.length){e.innerHTML='<p class="msp-replen-empty">Nenhum preço disponível para os itens do seu stack.</p>';return}e.innerHTML=a.map((r,n)=>{const p=c(r),o=s[p]??{},d=Object.values(o),x=d.reduce((h,v)=>h.price<v.price?h:v,d[0]),y=n<a.length-1?'<hr class="msp-replen-divider">':"";return`
         <div class="msp-replen-item">
           <span class="msp-replen-name">${r.name}</span>
-          <span class="msp-replen-price">Melhor: ${g(x.price)}</span>
+          <span class="msp-replen-price">Melhor: ${f(x.price)}</span>
           <span class="msp-replen-market">${x.label}</span>
         </div>
-        ${h}
-      `}).join("")}_attachDelegatedListeners(){this.container.querySelector("#msp-list")?.addEventListener("click",e=>{const t=e.target.closest("[data-action]");if(!t)return;const s=t.dataset.id;if(t.dataset.action==="edit"&&this._toggleInlineEdit(s),t.dataset.action==="remove"){const a=(d.stack??[]).find(r=>(r.supplementId??r.id)===s);if(!a||!confirm(`Remover "${a.name}" do stack?`))return;d.dispatch(u.REMOVE_FROM_STACK,{supplementId:s})}t.dataset.action==="save-edit"&&this._saveInlineEdit(s),t.dataset.action==="cancel-edit"&&this._closeInlineEdit(s)})}_toggleInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);if(!t)return;if(t.style.display!=="none"){this._closeInlineEdit(e);return}this.container.querySelectorAll('[id^="msp-edit-"]').forEach(a=>{a.id!==`msp-edit-${e}`&&(a.style.display="none")});const s=(d.stack??[]).find(a=>(a.supplementId??a.id)===e);s&&(t.style.display="block",t.innerHTML=`
+        ${y}
+      `}).join("")}_attachDelegatedListeners(){this.container.querySelector("#msp-list")?.addEventListener("click",e=>{const t=e.target.closest("[data-action]");if(!t)return;const s=t.dataset.id;if(t.dataset.action==="edit"&&this._toggleInlineEdit(s),t.dataset.action==="remove"){const a=(l.stack??[]).find(r=>(r.supplementId??r.id)===s);if(!a||!confirm(`Remover "${a.name}" do stack?`))return;l.dispatch(g.REMOVE_FROM_STACK,{supplementId:s})}t.dataset.action==="save-edit"&&this._saveInlineEdit(s),t.dataset.action==="cancel-edit"&&this._closeInlineEdit(s)})}_toggleInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);if(!t)return;if(t.style.display!=="none"){this._closeInlineEdit(e);return}this.container.querySelectorAll('[id^="msp-edit-"]').forEach(a=>{a.id!==`msp-edit-${e}`&&(a.style.display="none")});const s=(l.stack??[]).find(a=>(a.supplementId??a.id)===e);s&&(t.style.display="block",t.innerHTML=`
       <div class="msp-inline-edit">
         <p class="msp-inline-edit-title">Editar — ${s.name}</p>
         <div class="msp-inline-row">
@@ -551,7 +551,7 @@ import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recomme
           <button class="msp-btn-save" data-action="save-edit" data-id="${e}">Salvar</button>
         </div>
       </div>
-    `,t.scrollIntoView({behavior:"smooth",block:"nearest"}))}_closeInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);t&&(t.style.display="none")}_saveInlineEdit(e){const t=parseFloat(this.container.querySelector(`#msp-ei-dosage-${e}`)?.value)||0,s=this.container.querySelector(`#msp-ei-unit-${e}`)?.value||"g",a=parseFloat(this.container.querySelector(`#msp-ei-qty-${e}`)?.value)||0;if(t<=0){alert("Informe uma dosagem válida.");return}d.dispatch(u.UPDATE_STACK_ITEM,{supplementId:e,dosage:t,unit:s,quantity:a}),this._closeInlineEdit(e)}_openModal(){if(this._modalOpen)return;this._modalOpen=!0;const e=document.createElement("div");e.className="msp-modal-overlay",e.id="msp-modal-overlay",e.setAttribute("role","dialog"),e.setAttribute("aria-modal","true"),e.setAttribute("aria-label","Adicionar suplemento"),e.innerHTML=`
+    `,t.scrollIntoView({behavior:"smooth",block:"nearest"}))}_closeInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);t&&(t.style.display="none")}_saveInlineEdit(e){const t=parseFloat(this.container.querySelector(`#msp-ei-dosage-${e}`)?.value)||0,s=this.container.querySelector(`#msp-ei-unit-${e}`)?.value||"g",a=parseFloat(this.container.querySelector(`#msp-ei-qty-${e}`)?.value)||0;if(t<=0){alert("Informe uma dosagem válida.");return}l.dispatch(g.UPDATE_STACK_ITEM,{supplementId:e,dosage:t,unit:s,quantity:a}),this._closeInlineEdit(e)}_openModal(){if(this._modalOpen)return;this._modalOpen=!0;const e=document.createElement("div");e.className="msp-modal-overlay",e.id="msp-modal-overlay",e.setAttribute("role","dialog"),e.setAttribute("aria-modal","true"),e.setAttribute("aria-label","Adicionar suplemento"),e.innerHTML=`
       <div class="msp-modal" id="msp-modal">
         <div class="msp-modal-header">
           <h2 class="msp-modal-title">Adicionar Suplemento</h2>
@@ -586,7 +586,7 @@ import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recomme
 
         <button class="msp-modal-submit" id="msp-modal-submit">Adicionar ao Stack</button>
       </div>
-    `,document.body.appendChild(e),this._modalSelectedId=null,this._modalSelectedName=null,e.addEventListener("click",r=>{r.target===e&&this._closeModal()}),document.getElementById("msp-modal-close")?.addEventListener("click",()=>this._closeModal());const t=document.getElementById("msp-modal-search"),s=document.getElementById("msp-modal-results");let a;t?.addEventListener("input",r=>{clearTimeout(a),a=setTimeout(()=>{const i=r.target.value.trim().toLowerCase();if(i.length<2){s.style.display="none";return}const l=m.filter(o=>o.name.toLowerCase().includes(i)||(o.category??"").toLowerCase().includes(i)).slice(0,8);if(!l.length){s.style.display="none";return}s.innerHTML=l.map(o=>`
+    `,document.body.appendChild(e),this._modalSelectedId=null,this._modalSelectedName=null,e.addEventListener("click",r=>{r.target===e&&this._closeModal()}),document.getElementById("msp-modal-close")?.addEventListener("click",()=>this._closeModal());const t=document.getElementById("msp-modal-search"),s=document.getElementById("msp-modal-results");let a;t?.addEventListener("input",r=>{clearTimeout(a),a=setTimeout(()=>{const n=r.target.value.trim().toLowerCase();if(n.length<2){s.style.display="none";return}const p=u.filter(o=>o.name.toLowerCase().includes(n)||(o.category??"").toLowerCase().includes(n)).slice(0,8);if(!p.length){s.style.display="none";return}s.innerHTML=p.map(o=>`
           <button class="msp-result-btn"
             data-id="${o.id}"
             data-name="${o.name}"
@@ -601,4 +601,4 @@ import{s as d,A as u}from"./main-Bmhyh2aG.js";import{S as m}from"./stack-recomme
               <span class="msp-result-cat">${o.category??""}</span>
             </div>
           </button>
-        `).join(""),s.style.display="block",s.querySelectorAll(".msp-result-btn").forEach(o=>{o.addEventListener("click",p=>{p.preventDefault(),this._modalSelectedId=o.dataset.id,this._modalSelectedName=o.dataset.name,t.value=o.dataset.name,document.getElementById("msp-modal-dosage").value=o.dataset.dosage,document.getElementById("msp-modal-unit").value=o.dataset.unit,s.style.display="none"})})},180)}),document.addEventListener("click",r=>{!t?.contains(r.target)&&!s?.contains(r.target)&&(s.style.display="none")}),document.getElementById("msp-modal-submit")?.addEventListener("click",()=>{const r=(document.getElementById("msp-modal-search")?.value??"").trim(),i=parseFloat(document.getElementById("msp-modal-dosage")?.value)||0,l=document.getElementById("msp-modal-unit")?.value||"g",o=parseFloat(document.getElementById("msp-modal-qty")?.value)||0;if(!r){alert("Informe o nome do suplemento.");return}if(i<=0){alert("Informe a dosagem diária.");return}const p=this._modalSelectedId??r.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")+"-"+Date.now();d.dispatch(u.ADD_TO_STACK,{supplementId:p,name:r,dosage:i,unit:l,quantity:o||null}),this._closeModal()}),setTimeout(()=>t?.focus(),100)}_closeModal(){this._modalOpen=!1,this._modalSelectedId=null,this._modalSelectedName=null,document.getElementById("msp-modal-overlay")?.remove()}}export{A as MyStackPage,A as default};
+        `).join(""),s.style.display="block",s.querySelectorAll(".msp-result-btn").forEach(o=>{o.addEventListener("click",d=>{d.preventDefault(),this._modalSelectedId=o.dataset.id,this._modalSelectedName=o.dataset.name,t.value=o.dataset.name,document.getElementById("msp-modal-dosage").value=o.dataset.dosage,document.getElementById("msp-modal-unit").value=o.dataset.unit,s.style.display="none"})})},180)}),this._docClickHandler=r=>{!t?.contains(r.target)&&!s?.contains(r.target)&&(s.style.display="none")},document.addEventListener("click",this._docClickHandler),document.getElementById("msp-modal-submit")?.addEventListener("click",()=>{const r=(document.getElementById("msp-modal-search")?.value??"").trim(),n=parseFloat(document.getElementById("msp-modal-dosage")?.value)||0,p=document.getElementById("msp-modal-unit")?.value||"g",o=parseFloat(document.getElementById("msp-modal-qty")?.value)||0;if(!r){alert("Informe o nome do suplemento.");return}if(n<=0){alert("Informe a dosagem diária.");return}const d=this._modalSelectedId??r.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")+"-"+Date.now();l.dispatch(g.ADD_TO_STACK,{supplementId:d,name:r,dosage:n,unit:p,quantity:o||null}),this._closeModal()}),setTimeout(()=>t?.focus(),100)}_closeModal(){this._docClickHandler&&(document.removeEventListener("click",this._docClickHandler),this._docClickHandler=null),this._modalOpen=!1,this._modalSelectedId=null,this._modalSelectedName=null,document.getElementById("msp-modal-overlay")?.remove()}}export{M as MyStackPage,M as default};

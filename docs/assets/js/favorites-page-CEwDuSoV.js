@@ -1,4 +1,4 @@
-import{S as c}from"./stack-recommender-b07295YU.js";import{e as n,s as l}from"./main-Bmhyh2aG.js";const d=()=>JSON.parse(localStorage.getItem("suplilist:favorites")||"[]"),p=i=>{const e=d(),t=e.indexOf(i);t===-1?e.push(i):e.splice(t,1),localStorage.setItem("suplilist:favorites",JSON.stringify(e))},s=()=>{try{const i=l.getState();return i&&i.stack?i.stack:[]}catch{return JSON.parse(localStorage.getItem("suplilist:stack")||"[]")}},g=i=>{const e={A:{bg:"rgba(34,197,94,0.12)",color:"#22C55E"},B:{bg:"rgba(245,158,11,0.12)",color:"#F59E0B"},C:{bg:"rgba(163,163,163,0.12)",color:"#9A9A9A"}},t=e[i]||e.C;return`<span style="background:${t.bg};color:${t.color};font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:0.04em;">Evidência ${i}</span>`};class u{constructor(e){this.container=e,this._activeFilter="all",this._handleStorageChange=this._onStorageChange.bind(this)}mount(){window.addEventListener("storage",this._handleStorageChange),this._render()}unmount(){window.removeEventListener("storage",this._handleStorageChange),this.container.innerHTML=""}_onStorageChange(e){(e.key==="suplilist:favorites"||e.key==="suplilist:stack")&&this._render()}_getFavoriteSupplements(){return d().map(t=>c.find(r=>r.id===t)).filter(Boolean)}_getCategories(e){return["all",...new Set(e.map(r=>r.category))]}_render(){const e=this._getFavoriteSupplements(),t=this._activeFilter==="all"?e:e.filter(o=>o.category===this._activeFilter),r=this._getCategories(e),a=s();this.container.innerHTML=`
+import{S as d}from"./stack-recommender-b07295YU.js";import{S as s,e as l,s as c,A as f}from"./main-epZNF2O8.js";import{r as v}from"./evidence-D5RtUc7g.js";const p=()=>JSON.parse(localStorage.getItem(s.FAVORITES)||"[]"),u=n=>{const e=p(),t=e.indexOf(n);t===-1?e.push(n):e.splice(t,1),localStorage.setItem(s.FAVORITES,JSON.stringify(e))},h=()=>{try{const n=c.getState();return n&&n.stack?n.stack:[]}catch{return JSON.parse(localStorage.getItem(s.STACK)||"[]")}};class b{constructor(e){this.container=e,this._activeFilter="all",this._handleStorageChange=this._onStorageChange.bind(this)}mount(){window.addEventListener("storage",this._handleStorageChange),this._render()}unmount(){window.removeEventListener("storage",this._handleStorageChange),this.container.innerHTML=""}_onStorageChange(e){(e.key===s.FAVORITES||e.key===s.STACK)&&this._render()}_getFavoriteSupplements(){return p().map(t=>d.find(r=>r.id===t)).filter(Boolean)}_getCategories(e){return["all",...new Set(e.map(r=>r.category))]}_render(){const e=this._getFavoriteSupplements(),t=this._activeFilter==="all"?e:e.filter(a=>a.category===this._activeFilter),r=this._getCategories(e),o=h();this.container.innerHTML=`
       <div style="min-height:100vh;background:var(--color-bg-primary,#080808);color:var(--color-text-primary,#F2F2F2);font-family:'Inter',sans-serif;">
 
         <!-- Header -->
@@ -24,7 +24,7 @@ import{S as c}from"./stack-recommender-b07295YU.js";import{e as n,s as l}from"./
           ">
             ${t.length===0?`<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--color-text-muted,#555);">
                    Nenhum favorito nesta categoria.
-                 </div>`:t.map(o=>this._renderCard(o,a)).join("")}
+                 </div>`:t.map(a=>this._renderCard(a,o)).join("")}
           </div>
         `}
 
@@ -47,7 +47,7 @@ import{S as c}from"./stack-recommender-b07295YU.js";import{e as n,s as l}from"./
             "
           >${t==="all"?"Todos":t}</button>`}).join("")}
       </div>
-    `}_renderCard(e,t){const r=Array.isArray(t)&&t.some(o=>(typeof o=="string"?o:o.id)===e.id),a=e.image||`/assets/${e.id.replace(/-/g,"_")}.png`;return`
+    `}_renderCard(e,t){const r=Array.isArray(t)&&t.some(a=>(typeof a=="string"?a:a.id)===e.id),o=e.image||`/assets/${e.id.replace(/-/g,"_")}.png`;return`
       <div class="fav-card" data-id="${e.id}" style="
         background:var(--color-surface-primary,#111111);
         border:1px solid var(--color-border,rgba(255,255,255,0.07));
@@ -60,7 +60,7 @@ import{S as c}from"./stack-recommender-b07295YU.js";import{e as n,s as l}from"./
         <!-- Imagem -->
         <div style="height:160px;overflow:hidden;background:var(--color-surface-secondary,#161616);display:flex;align-items:center;justify-content:center;">
           <img
-            src="${a}"
+            src="${o}"
             alt="${e.name}"
             style="width:100%;height:100%;object-fit:cover;"
             onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\\'font-size:48px;\\'>💊</span>'"
@@ -72,7 +72,7 @@ import{S as c}from"./stack-recommender-b07295YU.js";import{e as n,s as l}from"./
           <!-- Categoria + Badge -->
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span style="font-size:11px;color:var(--color-text-muted,#555);text-transform:uppercase;letter-spacing:0.05em;">${e.category}</span>
-            ${g(e.evidenceLevel)}
+            ${v(e.evidenceLevel)}
           </div>
 
           <!-- Nome -->
@@ -180,4 +180,4 @@ import{S as c}from"./stack-recommender-b07295YU.js";import{e as n,s as l}from"./
           ">Ver Catálogo →</button>
         </div>
       </div>
-    `}_bindEvents(){const e=this.container.querySelector("#btn-go-catalog");e&&e.addEventListener("click",()=>{window.location.hash="#/list"}),this.container.querySelectorAll("[data-filter]").forEach(t=>{t.addEventListener("click",r=>{this._activeFilter=r.currentTarget.dataset.filter,this._render()})}),this.container.querySelectorAll(".btn-remove-fav").forEach(t=>{t.addEventListener("click",r=>{const a=r.currentTarget.dataset.id;p(a),n.emit("favorites:changed",{id:a,action:"removed"}),this._render()})}),this.container.querySelectorAll(".btn-add-stack").forEach(t=>{t.addEventListener("click",r=>{const a=r.currentTarget.dataset.id;try{l.addToStack(a)}catch{const o=s();o.includes(a)||(o.push(a),localStorage.setItem("suplilist:stack",JSON.stringify(o)))}n.emit("stack:changed",{id:a,action:"added"}),this._render()})}),this.container.querySelectorAll(".fav-card").forEach(t=>{t.addEventListener("mouseenter",()=>{t.style.borderColor="var(--color-border-strong,rgba(255,255,255,0.14))"}),t.addEventListener("mouseleave",()=>{t.style.borderColor="var(--color-border,rgba(255,255,255,0.07))"})}),this.container.querySelectorAll(".btn-remove-fav").forEach(t=>{t.addEventListener("mouseenter",()=>{t.style.background="var(--color-error-bg,rgba(239,68,68,0.10))"}),t.addEventListener("mouseleave",()=>{t.style.background="transparent"})}),this.container.querySelectorAll(".btn-add-stack").forEach(t=>{t.addEventListener("mouseenter",()=>{t.style.background="var(--color-brand-hover,#6D28D9)"}),t.addEventListener("mouseleave",()=>{t.style.background="var(--color-brand,#7C3AED)"})})}}export{u as default};
+    `}_bindEvents(){const e=this.container.querySelector("#btn-go-catalog");e&&e.addEventListener("click",()=>{window.location.hash="#/list"}),this.container.querySelectorAll("[data-filter]").forEach(t=>{t.addEventListener("click",r=>{this._activeFilter=r.currentTarget.dataset.filter,this._render()})}),this.container.querySelectorAll(".btn-remove-fav").forEach(t=>{t.addEventListener("click",r=>{const o=r.currentTarget.dataset.id;u(o),l.emit("favorites:changed",{id:o,action:"removed"}),this._render()})}),this.container.querySelectorAll(".btn-add-stack").forEach(t=>{t.addEventListener("click",r=>{const o=r.currentTarget.dataset.id,a=Number(o),i=d.find(g=>g.id===a);i&&(c.dispatch(f.ADD_TO_STACK,{supplementId:i.id,name:i.name,dosage:i.dosage?.maintenance??5,unit:i.dosage?.unit??"g",quantity:0}),l.emit("stack:changed",{id:a,action:"added"}),this._render())})}),this.container.querySelectorAll(".fav-card").forEach(t=>{t.addEventListener("mouseenter",()=>{t.style.borderColor="var(--color-border-strong,rgba(255,255,255,0.14))"}),t.addEventListener("mouseleave",()=>{t.style.borderColor="var(--color-border,rgba(255,255,255,0.07))"})}),this.container.querySelectorAll(".btn-remove-fav").forEach(t=>{t.addEventListener("mouseenter",()=>{t.style.background="var(--color-error-bg,rgba(239,68,68,0.10))"}),t.addEventListener("mouseleave",()=>{t.style.background="transparent"})}),this.container.querySelectorAll(".btn-add-stack").forEach(t=>{t.addEventListener("mouseenter",()=>{t.style.background="var(--color-brand-hover,#6D28D9)"}),t.addEventListener("mouseleave",()=>{t.style.background="var(--color-brand,#7C3AED)"})})}}export{b as default};

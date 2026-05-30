@@ -1,4 +1,4 @@
-import{s as h}from"./main-Bmhyh2aG.js";class m{constructor(e,o){this.container=e,this.params=o}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const e=document.createElement("style");e.id="settings-page-styles",e.textContent=`
+import{S as b,s as h,A as g}from"./main-epZNF2O8.js";class x{constructor(t,o){this.container=t,this.params=o}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const t=document.createElement("style");t.id="settings-page-styles",t.textContent=`
       .sp-page {
         padding: 24px;
         max-width: 700px;
@@ -218,18 +218,18 @@ import{s as h}from"./main-Bmhyh2aG.js";class m{constructor(e,o){this.container=e
         font-size: 14px;
         flex-shrink: 0;
       }
-    `,document.head.appendChild(e)}_getThemeState(){const e=localStorage.getItem("suplilist:theme");return e?e==="dark":document.documentElement.getAttribute("data-theme")==="dark"}_getBoolPref(e){return localStorage.getItem(e)==="true"}_switchHTML(e,o,r,c){return`
+    `,document.head.appendChild(t)}_getThemeState(){const t=localStorage.getItem(b.THEME);return t?t==="dark":document.documentElement.getAttribute("data-theme")==="dark"}_getBoolPref(t){return localStorage.getItem(t)==="true"}_switchHTML(t,o,s,n){return`
       <div class="sp-toggle-row">
         <span class="sp-toggle-label">
-          <span class="sp-toggle-icon" id="${e}-icon">${c}</span>
-          ${r}
+          <span class="sp-toggle-icon" id="${t}-icon">${n}</span>
+          ${s}
         </span>
-        <label class="sp-switch" aria-label="${r}">
-          <input type="checkbox" id="${e}"${o?" checked":""}>
+        <label class="sp-switch" aria-label="${s}">
+          <input type="checkbox" id="${t}"${o?" checked":""}>
           <span class="sp-switch-track"></span>
         </label>
       </div>
-    `}_render(){const e=this._getThemeState(),o=this._getBoolPref("suplilist:notif-checkin"),r=this._getBoolPref("suplilist:notif-restock");return`
+    `}_render(){const t=this._getThemeState(),o=this._getBoolPref("suplilist:notif-checkin"),s=this._getBoolPref("suplilist:notif-restock");return`
       <div class="sp-page">
 
         <!-- Header -->
@@ -241,14 +241,14 @@ import{s as h}from"./main-Bmhyh2aG.js";class m{constructor(e,o){this.container=e
         <!-- Aparência -->
         <div class="sp-card">
           <h2 class="sp-section-label">Aparência</h2>
-          ${this._switchHTML("sp-theme-toggle",e,"Tema escuro",e?"🌙":"☀️")}
+          ${this._switchHTML("sp-theme-toggle",t,"Tema escuro",t?"🌙":"☀️")}
         </div>
 
         <!-- Notificações -->
         <div class="sp-card">
           <h2 class="sp-section-label">Notificações</h2>
           ${this._switchHTML("sp-notif-checkin",o,"Lembrete diário de check-in","💊")}
-          ${this._switchHTML("sp-notif-restock",r,"Alertas de reposição de estoque","📦")}
+          ${this._switchHTML("sp-notif-restock",s,"Alertas de reposição de estoque","📦")}
           <p class="sp-notif-note">Notificações são locais e não requerem cadastro. Nada é enviado para servidores.</p>
         </div>
 
@@ -299,4 +299,4 @@ import{s as h}from"./main-Bmhyh2aG.js";class m{constructor(e,o){this.container=e
         </div>
 
       </div>
-    `}_bindEvents(){const e=this.container.querySelector("#sp-theme-toggle");e&&e.addEventListener("change",()=>{const t=e.checked;document.documentElement.setAttribute("data-theme",t?"dark":"light"),localStorage.setItem("suplilist:theme",t?"dark":"light");const n=this.container.querySelector("#sp-theme-toggle-icon");n&&(n.textContent=t?"🌙":"☀️")});const o=this.container.querySelector("#sp-notif-checkin");o&&o.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-checkin",o.checked?"true":"false")});const r=this.container.querySelector("#sp-notif-restock");r&&r.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-restock",r.checked?"true":"false")});const c=this.container.querySelector("#sp-export-btn");c&&c.addEventListener("click",()=>{const t={};for(let l=0;l<localStorage.length;l++){const i=localStorage.key(l);if(i&&i.startsWith("suplilist"))try{t[i]=JSON.parse(localStorage.getItem(i))}catch{t[i]=localStorage.getItem(i)}}const n=new Blob([JSON.stringify(t,null,2)],{type:"application/json"}),a=URL.createObjectURL(n),s=document.createElement("a");s.href=a,s.download=`suplilist-export-${new Date().toISOString().slice(0,10)}.json`,document.body.appendChild(s),s.click(),document.body.removeChild(s),URL.revokeObjectURL(a)});const p=this.container.querySelector("#sp-clear-checkins-btn");p&&p.addEventListener("click",()=>{if(confirm("Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita."))try{h.dispatch({type:"CLEAR_CHECKINS"})}catch{const n=[];for(let a=0;a<localStorage.length;a++){const s=localStorage.key(a);s&&s.includes("checkin")&&n.push(s)}n.forEach(a=>localStorage.removeItem(a)),location.reload()}});const d=this.container.querySelector("#sp-reset-btn");d&&d.addEventListener("click",()=>{confirm("⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.")&&(localStorage.clear(),location.reload())}),this.container.querySelectorAll(".sp-link-btn[data-hash]").forEach(t=>{t.addEventListener("click",()=>{window.location.hash=t.getAttribute("data-hash")})})}}export{m as default};
+    `}_bindEvents(){const t=this.container.querySelector("#sp-theme-toggle");t&&t.addEventListener("change",()=>{const e=t.checked;document.documentElement.setAttribute("data-theme",e?"dark":"light"),localStorage.setItem(b.THEME,e?"dark":"light");const i=this.container.querySelector("#sp-theme-toggle-icon");i&&(i.textContent=e?"🌙":"☀️")});const o=this.container.querySelector("#sp-notif-checkin");o&&o.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-checkin",o.checked?"true":"false")});const s=this.container.querySelector("#sp-notif-restock");s&&s.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-restock",s.checked?"true":"false")});const n=this.container.querySelector("#sp-export-btn");n&&n.addEventListener("click",()=>{const e={};for(let c=0;c<localStorage.length;c++){const r=localStorage.key(c);if(r&&r.startsWith("suplilist"))try{e[r]=JSON.parse(localStorage.getItem(r))}catch{e[r]=localStorage.getItem(r)}}const i=new Blob([JSON.stringify(e,null,2)],{type:"application/json"}),d=URL.createObjectURL(i),a=document.createElement("a");a.href=d,a.download=`suplilist-export-${new Date().toISOString().slice(0,10)}.json`,document.body.appendChild(a),a.click(),document.body.removeChild(a),URL.revokeObjectURL(d)});const l=this.container.querySelector("#sp-clear-checkins-btn");l&&l.addEventListener("click",()=>{confirm("Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita.")&&h.dispatch(g.CLEAR_CHECKINS)});const p=this.container.querySelector("#sp-reset-btn");p&&p.addEventListener("click",()=>{confirm("⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.")&&(localStorage.clear(),location.reload())}),this.container.querySelectorAll(".sp-link-btn[data-hash]").forEach(e=>{e.addEventListener("click",()=>{window.location.hash=e.getAttribute("data-hash")})})}}export{x as default};

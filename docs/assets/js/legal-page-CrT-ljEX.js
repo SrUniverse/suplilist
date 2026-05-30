@@ -1,4 +1,4 @@
-const l=[{key:"termos",label:"Termos de Uso"},{key:"privacidade",label:"Privacidade (LGPD)"},{key:"medico",label:"Aviso Médico"},{key:"afiliados",label:"Afiliados"}],c={termos:0,privacidade:1,medico:2,afiliados:3},s='<p class="lg-updated">Última atualização: Janeiro de 2025</p>',n=[`${s}
+const c=[{key:"termos",label:"Termos de Uso"},{key:"privacidade",label:"Privacidade (LGPD)"},{key:"medico",label:"Aviso Médico"},{key:"afiliados",label:"Afiliados"}],l={termos:0,privacidade:1,medico:2,afiliados:3},s='<p class="lg-updated">Última atualização: Janeiro de 2025</p>',n=[`${s}
   <h3>1. Aceitação dos Termos</h3>
   <p>Ao acessar ou utilizar o SupliList, você concorda com estes Termos de Uso. Se não concordar, não utilize o serviço.</p>
 
@@ -202,17 +202,13 @@ const l=[{key:"termos",label:"Termos de Uso"},{key:"privacidade",label:"Privacid
     font-size: 15px;
     line-height: 1.6;
   }
-`;class g{constructor(e,o){this.container=e,this.params=o||{},this._activeIndex=c[this.params.doc]??0,this._handleTabClick=this._handleTabClick.bind(this)}mount(){this._injectStyles(),this._render(),this._bindEvents()}unmount(){const e=document.getElementById("legal-page-styles");e&&e.remove(),this.container.innerHTML=""}_injectStyles(){if(!document.getElementById("legal-page-styles")){const e=document.createElement("style");e.id="legal-page-styles",e.textContent=p,document.head.appendChild(e)}}_render(){this.container.innerHTML=`
+`;class h{constructor(e,o){this.container=e,this.params=o||{},this._activeIndex=l[this.params.doc]??0,this._handleTabClick=this._handleTabClick.bind(this)}mount(){this._injectStyles(),this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(!document.getElementById("legal-page-styles")){const e=document.createElement("style");e.id="legal-page-styles",e.textContent=p,document.head.appendChild(e)}}_render(){this.container.innerHTML=`
       <div class="lg-wrap">
         <h1>Centro Legal</h1>
         <p class="lg-tagline">Termos, privacidade e informações regulatórias</p>
 
-        <div class="lg-warning-banner">
-          ⚠️ Modelo para revisão jurídica — Este texto é um rascunho bem fundamentado e deve ser revisado por um advogado antes de entrar em produção.
-        </div>
-
         <div class="lg-tabs" role="tablist">
-          ${l.map((e,o)=>`
+          ${c.map((e,o)=>`
             <button
               class="lg-tab${o===this._activeIndex?" active":""}"
               role="tab"
@@ -226,4 +222,4 @@ const l=[{key:"termos",label:"Termos de Uso"},{key:"privacidade",label:"Privacid
           ${n[this._activeIndex]}
         </div>
       </div>
-    `}_bindEvents(){const e=this.container.querySelector(".lg-tabs");e&&e.addEventListener("click",this._handleTabClick)}_handleTabClick(e){const o=e.target.closest(".lg-tab");if(!o)return;const a=parseInt(o.dataset.index,10);if(a===this._activeIndex)return;this._activeIndex=a,this.container.querySelectorAll(".lg-tab").forEach((r,d)=>{const t=d===a;r.classList.toggle("active",t),r.setAttribute("aria-selected",String(t))});const i=this.container.querySelector("#lg-tab-content");i&&(i.innerHTML=n[a])}}export{g as default};
+    `}_bindEvents(){const e=this.container.querySelector(".lg-tabs");e&&e.addEventListener("click",this._handleTabClick)}_handleTabClick(e){const o=e.target.closest(".lg-tab");if(!o)return;const a=parseInt(o.dataset.index,10);if(a===this._activeIndex)return;this._activeIndex=a,this.container.querySelectorAll(".lg-tab").forEach((r,d)=>{const t=d===a;r.classList.toggle("active",t),r.setAttribute("aria-selected",String(t))});const i=this.container.querySelector("#lg-tab-content");i&&(i.innerHTML=n[a])}}export{h as default};

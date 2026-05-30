@@ -1,4 +1,4 @@
-import{s as D}from"./main-Bmhyh2aG.js";import{S as F}from"./stack-recommender-b07295YU.js";const m=a=>String(a).padStart(2,"0"),B=()=>{const a=new Date;return`${a.getFullYear()}-${m(a.getMonth()+1)}-${m(a.getDate())}`},_=a=>{const o=new Date;return o.setDate(o.getDate()-a),`${o.getFullYear()}-${m(o.getMonth()+1)}-${m(o.getDate())}`},N=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],z=a=>{if(!a)return"";const[o,i]=a.split("-");return`${N[parseInt(i,10)-1]} ${o}`},q=["Todos","Proteínas","Aminoácidos","Adaptógenos","Vitaminas","Energéticos & Foco","Força & Performance","Antioxidantes & Saúde"],O=()=>{const a={};for(const o of F)a[o.id]=o;return a},Q=(a,o)=>{let i=0;for(const s of a){const d=s.supplementId??s.id,r=o[d];r&&r.dosage&&r.pricePerGram&&(i+=(r.dosage.maintenance||5)*r.pricePerGram)}return i};class V{constructor(o){this.container=o,this._unsubscribe=null,this._searchQuery="",this._activeCategory="Todos",this._expandedCards=new Set}mount(){this._injectStyles(),this._render(),this._unsubscribe=D.subscribe(()=>this._render())}unmount(){this._unsubscribe?.()}_injectStyles(){if(document.getElementById("history-page-styles-v2"))return;const o=document.createElement("style");o.id="history-page-styles-v2",o.textContent=`
+import{s as C,t as j,o as _}from"./main-epZNF2O8.js";import{S as B}from"./stack-recommender-b07295YU.js";const N=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],z=c=>{if(!c)return"";const[o,s]=c.split("-");return`${N[parseInt(s,10)-1]} ${o}`},F=["Todos","Proteínas","Aminoácidos","Adaptógenos","Vitaminas","Energéticos & Foco","Força & Performance","Antioxidantes & Saúde"],q=()=>{const c={};for(const o of B)c[o.id]=o;return c},O=(c,o)=>{let s=0;for(const r of c){const d=r.supplementId??r.id,a=o[d];a&&a.dosage&&a.pricePerGram&&(s+=(a.dosage.maintenance||5)*a.pricePerGram)}return s};class V{constructor(o){this.container=o,this._unsubscribe=null,this._searchQuery="",this._activeCategory="Todos",this._expandedCards=new Set}mount(){this._injectStyles(),this._render(),this._unsubscribe=C.subscribe(()=>this._render())}unmount(){this._unsubscribe?.()}_injectStyles(){if(document.getElementById("history-page-styles-v2"))return;const o=document.createElement("style");o.id="history-page-styles-v2",o.textContent=`
       .hp-root { padding: 20px 16px 100px; display: flex; flex-direction: column; gap: 20px; font-family: 'Inter', sans-serif; }
 
       /* Stats grid */
@@ -134,26 +134,26 @@ import{s as D}from"./main-Bmhyh2aG.js";import{S as F}from"./stack-recommender-b0
         margin-top: 4px;
       }
       .hp-section-title { font-size: 13px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    `,document.head.appendChild(o)}_render(){const o=D.getState(),i=o.checkins||[],s=o.stack||[],d=O(),r=B(),$=30,f=new Set(i.map(t=>t.date).filter(Boolean)),k=f.size;let S=0;for(let t=0;t<$;t++)f.has(_(t))&&S++;const E=Math.round(S/$*100),M=(Q(s,d)*k).toFixed(2).replace(".",","),L=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],C=[];for(let t=6;t>=0;t--){const e=_(t),c=new Date(e+"T12:00:00");C.push({iso:e,label:L[c.getDay()],isToday:t===0,hasCk:f.has(e),dayNum:c.getDate()})}const h={};for(const t of i){const e=t.supplementId||"unknown";h[e]||(h[e]=[]),h[e].push(t.date||"")}let n=Object.entries(h).map(([t,e])=>{const c=d[t],l=[...new Set(e)].filter(Boolean).sort(),p=l[0]||"",g=l[l.length-1]||"",x=l.length,b=p?Math.max(1,Math.ceil((new Date(r)-new Date(p))/864e5)+1):1,v=Math.min(b,30),w=Math.round(x/v*100);return{sid:t,name:c?.name||t,category:c?.category||"",image:c?.image||null,firstDate:p,lastDate:g,totalDays:x,totalPossible:v,adPct:w,dates:l.reverse(),lastCheckin:g}});n.sort((t,e)=>e.lastCheckin.localeCompare(t.lastCheckin));const y=this._searchQuery.toLowerCase().trim();y&&(n=n.filter(t=>t.name.toLowerCase().includes(y)||t.category.toLowerCase().includes(y))),this._activeCategory!=="Todos"&&(n=n.filter(t=>t.category===this._activeCategory));const P=`
+    `,document.head.appendChild(o)}_render(){const o=C.getState(),s=o.checkins||[],r=o.stack||[],d=q(),a=j(),w=30,m=new Set(s.map(t=>t.date).filter(Boolean)),$=m.size;let k=0;for(let t=0;t<w;t++)m.has(_(t))&&k++;const D=Math.round(k/w*100),E=(O(r,d)*$).toFixed(2).replace(".",","),L=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],S=[];for(let t=6;t>=0;t--){const e=_(t),n=new Date(e+"T12:00:00");S.push({iso:e,label:L[n.getDay()],isToday:t===0,hasCk:m.has(e),dayNum:n.getDate()})}const h={};for(const t of s){const e=t.supplementId||"unknown";h[e]||(h[e]=[]),h[e].push(t.date||"")}let i=Object.entries(h).map(([t,e])=>{const n=d[t],l=[...new Set(e)].filter(Boolean).sort(),p=l[0]||"",x=l[l.length-1]||"",g=l.length,y=p?Math.max(1,Math.ceil((new Date(a)-new Date(p))/864e5)+1):1,v=Math.min(y,30),b=Math.round(g/v*100);return{sid:t,name:n?.name||t,category:n?.category||"",image:n?.image||null,firstDate:p,lastDate:x,totalDays:g,totalPossible:v,adPct:b,dates:l.reverse(),lastCheckin:x}});i.sort((t,e)=>e.lastCheckin.localeCompare(t.lastCheckin));const f=this._searchQuery.toLowerCase().trim();f&&(i=i.filter(t=>t.name.toLowerCase().includes(f)||t.category.toLowerCase().includes(f))),this._activeCategory!=="Todos"&&(i=i.filter(t=>t.category===this._activeCategory));const M=`
       <div class="hp-stats">
         <div class="hp-stat-card">
-          <div class="hp-stat-value">${E}%</div>
+          <div class="hp-stat-value">${D}%</div>
           <div class="hp-stat-label">Média de Adesão<br><span style="color:var(--color-text-muted);font-size:10px;">(últimos 30 dias)</span></div>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-value">${k}</div>
+          <div class="hp-stat-value">${$}</div>
           <div class="hp-stat-label">Total de<br>Ciclos</div>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-value" style="font-size:16px;">R$${M}</div>
+          <div class="hp-stat-value" style="font-size:16px;">R$${E}</div>
           <div class="hp-stat-label">Investimento<br>Total</div>
         </div>
       </div>
-    `,T=`
+    `,P=`
       <div class="hp-calendar">
         <div class="hp-calendar-title">Últimos 7 dias</div>
         <div class="hp-calendar-row">
-          ${C.map(t=>{const e=t.hasCk?t.isToday?"today-filled":"filled":t.isToday?"today-empty":"empty";return`
+          ${S.map(t=>{const e=t.hasCk?t.isToday?"today-filled":"filled":t.isToday?"today-empty":"empty";return`
               <div class="hp-day-col">
                 <div class="hp-day-label">${t.label}</div>
                 <div class="hp-day-dot ${e}">${t.dayNum}</div>
@@ -161,7 +161,7 @@ import{s as D}from"./main-Bmhyh2aG.js";import{S as F}from"./stack-recommender-b0
             `}).join("")}
         </div>
       </div>
-    `,I=`
+    `,T=`
       <div style="display:flex;flex-direction:column;gap:10px;">
         <input
           type="search"
@@ -171,49 +171,49 @@ import{s as D}from"./main-Bmhyh2aG.js";import{S as F}from"./stack-recommender-b0
           id="hp-search"
         />
         <div class="hp-chips">
-          ${q.map(t=>`
+          ${F.map(t=>`
             <button class="hp-chip ${this._activeCategory===t?"active":""}" data-cat="${t}">${t}</button>
           `).join("")}
         </div>
       </div>
-    `;let u;if(i.length===0)u=`
+    `;let u;if(s.length===0)u=`
         <div class="hp-empty">
           <div class="hp-empty-icon">📋</div>
           <div class="hp-empty-title">Nenhum check-in registrado ainda</div>
           <div class="hp-empty-sub">Registre seus suplementos diários para acompanhar sua constância.</div>
           <button class="hp-cta-btn" id="hp-cta-checkin">Fazer Check-in Agora</button>
         </div>
-      `;else if(n.length===0)u=`
+      `;else if(i.length===0)u=`
         <div class="hp-empty">
           <div class="hp-empty-icon">🔍</div>
           <div class="hp-empty-title">Nenhum resultado</div>
           <div class="hp-empty-sub">Tente outro nome ou categoria.</div>
         </div>
-      `;else{const t=n.map(e=>{const c=this._expandedCards.has(e.sid),l=e.adPct>=80?"green":e.adPct>=60?"yellow":"red",p=e.firstDate?z(e.firstDate):"—",g=e.lastDate===r?"Presente":e.lastDate?z(e.lastDate):"—",x=e.image?`<img class="hp-sup-img" src="${e.image}" alt="${e.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:"",b=`<div class="hp-sup-img-placeholder" ${e.image?'style="display:none"':""}>💊</div>`,v=e.dates.map(w=>{const[A,H,j]=w.split("-");return`<div class="hp-log-date">${new Date(parseInt(A),parseInt(H)-1,parseInt(j)).toLocaleDateString("pt-BR",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}</div>`}).join("");return`
+      `;else{const t=i.map(e=>{const n=this._expandedCards.has(e.sid),l=e.adPct>=80?"green":e.adPct>=60?"yellow":"red",p=e.firstDate?z(e.firstDate):"—",x=e.lastDate===a?"Presente":e.lastDate?z(e.lastDate):"—",g=e.image?`<img class="hp-sup-img" src="${e.image}" alt="${e.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:"",y=`<div class="hp-sup-img-placeholder" ${e.image?'style="display:none"':""}>💊</div>`,v=e.dates.map(b=>{const[I,A,H]=b.split("-");return`<div class="hp-log-date">${new Date(parseInt(I),parseInt(A)-1,parseInt(H)).toLocaleDateString("pt-BR",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}</div>`}).join("");return`
           <div class="hp-sup-card" data-sid="${e.sid}">
             <div class="hp-sup-header" data-toggle="${e.sid}">
-              ${x}${b}
+              ${g}${y}
               <div class="hp-sup-info">
                 <div class="hp-sup-name">${e.name}</div>
                 <div class="hp-sup-meta">
                   ${e.category?`<span class="hp-badge-cat">${e.category}</span>`:""}
-                  <span class="hp-sup-range">${p} → ${g}</span>
+                  <span class="hp-sup-range">${p} → ${x}</span>
                 </div>
                 <div style="margin-top:4px;">
                   <span class="hp-adherence ${l}">${e.adPct}% adesão</span>
                   <span style="font-size:12px;color:var(--color-text-muted);"> (${e.totalDays}/${e.totalPossible} dias)</span>
                 </div>
               </div>
-              <button class="hp-expand-btn" data-toggle="${e.sid}">${c?"Fechar ▲":"Ver Logs ▼"}</button>
+              <button class="hp-expand-btn" data-toggle="${e.sid}">${n?"Fechar ▲":"Ver Logs ▼"}</button>
             </div>
-            <div class="hp-logs-panel ${c?"open":""}" id="hp-logs-${e.sid}">
+            <div class="hp-logs-panel ${n?"open":""}" id="hp-logs-${e.sid}">
               <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:2px;">${e.totalDays} check-in${e.totalDays!==1?"s":""} registrado${e.totalDays!==1?"s":""}</div>
               ${v}
             </div>
           </div>
         `}).join("");u=`
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <div class="hp-section-title">${n.length} suplemento${n.length!==1?"s":""} com histórico</div>
+          <div class="hp-section-title">${i.length} suplemento${i.length!==1?"s":""} com histórico</div>
           ${t}
         </div>
       `}this.container.innerHTML=`
@@ -222,9 +222,9 @@ import{s as D}from"./main-Bmhyh2aG.js";import{S as F}from"./stack-recommender-b0
           <h1 style="font-size:24px;font-weight:800;margin:0 0 4px;font-family:'Syne',sans-serif;color:var(--color-text-primary);">Histórico</h1>
           <p style="color:var(--color-text-secondary);font-size:14px;margin:0;">Acompanhe sua constância de suplementação.</p>
         </header>
+        ${M}
         ${P}
         ${T}
-        ${I}
         ${u}
       </div>
-    `,this._attachListeners()}_attachListeners(){const o=this.container.querySelector("#hp-search");o&&o.addEventListener("input",s=>{this._searchQuery=s.target.value,this._render()}),this.container.querySelectorAll(".hp-chip").forEach(s=>{s.addEventListener("click",()=>{this._activeCategory=s.dataset.cat,this._render()})}),this.container.querySelectorAll("[data-toggle]").forEach(s=>{s.addEventListener("click",d=>{d.stopPropagation();const r=s.dataset.toggle;r&&(this._expandedCards.has(r)?this._expandedCards.delete(r):this._expandedCards.add(r),this._render())})});const i=this.container.querySelector("#hp-cta-checkin");i&&i.addEventListener("click",()=>{window.location.hash="#/checkin"})}}export{V as default};
+    `,this._attachListeners()}_attachListeners(){const o=this.container.querySelector("#hp-search");o&&o.addEventListener("input",r=>{this._searchQuery=r.target.value,this._render()}),this.container.querySelectorAll(".hp-chip").forEach(r=>{r.addEventListener("click",()=>{this._activeCategory=r.dataset.cat,this._render()})}),this.container.querySelectorAll("[data-toggle]").forEach(r=>{r.addEventListener("click",d=>{d.stopPropagation();const a=r.dataset.toggle;a&&(this._expandedCards.has(a)?this._expandedCards.delete(a):this._expandedCards.add(a),this._render())})});const s=this.container.querySelector("#hp-cta-checkin");s&&s.addEventListener("click",()=>{window.location.hash="#/checkin"})}}export{V as default};

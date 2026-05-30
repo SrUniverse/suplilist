@@ -1,4 +1,4 @@
-import{S as i}from"./stack-recommender-b07295YU.js";class p{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents()}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this._styleEl&&this._styleEl.parentNode&&this._styleEl.parentNode.removeChild(this._styleEl),this._styleEl=null,this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const o=a.target.closest("[data-nav]");if(!o)return;a.preventDefault();const t=o.getAttribute("data-nav");t&&(window.location.hash=t)},this.container.addEventListener("click",this._onClick)}_template(){const a=i.length,o=[{icon:"💰",title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:"⚗️",title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:"⭐",title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],t=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],r=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=["Amazon","Mercado Livre","Shopee"];return`
+import{S as i}from"./stack-recommender-b07295YU.js";class p{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents()}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const e=a.target.closest("[data-nav]");if(!e)return;a.preventDefault();const t=e.getAttribute("data-nav");t&&(window.location.hash=t)},this.container.addEventListener("click",this._onClick)}_template(){const a=i.length,e=[{icon:"💰",title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:"⚗️",title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:"⭐",title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],t=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],r=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=["Amazon","Mercado Livre","Shopee"];return`
       <div class="lp-root">
 
         <nav class="lp-nav" aria-label="Navegação principal">
@@ -36,11 +36,11 @@ import{S as i}from"./stack-recommender-b07295YU.js";class p{constructor(a){this.
           <section class="lp-section" aria-label="Recursos">
             <h2 class="lp-h2">TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
             <div class="lp-grid lp-grid--3">
-              ${o.map(e=>`
+              ${e.map(o=>`
                 <article class="lp-card">
-                  <div class="lp-card__icon" aria-hidden="true">${e.icon}</div>
-                  <h3 class="lp-card__title">${e.title}</h3>
-                  <p class="lp-card__text">${e.text}</p>
+                  <div class="lp-card__icon" aria-hidden="true">${o.icon}</div>
+                  <h3 class="lp-card__title">${o.title}</h3>
+                  <p class="lp-card__text">${o.text}</p>
                 </article>`).join("")}
             </div>
           </section>
@@ -48,11 +48,11 @@ import{S as i}from"./stack-recommender-b07295YU.js";class p{constructor(a){this.
           <section class="lp-section" aria-label="Como funciona">
             <h2 class="lp-h2">3 PASSOS PARA COMPRAR CERTO.</h2>
             <div class="lp-grid lp-grid--3">
-              ${t.map(e=>`
+              ${t.map(o=>`
                 <article class="lp-step">
-                  <div class="lp-step__num" aria-hidden="true">${e.n}</div>
-                  <h3 class="lp-card__title">${e.title}</h3>
-                  <p class="lp-card__text">${e.text}</p>
+                  <div class="lp-step__num" aria-hidden="true">${o.n}</div>
+                  <h3 class="lp-card__title">${o.title}</h3>
+                  <p class="lp-card__text">${o.text}</p>
                 </article>`).join("")}
             </div>
           </section>
@@ -60,16 +60,16 @@ import{S as i}from"./stack-recommender-b07295YU.js";class p{constructor(a){this.
           <section class="lp-section" aria-label="Filtro por treino">
             <h2 class="lp-h2">FILTRADO POR COMO VOCÊ TREINA.</h2>
             <div class="lp-chips">
-              ${r.map(e=>`<button class="lp-chip" data-nav="#/list" type="button">${e}</button>`).join("")}
+              ${r.map(o=>`<button class="lp-chip" data-nav="#/list" type="button">${o}</button>`).join("")}
             </div>
           </section>
 
           <section class="lp-section" aria-label="Marketplaces">
             <h2 class="lp-h2">OS MAIORES MARKETPLACES DO BRASIL.</h2>
             <div class="lp-grid lp-grid--3">
-              ${l.map(e=>`
+              ${l.map(o=>`
                 <article class="lp-market">
-                  <span class="lp-market__name">${e}</span>
+                  <span class="lp-market__name">${o}</span>
                   <span class="lp-market__badge">Integrado</span>
                 </article>`).join("")}
             </div>
@@ -122,7 +122,7 @@ import{S as i}from"./stack-recommender-b07295YU.js";class p{constructor(a){this.
         </footer>
 
       </div>
-    `}_injectStyle(){const a=document.createElement("style");a.setAttribute("data-page","home"),a.textContent=`
+    `}_injectStyle(){if(document.querySelector('[data-page="home"]'))return;const a=document.createElement("style");a.setAttribute("data-page","home"),a.textContent=`
       .lp-root {
         background: var(--color-bg-primary, #080808);
         color: var(--color-text-primary, #F2F2F2);

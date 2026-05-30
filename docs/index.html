@@ -113,6 +113,15 @@
           "main"
           "sidebar";
       }
+
+      /* Prevent grid children from overflowing the viewport */
+      #topbar,
+      #router-outlet {
+        width: 100%;
+        min-width: 0;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
     }
 
     /* === TOP BAR === */
@@ -503,8 +512,8 @@
   </style>
 
   <!-- CSS carregado via src/core/app.js → Vite processa Tailwind + design-system -->
-  <script type="module" crossorigin src="/assets/js/main-Bmhyh2aG.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/css/main-DHn-IuHO.css">
+  <script type="module" crossorigin src="/assets/js/main-epZNF2O8.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/css/main-jgqmAFqi.css">
 <link rel="manifest" href="/manifest.json"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
 
 <body>

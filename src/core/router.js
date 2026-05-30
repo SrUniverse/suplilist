@@ -43,16 +43,27 @@ export class Router {
 
     const { route, params } = match;
 
+    // Guard unmount — never abort a transition due to unmount errors
     if (this.currentPage && typeof this.currentPage.unmount === 'function') {
-      await this.currentPage.unmount();
+      try {
+        await this.currentPage.unmount();
+      } catch (unmountErr) {
+        console.error('[Router] unmount error (continuing transition):', unmountErr);
+      }
     }
 
     this.container.innerHTML = '';
+    this.currentPage = null;
 
-    const mod = await route.load();
-    const PageClass = mod.default;
-    this.currentPage = new PageClass(this.container, params);
-    await this.currentPage.mount();
+    try {
+      const mod = await route.load();
+      const PageClass = mod.default;
+      this.currentPage = new PageClass(this.container, params);
+      await this.currentPage.mount();
+    } catch (mountErr) {
+      console.error('[Router] page load/mount error:', mountErr);
+      this.container.innerHTML = '<p style="color:var(--color-error);padding:2rem;">Erro ao carregar a página. Tente novamente.</p>';
+    }
 
     this.updateNav(hash);
   }

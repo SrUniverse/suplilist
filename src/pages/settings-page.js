@@ -1,4 +1,4 @@
-import { stateManager } from '../state/state-manager.js';
+import { stateManager, ACTIONS } from '../state/state-manager.js';
 
 export default class SettingsPage {
   constructor(container, params) {
@@ -408,17 +408,7 @@ export default class SettingsPage {
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
         if (!confirm('Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita.')) return;
-        try {
-          stateManager.dispatch({ type: 'CLEAR_CHECKINS' });
-        } catch (e) {
-          const keysToRemove = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.includes('checkin')) keysToRemove.push(key);
-          }
-          keysToRemove.forEach(k => localStorage.removeItem(k));
-          location.reload();
-        }
+        stateManager.dispatch(ACTIONS.CLEAR_CHECKINS);
       });
     }
 

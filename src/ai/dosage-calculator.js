@@ -80,7 +80,7 @@ export class DosageCalculator {
     let methodology = 'Dosagem clínica fixa recomendada.';
 
     if (!isFixed) {
-      const multiplier = this.WEIGHT_BASED_SUPPLEMENTS.get(supplement.id) || supplement.dosage.multiplier || 0.05;
+      const multiplier = this.WEIGHT_BASED_SUPPLEMENTS.get(supplement.id) || supplement.dosage?.multiplier || 0.05;
       const activityLevel = this._getActivityLevel(freq);
       const activityMultiplier = this.ACTIVITY_MULTIPLIERS[activityLevel] || 1.0;
       const objectiveMultiplier = this.OBJECTIVE_MULTIPLIERS[objective] || 1.0;

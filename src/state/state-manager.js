@@ -19,6 +19,7 @@ export const ACTIONS = Object.freeze({
   UPDATE_STACK_ITEM: 'UPDATE_STACK_ITEM',       // #2 FIX: antes ausente do registro
   SET_STACK_QUANTITY: 'SET_STACK_QUANTITY',     // #2 FIX: antes ausente do registro
   CLEAR_STACK: 'CLEAR_STACK',
+  CLEAR_CHECKINS: 'CLEAR_CHECKINS',
   ADD_CHECKIN: 'ADD_CHECKIN',
   SET_RECOMMENDATIONS: 'SET_RECOMMENDATIONS',
   INVALIDATE_RECOMMENDATIONS: 'INVALIDATE_RECOMMENDATIONS',
@@ -151,6 +152,12 @@ function reducer(state, action) {
       return {
         ...state,
         stack: []
+      };
+
+    case ACTIONS.CLEAR_CHECKINS:
+      return {
+        ...state,
+        checkins: []
       };
 
     case ACTIONS.ADD_CHECKIN: {

@@ -4,7 +4,7 @@
 // ============================================================
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
-import { stateManager } from '../state/state-manager.js';
+import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 
 // ─── localStorage helpers ────────────────────────────────────
@@ -316,18 +316,18 @@ export default class FavoritesPage {
     // Adicionar ao stack
     this.container.querySelectorAll('.btn-add-stack').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.dataset.id;
-        try {
-          stateManager.addToStack(id);
-        } catch {
-          // fallback manual
-          const stack = getStack();
-          if (!stack.includes(id)) {
-            stack.push(id);
-            localStorage.setItem('suplilist:stack', JSON.stringify(stack));
-          }
-        }
-        eventBus.emit('stack:changed', { id, action: 'added' });
+        const rawId = e.currentTarget.dataset.id;
+        const numId = Number(rawId);
+        const s = SUPPLEMENTS_DB.find(sup => sup.id === numId);
+        if (!s) return;
+        stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
+          supplementId: s.id,
+          name: s.name,
+          dosage: s.dosage?.maintenance ?? 5,
+          unit: s.dosage?.unit ?? 'g',
+          quantity: 0,
+        });
+        eventBus.emit('stack:changed', { id: numId, action: 'added' });
         this._render();
       });
     });

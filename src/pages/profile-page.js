@@ -373,7 +373,7 @@ export default class ProfilePage {
     if (btnClearCheckins) {
       btnClearCheckins.addEventListener('click', () => {
         if (confirm('Apagar todo o histórico de check-ins? Esta ação não pode ser desfeita.')) {
-          stateManager.dispatch(ACTIONS.CLEAR_CHECKINS || 'CLEAR_CHECKINS', {});
+          stateManager.dispatch(ACTIONS.CLEAR_CHECKINS);
           eventBus.emit('ui:toastRequested', { message: 'Histórico de check-ins apagado.', type: 'info' });
         }
       });

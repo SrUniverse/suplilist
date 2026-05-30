@@ -350,6 +350,10 @@
         opacity: 1 !important;
         width: auto !important;
         display: block !important;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100%;
       }
 
       body.sidebar-collapsed .nav-item {
@@ -359,10 +363,10 @@
       .nav-item {
         flex-direction: column;
         gap: 3px;
-        padding: 6px 8px;
-        font-size: 10px;
-        min-width: 60px;
-        flex-shrink: 0;
+        padding: 6px 4px;
+        font-size: 9px;
+        min-width: 0;
+        flex: 1;
         justify-content: center;
       }
 
@@ -580,35 +584,29 @@
     (function () {
       const toggleBtn = document.getElementById('sidebar-toggle');
       const body = document.body;
-      let userPreference = localStorage.getItem('suplilist:sidebar-collapsed');
+      const MOBILE_BP = 768;
 
-      const updateSidebar = (collapse) => {
-        body.classList.toggle('sidebar-collapsed', collapse);
+      const apply = () => {
+        if (window.innerWidth < MOBILE_BP) {
+          // CSS transforma em bottom nav — classe não interfere
+          body.classList.remove('sidebar-collapsed');
+        } else {
+          const collapsed = localStorage.getItem('suplilist:sidebar-collapsed') === 'true';
+          body.classList.toggle('sidebar-collapsed', collapsed);
+        }
       };
 
-      if (window.innerWidth < 1024) {
-        updateSidebar(true);
-      } else if (userPreference === 'true') {
-        updateSidebar(true);
-      }
+      apply();
 
       if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
+          if (window.innerWidth < MOBILE_BP) return;
           const isCollapsed = body.classList.toggle('sidebar-collapsed');
-          if (window.innerWidth >= 1024) {
-            localStorage.setItem('suplilist:sidebar-collapsed', isCollapsed);
-          }
+          localStorage.setItem('suplilist:sidebar-collapsed', isCollapsed);
         });
       }
 
-      window.addEventListener('resize', () => {
-        if (window.innerWidth < 1024) {
-          updateSidebar(true);
-        } else {
-          userPreference = localStorage.getItem('suplilist:sidebar-collapsed');
-          updateSidebar(userPreference === 'true');
-        }
-      });
+      window.addEventListener('resize', apply);
     })();
   </script>
 

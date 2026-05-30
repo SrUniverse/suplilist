@@ -131,3 +131,123 @@
 - **File:** src/core/event-bus.test.js
 - **Issue:** The existing 11 test cases cover happy paths well, but the following scenarios are untested: (a) `off()` called with a non-existent / never-registered callback (should be a no-op, currently untested); (b) `once()` returned unsubscribe function calling `off()` before the event fires; (c) listener that calls `eventBus.off()` on itself during its own callback (self-unsubscribing mid-emit); (d) `emit()` with no registered listeners at all for that event (no throw expected).
 - **Fix:** Add test cases for the four scenarios above to harden regression coverage.
+
+---
+
+## STATE-MANAGER — `undo()` Does Not Wrap Subscriber Calls in try/catch
+- **Priority:** P2
+- **File:** src/state/state-manager.js:453
+- **Issue:** `undo()` calls `this._subscribers.forEach(cb => cb(this._state))` without a try/catch. A throwing subscriber will abort the forEach loop and leave subsequent subscribers unnotified — exactly the fault that `dispatch()` guards against with individual try/catches. The two code paths are inconsistent.
+- **Fix:** Wrap each subscriber call in `undo()` with the same try/catch pattern used in `dispatch()` (lines 422–425).
+
+## STATE-MANAGER — Cross-Tab Sync Overwrites Active Session `ui` Slice With `DEFAULT_STATE.ui`
+- **Priority:** P2
+- **File:** src/state/state-manager.js:569-596
+- **Issue:** `_setupStorageSync()` merges the incoming cross-tab payload with `DEFAULT_STATE` via `_deepMerge`, which replaces the live session's `ui` slice with `DEFAULT_STATE.ui` values. Any open modal, active toast, or current route is silently reset when another tab writes state.
+- **Fix:** After cross-tab merge, preserve the in-memory `ui` slice: `const merged = { ...this._deepMerge(DEFAULT_STATE, migrated), ui: this._state.ui }`.
+
+## STATE-MANAGER — `setState()` Bypasses Reducer and `_emitEventBus()`
+- **Priority:** P2
+- **File:** src/state/state-manager.js:776-828
+- **Issue:** `setState()` writes to state via `_setPath()` + `export()`, completely bypassing the reducer. Arbitrary paths can be mutated without action logging and EventBus listeners for mapped actions are silently skipped — only a generic `state:changed` event fires, creating two divergent notification channels.
+- **Fix:** Deprecate `setState()` in favor of `dispatch()`. Add a `console.warn` deprecation notice. Extend the existing delegate pattern (already used for `favorites` and `settings.theme`) to cover all callers, then remove the raw `_setPath` branch.
+
+## STATE-MANAGER — `_pruneStorage()` Schedules a Second `_persist()` Via `dispatch()` After Quota Error
+- **Priority:** P2
+- **File:** src/state/state-manager.js:547-564
+- **Issue:** `_pruneStorage()` calls `this.dispatch(PRUNE_CHECKINS_TEST, ...)`, which queues a debounced `_persist()` 300ms later. If the quota is still exceeded after pruning, the deferred flush re-triggers `_pruneStorage()` — the `_isPruning` guard only blocks re-entry in the same call stack, not the deferred one.
+- **Fix:** After calling `dispatch()` inside `_pruneStorage()`, immediately call `clearTimeout(this._persistTimer)` to cancel the debounced persist queued by `dispatch()`, ensuring only the explicit `_flushPersist()` call runs.
+
+## STATE-MANAGER — Optional Fields in `DEFAULT_STATE` Are Not Documented
+- **Priority:** P3
+- **File:** src/state/state-manager.js:38-98
+- **Issue:** Several fields are initialized to `null` with no documentation of when they transition to non-null (e.g., `user.id`, `ui.modal`, `ui.toast`, `recommendations.profileHash`). Consumers must defensively null-check these fields, but the contract is implicit.
+- **Fix:** Add JSDoc `@typedef` blocks for `User`, `StackItem`, `CheckIn`, `Recommendation`, and `UIState` documenting which fields are nullable vs. always-present.
+
+## STATE-MANAGER — Test Suite Cannot Execute (Broken vitest Install)
+- **Priority:** P1
+- **File:** node_modules/vitest/dist/ (missing cli.js) — same root cause as EVENT-BUS finding
+- **Issue:** `npm run test -- src/state/state-manager.test.js` fails with `ERR_MODULE_NOT_FOUND: vitest/dist/cli.js`. All 17 state-manager tests are unverifiable until the vitest installation is repaired.
+- **Fix:** Run `npm ci` or `npm install` to restore a complete vitest installation (same fix as documented in EVENT-BUS section).
+
+## STATE-MANAGER — Missing Test Coverage for `undo()`, Cross-Tab Sync, `hydrate()`, and Corrupt localStorage Init
+- **Priority:** P2
+- **File:** src/state/state-manager.test.js
+- **Issue:** The 17 existing tests cover happy paths and QuotaExceeded pruning but leave untested: (a) `undo()` reverts state and calls subscribers; (b) `undo()` returns `false` when history is empty; (c) `_setupStorageSync()` cross-tab merge; (d) `hydrate()` with partial payload merges correctly with `DEFAULT_STATE`; (e) corrupt JSON in localStorage falls back to `DEFAULT_STATE`; (f) `setState()` for an arbitrary dot-path.
+- **Fix:** Add test cases for all six scenarios.
+
+---
+
+## DOSAGE-CALCULATOR — `calculateStack()` Does Not Guard Against `calculate()` Throwing
+- **Priority:** P2
+- **File:** src/ai/dosage-calculator.js:160-166
+- **Issue:** `calculateStack()` calls `calculate()` in a `.map()` with no try/catch. A single supplement entry missing a `dosage` field will throw and abort the entire map, returning no results to the caller.
+- **Fix:** Wrap the `calculate()` call in a try/catch inside `calculateStack()`. On error, skip the entry with a console warning or return a sentinel object.
+
+## DOSAGE-CALCULATOR — Falsy Guard on `weight`/`age`/`freq` Silently Uses Defaults for `0` Values
+- **Priority:** P2
+- **File:** src/ai/dosage-calculator.js:73-76
+- **Issue:** `userProfile.weight || 70` replaces `0` with `70` silently. Same for `freq` and `age`. A data-entry bug producing `weight: 0` would compute dosages as if the user weighs 70 kg.
+- **Fix:** Use explicit null/undefined guards: `userProfile.weight != null ? userProfile.weight : 70`. Add a validation warning if weight is <= 0.
+
+## DOSAGE-CALCULATOR — `supplement.dosage.multiplier` Accessed Without Optional Chaining When `isFixed` Is False
+- **Priority:** P1
+- **File:** src/ai/dosage-calculator.js:83
+- **Issue:** Line 83 dereferences `supplement.dosage.multiplier` without optional chaining. If `supplement.dosage` is `undefined`, this throws `TypeError`. Line 78 uses `supplement.dosage?.maintenance` (with optional chaining), making line 83 inconsistent and the crash risk non-obvious.
+- **Fix:** Change to `supplement.dosage?.multiplier`. Add a guard: `if (!supplement.dosage) throw new Error('[DosageCalculator] supplement.dosage is required')`.
+
+## DOSAGE-CALCULATOR — No Tests for Invalid/Edge Inputs
+- **Priority:** P2
+- **File:** src/ai/dosage-calculator.test.js
+- **Issue:** All 8 tests use valid inputs. No tests for: (a) `calculate(null, profile)` — should throw; (b) `calculate(supplement, null)` — should throw; (c) `calculateStack(null, profile)` — should return `[]`; (d) `calculateStack([], profile)` — should return `[]`; (e) supplement with no `dosage` field; (f) `weight: 0` or negative weight.
+- **Fix:** Add test cases for all six scenarios.
+
+## STACK-RECOMMENDER — `recommend()` Emits EventBus Event Directly, Duplicating StateManager Emission
+- **Priority:** P2
+- **File:** src/ai/stack-recommender.js:208
+- **Issue:** `recommend()` emits `ai:recommendationsReady` directly. `StateManager.dispatch(SET_RECOMMENDATIONS)` also emits the same event via `_emitEventBus()`. Any caller that dispatches `SET_RECOMMENDATIONS` after calling `recommend()` causes the event to fire twice, triggering duplicate UI updates.
+- **Fix:** Remove the direct `eventBus.emit()` call from `recommend()`. EventBus notification should be the sole responsibility of the StateManager after state is committed.
+
+## STACK-RECOMMENDER — `_calculatePersonalDosage()` Called Twice Per Supplement (Double Computation)
+- **Priority:** P3
+- **File:** src/ai/stack-recommender.js:193, 299
+- **Issue:** In the `recommend()` loop, `_calculatePersonalDosage()` is called once explicitly (line 193) and again inside `_scoreCostBenefit()` (line 299 via `_calculateScore()`). Each supplement incurs two full dosage computations per recommendation call.
+- **Fix:** Compute `_calculatePersonalDosage()` once per supplement in the loop and pass the result to both `_calculateScore()` and `_estimateMonthlyCost()`.
+
+## STACK-RECOMMENDER — No Tests for `null`/`undefined` Profile or Fully-Filtered Stack
+- **Priority:** P2
+- **File:** src/ai/stack-recommender.test.js
+- **Issue:** All 11 tests use well-formed profile objects. Untested: (a) `recommend(null)` — should return `[]`; (b) `recommend(undefined)` — should return `[]`; (c) `topN=0` — should return `[]`; (d) all supplements in `currentStack` — should return `[]`; (e) restriction string matching no supplement.
+- **Fix:** Add test cases for all five scenarios.
+
+---
+
+## DATABASE — 145 Explicit `null` Values Across Optional Fields (Schema Documentation Gap)
+- **Priority:** P3
+- **File:** database.js:174+
+- **Issue:** The consistency check found 145 `null` values across 57 entries in fields `dn`, `cy`, `badge`, `warn`, `dm`. These are intentionally optional but encoded as explicit `null` rather than being omitted, requiring consumers to null-check every field. The schema contract (which fields are nullable vs. required) is undocumented.
+- **Fix:** Document the schema with a JSDoc `@typedef` for the `IT` entry shape. Consider using omitted fields (undefined) rather than explicit `null` for truly optional fields to align with optional-chaining idioms.
+
+## DATABASE — 2 Entries Have Extra Fields Absent From the Rest of the Array (`hasForms`, `formKey`, `mlp`, `azp`)
+- **Priority:** P2
+- **File:** database.js — indices 8 (Magnésio glicinato) and 10 (Creatina Monohidratada)
+- **Issue:** `hasForms`, `formKey`, `mlp`, and `azp` appear only on 2 of 57 entries. Accessing `IT[i].hasForms` on any other entry returns `undefined`. `if (item.hasForms)` silently evaluates to `false` for the 55 entries that omit the field — correct today but fragile: a future entry that should have `hasForms: true` but omits it will silently behave as `false`.
+- **Fix:** Add `hasForms: false`, `formKey: null`, `mlp: null`, `azp: null` to all entries that currently omit them, or document these as optional in the schema typedef.
+
+## DATABASE — `CAT` Constants and `IT[n].cat` Values Are Not Cross-Validated at Startup
+- **Priority:** P2
+- **File:** database.js:40-60, 174+
+- **Issue:** `CAT` defines 19 category keys. `IT[n].cat` values are raw strings never validated against `CAT`. A typo in a future `cat` value (e.g., `'Desempenho'` vs. `'Performance'`) will silently fail to resolve a CSS class, rendering that entry with no visual category style.
+- **Fix:** Add a startup assertion (or build-time test) that checks every `IT[n].cat` value exists as a key in `CAT`. A single `forEach` in the module body is sufficient.
+
+## DATABASE — `GOAL_MAP` Numeric IDs Are Not Validated Against `IT` Entries
+- **Priority:** P2
+- **File:** database.js:63-75
+- **Issue:** `GOAL_MAP` maps goal strings to arrays of numeric `id` values. There is no validation that every referenced ID actually exists in `IT`. A deleted or renumbered entry silently orphans a goal mapping, causing goal-filtered views to return phantom results or empty lists.
+- **Fix:** Add a startup assertion that every ID in every `GOAL_MAP` array matches an existing `IT[n].id`. Alternatively, refactor `GOAL_MAP` to use string slugs to eliminate the numeric coupling.
+
+## DATABASE — `IT` Array Is Mutable (Intentional but Risky)
+- **Priority:** P3
+- **File:** database.js:173
+- **Issue:** The comment explicitly states `IT` is not frozen to allow affiliate link injection at startup. Any module that imports `IT` can mutate it accidentally (e.g., `IT[0].pm = 0` silently corrupts prices for the session).
+- **Fix:** Perform affiliate link injection on a shallow copy or derived structure rather than mutating the canonical exported array. Then `deepFreeze(IT)` at module end to prevent accidental mutation.

@@ -103,7 +103,7 @@ const STYLES = `
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
-  @media (max-width: 480px) {
+  @media (max-width: 360px) {
     .msp-stats { grid-template-columns: 1fr; }
   }
   .msp-stat-card {

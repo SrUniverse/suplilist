@@ -301,7 +301,16 @@ export default class HistoryPage {
 
     // Apply category filter
     if (this._activeCategory !== 'Todos') {
-      entries = entries.filter(e => e.category === this._activeCategory);
+      const chip = this._activeCategory.toLowerCase();
+      entries = entries.filter(e => {
+        const ec = (e.category || '').toLowerCase();
+        if (ec === chip) return true;
+        // 'Saúde Geral' catches cardiovascular, intestinal, articular & pele, queima de gordura
+        if (chip === 'saúde geral') return ['saúde cardiovascular','saúde articular & pele','saúde intestinal','queima de gordura & recovery'].includes(ec);
+        // 'Cognição & Neuroproteção' also catches 'Energéticos & Foco'
+        if (chip === 'cognição & neuroproteção') return ec === 'energéticos & foco';
+        return false;
+      });
     }
 
     // ── Build HTML ────────────────────────────────────────────────────────────

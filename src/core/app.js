@@ -2,6 +2,7 @@ import '../css/main.css';
 import { stateManager, STORAGE_KEYS } from '../state/state-manager.js';
 import { eventBus } from './event-bus.js';
 import { Router } from './router.js';
+import { Nav } from './nav.js';
 
 const routes = [
   { path: '/',          load: () => import('../pages/home-page.js') },
@@ -53,12 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
     stateManager.init();
   }
 
+  Nav.init();
+  Nav.updateActive(window.location.pathname);
+
   // Landing mode (initial + on every navigation)
   applyLandingMode();
   updatePageTitle();
   window.addEventListener('popstate', () => {
     applyLandingMode();
     updatePageTitle();
+    Nav.updateActive(window.location.pathname);
+    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home';
+    isLanding ? Nav.hide() : Nav.show();
   });
 
   // Init router
@@ -69,28 +76,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // Expor o router globalmente para uso nos data-nav
   window.__router = router;
 
-  // Nav item clicks — migrado de data-route (hash) para pathname
-  document.querySelectorAll('[data-route]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const path = btn.dataset.route;
-      window.history.pushState(null, null, path);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    });
-  });
+  // Restaurar tema salvo
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || localStorage.getItem('theme');
+  if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
 
-  // Theme toggle
-  const themeBtn = document.getElementById('btn-theme');
-  if (themeBtn) {
-    const saved = localStorage.getItem(STORAGE_KEYS.THEME) || localStorage.getItem('theme');
-    if (saved) document.documentElement.setAttribute('data-theme', saved);
-
-    themeBtn.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem(STORAGE_KEYS.THEME, next);
-    });
+  // Theme toggle — sidebar (#btn-theme) e mobile topbar (#btn-theme-mobile)
+  function _toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(STORAGE_KEYS.THEME, next);
+    const themeIcon = next === 'dark'
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    const btnTheme = document.getElementById('btn-theme');
+    const btnThemeMobile = document.getElementById('btn-theme-mobile');
+    if (btnTheme) btnTheme.querySelector('.sb-item__icon').innerHTML = themeIcon;
+    if (btnThemeMobile) btnThemeMobile.innerHTML = themeIcon;
   }
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#btn-theme') || e.target.closest('#btn-theme-mobile')) {
+      _toggleTheme();
+    }
+  });
 
   // Hide loading screen
   const loading = document.getElementById('app-loading');

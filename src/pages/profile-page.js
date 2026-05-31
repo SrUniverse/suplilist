@@ -81,7 +81,7 @@ export default class ProfilePage {
 
         <!-- HEADER -->
         <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 0 8px;">
-          <div style="
+          <div id="profile-avatar-initial" style="
             width:72px;height:72px;border-radius:50%;
             background:var(--color-brand);
             display:flex;align-items:center;justify-content:center;
@@ -264,7 +264,8 @@ export default class ProfilePage {
         if (val) {
           this._form.name = val;
           nameText.textContent = val;
-          this.container.querySelector('div[style*="72px"]').textContent = val[0].toUpperCase();
+          const avatarEl = this.container.querySelector('#profile-avatar-initial');
+          if (avatarEl) avatarEl.textContent = val[0].toUpperCase();
         }
         nameEdit.style.display = 'none';
         nameDisplay.style.display = 'flex';
@@ -300,7 +301,7 @@ export default class ProfilePage {
         this._form.age       = parseFloat(ageEl.value)       || undefined;
         this._form.objective = objectiveEl.value;
 
-        stateManager.dispatch(ACTIONS.UPDATE_USER, {
+        stateManager.dispatch(ACTIONS.SET_USER_PROFILE, {
           name:      this._form.name,
           weight:    this._form.weight,
           height:    this._form.height,

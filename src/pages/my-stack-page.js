@@ -45,13 +45,8 @@ function calcMonthlyInvestment(stack) {
 
 function calcAdherenceRate(stack) {
   if (!stack.length) return '0%';
-  const streak = stateManager.calculateStreak?.() ?? 0;
-  if (!streak) return '0%';
-  // Last 7 days: how many days have at least one checkin of any supplement in stack
   const days = [];
-  for (let i = 0; i < 7; i++) {
-    days.push(offsetISO(i));
-  }
+  for (let i = 0; i < 7; i++) days.push(offsetISO(i));
   const checkins = stateManager.checkins ?? [];
   const checkinDays = new Set(checkins.map(c => c.date));
   const daysHit = days.filter(d => checkinDays.has(d)).length;

@@ -43,7 +43,14 @@ export class Router {
     const search = window.location.search || '';
     const match = this.matchRoute(pathname + search);
 
-    if (!match) return;
+    if (!match) {
+      if (this.currentPage && typeof this.currentPage.unmount === 'function') {
+        try { await this.currentPage.unmount(); } catch (_) {}
+      }
+      this.container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--color-text-secondary);"><p style="font-size:2rem;margin-bottom:1rem;">404</p><p>Página não encontrada.</p></div>';
+      this.currentPage = null;
+      return;
+    }
 
     const { route, params } = match;
 

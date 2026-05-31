@@ -1,4 +1,4 @@
-import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
+import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import Fuse from 'fuse.js';
 import { escapeHtml } from '../utils/escape.js';
@@ -91,14 +91,7 @@ function matchesObjective(item, obj) {
 }
 
 function getFavoritesFromState() {
-  const favs = stateManager.favorites;
-  if (Array.isArray(favs)) return new Set(favs);
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch {
-    return new Set();
-  }
+  return new Set(stateManager.favorites ?? []);
 }
 
 function toggleFavorite(supplementId) {

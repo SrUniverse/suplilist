@@ -5,6 +5,7 @@ import { Router } from './router.js';
 import { Nav } from './nav.js';
 
 const routes = [
+  { path: '/onboarding', load: () => import('../pages/onboarding-page.js') },
   { path: '/',          load: () => import('../pages/home-page.js') },
   { path: '/home',      load: () => import('../pages/home-page.js') },
   { path: '/list',      load: () => import('../pages/list-page.js') },
@@ -20,6 +21,7 @@ const routes = [
 ];
 
 const PAGE_TITLES = {
+  '/onboarding': 'Bem-vindo | SupliList',
   '/':          'SupliList | Suplementação Baseada em Evidências',
   '/home':      'SupliList | Suplementação Baseada em Evidências',
   '/list':      'Catálogo de Suplementos | SupliList',
@@ -42,7 +44,7 @@ function updatePageTitle() {
 // Landing mode: hide app shell (sidebar/topbar) on the marketing home
 function applyLandingMode() {
   const path = window.location.pathname;
-  const isLanding = path === '/' || path === '/home';
+  const isLanding = path === '/' || path === '/home' || path === '/onboarding';
   document.body.classList.toggle('body--landing', isLanding);
 }
 
@@ -60,17 +62,25 @@ document.addEventListener('DOMContentLoaded', () => {
     applyLandingMode();
     updatePageTitle();
     // Nav.updateActive is already called by router.js handleRoute() — no duplicate needed
-    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home';
+    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding';
     isLanding ? Nav.hide() : Nav.show();
   });
 
   // Init router
   const container = document.querySelector('#router-outlet');
   const router = new Router(routes, container);
-  router.start();
 
   // Expor o router globalmente para uso nos data-nav
   window.__router = router;
+
+  // Redirect to onboarding if not complete and no stack exists
+  const onboardingDone = stateManager.user.onboardingComplete;
+  const hasStack = stateManager.stack && stateManager.stack.length > 0;
+  if (!onboardingDone && !hasStack && window.location.pathname !== '/onboarding') {
+    window.history.replaceState(null, null, '/onboarding');
+  }
+
+  router.start();
 
   // Restaurar tema salvo
   const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || localStorage.getItem('theme');

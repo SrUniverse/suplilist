@@ -13,14 +13,15 @@ const getFavorites = () => {
 };
 
 const removeFavorite = (id) => {
-  // Dispatch through stateManager so all subscribers (e.g. list stats ring) update
+  // 1. Write to STORAGE_KEYS.FAVORITES so this page's own getFavorites() sees the update
+  //    immediately on the next _render() call (stateManager persists to a different key).
+  const favs = getFavorites().filter(f => f !== id);
+  localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favs));
+  // 2. Also dispatch to stateManager so list-page's stats ring (which reads
+  //    stateManager.favorites) updates without requiring a page reload.
   try {
     stateManager.dispatch(ACTIONS.REMOVE_FAVORITE, { supplementId: id });
-  } catch {
-    // Fallback: write directly if dispatch not available
-    const favs = getFavorites().filter(f => f !== id);
-    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favs));
-  }
+  } catch { /* silent — dispatch is best-effort cross-page sync */ }
 };
 
 // ─── Filter / Sort config ────────────────────────────────────

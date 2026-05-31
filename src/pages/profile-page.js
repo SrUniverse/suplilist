@@ -307,7 +307,7 @@ export default class ProfilePage {
           objective: this._form.objective,
         });
 
-        eventBus.emit('ui:toastRequested', { message: 'Dados biométricos salvos!', type: 'success' });
+        eventBus.emit('toast:show', { message: 'Dados biométricos salvos!', type: 'success' });
 
         // Update objective badge
         const badge = this.container.querySelector('span[style*="brand-muted"]');
@@ -361,9 +361,9 @@ export default class ProfilePage {
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-          eventBus.emit('ui:toastRequested', { message: 'Dados exportados!', type: 'success' });
+          eventBus.emit('toast:show', { message: 'Dados exportados!', type: 'success' });
         } catch (err) {
-          eventBus.emit('ui:toastRequested', { message: 'Erro ao exportar dados.', type: 'error' });
+          eventBus.emit('toast:show', { message: 'Erro ao exportar dados.', type: 'error' });
         }
       });
     }
@@ -374,7 +374,7 @@ export default class ProfilePage {
       btnClearCheckins.addEventListener('click', () => {
         if (confirm('Apagar todo o histórico de check-ins? Esta ação não pode ser desfeita.')) {
           stateManager.dispatch(ACTIONS.CLEAR_CHECKINS);
-          eventBus.emit('ui:toastRequested', { message: 'Histórico de check-ins apagado.', type: 'info' });
+          eventBus.emit('toast:show', { message: 'Histórico de check-ins apagado.', type: 'info' });
         }
       });
     }
@@ -386,11 +386,11 @@ export default class ProfilePage {
         const confirmation = prompt('Para confirmar, digite RESETAR:');
         if (confirmation === 'RESETAR') {
           stateManager.reset();
-          eventBus.emit('ui:toastRequested', { message: 'App resetado com sucesso.', type: 'info' });
+          eventBus.emit('toast:show', { message: 'App resetado com sucesso.', type: 'info' });
           window.history.pushState(null, null, '/home');
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else if (confirmation !== null) {
-          eventBus.emit('ui:toastRequested', { message: 'Texto incorreto. Reset cancelado.', type: 'error' });
+          eventBus.emit('toast:show', { message: 'Texto incorreto. Reset cancelado.', type: 'error' });
         }
       });
     }

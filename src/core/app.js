@@ -113,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { loading.style.display = 'none'; }, 300);
   }
 
-  // Toast events
-  eventBus.on('toast:show', ({ message, type = 'info', duration = 3000 }) => {
+  // Toast events — both 'toast:show' (pages) and 'ui:toastRequested' (stateManager/profile)
+  function _showToast({ message, type = 'info', duration = 3000 }) {
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) return;
     const toast = document.createElement('div');
@@ -125,5 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);
     }, duration);
-  });
+  }
+  eventBus.on('toast:show', _showToast);
+  eventBus.on('ui:toastRequested', _showToast); // stateManager.dispatch(ACTIONS.SHOW_TOAST) + profile-page legacy
 });

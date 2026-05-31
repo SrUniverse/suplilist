@@ -786,7 +786,7 @@ export class MyStackPage {
               <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${item.name}" title="Editar">✏️</button>
               <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${item.name}" title="Remover">🗑️</button>
               <a class="msp-btn-reorder"
-                 href="${affLinks.amazon}"
+                 href="${escapeHtml(affLinks.amazon)}"
                  target="_blank"
                  rel="noopener noreferrer"
                  data-aff-id="${escapeHtml(itemId)}"
@@ -853,6 +853,9 @@ export class MyStackPage {
   // ─── Delegated list event listeners ───────────────────────────────────────
   _attachDelegatedListeners() {
     this.container.querySelector('#msp-list')?.addEventListener('click', e => {
+      const affLink = e.target.closest('[data-aff-mp]');
+      if (affLink) affiliateEngine.trackClick(affLink.dataset.affId, affLink.dataset.affMp);
+
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
 
@@ -872,11 +875,6 @@ export class MyStackPage {
       if (btn.dataset.action === 'cancel-edit') {
         this._closeInlineEdit(id);
       }
-    });
-
-    this.container.querySelector('#msp-list')?.addEventListener('click', e => {
-      const affLink = e.target.closest('[data-aff-mp]');
-      if (affLink) affiliateEngine.trackClick(affLink.dataset.affId, affLink.dataset.affMp);
     });
   }
 

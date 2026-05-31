@@ -1,6 +1,7 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 import { todayISO } from '../utils/date.js';
+import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 
 export default class CheckinPage {
   constructor(container) {
@@ -221,10 +222,13 @@ export default class CheckinPage {
   }
 
   _supplementCard(item, checked) {
-    const slug  = (item.slug || item.name || '').toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
-    const img   = `/assets/${slug}.png`;
+    // Look up the canonical image from SUPPLEMENTS_DB using supplementId.
+    // Avoid building a slug from item.name — DB image paths don't always match
+    // the name (e.g. name "Creatina Monohidratada" → DB image "/assets/creatina.png").
+    const dbEntry = SUPPLEMENTS_DB.find(s => s.id === item.supplementId);
+    const img   = dbEntry?.image || `/assets/${(item.supplementId || '').replace(/-/g, '_')}.png`;
     const dose  = item.dosage ? `${item.dosage}${item.unit || 'g'}/dia` : '';
-    const timing = item.dosage?.timing || item.timing || '';
+    const timing = item.timing || '';
 
     return `
       <div style="

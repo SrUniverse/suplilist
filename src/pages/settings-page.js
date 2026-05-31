@@ -399,7 +399,8 @@ export default class SettingsPage {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Defer revoke so browser has time to start the download before the URL is invalidated
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       });
     }
 

@@ -360,7 +360,7 @@ export default class ProfilePage {
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
           eventBus.emit('toast:show', { message: 'Dados exportados!', type: 'success' });
         } catch (err) {
           eventBus.emit('toast:show', { message: 'Erro ao exportar dados.', type: 'error' });

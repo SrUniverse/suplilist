@@ -7,23 +7,31 @@ describe('StackRecommender AI Engine', () => {
     eventBus.clear();
   });
 
-  // Validation Checklist: All 10 mandatory supplement IDs present in SUPPLEMENTS_DB
-  it('Validation Checklist: All 10 mandatory supplement IDs present in SUPPLEMENTS_DB', () => {
+  it('Validation Checklist: All 55 supplement IDs present in SUPPLEMENTS_DB', () => {
     const ids = SUPPLEMENTS_DB.map(s => s.id);
     const mandatoryIds = [
-      'creatina-monohidratada',
-      'whey-protein',
-      'cafeina',
-      'vitamina-d3',
-      'omega-3',
-      'beta-alanina',
-      'l-carnitina',
-      'magnesio-bisglicinato',
-      'vitamina-c',
-      'ashwagandha'
+      'creatina-monohidratada', 'whey-protein', 'cafeina-teanina', 'vitamina-d3',
+      'omega-3', 'beta-alanina', 'l-carnitina', 'magnesio-bisglicinato',
+      'vitamina-c', 'ashwagandha', 'alpha-gpc', 'apigenina', 'bacopa-monnieri',
+      'berberina', 'boro', 'calcio-citrato-d3', 'catuaba', 'cha-verde',
+      'coenzima-q10', 'colageno', 'cranberry', 'cromo-picolinato', 'curcumina',
+      'eaa', 'ecdisterona', 'feno-grego', 'ferro-bisglicinato', 'glicina',
+      'glucosamina-condroitina', 'hmb', 'inositol', 'lions-mane', 'l-citrulina',
+      'l-teanina', 'magnesio-treonato', 'marapuama', 'melatonina',
+      'mucuna-pruriens', 'myco-defense-extra', 'nac', 'oleo-de-primula',
+      'panax-ginseng', 'probiotico', 'psyllium', 'quercetina', 'resveratrol',
+      'rhodiola-rosea', 'saw-palmetto', 'shatavari', 'spirulina', 'taurina',
+      'tirosina', 'tongkat-ali', 'valeriana', 'zinco-bisglicinato'
     ];
     mandatoryIds.forEach(id => {
-      expect(ids.includes(id)).toBe(true);
+      expect(ids.includes(id), 'Missing supplement: ' + id).toBe(true);
+    });
+  });
+
+  it('Validation: All supplements have image field pointing to /assets/', () => {
+    SUPPLEMENTS_DB.forEach(s => {
+      expect(s.image, s.id + ' missing image field').toBeDefined();
+      expect(s.image, s.id + ' image must match /assets/*.png').toMatch(/^\/assets\/.+\.png$/);
     });
   });
 
@@ -52,8 +60,8 @@ describe('StackRecommender AI Engine', () => {
     expect(ids.some(id => id === 'creatina-monohidratada' || id === 'whey-protein')).toBe(true);
   });
 
-  // 2. Cut 65kg → results include 'l-carnitina' or 'cafeina'
-  it("2. Cut 65kg → results include 'l-carnitina' or 'cafeina'", () => {
+  // 2. Cut 65kg → results include 'l-carnitina' or 'cafeina-teanina'
+  it("2. Cut 65kg → results include 'l-carnitina' or 'cafeina-teanina'", () => {
     const profile = {
       objective: 'cut',
       weight: 65,
@@ -66,7 +74,7 @@ describe('StackRecommender AI Engine', () => {
     const results = recommender.recommend(profile, 10);
     const ids = results.map(r => r.id);
     
-    expect(ids.some(id => id === 'l-carnitina' || id === 'cafeina')).toBe(true);
+    expect(ids.some(id => id === 'l-carnitina' || id === 'cafeina-teanina')).toBe(true);
   });
 
   // 3. Lactose restriction → 'whey-protein' excluded

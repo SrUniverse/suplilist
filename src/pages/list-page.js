@@ -728,7 +728,7 @@ export default class ListPage {
       const ev = item.evidenceLevel;
       const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
       const desc = item.benefits?.[0] ?? '';
-      const slug = item.id.replace(/-/g, '_');
+      const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
 
       const saving = getMaxSaving(item, this._prices);
       const priceInfo = getPriceLabel(item, this._prices);
@@ -753,7 +753,7 @@ export default class ListPage {
         ${topBadge}
         <div class="lp-card-img-wrap">
           <img class="lp-card-img"
-            src="/assets/${slug}.png"
+            src="${img}"
             alt="${item.name}"
             loading="lazy"
             onerror="this.style.display='none'"
@@ -836,7 +836,7 @@ export default class ListPage {
 
     const ev = item.evidenceLevel;
     const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
-    const slug = item.id.replace(/-/g, '_');
+    const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
     const stack = stateManager.stack ?? [];
     const inStack = stack.some(s => s.supplementId === item.id);
 
@@ -887,7 +887,7 @@ export default class ListPage {
         <div class="lp-modal-top">
           <div class="lp-modal-img-col">
             <div class="lp-modal-img-wrap">
-              <img class="lp-modal-img" src="/assets/${slug}.png" alt="${escapeHtml(item.name)}" onerror="this.style.display='none'" />
+              <img class="lp-modal-img" src="${img}" alt="${escapeHtml(item.name)}" onerror="this.style.display='none'" />
             </div>
             <p class="lp-modal-img-col-name">${escapeHtml(item.name)}</p>
             <p class="lp-modal-img-col-cat">${escapeHtml(item.category ?? '')}</p>

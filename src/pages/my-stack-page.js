@@ -958,6 +958,9 @@ export class MyStackPage {
     `;
 
     document.body.appendChild(overlay);
+    // Lock router-outlet scroll while modal is open (body.overflow doesn't work after App Shell redesign)
+    const outlet = document.getElementById('router-outlet');
+    if (outlet) outlet.style.overflow = 'hidden';
     this._modalSelectedId = null;
 
     // Close on overlay click
@@ -1057,6 +1060,9 @@ export class MyStackPage {
     this._modalSelectedId = null;
     const overlay = document.getElementById('msp-modal-overlay');
     overlay?.remove();
+    // Restore router-outlet scroll
+    const outlet = document.getElementById('router-outlet');
+    if (outlet) outlet.style.overflow = '';
   }
 }
 

@@ -377,9 +377,11 @@ export default class CheckinPage {
     if (allBtn) {
       allBtn.addEventListener('click', () => {
         const checkedIds = this._getCheckedIds();
+        const today = this._getTodayStr();
+        // Batch all dispatches without individual re-renders, then refresh once
         stateManager.stack.forEach(item => {
           if (!checkedIds.has(item.supplementId)) {
-            this._doCheckin(item.supplementId, item.name, false);
+            stateManager.dispatch(ACTIONS.ADD_CHECKIN, { supplementId: item.supplementId, date: today });
           }
         });
         this._refresh();

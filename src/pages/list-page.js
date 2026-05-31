@@ -157,7 +157,9 @@ export default class ListPage {
     this._closeModal();
     // Cancel pending debounce search callback
     clearTimeout(this._debounceTimer);
-    // Ensure body scroll is not left locked after navigation
+    // Ensure scroll is not left locked after navigation (router-outlet + body fallback)
+    const outlet = document.getElementById('router-outlet');
+    if (outlet) outlet.style.overflow = '';
     document.body.style.overflow = '';
   }
 
@@ -932,7 +934,10 @@ export default class ListPage {
     `;
 
     document.body.appendChild(overlay);
-    document.body.style.overflow = 'hidden';
+    // Lock scroll on the router-outlet (the real scroll container after App Shell redesign)
+    const outlet = document.getElementById('router-outlet');
+    if (outlet) outlet.style.overflow = 'hidden';
+    else document.body.style.overflow = 'hidden'; // fallback
 
     // Tab switching
     overlay.querySelectorAll('.lp-tab').forEach(tab => {
@@ -976,6 +981,8 @@ export default class ListPage {
     const existing = document.getElementById('lp-modal-overlay');
     if (existing) {
       existing.remove();
+      const outlet = document.getElementById('router-outlet');
+      if (outlet) outlet.style.overflow = '';
       document.body.style.overflow = '';
     }
     this._modalOpen = null;

@@ -211,6 +211,12 @@ export default class HomePage {
           </section>
           </div>
 
+          <section class="lp-cta" aria-label="Comece agora">
+            <h2 class="lp-cta__title">PARE DE ADIVINHAR.<br>COMECE COM CIÊNCIA.</h2>
+            <p class="lp-cta__sub">Sem cadastro. Sem assinatura. Tudo no seu dispositivo.</p>
+            <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Abrir o App →</button>
+          </section>
+
           <section class="lp-section lp-instagram" aria-label="Instagram">
             <div class="lp-ig__card">
               <div class="lp-ig__inner">
@@ -236,12 +242,6 @@ export default class HomePage {
               </div>
             </div>
             <p class="lp-ig__cta-text">Dicas semanais de suplementação, promoções e novidades do app — tudo no Instagram.</p>
-          </section>
-
-          <section class="lp-cta" aria-label="Comece agora">
-            <h2 class="lp-cta__title">PARE DE ADIVINHAR.<br>COMECE COM CIÊNCIA.</h2>
-            <p class="lp-cta__sub">Sem cadastro. Sem assinatura. Tudo no seu dispositivo.</p>
-            <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Abrir o App →</button>
           </section>
 
         </main>

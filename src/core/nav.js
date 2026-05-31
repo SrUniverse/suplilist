@@ -95,6 +95,7 @@ export class Nav {
   static _styleInjected = false;
   static _badgeStates = {};
   static _scrollHandler = null;
+  static _checkinUnsub = null;  // unsubscribe for checkin:added badge listener
   static _clickHandler = null;
 
   static init() {
@@ -108,7 +109,10 @@ export class Nav {
       Nav.setBadge('checkin', true);
     }
     // Reactively remove badge when user does a checkin during the session
-    eventBus.on('checkin:added', () => {
+    // Guard: unsubscribe previous listener before adding a new one (prevents
+    // accumulation if init() is called more than once).
+    if (Nav._checkinUnsub) { Nav._checkinUnsub(); Nav._checkinUnsub = null; }
+    Nav._checkinUnsub = eventBus.on('checkin:added', () => {
       if (Nav._hasCheckinToday()) {
         Nav.setBadge('checkin', false);
       }

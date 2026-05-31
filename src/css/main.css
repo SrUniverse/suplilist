@@ -2361,13 +2361,13 @@ body.landing-body::before {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: var(--color-bg);
+  background: var(--color-bg-primary);
 }
 
 .onboarding-card {
   width: 100%;
   max-width: 480px;
-  background: var(--color-surface);
+  background: var(--color-surface-primary);
   border-radius: 1.25rem;
   padding: 2rem 1.75rem;
   box-shadow: 0 8px 32px rgba(0,0,0,.18);
@@ -2385,7 +2385,7 @@ body.landing-body::before {
 .onboarding-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--color-text-primary);
   margin-bottom: .5rem;
 }
 
@@ -2401,8 +2401,8 @@ body.landing-body::before {
   padding: .75rem 1rem;
   border-radius: .625rem;
   border: 1.5px solid var(--color-border);
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
   font-size: 1rem;
   outline: none;
   transition: border-color .2s;
@@ -2410,7 +2410,7 @@ body.landing-body::before {
 }
 
 .onboarding-input:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-brand);
 }
 
 .onboarding-goal-grid {
@@ -2424,19 +2424,19 @@ body.landing-body::before {
   padding: .875rem 1rem;
   border-radius: .75rem;
   border: 1.5px solid var(--color-border);
-  background: var(--color-bg);
+  background: var(--color-bg-primary);
   cursor: pointer;
   transition: border-color .15s, background .15s;
   text-align: left;
 }
 
 .onboarding-goal-card:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-brand);
 }
 
 .onboarding-goal-card.selected {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  border-color: var(--color-brand);
+  background: var(--color-brand-muted);
 }
 
 .onboarding-goal-card__emoji {
@@ -2448,11 +2448,11 @@ body.landing-body::before {
 .onboarding-goal-card__label {
   font-size: .85rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text-primary);
 }
 
 .onboarding-goal-card.selected .onboarding-goal-card__label {
-  color: var(--color-primary);
+  color: var(--color-brand);
 }
 
 .onboarding-supp-list {
@@ -2471,14 +2471,14 @@ body.landing-body::before {
   padding: .75rem 1rem;
   border-radius: .75rem;
   border: 1.5px solid var(--color-border);
-  background: var(--color-bg);
+  background: var(--color-bg-primary);
   cursor: pointer;
   transition: border-color .15s, background .15s;
 }
 
 .onboarding-supp-card.selected {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  border-color: var(--color-brand);
+  background: var(--color-brand-muted);
 }
 
 .onboarding-supp-card__check {
@@ -2494,9 +2494,9 @@ body.landing-body::before {
 }
 
 .onboarding-supp-card.selected .onboarding-supp-card__check {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: #fff;
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+  color: var(--color-text-primary);
   font-size: .7rem;
 }
 
@@ -2505,7 +2505,7 @@ body.landing-body::before {
 .onboarding-supp-card__name {
   font-size: .875rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text-primary);
 }
 
 .onboarding-supp-card__meta {
@@ -2548,7 +2548,7 @@ body.landing-body::before {
   padding: .875rem 1.5rem;
   border-radius: .625rem;
   border: none;
-  background: var(--color-primary);
+  background: var(--color-brand);
   color: #fff;
   font-size: .95rem;
   font-weight: 700;

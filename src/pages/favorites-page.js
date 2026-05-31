@@ -5,6 +5,7 @@
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
+import { EVIDENCE_COLORS } from '../utils/evidence.js';
 
 // ─── Helpers ────────────────────────────────────────────────
 const getFavorites = () => {
@@ -33,11 +34,7 @@ const GOAL_FILTERS = [
   { key: 'cut',       label: 'Emagrecimento' },
 ];
 
-const EVIDENCE_COLORS = {
-  A: { bg: 'rgba(34,197,94,0.15)',  color: '#22C55E' },
-  B: { bg: 'rgba(234,179,8,0.15)', color: '#EAB308' },
-  C: { bg: 'rgba(156,163,175,0.15)', color: '#9CA3AF' },
-};
+// EVIDENCE_COLORS imported from utils/evidence.js — canonical source of truth
 
 function matchesGoal(s, goalKey) {
   if (goalKey === 'all') return true;

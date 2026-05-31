@@ -1,3 +1,5 @@
+import { Nav } from './nav.js';
+
 export class Router {
   constructor(routes, container) {
     this.routes = routes;
@@ -72,16 +74,7 @@ export class Router {
       this.container.innerHTML = '<p style="color:var(--color-error);padding:2rem;">Erro ao carregar a página. Tente novamente.</p>';
     }
 
-    this.updateNav(pathname);
-  }
-
-  updateNav(pathname) {
-    const path = pathname.replace(/^\//, '') || 'home';
-    document.querySelectorAll('.nav-item').forEach(el => {
-      const route = el.dataset.route || el.getAttribute('href') || '';
-      const navPath = route.replace(/^\//, '');
-      el.classList.toggle('active', navPath === path);
-    });
+    Nav.updateActive(pathname);
   }
 }
 

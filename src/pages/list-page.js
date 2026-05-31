@@ -722,7 +722,6 @@ export default class ListPage {
     const favs = getFavoritesFromState();
 
     this._filtered.slice(from, to).forEach(item => {
-      const inStack = stack.some(s => s.supplementId === item.id);
       const isFav = favs.has(item.id);
       const ev = item.evidenceLevel;
       const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
@@ -802,13 +801,13 @@ export default class ListPage {
 
     this.container.querySelectorAll('.lp-card').forEach(card => {
       const id = card.dataset.id;
-      const inStack = stack.some(s => s.supplementId === id);
       const isFav = favs.has(id);
 
       const favBtn = card.querySelector('[data-action="toggle-fav"]');
       if (favBtn) {
         favBtn.classList.toggle('faved', isFav);
         favBtn.textContent = isFav ? '♥' : '♡';
+        favBtn.setAttribute('aria-label', isFav ? 'Remover dos favoritos' : 'Favoritar');
       }
 
 

@@ -8,6 +8,7 @@ import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import dosageCalculator from '../ai/dosage-calculator.js';
 import { escapeHtml } from '../utils/escape.js';
 import { EVIDENCE_COLORS as EVIDENCE_COLORS_MAP } from '../utils/evidence.js';
+import { eventBus } from '../core/event-bus.js';
 
 const ACTIVITY_LEVELS = [
   { value: 'sedentary',  label: 'Sedentário' },
@@ -392,7 +393,7 @@ export default class CalculatorPage {
         const inStack = (stateManager.stack ?? []).some(s => s.supplementId === suppId);
         if (inStack) {
           stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { supplementId: suppId });
-          if (window.SupliToast) window.SupliToast.show(`${suppName} removido do protocolo`, 'info');
+          eventBus.emit('toast:show', { message: `${suppName} removido do protocolo`, type: 'info' });
         } else {
           const supp = this._selectedSupp;
           const result = this._calcResult;
@@ -407,7 +408,7 @@ export default class CalculatorPage {
             unit,
             frequency: 'diário',
           });
-          if (window.SupliToast) window.SupliToast.show(`✓ ${suppName} adicionado ao protocolo!`, 'success');
+          eventBus.emit('toast:show', { message: `✓ ${suppName} adicionado ao protocolo!`, type: 'success' });
         }
         const card = this.container.querySelector('#result-card');
         if (card) card.innerHTML = this._renderResult();

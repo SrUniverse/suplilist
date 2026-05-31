@@ -747,7 +747,6 @@ export class MyStackPage {
       const dbEntry = SUPPLEMENTS_DB.find(s => s.id === itemId);
       const category = dbEntry?.category ?? '';
       const desc = dbEntry?.benefits?.[0] ?? '';
-      const daysLeftStr = daysLeft !== null ? `Dia ${Math.max(0, (item.quantity ? Math.floor(parseFloat(item.quantity) / (parseFloat(item.dosage) || 1)) : 0) - daysLeft)}/${Math.max(0, Math.floor(parseFloat(item.quantity || 0) / (parseFloat(item.dosage) || 1)))} dias` : '';
 
       el.innerHTML = `
         <div class="msp-item-top">

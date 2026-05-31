@@ -235,6 +235,12 @@ export class Nav {
   }
 
   static _setupClickDelegation() {
+    // Guard: remove any previous listener before adding a new one (prevents
+    // accumulation if init() is called more than once, e.g. during HMR).
+    if (Nav._clickHandler) {
+      document.removeEventListener('click', Nav._clickHandler);
+      Nav._clickHandler = null;
+    }
     Nav._clickHandler = (e) => {
       const btn = e.target.closest('[data-nav-path]');
       if (!btn) return;

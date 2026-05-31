@@ -92,7 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnTheme = document.getElementById('btn-theme');
     const btnThemeMobile = document.getElementById('btn-theme-mobile');
     if (btnTheme) btnTheme.querySelector('.sb-item__icon').innerHTML = themeIcon;
-    if (btnThemeMobile) btnThemeMobile.innerHTML = themeIcon;
+    // Update mobile topbar icon without replacing the button element itself
+    const mobileIconEl = btnThemeMobile?.querySelector('svg') ?? btnThemeMobile;
+    if (mobileIconEl && mobileIconEl !== btnThemeMobile) {
+      mobileIconEl.outerHTML = themeIcon; // replace just the svg
+    } else if (btnThemeMobile) {
+      btnThemeMobile.innerHTML = themeIcon; // fallback (no nested svg yet)
+    }
   }
   document.addEventListener('click', (e) => {
     if (e.target.closest('#btn-theme') || e.target.closest('#btn-theme-mobile')) {

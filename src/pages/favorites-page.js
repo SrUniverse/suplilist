@@ -4,7 +4,7 @@
 // ============================================================
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
-import { stateManager, STORAGE_KEYS } from '../state/state-manager.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 
 // ─── Helpers ────────────────────────────────────────────────
 const getFavorites = () => {
@@ -13,8 +13,14 @@ const getFavorites = () => {
 };
 
 const removeFavorite = (id) => {
-  const favs = getFavorites().filter(f => f !== id);
-  localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favs));
+  // Dispatch through stateManager so all subscribers (e.g. list stats ring) update
+  try {
+    stateManager.dispatch(ACTIONS.REMOVE_FAVORITE, { supplementId: id });
+  } catch {
+    // Fallback: write directly if dispatch not available
+    const favs = getFavorites().filter(f => f !== id);
+    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favs));
+  }
 };
 
 // ─── Filter / Sort config ────────────────────────────────────

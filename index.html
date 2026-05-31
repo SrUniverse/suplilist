@@ -214,58 +214,70 @@
       color: var(--color-text-primary);
       display: grid;
       grid-template-columns: 240px 1fr;
-      grid-template-rows: auto 1fr;
-      grid-template-areas:
-        "sidebar topbar"
-        "sidebar main";
+      grid-template-rows: 1fr;
+      grid-template-areas: "sidebar main";
       height: 100dvh;
-      transition: grid-template-columns 0.3s ease;
     }
 
-    body.sidebar-collapsed {
-      grid-template-columns: 80px 1fr;
+    /* Landing mode — esconde toda navegação */
+    body.body--landing #sidebar-nav,
+    body.body--landing #mobile-topbar,
+    body.body--landing #bottom-nav { display: none !important; }
+    body.body--landing { display: block !important; }
+    body.body--landing #router-outlet {
+      position: fixed; inset: 0; overflow-y: auto; grid-area: unset;
     }
 
-    @media (max-width: 768px) {
-      body {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr auto;
-        grid-template-areas:
-          "topbar"
-          "main"
-          "sidebar";
-      }
-
-      /* Prevent grid children from overflowing the viewport */
-      #topbar,
-      #router-outlet {
-        width: 100%;
-        min-width: 0;
-        max-width: 100vw;
-        overflow-x: hidden;
-      }
-    }
-
-    /* === TOP BAR === */
-    #topbar {
-      grid-area: topbar;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding: 12px 16px;
-      padding-top: max(12px, env(safe-area-inset-top));
+    #sidebar-nav {
+      grid-area: sidebar;
       background: var(--color-surface-primary);
-      border-bottom: 1px solid var(--color-border);
+      border-right: 1px solid var(--color-border);
       z-index: 100;
+      overflow: hidden;
     }
 
-    #topbar .logo {
-      display: none;
+    #router-outlet {
+      grid-area: main;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      background: var(--color-bg-primary);
     }
 
-    #topbar .topbar-actions {
-      display: flex;
-      gap: 8px;
+    #mobile-topbar { display: none; }
+    #bottom-nav    { display: none; }
+
+    @media (max-width: 859px) {
+      body {
+        display: block;
+        height: 100dvh;
+        overflow: hidden;
+      }
+      #sidebar-nav { display: none !important; }
+      #mobile-topbar {
+        display: flex !important;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 52px;
+        padding-top: env(safe-area-inset-top);
+        z-index: 200;
+      }
+      #router-outlet {
+        position: fixed;
+        top: calc(52px + env(safe-area-inset-top));
+        bottom: calc(64px + env(safe-area-inset-bottom));
+        left: 0; right: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: calc(64px + env(safe-area-inset-bottom));
+        padding-bottom: env(safe-area-inset-bottom);
+        z-index: 200;
+      }
     }
 
     .icon-btn {
@@ -292,218 +304,6 @@
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
-    }
-
-    /* === ROUTER OUTLET === */
-    #router-outlet {
-      grid-area: main;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      background: var(--color-bg-primary);
-    }
-
-    /* === SIDEBAR NAV === */
-    #sidebar-nav {
-      grid-area: sidebar;
-      display: flex;
-      flex-direction: column;
-      padding: 16px;
-      padding-top: max(16px, env(safe-area-inset-top));
-      background: var(--color-surface-primary);
-      border-right: 1px solid var(--color-border);
-      z-index: 100;
-    }
-
-    .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 32px;
-      padding: 0 8px;
-      height: 32px;
-    }
-
-    body.sidebar-collapsed .sidebar-header {
-      justify-content: center;
-      padding: 0;
-    }
-
-    .sidebar-logo {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--color-brand);
-      white-space: nowrap;
-      transition: opacity 0.2s;
-    }
-
-    body.sidebar-collapsed .sidebar-logo {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-    }
-
-    .sidebar-toggle {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--color-text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px;
-      border-radius: 8px;
-      transition: background 0.2s, transform 0.3s ease;
-    }
-
-    .sidebar-toggle:hover {
-      background: var(--color-surface-hover);
-    }
-
-    body.sidebar-collapsed .sidebar-toggle {
-      transform: rotate(180deg);
-    }
-
-    .sidebar-toggle svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .nav-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      color: var(--color-text-muted);
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      transition: color 0.15s, background 0.15s;
-      border: none;
-      background: none;
-      width: 100%;
-      font-family: inherit;
-      justify-content: flex-start;
-    }
-
-    .nav-item:hover {
-      background: var(--color-surface-hover);
-    }
-
-    .nav-item.active {
-      color: var(--color-brand);
-      background: var(--color-brand-muted);
-    }
-
-    .nav-item svg {
-      width: 22px;
-      height: 22px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .nav-label {
-      transition: opacity 0.2s;
-      white-space: nowrap;
-    }
-
-    body.sidebar-collapsed .nav-label {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-    }
-
-    body.sidebar-collapsed .nav-item {
-      justify-content: center;
-      padding: 12px 0;
-      gap: 0;
-    }
-
-    @media (max-width: 768px) {
-      #topbar {
-        justify-content: space-between;
-      }
-
-      #topbar .logo {
-        display: block;
-        font-size: 18px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        color: var(--color-brand);
-      }
-
-      #sidebar-nav {
-        border-right: none;
-        border-top: 1px solid var(--color-border);
-        padding: 6px 0;
-        padding-bottom: max(6px, env(safe-area-inset-bottom));
-        flex-direction: row;
-        justify-content: space-around;
-      }
-
-      .sidebar-header {
-        display: none;
-      }
-
-      .nav-container {
-        flex-direction: row;
-        justify-content: space-around;
-        width: 100%;
-        gap: 0;
-        overflow-x: auto;
-        scrollbar-width: none;
-      }
-
-      .nav-container::-webkit-scrollbar {
-        display: none;
-      }
-
-      .nav-label {
-        opacity: 1 !important;
-        width: auto !important;
-        display: block !important;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        max-width: 100%;
-      }
-
-      body.sidebar-collapsed .nav-item {
-        padding: 6px 8px;
-      }
-
-      .nav-item {
-        flex-direction: column;
-        gap: 3px;
-        padding: 6px 4px;
-        font-size: 9px;
-        min-width: 0;
-        flex: 1;
-        justify-content: center;
-      }
-
-      .nav-item.active {
-        background: none;
-      }
     }
 
     /* === TOAST === */
@@ -541,15 +341,8 @@
     }
 
     @keyframes toast-in {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* === PAGE ENTER ANIMATION === */
@@ -558,24 +351,8 @@
     }
 
     @keyframes page-fade {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    /* === LANDING PAGE MODE — hide shell === */
-    body.body--landing #sidebar-nav,
-    body.body--landing #topbar { display: none !important; }
-    body.body--landing { display: block !important; }
-    body.body--landing #router-outlet {
-      position: fixed;
-      inset: 0;
-      overflow-y: auto;
-      grid-area: unset;
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
 
     /* === LOADING === */
@@ -602,34 +379,12 @@
     }
 
     @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+      to { transform: rotate(360deg); }
     }
 
     .loading-text {
       font-size: 14px;
       color: var(--color-text-muted);
-    }
-
-    /* === LANDING MODE (esconde shell do app na home/marketing) === */
-    body.body--landing {
-      display: block;
-      height: 100dvh;
-      overflow: hidden;
-    }
-
-    body.body--landing #sidebar-nav,
-    body.body--landing #topbar {
-      display: none !important;
-    }
-
-    body.body--landing #router-outlet {
-      grid-area: unset;
-      position: fixed;
-      inset: 0;
-      height: 100dvh;
-      overflow-y: auto;
     }
   </style>
 
@@ -660,136 +415,17 @@
     <span class="loading-text">Carregando SupliList...</span>
   </div>
 
-  <!-- Top Bar -->
-  <header id="topbar" role="banner">
-    <span class="logo" aria-label="SupliList">SupliList</span>
-    <nav class="topbar-actions" aria-label="Ações do topo">
-      <button id="btn-theme" class="icon-btn" aria-label="Alternar tema" title="Alternar tema claro/escuro">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="5" />
-          <line x1="12" y1="1" x2="12" y2="3" />
-          <line x1="12" y1="21" x2="12" y2="23" />
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-          <line x1="1" y1="12" x2="3" y2="12" />
-          <line x1="21" y1="12" x2="23" y2="12" />
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-        </svg>
-      </button>
-    </nav>
-  </header>
+  <!-- Mobile topbar — conteúdo injetado por Nav.init() -->
+  <header id="mobile-topbar" role="banner" aria-label="Topo mobile"></header>
 
   <!-- Router outlet -->
   <main id="router-outlet" role="main" aria-live="polite" aria-label="Conteúdo principal"></main>
 
-  <!-- Sidebar Navigation -->
-  <nav id="sidebar-nav" role="navigation" aria-label="Navegação principal">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">SupliList</div>
-      <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Recolher menu">
-        <svg viewBox="0 0 24 24">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
-    </div>
-    <div class="nav-container">
-      <button class="nav-item active" data-route="/home" aria-label="Início">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
-        <span class="nav-label">Início</span>
-      </button>
-      <button class="nav-item" data-route="/list" aria-label="Catálogo">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="3" y="14" width="7" height="7" rx="1" />
-          <rect x="14" y="14" width="7" height="7" rx="1" />
-        </svg>
-        <span class="nav-label">Catálogo</span>
-      </button>
-      <button class="nav-item" data-route="/my-stack" aria-label="Meu Stack">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" />
-          <path d="M2 12l10 5 10-5" />
-          <path d="M2 17l10 5 10-5" />
-        </svg>
-        <span class="nav-label">Stack</span>
-      </button>
-      <button class="nav-item" data-route="/favorites" aria-label="Favoritos">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-        <span class="nav-label">Favoritos</span>
-      </button>
-      <button class="nav-item" data-route="/checkin" aria-label="Check-in">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
-        <span class="nav-label">Check-in</span>
-      </button>
-      <button class="nav-item" data-route="/history" aria-label="Histórico">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        <span class="nav-label">Histórico</span>
-      </button>
-      <button class="nav-item" data-route="/dosage" aria-label="Calculadora de Dosagem">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18" />
-        </svg>
-        <span class="nav-label">Calculadora</span>
-      </button>
-      <button class="nav-item" data-route="/profile" aria-label="Perfil">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-        <span class="nav-label">Perfil</span>
-      </button>
-      <button class="nav-item" data-route="/settings" aria-label="Configurações">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-        <span class="nav-label">Config</span>
-      </button>
-    </div>
-  </nav>
+  <!-- Bottom nav mobile — conteúdo injetado por Nav.init() -->
+  <nav id="bottom-nav" role="navigation" aria-label="Navegação principal mobile"></nav>
 
-  <script>
-    (function () {
-      const toggleBtn = document.getElementById('sidebar-toggle');
-      const body = document.body;
-      const MOBILE_BP = 768;
-
-      const apply = () => {
-        if (window.innerWidth < MOBILE_BP) {
-          // CSS transforma em bottom nav — classe não interfere
-          body.classList.remove('sidebar-collapsed');
-        } else {
-          const collapsed = localStorage.getItem('suplilist:sidebar-collapsed') === 'true';
-          body.classList.toggle('sidebar-collapsed', collapsed);
-        }
-      };
-
-      apply();
-
-      if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-          if (window.innerWidth < MOBILE_BP) return;
-          const isCollapsed = body.classList.toggle('sidebar-collapsed');
-          localStorage.setItem('suplilist:sidebar-collapsed', isCollapsed);
-        });
-      }
-
-      window.addEventListener('resize', apply);
-    })();
-  </script>
+  <!-- Sidebar desktop — conteúdo injetado por Nav.init() -->
+  <nav id="sidebar-nav" role="navigation" aria-label="Navegação principal"></nav>
 
   <!-- Toast container -->
   <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>

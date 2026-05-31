@@ -59,7 +59,7 @@ function getMaxSaving(item, prices) {
 function matchesCategory(item, cat) {
   if (!cat || cat === 'Todos') return true;
   const c = (item.category || '').toLowerCase();
-  if (cat === 'Performance')    return c.includes('força') || c.includes('performance') || c.includes('resistência') || c.includes('endurance');
+  if (cat === 'Performance')    return c.includes('força') || c.includes('performance') || c.includes('resistência') || c.includes('endurance') || c.includes('queima') || c.includes('gordura') || c.includes('recovery');
   if (cat === 'Proteínas')      return c.startsWith('prote');
   if (cat === 'Vitaminas')      return c.includes('vitam');
   if (cat === 'Adaptógenos')    return c.includes('adapt');

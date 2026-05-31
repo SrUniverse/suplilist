@@ -25,7 +25,7 @@ export class DosageCalculator {
     ['whey-protein', 0.4],             // 0.4g/kg of body weight
     ['beta-alanina', 0.05],            // 0.05g/kg of body weight
     ['l-carnitina', 0.02],             // 0.02g/kg of body weight
-    ['cafeina', 3]                     // 3mg/kg of body weight
+    ['cafeina-teanina', 3]              // 3mg/kg of body weight (caffeine component)
   ]);
 
   /**
@@ -205,7 +205,7 @@ export class DosageCalculator {
   }
 
   _getDosageFrequency(supplement, objective) {
-    if (supplement.id === 'cafeina') {
+    if (supplement.id === 'cafeina-teanina') {
       return 'Somente nos dias de treino (pré-treino)';
     }
     return 'Diariamente';

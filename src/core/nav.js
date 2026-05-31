@@ -288,17 +288,15 @@ export class Nav {
 
   static _getSidebarSubtitle() {
     try {
-      const profile = stateManager.profile || stateManager.select?.(s => s.profile);
-      const goal = profile?.primaryGoal || profile?.goal;
+      const objective = stateManager.user?.objective;
       const map = {
-        'Hipertrofia':   'Foco em Hipertrofia',
-        'Perda de Peso': 'Foco em Emagrecimento',
-        'Performance':   'Foco em Performance',
-        'Saúde Geral':   'Saúde & Longevidade',
-        'Longevidade':   'Foco em Longevidade',
-        'Foco':          'Foco & Cognição',
+        bulk:      'Foco em Hipertrofia',
+        cut:       'Foco em Emagrecimento',
+        strength:  'Foco em Força',
+        endurance: 'Foco em Performance',
+        general:   'Saúde & Longevidade',
       };
-      return map[goal] || 'Suplementação Inteligente';
+      return map[objective] || 'Suplementação Inteligente';
     } catch {
       return 'Suplementação Inteligente';
     }

@@ -11,7 +11,7 @@ const formatMonthYear = (isoDate) => {
   return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
 };
 
-const CATEGORIES = ['Todos', 'Proteínas', 'Aminoácidos', 'Adaptógenos', 'Vitaminas', 'Energéticos & Foco', 'Força & Performance', 'Antioxidantes & Saúde'];
+const CATEGORIES = ['Todos', 'Força & Performance', 'Proteínas', 'Vitaminas & Minerais', 'Adaptógenos & Foco', 'Cognição & Neuroproteção', 'Saúde Hormonal', 'Antioxidantes & Anti-inflamatórios', 'Sono & Recuperação', 'Saúde Geral'];
 
 // Map supplementId → DB entry
 const buildSupMap = () => {

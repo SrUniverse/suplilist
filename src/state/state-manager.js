@@ -6,7 +6,7 @@
 // ============================================================
 
 import { eventBus } from '../core/event-bus.js';
-import { todayISO } from '../utils/date.js';
+import { todayISO, offsetISO } from '../utils/date.js';
 
 export const STATE_VERSION = '4.0.0';
 export const STORAGE_KEY = 'suplilist-state-v4';
@@ -734,9 +734,7 @@ export class StateManager {
     if (dates.length === 0) return 0;
 
     const todayStr = todayISO();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = offsetISO(1);
 
     // If no checkin today or yesterday, streak is broken (0)
     if (dates[0] !== todayStr && dates[0] !== yesterdayStr) {

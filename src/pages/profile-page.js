@@ -388,6 +388,11 @@ export default class ProfilePage {
         const confirmation = prompt('Para confirmar, digite RESETAR:');
         if (confirmation === 'RESETAR') {
           stateManager.reset();
+          // Also clear the separate favorites localStorage key (not managed by stateManager)
+          localStorage.removeItem('suplilist:favorites');
+          localStorage.removeItem('suplilist:notif-checkin');
+          localStorage.removeItem('suplilist:notif-restock');
+          localStorage.removeItem('suplilist:sidebar-collapsed');
           eventBus.emit('toast:show', { message: 'App resetado com sucesso.', type: 'info' });
           window.history.pushState(null, null, '/home');
           window.dispatchEvent(new PopStateEvent('popstate'));

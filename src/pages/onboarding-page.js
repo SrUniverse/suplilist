@@ -1,5 +1,6 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import recommender from '../ai/stack-recommender.js';
+import { escapeHtml } from '../utils/escape.js';
 
 const GOALS = [
   { key: 'bulk',       emoji: '💪', label: 'Hipertrofia' },
@@ -65,7 +66,7 @@ export default class OnboardingPage {
             type="text"
             placeholder="Seu nome"
             autocomplete="given-name"
-            value="${this.data.name}"
+            value="${escapeHtml(this.data.name)}"
             style="margin-bottom:1.75rem"
           />
           <div class="onboarding-actions">
@@ -125,8 +126,8 @@ export default class OnboardingPage {
             <div class="onboarding-supp-card${sel ? ' selected' : ''}" data-supp="${s.id}">
               <div class="onboarding-supp-card__check">${sel ? '✓' : ''}</div>
               <div class="onboarding-supp-card__info">
-                <div class="onboarding-supp-card__name">${s.name}</div>
-                <div class="onboarding-supp-card__meta">${s.category} · ${s.dosage.daily}${s.dosage.unit}/dia · Evidência ${s.evidenceLevel ?? s.priority}</div>
+                <div class="onboarding-supp-card__name">${escapeHtml(s.name)}</div>
+                <div class="onboarding-supp-card__meta">${escapeHtml(s.category)} · ${s.dosage.daily}${s.dosage.unit}/dia · Evidência ${s.evidenceLevel ?? s.priority}</div>
               </div>
             </div>`;
         }).join('')
@@ -149,7 +150,7 @@ export default class OnboardingPage {
 
   _handleClick(e) {
     if (e.target.closest('.onboarding-btn-back')) {
-      this.step--;
+      this.step = Math.max(1, this.step - 1);
       this._render();
       return;
     }
@@ -210,6 +211,6 @@ export default class OnboardingPage {
       });
 
     stateManager.dispatch(ACTIONS.COMPLETE_ONBOARDING);
-    window.__router.navigate('/my-stack');
+    window.__router?.navigate('/my-stack');
   }
 }

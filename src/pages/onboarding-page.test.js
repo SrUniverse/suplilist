@@ -39,6 +39,7 @@ describe('OnboardingPage', () => {
   beforeEach(() => {
     container = makeContainer();
     vi.clearAllMocks();
+    window.__router = { navigate: vi.fn() };
   });
 
   // ── Step 1 ──────────────────────────────────────────────────────────────────
@@ -165,7 +166,6 @@ describe('OnboardingPage', () => {
   it('Step 3: submit dispatches SET_USER_PROFILE with name and objective', async () => {
     const { stateManager, ACTIONS } = await import('../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
-    window.__router = { navigate: vi.fn() };
     const page = new OnboardingPage(container);
     page.step = 3;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set(['creatina-monohidratada']) };
@@ -184,7 +184,6 @@ describe('OnboardingPage', () => {
   it('Step 3: submit dispatches ADD_TO_STACK for each selected supplement', async () => {
     const { stateManager, ACTIONS } = await import('../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
-    window.__router = { navigate: vi.fn() };
     const page = new OnboardingPage(container);
     page.step = 3;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set(['creatina-monohidratada', 'whey-protein']) };
@@ -207,7 +206,6 @@ describe('OnboardingPage', () => {
   it('Step 3: submit dispatches COMPLETE_ONBOARDING', async () => {
     const { stateManager, ACTIONS } = await import('../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
-    window.__router = { navigate: vi.fn() };
     const page = new OnboardingPage(container);
     page.step = 3;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set() };
@@ -220,7 +218,7 @@ describe('OnboardingPage', () => {
   it('Step 3: submit navigates to /my-stack', async () => {
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const navigate = vi.fn();
-    window.__router = { navigate };
+    window.__router.navigate = navigate;
     const page = new OnboardingPage(container);
     page.step = 3;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set() };
@@ -234,7 +232,6 @@ describe('OnboardingPage', () => {
     const recommenderMock = await import('../ai/stack-recommender.js');
     recommenderMock.default.recommend.mockReturnValueOnce([]);
     const { default: OnboardingPage } = await import('./onboarding-page.js');
-    window.__router = { navigate: vi.fn() };
     const page = new OnboardingPage(container);
     page.step = 3;
     page.data.goal = 'bulk';

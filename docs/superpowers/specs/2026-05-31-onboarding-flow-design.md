@@ -10,10 +10,12 @@
 
 ## Trigger Logic
 
+`user.onboardingComplete` already exists in `DEFAULT_STATE` (defaults to `false`) and is set by `ACTIONS.COMPLETE_ONBOARDING`. No raw localStorage key needed.
+
 In `app.js` `DOMContentLoaded`, after router is created but before `router.start()`:
 
 ```js
-const onboardingDone = localStorage.getItem('onboarding:completed');
+const onboardingDone = stateManager.state.user.onboardingComplete;
 const hasStack = stateManager.stack && stateManager.stack.length > 0;
 if (!onboardingDone && !hasStack) {
   window.history.replaceState(null, null, '/onboarding');
@@ -64,9 +66,9 @@ The `body--landing` class already hides the nav/sidebar. `/onboarding` is added 
 - Empty state: "Nenhuma sugestão encontrada. Você pode explorar o catálogo após o cadastro." — CTA still enabled
 - CTA: "Adicionar ao meu stack e começar!"
 - On confirm:
-  1. `stateManager.dispatch(ACTIONS.SET_USER_PROFILE, { name: this.data.name, goal: this.data.goal })`
-  2. For each selected supplement: `stateManager.dispatch(ACTIONS.ADD_TO_STACK, supplement)`
-  3. `localStorage.setItem('onboarding:completed', '1')`
+  1. `stateManager.dispatch(ACTIONS.SET_USER_PROFILE, { name: this.data.name, objective: this.data.goal })`
+  2. For each selected supplement: `stateManager.dispatch(ACTIONS.ADD_TO_STACK, { supplementId: item.id, ...item })`
+  3. `stateManager.dispatch(ACTIONS.COMPLETE_ONBOARDING)` — sets `user.onboardingComplete: true`, emits `user:onboardingComplete`
   4. `window.__router.navigate('/my-stack')`
 
 ---
@@ -92,9 +94,9 @@ The `body--landing` class already hides the nav/sidebar. `/onboarding` is added 
 
 | What | Where | Notes |
 |------|-------|-------|
-| `onboarding:completed` | `localStorage` (raw key) | Not cleared by stateManager.reset() — intentional |
-| User name + goal | `stateManager` via `SET_USER_PROFILE` | Persisted in `suplilist-state-v4` |
-| Stack items | `stateManager` via `ADD_TO_STACK` | Same as adding manually |
+| `user.onboardingComplete` | `stateManager` via `COMPLETE_ONBOARDING` | Already in DEFAULT_STATE, persisted in `suplilist-state-v4`. Emits `user:onboardingComplete`. |
+| `user.name` + `user.objective` | `stateManager` via `SET_USER_PROFILE` | `user.objective` already typed as `'bulk' \| 'cut' \| 'strength' \| 'endurance' \| 'general'` |
+| Stack items | `stateManager` via `ADD_TO_STACK` | Payload: `{ supplementId: item.id, ...item }` — normalizer in reducer handles both formats |
 
 ---
 

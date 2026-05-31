@@ -26,10 +26,16 @@ function getPriceLabel(item, prices) {
     const cheapest = entries.reduce((a, b) => a.price < b.price ? a : b);
     return { price: cheapest.price, label: cheapest.label };
   }
-  // fallback: dosage.maintenance * pricePerGram * 30
+  // fallback: dosage.maintenance (converted to grams) * pricePerGram * 30
   const dose = item.dosage?.maintenance ?? 5;
+  const unit = (item.dosage?.unit || 'g').toLowerCase();
   const ppg = item.pricePerGram ?? 0.3;
-  const estimated = dose * ppg * 30;
+  let doseInGrams;
+  if (unit === 'g')         doseInGrams = dose;
+  else if (unit === 'mg')   doseInGrams = dose / 1000;
+  else if (unit === 'mcg')  doseInGrams = dose / 1_000_000;
+  else                      doseInGrams = dose; // UI, caps — best-effort
+  const estimated = doseInGrams * ppg * 30;
   return { price: estimated, label: null };
 }
 
@@ -43,8 +49,14 @@ function getDosePrice(item, prices) {
     return `R$ ${dosePrice.replace('.', ',')} / dose`;
   }
   const dose = item.dosage?.maintenance ?? 5;
+  const unit = (item.dosage?.unit || 'g').toLowerCase();
   const ppg = item.pricePerGram ?? 0.3;
-  return `R$ ${(dose * ppg).toFixed(2).replace('.', ',')} / dose`;
+  let doseInGrams;
+  if (unit === 'g')         doseInGrams = dose;
+  else if (unit === 'mg')   doseInGrams = dose / 1000;
+  else if (unit === 'mcg')  doseInGrams = dose / 1_000_000;
+  else                      doseInGrams = dose;
+  return `R$ ${(doseInGrams * ppg).toFixed(2).replace('.', ',')} / dose`;
 }
 
 function getMaxSaving(item, prices) {

@@ -33,7 +33,13 @@ function calcMonthlyInvestment(stack) {
     const dbEntry = SUPPLEMENTS_DB.find(s => s.id === getSupplementId(item));
     const ppg = dbEntry?.pricePerGram ?? 0;
     const dosage = parseFloat(item.dosage) || 0;
-    return acc + dosage * ppg * 30;
+    const unit = (item.unit || 'g').toLowerCase();
+    let dosageInGrams;
+    if (unit === 'g')         dosageInGrams = dosage;
+    else if (unit === 'mg')   dosageInGrams = dosage / 1000;
+    else if (unit === 'mcg')  dosageInGrams = dosage / 1_000_000;
+    else return acc; // UI, cápsulas, bi UFC etc. — skip
+    return acc + dosageInGrams * ppg * 30;
   }, 0);
 }
 

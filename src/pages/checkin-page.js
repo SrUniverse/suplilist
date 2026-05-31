@@ -2,6 +2,7 @@ import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 import { todayISO } from '../utils/date.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { escapeHtml } from '../utils/escape.js';
 
 export default class CheckinPage {
   constructor(container) {
@@ -286,7 +287,7 @@ export default class CheckinPage {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-          ">${item.name}</div>
+          ">${escapeHtml(item.name)}</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap;">
             ${dose ? `<span style="font-size:12px;color:var(--color-text-secondary);">${dose}</span>` : ''}
             ${timing ? `<span style="font-size:11px;color:var(--color-text-muted);">· ${timing}</span>` : ''}

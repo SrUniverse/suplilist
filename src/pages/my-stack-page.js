@@ -8,6 +8,7 @@ import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { todayISO, offsetISO } from '../utils/date.js';
 import { renderEvidenceBadge } from '../utils/evidence.js';
 import { getSupplementId } from '../utils/stack.js';
+import { escapeHtml } from '../utils/escape.js';
 
 // Prices loaded lazily from /data/prices.json
 let PRICES_DB = null;
@@ -756,7 +757,7 @@ export class MyStackPage {
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'72\\' height=\\'72\\'%3E%3Crect width=\\'72\\' height=\\'72\\' rx=\\'12\\' fill=\\'%23161616\\'/%3E%3Ctext x=\\'50%25\\' y=\\'55%25\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'28\\' fill=\\'%23555555\\'%3E💊%3C/text%3E%3C/svg%3E'">
           <div class="msp-item-info">
             ${category ? `<p class="msp-item-cat">${category}</p>` : ''}
-            <p class="msp-item-name">${item.name}</p>
+            <p class="msp-item-name">${escapeHtml(item.name)}</p>
             <p class="msp-item-dosage">${item.dosage ?? '—'} ${item.unit ?? 'g'}/dia</p>
             ${daysLeft !== null ? `<p class="msp-item-days">~${daysLeft} dias restantes</p>` : ''}
           </div>
@@ -813,7 +814,7 @@ export class MyStackPage {
         : '';
       return `
         <div class="msp-replen-item">
-          <span class="msp-replen-name">${item.name}</span>
+          <span class="msp-replen-name">${escapeHtml(item.name)}</span>
           <span class="msp-replen-price">Melhor: ${formatBRL(best.price)}</span>
           <span class="msp-replen-market">${best.label}</span>
         </div>
@@ -866,7 +867,7 @@ export class MyStackPage {
     wrap.style.display = 'block';
     wrap.innerHTML = `
       <div class="msp-inline-edit">
-        <p class="msp-inline-edit-title">Editar — ${item.name}</p>
+        <p class="msp-inline-edit-title">Editar — ${escapeHtml(item.name)}</p>
         <div class="msp-inline-row">
           <div class="msp-inline-field">
             <label class="msp-inline-label">Dosagem diária</label>

@@ -97,7 +97,7 @@ export default class ProfilePage {
               </button>
             </div>
             <div id="name-edit" style="display:none;margin-top:6px;">
-              <input id="inline-name-input" type="text" value="${form.name}" style="${inputStyle};text-align:center;font-size:16px;font-weight:700;max-width:220px;" />
+              <input id="inline-name-input" type="text" value="${escapeHtml(form.name)}" style="${inputStyle};text-align:center;font-size:16px;font-weight:700;max-width:220px;" />
               <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
                 <button id="btn-name-confirm" style="background:var(--color-brand);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">OK</button>
                 <button id="btn-name-cancel" style="background:transparent;border:1px solid var(--color-border-strong);color:var(--color-text-secondary);border-radius:8px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Cancelar</button>

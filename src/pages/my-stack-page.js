@@ -109,10 +109,19 @@ const STYLES = `
     background: var(--color-surface-primary);
     border: 1px solid var(--color-border);
     border-radius: 16px;
-    padding: 18px 20px;
+    padding: 16px 18px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+  }
+  .msp-stat-icon {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    background: var(--color-brand-muted);
+    color: var(--color-brand);
+    flex-shrink: 0;
+    margin-bottom: 2px;
   }
   .msp-stat-label {
     font-size: 11px;
@@ -120,6 +129,10 @@ const STYLES = `
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: .5px;
+  }
+  .msp-stat-sub {
+    font-size: 11px;
+    color: var(--color-text-muted);
   }
   .msp-stat-value {
     font-size: 22px;
@@ -206,25 +219,36 @@ const STYLES = `
 
   /* Stack item card */
   .msp-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
     background: var(--color-surface-primary);
     border: 1px solid var(--color-border);
     border-radius: 16px;
+    overflow: hidden;
     transition: border-color 200ms;
   }
   .msp-item:hover { border-color: var(--color-border-strong); }
+  .msp-item-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px 10px;
+  }
   .msp-item-img {
-    width: 60px;
-    height: 60px;
+    width: 72px;
+    height: 72px;
     border-radius: 12px;
     object-fit: contain;
-    background: var(--color-surface-secondary);
+    background: #111;
     flex-shrink: 0;
+    padding: 4px;
   }
   .msp-item-info { flex: 1; min-width: 0; }
+  .msp-item-cat {
+    font-size: 10px; font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 3px;
+  }
   .msp-item-name {
     font-size: 15px;
     font-weight: 700;
@@ -237,7 +261,13 @@ const STYLES = `
   .msp-item-dosage {
     font-size: 12px;
     color: var(--color-text-secondary);
-    margin: 0 0 4px;
+    margin: 0 0 2px;
+  }
+  .msp-item-days {
+    font-size: 11px;
+    color: var(--color-brand);
+    font-weight: 600;
+    margin: 0;
   }
   .msp-item-stock {
     font-size: 11px;
@@ -255,6 +285,29 @@ const STYLES = `
     display: flex;
     gap: 4px;
   }
+  .msp-item-footer {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 14px;
+  }
+  .msp-btn-pause {
+    flex: 1; padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-strong);
+    background: transparent; color: var(--color-text-secondary);
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: background 150ms;
+  }
+  .msp-btn-pause:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
+  .msp-btn-finish {
+    flex: 1; padding: 8px;
+    border-radius: 8px;
+    border: none;
+    background: var(--color-brand); color: #fff;
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: background 150ms;
+  }
+  .msp-btn-finish:hover { background: var(--color-brand-hover); }
   .msp-btn-icon {
     background: none;
     border: none;
@@ -637,16 +690,28 @@ export class MyStackPage {
 
     el.innerHTML = `
       <div class="msp-stat-card">
+        <div class="msp-stat-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
         <span class="msp-stat-label">Investimento Mensal</span>
         <span class="msp-stat-value brand">${formatBRL(monthly)}</span>
+        <span class="msp-stat-sub">Estimado por stack atual</span>
       </div>
       <div class="msp-stat-card">
+        <div class="msp-stat-icon" style="background:rgba(34,197,94,0.12);color:#22C55E;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
         <span class="msp-stat-label">Ciclos Ativos</span>
         <span class="msp-stat-value">${stack.length}</span>
+        <span class="msp-stat-sub">${stack.length > 0 ? stack.length + ' suplemento' + (stack.length !== 1 ? 's' : '') + ' no protocolo' : 'Nenhum ativo'}</span>
       </div>
       <div class="msp-stat-card">
+        <div class="msp-stat-icon" style="background:rgba(234,179,8,0.12);color:#EAB308;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
         <span class="msp-stat-label">Taxa de Adesão</span>
         <span class="msp-stat-value">${adherence}</span>
+        <span class="msp-stat-sub">Últimos 7 dias</span>
       </div>
     `;
   }
@@ -679,22 +744,35 @@ export class MyStackPage {
       const el = document.createElement('div');
       el.className = 'msp-item';
       el.dataset.itemId = itemId;
+      const dbEntry = SUPPLEMENTS_DB.find(s => s.id === itemId);
+      const category = dbEntry?.category ?? '';
+      const desc = dbEntry?.benefits?.[0] ?? '';
+      const daysLeftStr = daysLeft !== null ? `Dia ${Math.max(0, (item.quantity ? Math.floor(parseFloat(item.quantity) / (parseFloat(item.dosage) || 1)) : 0) - daysLeft)}/${Math.max(0, Math.floor(parseFloat(item.quantity || 0) / (parseFloat(item.dosage) || 1)))} dias` : '';
+
       el.innerHTML = `
-        <img class="msp-item-img"
-          src="${imgSrc}"
-          alt="${item.name}"
-          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'60\\' height=\\'60\\'%3E%3Crect width=\\'60\\' height=\\'60\\' rx=\\'12\\' fill=\\'%23161616\\'/%3E%3Ctext x=\\'50%25\\' y=\\'55%25\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'24\\' fill=\\'%23555555\\'%3E💊%3C/text%3E%3C/svg%3E'">
-        <div class="msp-item-info">
-          <p class="msp-item-name">${item.name}</p>
-          <p class="msp-item-dosage">${item.dosage ?? '—'} ${item.unit ?? 'g'}/dia</p>
-          <p class="msp-item-stock">Estoque: ${item.quantity ? `${item.quantity} ${item.unit ?? 'g'}${daysLeft !== null ? ` · ~${daysLeft} dias` : ''}` : 'não informado'}</p>
-        </div>
-        <div class="msp-item-right">
-          ${badge}
-          <div class="msp-item-actions">
-            <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${item.name}" title="Editar">✏️</button>
-            <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${item.name}" title="Remover">🗑️</button>
+        <div class="msp-item-top">
+          <img class="msp-item-img"
+            src="${imgSrc}"
+            alt="${item.name}"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'72\\' height=\\'72\\'%3E%3Crect width=\\'72\\' height=\\'72\\' rx=\\'12\\' fill=\\'%23161616\\'/%3E%3Ctext x=\\'50%25\\' y=\\'55%25\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'28\\' fill=\\'%23555555\\'%3E💊%3C/text%3E%3C/svg%3E'">
+          <div class="msp-item-info">
+            ${category ? `<p class="msp-item-cat">${category}</p>` : ''}
+            <p class="msp-item-name">${item.name}</p>
+            <p class="msp-item-dosage">${item.dosage ?? '—'} ${item.unit ?? 'g'}/dia</p>
+            ${daysLeft !== null ? `<p class="msp-item-days">~${daysLeft} dias restantes</p>` : ''}
           </div>
+          <div class="msp-item-right">
+            ${badge}
+            <div class="msp-item-actions">
+              <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${item.name}" title="Editar">✏️</button>
+              <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${item.name}" title="Remover">🗑️</button>
+            </div>
+          </div>
+        </div>
+        ${desc ? `<div style="padding:0 16px 8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5;">${desc}</div>` : ''}
+        <div class="msp-item-footer">
+          <button class="msp-btn-pause" data-action="edit" data-id="${itemId}">Editar</button>
+          <button class="msp-btn-finish" data-action="remove" data-id="${itemId}">Remover</button>
         </div>
       `;
 

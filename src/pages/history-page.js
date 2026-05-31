@@ -20,14 +20,23 @@ const buildSupMap = () => {
   return map;
 };
 
-// Average cost per day from stack (placeholder: sum of maintenance doses × pricePerGram)
+// Average cost per day from stack.
+// pricePerGram is always in R$/g, so convert maintenance to grams first.
 const estimateDailyCost = (stack, supMap) => {
   let total = 0;
   for (const item of stack) {
     const sid = item.supplementId ?? item.id;
     const db = supMap[sid];
     if (db && db.dosage && db.pricePerGram) {
-      total += (db.dosage.maintenance || 5) * db.pricePerGram;
+      const dose = db.dosage.maintenance || 5;
+      const unit = (db.dosage.unit || 'g').toLowerCase();
+      // Convert to grams before multiplying by pricePerGram
+      let doseInGrams;
+      if (unit === 'g')         doseInGrams = dose;
+      else if (unit === 'mg')   doseInGrams = dose / 1000;
+      else if (unit === 'mcg')  doseInGrams = dose / 1_000_000;
+      else continue; // UI, bi UFC etc. can't be converted to grams — skip
+      total += doseInGrams * db.pricePerGram;
     }
   }
   return total;

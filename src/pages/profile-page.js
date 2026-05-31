@@ -296,9 +296,10 @@ export default class ProfilePage {
       const objectiveEl = this.container.querySelector('#field-objective');
 
       btnSaveBio.addEventListener('click', () => {
-        this._form.weight    = parseFloat(weightEl.value)    || undefined;
-        this._form.height    = parseFloat(heightEl.value)    || undefined;
-        this._form.age       = parseFloat(ageEl.value)       || undefined;
+        const _num = v => { const n = parseFloat(v); return isNaN(n) ? undefined : n; };
+        this._form.weight    = _num(weightEl.value);
+        this._form.height    = _num(heightEl.value);
+        this._form.age       = _num(ageEl.value);
         this._form.objective = objectiveEl.value;
 
         stateManager.dispatch(ACTIONS.SET_USER_PROFILE, {

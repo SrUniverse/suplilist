@@ -64,6 +64,7 @@ export default class FavoritesPage {
 
   mount() {
     this._injectStyles();
+    window.removeEventListener('storage', this._handleStorageChange);
     window.addEventListener('storage', this._handleStorageChange);
     this._render();
   }

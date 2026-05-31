@@ -78,7 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Restaurar tema salvo
   const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || localStorage.getItem('theme');
-  if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }
 
   // Theme toggle — sidebar (#btn-theme) e mobile topbar (#btn-theme-mobile)
   function _toggleTheme() {

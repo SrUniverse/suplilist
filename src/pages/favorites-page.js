@@ -8,21 +8,16 @@ import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { EVIDENCE_COLORS } from '../utils/evidence.js';
 
 // ─── Helpers ────────────────────────────────────────────────
+// Single source of truth: stateManager.favorites (persisted in suplilist-state-v4).
+// The legacy suplilist:favorites key is no longer read here — list-page writes via
+// stateManager.dispatch(ADD_FAVORITE/REMOVE_FAVORITE) only.
 const getFavorites = () => {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.FAVORITES) || '[]'); }
-  catch { return []; }
+  const favs = stateManager.favorites;
+  return Array.isArray(favs) ? favs : [];
 };
 
 const removeFavorite = (id) => {
-  // 1. Write to STORAGE_KEYS.FAVORITES so this page's own getFavorites() sees the update
-  //    immediately on the next _render() call (stateManager persists to a different key).
-  const favs = getFavorites().filter(f => f !== id);
-  localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favs));
-  // 2. Also dispatch to stateManager so list-page's stats ring (which reads
-  //    stateManager.favorites) updates without requiring a page reload.
-  try {
-    stateManager.dispatch(ACTIONS.REMOVE_FAVORITE, { supplementId: id });
-  } catch { /* silent — dispatch is best-effort cross-page sync */ }
+  stateManager.dispatch(ACTIONS.REMOVE_FAVORITE, { supplementId: id });
 };
 
 // ─── Filter / Sort config ────────────────────────────────────
@@ -75,7 +70,7 @@ export default class FavoritesPage {
   }
 
   _onStorageChange(e) {
-    if (e.key === STORAGE_KEYS.FAVORITES || e.key === STORAGE_KEYS.STACK) {
+    if (e.key === STORAGE_KEYS.STATE) {
       this._render();
     }
   }

@@ -47,12 +47,8 @@ function applyLandingMode() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Init state
-  if (typeof stateManager.hydrate === 'function') {
-    stateManager.hydrate();
-  } else if (typeof stateManager.init === 'function') {
-    stateManager.init();
-  }
+  // State is initialized in the StateManager constructor (_initializeState reads from localStorage).
+  // Do NOT call hydrate() here — hydrate(undefined) merges with DEFAULT_STATE, wiping user data.
 
   Nav.init();
   Nav.updateActive(window.location.pathname);
@@ -63,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('popstate', () => {
     applyLandingMode();
     updatePageTitle();
-    Nav.updateActive(window.location.pathname);
+    // Nav.updateActive is already called by router.js handleRoute() — no duplicate needed
     const isLanding = window.location.pathname === '/' || window.location.pathname === '/home';
     isLanding ? Nav.hide() : Nav.show();
   });

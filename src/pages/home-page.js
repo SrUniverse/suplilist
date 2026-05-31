@@ -331,6 +331,7 @@ export default class HomePage {
         font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
         min-height: 100vh;
+        overflow-x: hidden;
       }
       .lp-root *, .lp-root *::before, .lp-root *::after { box-sizing: border-box; }
 
@@ -413,8 +414,9 @@ export default class HomePage {
       }
       .lp-hero__title {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
-        font-size: clamp(44px, 8vw, 96px); line-height: 1.05;
+        font-size: clamp(28px, 8vw, 96px); line-height: 1.05;
         letter-spacing: -0.03em; margin: 0 0 24px;
+        overflow-wrap: break-word; word-break: break-word;
       }
       .lp-accent { color: var(--color-brand, #7C3AED); }
       .lp-hero__sub {
@@ -659,6 +661,12 @@ export default class HomePage {
       }
       @media (max-width: 480px) {
         .lp-footer__grid { grid-template-columns: 1fr; }
+        .lp-hero__title { font-size: clamp(24px, 9vw, 40px); }
+        .lp-h2 { font-size: clamp(20px, 7vw, 32px); margin-bottom: 36px; }
+        .lp-cta__title { font-size: clamp(24px, 8vw, 40px); }
+        .lp-hero { padding: 90px 16px 56px; }
+        .lp-section { padding: 48px 16px; }
+        .lp-card, .lp-step { padding: 24px 20px; }
       }
       @media (prefers-reduced-motion: reduce) {
         .lp-anim { animation: none; opacity: 1; }

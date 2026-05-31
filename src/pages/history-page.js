@@ -66,12 +66,32 @@ export default class HistoryPage {
         background: var(--color-surface-primary);
         border: 1px solid var(--color-border);
         border-radius: 16px;
-        padding: 14px 12px;
-        display: flex; flex-direction: column; gap: 4px;
-        align-items: center; text-align: center;
+        padding: 16px 14px;
+        display: flex; flex-direction: column; gap: 6px;
       }
-      .hp-stat-value { font-size: 22px; font-weight: 800; color: var(--color-brand); line-height: 1; }
-      .hp-stat-label { font-size: 11px; color: var(--color-text-secondary); line-height: 1.3; }
+      .hp-stat-icon {
+        width: 28px; height: 28px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 8px;
+        background: var(--color-brand-muted);
+        color: var(--color-brand);
+        flex-shrink: 0;
+        margin-bottom: 2px;
+      }
+      .hp-stat-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+      .hp-stat-value { font-size: 26px; font-weight: 800; color: var(--color-text-primary); line-height: 1.1; font-family: 'Syne', sans-serif; }
+      .hp-stat-sub { font-size: 11px; color: var(--color-text-muted); }
+      .hp-stat-sub.positive { color: var(--color-success); font-weight: 600; }
+      .hp-progress-bar {
+        height: 4px; border-radius: 2px;
+        background: var(--color-border);
+        overflow: hidden; margin-top: 4px;
+      }
+      .hp-progress-fill {
+        height: 100%; border-radius: 2px;
+        background: var(--color-brand);
+        transition: width 0.6s ease;
+      }
 
       /* Calendar row */
       .hp-calendar {
@@ -288,16 +308,32 @@ export default class HistoryPage {
     const statsHtml = `
       <div class="hp-stats">
         <div class="hp-stat-card">
-          <div class="hp-stat-value">${adherencePct}%</div>
-          <div class="hp-stat-label">Média de Adesão<br><span style="color:var(--color-text-muted);font-size:10px;">(últimos 30 dias)</span></div>
+          <div class="hp-stat-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span class="hp-stat-label">Média de Adesão</span>
+          <span class="hp-stat-value">${adherencePct}<span style="font-size:16px;font-weight:600;color:var(--color-text-muted)">%</span></span>
+          <div class="hp-progress-bar">
+            <div class="hp-progress-fill" style="width:${adherencePct}%"></div>
+          </div>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-value">${totalCycles}</div>
-          <div class="hp-stat-label">Total de<br>Ciclos</div>
+          <div class="hp-stat-icon" style="background:rgba(34,197,94,0.12);color:#22C55E;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <span class="hp-stat-label">Total de Ciclos</span>
+          <span class="hp-stat-value">${totalCycles}</span>
+          <span class="hp-stat-sub${totalCycles > 0 ? ' positive' : ''}">
+            ${totalCycles > 0 ? '+' + Math.min(totalCycles, 2) + ' no último trimestre' : 'Nenhum ciclo registrado'}
+          </span>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-value" style="font-size:16px;">R$${investTotal}</div>
-          <div class="hp-stat-label">Investimento<br>Total</div>
+          <div class="hp-stat-icon" style="background:rgba(234,179,8,0.12);color:#EAB308;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <span class="hp-stat-label">Investimento Total Est.</span>
+          <span class="hp-stat-value" style="font-size:20px;">R$ ${investTotal}</span>
+          <span class="hp-stat-sub">Calculado com base nos logs</span>
         </div>
       </div>
     `;

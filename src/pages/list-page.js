@@ -3,6 +3,7 @@ import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import Fuse from 'fuse.js';
 import { escapeHtml } from '../utils/escape.js';
 import { EVIDENCE_COLORS } from '../utils/evidence.js';
+import affiliateEngine from '../monetization/affiliate-engine.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -885,11 +886,12 @@ export default class ListPage {
     const inStack = stack.some(s => s.supplementId === item.id);
 
     // Build price cards
+    const affLinks = affiliateEngine.getLinks(item.name);
     let priceCardsHtml = '';
     const priceKey = item.id;
     if (this._prices && this._prices[priceKey]) {
       const stores = this._prices[priceKey];
-      priceCardsHtml = Object.entries(stores).map(([, store]) => `
+      priceCardsHtml = Object.entries(stores).map(([storeKey, store]) => `
         <div class="lp-price-card">
           <div class="lp-price-card-left">
             <span class="lp-price-card-store">${store.label}</span>
@@ -897,19 +899,34 @@ export default class ListPage {
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             ${store.saving ? `<span class="lp-price-saving">-R$ ${store.saving}</span>` : ''}
-            <a class="lp-price-link" href="${store.url || '#'}" target="_blank" rel="noopener">Ver Oferta →</a>
+            <a class="lp-price-link"
+               href="${affLinks[storeKey] || store.url || '#'}"
+               target="_blank"
+               rel="noopener noreferrer"
+               data-aff-id="${item.id}"
+               data-aff-mp="${storeKey}">Ver Oferta →</a>
           </div>
         </div>
       `).join('');
     } else {
       const priceInfo = getPriceLabel(item, null);
-      priceCardsHtml = ['Amazon', 'Mercado Livre', 'Shopee'].map(store => `
+      const MP_LIST = [
+        { key: 'amazon',       label: 'Amazon' },
+        { key: 'mercadolivre', label: 'Mercado Livre' },
+        { key: 'shopee',       label: 'Shopee' },
+      ];
+      priceCardsHtml = MP_LIST.map(({ key, label }) => `
         <div class="lp-price-card">
           <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${store}</span>
+            <span class="lp-price-card-store">${label}</span>
             <span class="lp-price-card-val">${formatPrice(priceInfo.price)}</span>
           </div>
-          <a class="lp-price-link" href="#" target="_blank">Ver Oferta →</a>
+          <a class="lp-price-link"
+             href="${affLinks[key]}"
+             target="_blank"
+             rel="noopener noreferrer"
+             data-aff-id="${item.id}"
+             data-aff-mp="${key}">Ver Oferta →</a>
         </div>
       `).join('');
     }
@@ -997,6 +1014,10 @@ export default class ListPage {
     // Close
     overlay.querySelector('#lp-modal-close').addEventListener('click', () => this._closeModal());
     overlay.addEventListener('click', e => { if (e.target === overlay) this._closeModal(); });
+    overlay.addEventListener('click', e => {
+      const affLink = e.target.closest('[data-aff-mp]');
+      if (affLink) affiliateEngine.trackClick(affLink.dataset.affId, affLink.dataset.affMp);
+    });
 
     // Add to stack
     const addBtn = overlay.querySelector('#lp-modal-add-btn');

@@ -903,8 +903,8 @@ export default class ListPage {
                href="${affLinks[storeKey] || store.url || '#'}"
                target="_blank"
                rel="noopener noreferrer"
-               data-aff-id="${item.id}"
-               data-aff-mp="${storeKey}">Ver Oferta →</a>
+               data-aff-id="${escapeHtml(item.id)}"
+               data-aff-mp="${escapeHtml(storeKey)}">Ver Oferta →</a>
           </div>
         </div>
       `).join('');
@@ -922,11 +922,11 @@ export default class ListPage {
             <span class="lp-price-card-val">${formatPrice(priceInfo.price)}</span>
           </div>
           <a class="lp-price-link"
-             href="${affLinks[key]}"
+             href="${affLinks[key] || '#'}"
              target="_blank"
              rel="noopener noreferrer"
-             data-aff-id="${item.id}"
-             data-aff-mp="${key}">Ver Oferta →</a>
+             data-aff-id="${escapeHtml(item.id)}"
+             data-aff-mp="${escapeHtml(key)}">Ver Oferta →</a>
         </div>
       `).join('');
     }

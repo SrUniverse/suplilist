@@ -6,7 +6,7 @@ import { EVIDENCE_COLORS } from '../utils/evidence.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const CATEGORIES = ['Todos', 'Adaptógeno', 'Proteínas', 'Energéticos', 'Vitaminas', 'Minerais', 'Saúde Geral'];
+const CATEGORIES = ['Todos', 'Performance', 'Proteínas', 'Vitaminas', 'Adaptógenos', 'Hormônios', 'Cognição', 'Antioxidantes', 'Sono', 'Saúde Geral'];
 const OBJECTIVES = ['Hipertrofia', 'Saúde Geral', 'Longevidade', 'Performance', 'Foco'];
 
 const OBJECTIVE_KEY_MAP = {
@@ -59,13 +59,15 @@ function getMaxSaving(item, prices) {
 function matchesCategory(item, cat) {
   if (!cat || cat === 'Todos') return true;
   const c = (item.category || '').toLowerCase();
-  const catLow = cat.toLowerCase();
-  if (catLow === 'adaptógeno') return c.includes('adapt') || c.includes('erva');
-  if (catLow === 'proteínas') return c.includes('prote');
-  if (catLow === 'energéticos') return c.includes('energ') || c.includes('foco') || c.includes('estimul');
-  if (catLow === 'vitaminas') return c.includes('vitam');
-  if (catLow === 'minerais') return c.includes('miner') || c.includes('magnés') || c.includes('zinc') || c.includes('ferro');
-  if (catLow === 'saúde geral') return c.includes('saúde') || c.includes('geral') || c.includes('imun') || c.includes('omega') || c.includes('ômega');
+  if (cat === 'Performance')    return c.includes('força') || c.includes('performance') || c.includes('resistência') || c.includes('endurance');
+  if (cat === 'Proteínas')      return c.includes('prote');
+  if (cat === 'Vitaminas')      return c.includes('vitam');
+  if (cat === 'Adaptógenos')    return c.includes('adapt');
+  if (cat === 'Hormônios')      return c.includes('hormon') || c.includes('testoster') || c.includes('libido');
+  if (cat === 'Cognição')       return c.includes('cogni') || c.includes('neuro') || c.includes('foco');
+  if (cat === 'Antioxidantes')  return c.includes('antioxid') || c.includes('anti-inflamat');
+  if (cat === 'Sono')           return c.includes('sono') || c.includes('recuper');
+  if (cat === 'Saúde Geral')    return c.includes('saúde') || c.includes('geral') || c.includes('imun') || c.includes('intestin') || c.includes('articular') || c.includes('pele') || c.includes('mineral') || c.includes('miner') || c.includes('omega') || c.includes('ômega');
   return true;
 }
 
@@ -251,7 +253,7 @@ export default class ListPage {
         position: relative; overflow: hidden;
       }
       .lp-stat-ring-wrap {
-        position: relative; width: 52px; height: 52px;
+        position: relative; width: 60px; height: 60px;
         display: flex; align-items: center; justify-content: center;
       }
       .lp-stat-ring-wrap svg {
@@ -260,7 +262,7 @@ export default class ListPage {
       }
       .lp-stat-val {
         position: relative; z-index: 1;
-        font-size: 16px; font-weight: 800;
+        font-size: 18px; font-weight: 800;
         color: var(--color-text-primary);
         font-family: 'Syne', sans-serif;
         line-height: 1;
@@ -277,6 +279,14 @@ export default class ListPage {
       #lp-filters {
         padding: 12px 16px 0;
         display: flex; flex-direction: column; gap: 8px;
+      }
+      .lp-filter-row-wrap {
+        position: relative;
+      }
+      .lp-filter-row-wrap::after {
+        content: ''; pointer-events: none;
+        position: absolute; right: 0; top: 0; bottom: 2px; width: 40px;
+        background: linear-gradient(to right, transparent, var(--color-bg-primary));
       }
       .lp-filter-row {
         display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
@@ -343,11 +353,10 @@ export default class ListPage {
         background: #1A1A1A;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden; position: relative;
-        margin: 0 10px; border-radius: 12px;
+        border-radius: 0;
       }
       .lp-card-img {
         width: 100%; height: 100%; object-fit: contain;
-        border-radius: 12px;
       }
       .lp-card-ev-badge {
         position: absolute; top: 6px; right: 6px;
@@ -358,10 +367,12 @@ export default class ListPage {
       .lp-card-name {
         font-size: 13px; font-weight: 700; color: var(--color-text-primary);
         margin: 0; line-height: 1.3;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       .lp-card-cat { font-size: 10px; color: var(--color-text-muted); margin: 0; }
       .lp-card-desc {
-        font-size: 11px; color: var(--color-text-secondary);
+        font-size: 12px; color: var(--color-text-secondary);
         line-height: 1.4; margin: 4px 0 0; flex: 1;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         overflow: hidden;
@@ -385,7 +396,7 @@ export default class ListPage {
       .lp-btn-fav:hover { background: var(--color-surface-hover); }
       .lp-btn-fav.faved { border-color: #EF4444; color: #EF4444; }
       .lp-btn-ver-precos {
-        flex: 1; height: 32px;
+        flex: 1; height: 36px; min-height: 36px;
         background: transparent;
         border: 1px solid var(--color-brand);
         color: var(--color-brand);
@@ -417,24 +428,48 @@ export default class ListPage {
       #lp-modal-overlay {
         position: fixed; inset: 0; z-index: 200;
         background: rgba(0,0,0,0.85);
-        display: flex; align-items: center; justify-content: center;
-        padding: 16px;
+        display: flex; align-items: flex-end; justify-content: center;
         animation: lp-fade-in 0.15s ease;
+      }
+      @media (min-width: 600px) {
+        #lp-modal-overlay {
+          align-items: center;
+          padding: 16px;
+        }
       }
       @keyframes lp-fade-in { from { opacity: 0; } to { opacity: 1; } }
       #lp-modal-box {
         background: var(--color-surface-primary);
         border: 1px solid var(--color-border-strong);
-        border-radius: 20px;
-        max-width: 800px; width: 100%;
-        max-height: 90vh;
+        border-radius: 20px 20px 0 0;
+        width: 100%;
+        max-height: 92vh;
         overflow-y: auto;
         position: relative;
-        animation: lp-slide-up 0.2s ease;
+        animation: lp-slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+      }
+      @media (min-width: 600px) {
+        #lp-modal-box {
+          border-radius: 20px;
+          max-width: 800px;
+          max-height: 90vh;
+        }
       }
       @keyframes lp-slide-up {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(60px); }
         to { opacity: 1; transform: translateY(0); }
+      }
+      /* drag handle for bottom sheet */
+      #lp-modal-box::before {
+        content: '';
+        display: block;
+        width: 40px; height: 4px;
+        background: var(--color-border-strong);
+        border-radius: 2px;
+        margin: 10px auto 0;
+      }
+      @media (min-width: 600px) {
+        #lp-modal-box::before { display: none; }
       }
       #lp-modal-close {
         position: absolute; top: 14px; right: 14px; z-index: 10;
@@ -555,11 +590,11 @@ export default class ListPage {
         <div id="lp-stats-row">
           <div class="lp-stat-box">
             <div class="lp-stat-ring-wrap">
-              <svg width="52" height="52" viewBox="0 0 52 52">
-                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
-                <circle id="lp-ring-total" cx="26" cy="26" r="22" fill="none"
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="25" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-total" cx="30" cy="30" r="25" fill="none"
                   stroke="var(--color-brand)" stroke-width="3"
-                  stroke-dasharray="138.2" stroke-dashoffset="0"
+                  stroke-dasharray="157.1" stroke-dashoffset="0"
                   stroke-linecap="round"/>
               </svg>
               <span class="lp-stat-val" id="lp-stat-total">—</span>
@@ -568,11 +603,11 @@ export default class ListPage {
           </div>
           <div class="lp-stat-box">
             <div class="lp-stat-ring-wrap">
-              <svg width="52" height="52" viewBox="0 0 52 52">
-                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
-                <circle id="lp-ring-stack" cx="26" cy="26" r="22" fill="none"
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="25" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-stack" cx="30" cy="30" r="25" fill="none"
                   stroke="#8B5CF6" stroke-width="3"
-                  stroke-dasharray="138.2" stroke-dashoffset="138.2"
+                  stroke-dasharray="157.1" stroke-dashoffset="157.1"
                   stroke-linecap="round"/>
               </svg>
               <span class="lp-stat-val" id="lp-stat-stack">—</span>
@@ -581,11 +616,11 @@ export default class ListPage {
           </div>
           <div class="lp-stat-box">
             <div class="lp-stat-ring-wrap">
-              <svg width="52" height="52" viewBox="0 0 52 52">
-                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
-                <circle id="lp-ring-favs" cx="26" cy="26" r="22" fill="none"
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="25" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-favs" cx="30" cy="30" r="25" fill="none"
                   stroke="#EF4444" stroke-width="3"
-                  stroke-dasharray="138.2" stroke-dashoffset="138.2"
+                  stroke-dasharray="157.1" stroke-dashoffset="157.1"
                   stroke-linecap="round"/>
               </svg>
               <span class="lp-stat-val" id="lp-stat-favs">—</span>
@@ -594,11 +629,11 @@ export default class ListPage {
           </div>
           <div class="lp-stat-box">
             <div class="lp-stat-ring-wrap">
-              <svg width="52" height="52" viewBox="0 0 52 52">
-                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
-                <circle id="lp-ring-eva" cx="26" cy="26" r="22" fill="none"
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="25" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-eva" cx="30" cy="30" r="25" fill="none"
                   stroke="#22C55E" stroke-width="3"
-                  stroke-dasharray="138.2" stroke-dashoffset="69.1"
+                  stroke-dasharray="157.1" stroke-dashoffset="78.55"
                   stroke-linecap="round"/>
               </svg>
               <span class="lp-stat-val" id="lp-stat-eva">—</span>
@@ -608,13 +643,17 @@ export default class ListPage {
         </div>
 
         <div id="lp-filters">
-          <div class="lp-filter-row" id="lp-cat-row">
-            <span class="lp-filter-label">Categoria</span>
-            ${CATEGORIES.map(c => `<button class="lp-chip${c === 'Todos' ? ' active' : ''}" data-cat="${c}">${c}</button>`).join('')}
+          <div class="lp-filter-row-wrap">
+            <div class="lp-filter-row" id="lp-cat-row">
+              <span class="lp-filter-label">Categoria</span>
+              ${CATEGORIES.map(c => `<button class="lp-chip${c === 'Todos' ? ' active' : ''}" data-cat="${c}">${c}</button>`).join('')}
+            </div>
           </div>
-          <div class="lp-filter-row" id="lp-obj-row">
-            <span class="lp-filter-label">Objetivo</span>
-            ${OBJECTIVES.map(o => `<button class="lp-chip" data-obj="${o}">${o}</button>`).join('')}
+          <div class="lp-filter-row-wrap">
+            <div class="lp-filter-row" id="lp-obj-row">
+              <span class="lp-filter-label">Objetivo</span>
+              ${OBJECTIVES.map(o => `<button class="lp-chip" data-obj="${o}">${o}</button>`).join('')}
+            </div>
           </div>
         </div>
 
@@ -636,7 +675,7 @@ export default class ListPage {
     const favsCount  = getFavoritesFromState().size;
     const evaCount   = SUPPLEMENTS_DB.filter(s => s.evidenceLevel === 'A').length;
 
-    const CIRCUMFERENCE = 138.2; // 2 * Math.PI * 22
+    const CIRCUMFERENCE = 157.1; // 2 * Math.PI * 25
 
     const setRing = (ringId, valId, count, max, color) => {
       const ring = this.container.querySelector(ringId);

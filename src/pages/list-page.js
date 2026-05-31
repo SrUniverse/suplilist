@@ -231,31 +231,45 @@ export default class ListPage {
 
       /* ── Stats row ── */
       #lp-stats-row {
-        display: flex; gap: 12px; padding: 0 16px 0;
-        margin-top: 4px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 12px 16px 0;
+      }
+      @media (max-width: 480px) {
+        #lp-stats-row { grid-template-columns: repeat(2, 1fr); }
       }
       .lp-stat-box {
-        flex: 1;
         background: var(--color-surface-primary);
         border: 1px solid var(--color-border);
-        border-radius: 12px; padding: 10px 14px;
-        display: flex; flex-direction: column; gap: 2px;
+        border-radius: 14px;
+        padding: 12px 10px 10px;
+        display: flex; flex-direction: column;
+        align-items: center; gap: 4px;
+        position: relative; overflow: hidden;
+      }
+      .lp-stat-ring-wrap {
+        position: relative; width: 52px; height: 52px;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .lp-stat-ring-wrap svg {
+        position: absolute; top: 0; left: 0;
+        transform: rotate(-90deg);
       }
       .lp-stat-val {
-        font-size: 20px; font-weight: 700;
+        position: relative; z-index: 1;
+        font-size: 16px; font-weight: 800;
         color: var(--color-text-primary);
         font-family: 'Syne', sans-serif;
+        line-height: 1;
       }
       .lp-stat-lbl {
-        font-size: 11px; color: var(--color-text-muted); font-weight: 500;
+        font-size: 10px; color: var(--color-text-muted);
+        font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.04em; text-align: center;
+        line-height: 1.2;
       }
       .stat--empty .lp-stat-val { color: var(--color-text-muted); }
-      .stat--empty .lp-stat-lbl::after {
-        content: ' · adicione';
-        font-size: 10px;
-        color: var(--color-brand);
-        font-weight: 600;
-      }
 
       /* ── Filter rows ── */
       #lp-filters {
@@ -359,29 +373,30 @@ export default class ListPage {
         display: flex; gap: 6px; align-items: center; margin-top: 8px;
       }
       .lp-btn-fav {
-        width: 32px; height: 32px; flex-shrink: 0;
-        background: transparent;
-        border: 1px solid var(--color-border-strong);
+        width: 28px; height: 28px; flex-shrink: 0;
+        background: rgba(0,0,0,0.4);
+        border: 1px solid var(--color-border);
         border-radius: 8px; cursor: pointer;
-        font-size: 15px; display: flex; align-items: center; justify-content: center;
+        font-size: 13px; display: flex; align-items: center; justify-content: center;
         transition: background 0.15s, border-color 0.15s;
       }
       .lp-btn-fav:hover { background: var(--color-surface-hover); }
       .lp-btn-fav.faved { border-color: #EF4444; color: #EF4444; }
-      .lp-btn-stack {
+      .lp-btn-ver-precos {
         flex: 1; height: 32px;
-        background: var(--color-brand); color: #fff;
-        border: none; border-radius: 8px;
+        background: transparent;
+        border: 1px solid var(--color-brand);
+        color: var(--color-brand);
+        border-radius: 8px;
         font-size: 11px; font-weight: 700;
         cursor: pointer; font-family: 'Inter', sans-serif;
-        transition: background 0.15s, opacity 0.15s;
-        display: flex; align-items: center; justify-content: center; gap: 4px;
+        transition: background 0.15s, color 0.15s;
+        display: flex; align-items: center; justify-content: center;
+        letter-spacing: 0.03em;
       }
-      .lp-btn-stack:hover { background: var(--color-brand-hover); }
-      .lp-btn-stack.in-stack {
-        background: var(--color-success-bg);
-        color: var(--color-success);
-        border: 1px solid rgba(34,197,94,0.25);
+      .lp-btn-ver-precos:hover {
+        background: var(--color-brand);
+        color: #fff;
       }
 
       /* ── Empty / Loading ── */
@@ -537,16 +552,56 @@ export default class ListPage {
 
         <div id="lp-stats-row">
           <div class="lp-stat-box">
-            <span class="lp-stat-val" id="lp-stat-total">—</span>
+            <div class="lp-stat-ring-wrap">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-total" cx="26" cy="26" r="22" fill="none"
+                  stroke="var(--color-brand)" stroke-width="3"
+                  stroke-dasharray="138.2" stroke-dashoffset="0"
+                  stroke-linecap="round"/>
+              </svg>
+              <span class="lp-stat-val" id="lp-stat-total">—</span>
+            </div>
             <span class="lp-stat-lbl">Total</span>
           </div>
           <div class="lp-stat-box">
-            <span class="lp-stat-val" id="lp-stat-stack">—</span>
+            <div class="lp-stat-ring-wrap">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-stack" cx="26" cy="26" r="22" fill="none"
+                  stroke="#8B5CF6" stroke-width="3"
+                  stroke-dasharray="138.2" stroke-dashoffset="138.2"
+                  stroke-linecap="round"/>
+              </svg>
+              <span class="lp-stat-val" id="lp-stat-stack">—</span>
+            </div>
             <span class="lp-stat-lbl">Na Stack</span>
           </div>
           <div class="lp-stat-box">
-            <span class="lp-stat-val" id="lp-stat-favs">—</span>
+            <div class="lp-stat-ring-wrap">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-favs" cx="26" cy="26" r="22" fill="none"
+                  stroke="#EF4444" stroke-width="3"
+                  stroke-dasharray="138.2" stroke-dashoffset="138.2"
+                  stroke-linecap="round"/>
+              </svg>
+              <span class="lp-stat-val" id="lp-stat-favs">—</span>
+            </div>
             <span class="lp-stat-lbl">Favoritos</span>
+          </div>
+          <div class="lp-stat-box">
+            <div class="lp-stat-ring-wrap">
+              <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="22" fill="none" stroke="var(--color-border)" stroke-width="3"/>
+                <circle id="lp-ring-eva" cx="26" cy="26" r="22" fill="none"
+                  stroke="#22C55E" stroke-width="3"
+                  stroke-dasharray="138.2" stroke-dashoffset="69.1"
+                  stroke-linecap="round"/>
+              </svg>
+              <span class="lp-stat-val" id="lp-stat-eva">—</span>
+            </div>
+            <span class="lp-stat-lbl">Evidência A</span>
           </div>
         </div>
 
@@ -574,22 +629,30 @@ export default class ListPage {
   // ─── Stats ────────────────────────────────────────────────────────────────
 
   _renderStats() {
-    const total   = this.container.querySelector('#lp-stat-total');
-    const stackEl = this.container.querySelector('#lp-stat-stack');
-    const favsEl  = this.container.querySelector('#lp-stat-favs');
-    if (total) total.textContent = SUPPLEMENTS_DB.length;
-
+    const total = SUPPLEMENTS_DB.length;
     const stackCount = (stateManager.stack || []).length;
     const favsCount  = getFavoritesFromState().size;
+    const evaCount   = SUPPLEMENTS_DB.filter(s => s.evidenceLevel === 'A').length;
 
-    if (stackEl) {
-      stackEl.textContent = stackCount;
-      stackEl.closest('.lp-stat-box')?.classList.toggle('stat--empty', stackCount === 0);
-    }
-    if (favsEl) {
-      favsEl.textContent = favsCount;
-      favsEl.closest('.lp-stat-box')?.classList.toggle('stat--empty', favsCount === 0);
-    }
+    const CIRCUMFERENCE = 138.2; // 2 * Math.PI * 22
+
+    const setRing = (ringId, valId, count, max, color) => {
+      const ring = this.container.querySelector(ringId);
+      const valEl = this.container.querySelector(valId);
+      if (!ring || !valEl) return;
+      valEl.textContent = count;
+      const pct = max > 0 ? Math.min(1, count / max) : 0;
+      ring.style.stroke = color;
+      ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+    };
+
+    setRing('#lp-ring-total', '#lp-stat-total', total, total, 'var(--color-brand)');
+    setRing('#lp-ring-stack', '#lp-stat-stack', stackCount, total, '#8B5CF6');
+    setRing('#lp-ring-favs', '#lp-stat-favs', favsCount, total, '#EF4444');
+    setRing('#lp-ring-eva',  '#lp-stat-eva',  evaCount,  total, '#22C55E');
+
+    const stackBox = this.container.querySelector('#lp-stat-stack')?.closest('.lp-stat-box');
+    stackBox?.classList.toggle('stat--empty', stackCount === 0);
   }
 
   // ─── Filtering ────────────────────────────────────────────────────────────
@@ -705,11 +768,11 @@ export default class ListPage {
             <span class="lp-card-dose">${doseStr}</span>
           </div>
           <div class="lp-card-actions">
-            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="Favoritar" type="button">
+            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button">
               ${isFav ? '♥' : '♡'}
             </button>
-            <button class="lp-btn-stack${inStack ? ' in-stack' : ''}" data-action="toggle-stack" data-id="${item.id}" type="button">
-              ${inStack ? '✓ No Stack' : '+ Stack'}
+            <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${item.id}" type="button">
+              VER PREÇOS →
             </button>
           </div>
         </div>
@@ -748,11 +811,7 @@ export default class ListPage {
         favBtn.textContent = isFav ? '♥' : '♡';
       }
 
-      const stackBtn = card.querySelector('[data-action="toggle-stack"]');
-      if (stackBtn) {
-        stackBtn.classList.toggle('in-stack', inStack);
-        stackBtn.textContent = inStack ? '✓ No Stack' : '+ Stack';
-      }
+
     });
 
     // refresh modal add btn if open
@@ -1013,26 +1072,11 @@ export default class ListPage {
           return;
         }
 
-        // Stack toggle
-        const stackBtn = e.target.closest('[data-action="toggle-stack"]');
-        if (stackBtn) {
+        // Open modal action
+        const verBtn = e.target.closest('[data-action="open-modal"]');
+        if (verBtn) {
           e.stopPropagation();
-          const id = stackBtn.dataset.id;
-          const sup = this._allItems.find(s => s.id === id);
-          if (!sup) return;
-          const inStack = (stateManager.stack ?? []).some(s => s.supplementId === id);
-          if (inStack) {
-            stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { supplementId: id });
-          } else {
-            stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
-              supplementId: sup.id,
-              name: sup.name,
-              dosage: sup.dosage?.maintenance ?? 5,
-              unit: sup.dosage?.unit ?? 'g',
-              quantity: 0,
-            });
-          }
-          this._refreshCardStates();
+          this._openModal(verBtn.dataset.id);
           return;
         }
 

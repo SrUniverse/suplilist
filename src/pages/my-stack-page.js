@@ -328,13 +328,15 @@ const STYLES = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
+    gap: 4px;
+    padding: 0 8px;
     height: 32px;
     border-radius: 8px;
     background: transparent;
     color: var(--color-text-secondary);
     text-decoration: none;
-    font-size: 16px;
+    font-size: 13px;
+    cursor: pointer;
     transition: background 0.15s;
   }
   .msp-btn-reorder:hover {
@@ -786,13 +788,13 @@ export class MyStackPage {
               <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${item.name}" title="Editar">✏️</button>
               <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${item.name}" title="Remover">🗑️</button>
               <a class="msp-btn-reorder"
-                 href="${escapeHtml(affLinks.amazon)}"
+                 href="${affLinks.amazon}"
                  target="_blank"
                  rel="noopener noreferrer"
                  data-aff-id="${escapeHtml(itemId)}"
                  data-aff-mp="amazon"
                  title="Recomprar na Amazon"
-                 aria-label="Recomprar ${escapeHtml(item.name)} na Amazon">🛒</a>
+                 aria-label="Recomprar ${escapeHtml(item.name)} na Amazon">🛒 Recomprar</a>
             </div>
           </div>
         </div>

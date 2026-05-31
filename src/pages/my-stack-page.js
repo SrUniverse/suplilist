@@ -9,6 +9,7 @@ import { todayISO, offsetISO } from '../utils/date.js';
 import { renderEvidenceBadge } from '../utils/evidence.js';
 import { getSupplementId } from '../utils/stack.js';
 import { escapeHtml } from '../utils/escape.js';
+import affiliateEngine from '../monetization/affiliate-engine.js';
 
 // Prices loaded lazily from /data/prices.json
 let PRICES_DB = null;
@@ -323,6 +324,22 @@ const STYLES = `
   }
   .msp-btn-icon:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
   .msp-btn-icon.del:hover { background: var(--color-error-bg); color: var(--color-error); }
+  .msp-btn-reorder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: 16px;
+    transition: background 0.15s;
+  }
+  .msp-btn-reorder:hover {
+    background: var(--color-surface-hover);
+  }
 
   /* Inline edit form */
   .msp-inline-edit {
@@ -749,6 +766,7 @@ export class MyStackPage {
       const dbEntry = SUPPLEMENTS_DB.find(s => s.id === itemId);
       const category = dbEntry?.category ?? '';
       const desc = dbEntry?.benefits?.[0] ?? '';
+      const affLinks = affiliateEngine.getLinks(item.name);
 
       el.innerHTML = `
         <div class="msp-item-top">
@@ -767,6 +785,14 @@ export class MyStackPage {
             <div class="msp-item-actions">
               <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${item.name}" title="Editar">✏️</button>
               <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${item.name}" title="Remover">🗑️</button>
+              <a class="msp-btn-reorder"
+                 href="${affLinks.amazon}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 data-aff-id="${escapeHtml(itemId)}"
+                 data-aff-mp="amazon"
+                 title="Recomprar na Amazon"
+                 aria-label="Recomprar ${escapeHtml(item.name)} na Amazon">🛒</a>
             </div>
           </div>
         </div>
@@ -846,6 +872,11 @@ export class MyStackPage {
       if (btn.dataset.action === 'cancel-edit') {
         this._closeInlineEdit(id);
       }
+    });
+
+    this.container.querySelector('#msp-list')?.addEventListener('click', e => {
+      const affLink = e.target.closest('[data-aff-mp]');
+      if (affLink) affiliateEngine.trackClick(affLink.dataset.affId, affLink.dataset.affMp);
     });
   }
 

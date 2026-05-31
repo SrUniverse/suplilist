@@ -157,6 +157,7 @@ export default class OnboardingPage {
 
     const goalCard = e.target.closest('[data-goal]');
     if (goalCard) {
+      if (goalCard.dataset.goal === this.data.goal) return;
       this.data.goal = goalCard.dataset.goal;
       this._suggestions = [];
       this.data.selectedIds = new Set();

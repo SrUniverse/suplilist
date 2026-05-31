@@ -461,9 +461,14 @@ export default class HistoryPage {
 
   // ─── Event listeners ─────────────────────────────────────────────────────────
   _attachListeners() {
-    // Search input
+    // Search input — restore focus if user was typing (innerHTML re-render loses focus)
     const searchEl = this.container.querySelector('#hp-search');
     if (searchEl) {
+      if (this._searchQuery) {
+        searchEl.focus();
+        const len = searchEl.value.length;
+        searchEl.setSelectionRange(len, len);
+      }
       searchEl.addEventListener('input', (e) => {
         this._searchQuery = e.target.value;
         this._render();

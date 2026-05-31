@@ -87,7 +87,7 @@ export default class CheckinPage {
               margin: 0 0 6px;
             ">${todayDisplay}</p>
             <h1 style="
-              font-family: 'Syne', sans-serif;
+              font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
               font-weight: 800;
               font-size: 30px;
               letter-spacing: -0.03em;
@@ -163,7 +163,7 @@ export default class CheckinPage {
       ">
         <!-- Percentage display -->
         <div style="
-          font-family: 'Syne', sans-serif;
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
           font-size: 52px;
           font-weight: 800;
           letter-spacing: -0.04em;
@@ -338,7 +338,7 @@ export default class CheckinPage {
       ">
         <div style="font-size:44px;margin-bottom:14px;">📋</div>
         <div style="
-          font-family: 'Syne', sans-serif;
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
           font-weight: 800;
           font-size: 20px;
           color: var(--color-text-primary);

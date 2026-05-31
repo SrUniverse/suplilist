@@ -85,13 +85,13 @@ export default class ProfilePage {
             width:72px;height:72px;border-radius:50%;
             background:var(--color-brand);
             display:flex;align-items:center;justify-content:center;
-            font-size:28px;font-weight:800;color:#fff;font-family:'Syne',sans-serif;
+            font-size:28px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans','Inter',sans-serif;
             flex-shrink:0;
           ">${initial}</div>
 
           <div style="text-align:center;">
             <div id="name-display" style="display:flex;align-items:center;gap:8px;justify-content:center;">
-              <span id="name-text" style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:-0.02em;">${escapeHtml(form.name)}</span>
+              <span id="name-text" style="font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans','Inter',sans-serif;letter-spacing:-0.02em;">${escapeHtml(form.name)}</span>
               <button id="btn-edit-name" title="Editar nome" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:2px;display:flex;align-items:center;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </button>

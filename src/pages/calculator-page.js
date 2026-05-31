@@ -437,7 +437,7 @@ export default class CalculatorPage {
       /* Header */
       .calcp-header { margin-bottom: 4px; }
       .calcp-title {
-        font-family: 'Syne', sans-serif;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         font-weight: 800;
         font-size: 28px;
         color: var(--color-text-primary);
@@ -704,7 +704,7 @@ export default class CalculatorPage {
         margin-bottom: 14px;
       }
       .calcp-dose-value {
-        font-family: 'Syne', sans-serif;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         font-weight: 800;
         font-size: 64px;
         line-height: 1;

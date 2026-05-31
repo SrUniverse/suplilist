@@ -111,7 +111,7 @@ export default class FavoritesPage {
         flex-wrap: wrap;
       }
       .fv-title {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: clamp(22px, 5vw, 32px); margin: 0;
         color: var(--color-text-primary);
       }
@@ -286,7 +286,7 @@ export default class FavoritesPage {
       }
       .fv-empty-icon { font-size: 48px; opacity: 0.5; }
       .fv-empty-title {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: 20px; color: var(--color-text-primary); margin: 0;
       }
       .fv-empty-sub {

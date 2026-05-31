@@ -79,7 +79,7 @@ export default class HistoryPage {
         margin-bottom: 2px;
       }
       .hp-stat-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-      .hp-stat-value { font-size: 26px; font-weight: 800; color: var(--color-text-primary); line-height: 1.1; font-family: 'Syne', sans-serif; }
+      .hp-stat-value { font-size: 26px; font-weight: 800; color: var(--color-text-primary); line-height: 1.1; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
       .hp-stat-sub { font-size: 11px; color: var(--color-text-muted); }
       .hp-stat-sub.positive { color: var(--color-success); font-weight: 600; }
       .hp-progress-bar {
@@ -455,7 +455,7 @@ export default class HistoryPage {
     this.container.innerHTML = `
       <div class="hp-root">
         <header>
-          <h1 style="font-size:24px;font-weight:800;margin:0 0 4px;font-family:'Syne',sans-serif;color:var(--color-text-primary);">Histórico</h1>
+          <h1 style="font-size:24px;font-weight:800;margin:0 0 4px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--color-text-primary);">Histórico</h1>
           <p style="color:var(--color-text-secondary);font-size:14px;margin:0;">Acompanhe sua constância de suplementação.</p>
         </header>
         ${statsHtml}

@@ -85,7 +85,7 @@ const STYLES = `
 
   /* Header */
   .msp-header-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-weight: 800;
     font-size: 28px;
     color: var(--color-text-primary);

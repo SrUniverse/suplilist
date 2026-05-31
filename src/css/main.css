@@ -1377,7 +1377,7 @@ body.landing-body {
   /* Landing-specific variables — scoped here to avoid polluting global :root */
   --bg-landing: #08080f;
   --bg: #08080f;
-  --font-headline: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-headline: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --border-subtle: rgba(255, 255, 255, 0.05);
   /* Note: --font-body is already defined in design-system.css — removed from here */
 

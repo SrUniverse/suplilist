@@ -191,7 +191,7 @@ export default class ListPage {
         display: flex; align-items: center; gap: 12px;
       }
       #lp-title {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: 22px; color: var(--color-text-primary);
         margin: 0; flex-shrink: 0;
       }
@@ -264,7 +264,7 @@ export default class ListPage {
         position: relative; z-index: 1;
         font-size: 18px; font-weight: 800;
         color: var(--color-text-primary);
-        font-family: 'Syne', sans-serif;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         line-height: 1;
       }
       .lp-stat-lbl {
@@ -497,7 +497,7 @@ export default class ListPage {
         overflow: hidden;
       }
       .lp-modal-img { width: 100%; height: 100%; object-fit: contain; }
-      .lp-modal-img-col-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: var(--color-text-primary); margin: 0; }
+      .lp-modal-img-col-name { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: var(--color-text-primary); margin: 0; }
       .lp-modal-img-col-cat { font-size: 12px; color: var(--color-text-muted); margin: 2px 0 0; }
       .lp-modal-info-col { display: flex; flex-direction: column; gap: 14px; }
       .lp-modal-info-col h3 { font-size: 13px; font-weight: 700; color: var(--color-text-secondary); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em; }

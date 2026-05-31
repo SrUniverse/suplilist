@@ -345,9 +345,10 @@ export class Nav {
       }
       .sb-logo {
         display: block;
-        font-family: 'Syne', sans-serif;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         font-weight: 800;
-        font-size: 18px;
+        font-size: 17px;
+        letter-spacing: -0.03em;
         color: var(--color-brand, #7C3AED);
         margin-bottom: 3px;
         text-decoration: none;
@@ -518,8 +519,11 @@ export class Nav {
         padding: 0 16px;
       }
       .mt-logo {
-        font-family: 'Syne', sans-serif; font-weight: 800;
-        font-size: 18px; color: var(--color-brand, #7C3AED);
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+        font-weight: 800;
+        font-size: 17px;
+        letter-spacing: -0.03em;
+        color: var(--color-brand, #7C3AED);
       }
       .mt-actions { display: flex; align-items: center; gap: 4px; }
       .mt-icon-btn {

@@ -356,7 +356,7 @@ export default class HomePage {
       }
       .lp-nav__ig:hover { color: var(--color-text-primary, #F2F2F2); }
       .lp-logo {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: 22px; letter-spacing: -0.02em;
         color: var(--color-brand, #7C3AED); text-decoration: none;
       }
@@ -412,7 +412,7 @@ export default class HomePage {
         padding: 7px 16px; border-radius: 999px; margin-bottom: 28px;
       }
       .lp-hero__title {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: clamp(44px, 8vw, 96px); line-height: 1.05;
         letter-spacing: -0.03em; margin: 0 0 24px;
       }
@@ -464,7 +464,7 @@ export default class HomePage {
       .lp-section-wrap--alt { background: var(--color-bg-secondary, #0F0F0F); }
       .lp-section { max-width: 1160px; margin: 0 auto; padding: 80px 24px; }
       .lp-h2 {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: clamp(28px, 4.5vw, 48px); line-height: 1.1;
         letter-spacing: -0.02em; text-align: center; margin: 0 0 56px;
       }
@@ -499,7 +499,7 @@ export default class HomePage {
       .lp-step__num {
         width: 44px; height: 44px; border-radius: 12px;
         display: flex; align-items: center; justify-content: center;
-        font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 20px;
         color: var(--color-brand, #7C3AED);
         background: var(--color-brand-muted, rgba(124,58,237,0.12));
         margin-bottom: 18px;
@@ -544,7 +544,7 @@ export default class HomePage {
       /* ── CTA FINAL ── */
       .lp-cta { max-width: 760px; margin: 0 auto; padding: 110px 24px; text-align: center; }
       .lp-cta__title {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: clamp(32px, 6vw, 64px); line-height: 1.08;
         letter-spacing: -0.03em; margin: 0 0 20px;
       }
@@ -572,7 +572,7 @@ export default class HomePage {
         display: flex; align-items: center; justify-content: center;
       }
       .lp-ig__handle {
-        font-family: 'Syne', sans-serif; font-weight: 800;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: 20px; margin: 0 0 6px;
         background: linear-gradient(135deg, #c056ff, #ff6b35);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;

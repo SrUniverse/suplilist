@@ -5,6 +5,7 @@
 // ============================================================
 
 import { stateManager } from '../state/state-manager.js';
+import { eventBus } from './event-bus.js';
 
 // ── SVG helpers ─────────────────────────────────────────────
 const ICONS = {
@@ -106,6 +107,12 @@ export class Nav {
     if (!Nav._hasCheckinToday()) {
       Nav.setBadge('checkin', true);
     }
+    // Reactively remove badge when user does a checkin during the session
+    eventBus.on('checkin:added', () => {
+      if (Nav._hasCheckinToday()) {
+        Nav.setBadge('checkin', false);
+      }
+    });
   }
 
   static updateActive(pathname) {

@@ -259,6 +259,12 @@ export class Nav {
     const bn = document.getElementById('bottom-nav');
     if (!outlet || !bn) return;
 
+    // Guard against double-init: remove previous scroll listener if present
+    if (Nav._scrollHandler) {
+      outlet.removeEventListener('scroll', Nav._scrollHandler);
+      Nav._scrollHandler = null;
+    }
+
     let lastScrollY = 0;
     Nav._scrollHandler = () => {
       const y = outlet.scrollTop;

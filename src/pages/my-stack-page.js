@@ -793,7 +793,9 @@ export class MyStackPage {
 
     const withPrices = stack.filter(item => {
       const id = getSupplementId(item);
-      return !!prices[id];
+      const markets = prices[id];
+      // Ensure at least one market entry exists (guards against empty {} crash in reduce)
+      return markets && Object.keys(markets).length > 0;
     });
 
     if (!withPrices.length) {

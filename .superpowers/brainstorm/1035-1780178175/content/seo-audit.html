@@ -1,0 +1,137 @@
+<h2>Audit SEO Completo — SupliList</h2>
+<p class="subtitle">O que está ótimo, o que está faltando e o que pode melhorar</p>
+
+<!-- SECTION 1: DONE WELL -->
+<div class="section">
+  <div class="label" style="color:#22c55e">✅ Já implementado corretamente</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      Title, description, keywords · Canonical · lang="pt-BR"
+    </div>
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      OG completo (type, url, title, desc, image, alt, locale) · Twitter Card
+    </div>
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      Schema.org JSON-LD WebApplication · robots.txt · sitemap.xml (5 páginas)
+    </div>
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      HTTPS redirect 301 · 404.html SPA · PWA manifest · preconnect fontes
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: CRITICAL -->
+<div class="section" style="margin-top:24px">
+  <div class="label" style="color:#ef4444">🔴 Crítico — afeta indexação e analytics agora</div>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+
+    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#f5f5f5;font-size:14px">1. URLs com hash: <code style="background:#1e1e1e;padding:2px 6px;border-radius:4px">suplilist.com/#/home</code></strong>
+        <span style="font-size:11px;color:#ef4444;font-weight:600">INDEXAÇÃO</span>
+      </div>
+      <p style="color:#a3a3a3;font-size:13px;margin-top:8px">
+        <code>app.js</code> redireciona <code>/</code> → <code>/home</code> desnecessariamente. <code>home-page.js</code> usa <code>window.location.hash</code> nos botões em vez de pushState.<br>
+        Google vê <code>suplilist.com/#/home</code> como fragmento, não como URL indexável.
+      </p>
+    </div>
+
+    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#f5f5f5;font-size:14px">2. Plausible não rastreia navegação interna</strong>
+        <span style="font-size:11px;color:#ef4444;font-weight:600">ANALYTICS</span>
+      </div>
+      <p style="color:#a3a3a3;font-size:13px;margin-top:8px">
+        Em SPAs, <code>plausible('pageview')</code> precisa ser chamado a cada mudança de rota. O router atual não notifica o Plausible — então você só vê a entrada inicial, nunca as páginas internas. O script instalado também usa URL customizada sem <code>data-domain</code>.
+      </p>
+    </div>
+
+    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#f5f5f5;font-size:14px">3. Links hash residuais: <code>faq-page.js</code> · <code>checkin-page.js</code></strong>
+        <span style="font-size:11px;color:#ef4444;font-weight:600">NAVEGAÇÃO</span>
+      </div>
+      <p style="color:#a3a3a3;font-size:13px;margin-top:8px">
+        6 links internos ainda usam <code>data-href="#/rota"</code> ou <code>href="#/my-stack"</code>. Quebram silenciosamente com History API — levam para âncora vazia.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 3: MEDIUM -->
+<div class="section" style="margin-top:24px">
+  <div class="label" style="color:#f59e0b">🟡 Médio — ganhos reais de visibilidade</div>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+
+    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#f5f5f5;font-size:14px">4. FAQPage schema JSON-LD ausente</strong>
+        <span style="font-size:11px;color:#f59e0b;font-weight:600">RICH SNIPPETS</span>
+      </div>
+      <p style="color:#a3a3a3;font-size:13px;margin-top:8px">
+        O FAQ tem 11 perguntas e respostas de qualidade. Adicionando <code>FAQPage</code> schema em <code>index.html</code> (estático, visível para crawlers), o Google pode exibir as perguntas diretamente no resultado de busca — aumenta CTR sem nenhum esforço de link building.
+      </p>
+    </div>
+
+    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#f5f5f5;font-size:14px">5. Title dinâmico por página</strong>
+        <span style="font-size:11px;color:#f59e0b;font-weight:600">UX + SEO</span>
+      </div>
+      <p style="color:#a3a3a3;font-size:13px;margin-top:8px">
+        Todas as páginas compartilham o mesmo <code>&lt;title&gt;</code>. Quando o usuário abre 3 abas (Catálogo, Calculadora, FAQ), todas mostram "SupliList | Suplementos...". Atualizar o title em cada rota melhora UX e ajuda o Google a entender cada página individualmente.
+      </p>
+    </div>
+
+    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#f5f5f5;font-size:14px">6. <code>&lt;noscript&gt;</code> ausente</strong>
+        <span style="font-size:11px;color:#f59e0b;font-weight:600">RASTREAMENTO</span>
+      </div>
+      <p style="color:#a3a3a3;font-size:13px;margin-top:8px">
+        Bing e outros crawlers que não executam JS veem um <code>&lt;body&gt;</code> quase vazio. Um <code>&lt;noscript&gt;</code> com conteúdo resumido (nome do app, proposta de valor, links principais) garante alguma visibilidade nesses crawlers.
+      </p>
+    </div>
+
+    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#f5f5f5;font-size:14px">7. Preload de fontes ausente</strong>
+        <span style="font-size:11px;color:#f59e0b;font-weight:600">CORE WEB VITALS</span>
+      </div>
+      <p style="color:#a3a3a3;font-size:13px;margin-top:8px">
+        Syne e Inter são carregadas via Google Fonts (render-blocking). Adicionar <code>&lt;link rel="preload"&gt;</code> para os arquivos woff2 críticos reduz o Largest Contentful Paint (LCP), que é fator de rankeamento.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION 4: NICE TO HAVE -->
+<div class="section" style="margin-top:24px">
+  <div class="label" style="color:#8b5cf6">🟢 Nice-to-have — polimento final</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      <strong style="color:#f5f5f5">fb:app_id</strong> — Avisado pelo debugger. Opcional, só para FB analytics avançado.
+    </div>
+    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      <strong style="color:#f5f5f5">preconnect Plausible</strong> — <code>&lt;link rel="preconnect" href="https://plausible.io"&gt;</code> para carregar analytics mais rápido.
+    </div>
+    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      <strong style="color:#f5f5f5">twitter:creator</strong> — Adicionar <code>@suplilist</code> como creator além de site.
+    </div>
+    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:14px;font-size:13px;color:#a3a3a3">
+      <strong style="color:#f5f5f5">Sitemap /links</strong> — Adicionar a nova página do funil assim que criada.
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div style="margin-top:24px;padding:18px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:12px">
+  <h3 style="color:#f5f5f5;margin:0 0 10px">Resumo por prioridade</h3>
+  <div style="font-size:13px;color:#a3a3a3;display:flex;flex-direction:column;gap:6px">
+    <div>🔴 <strong style="color:#f5f5f5">Crítico (3 itens):</strong> hash URLs · Plausible SPA · links internos residuais</div>
+    <div>🟡 <strong style="color:#f5f5f5">Médio (4 itens):</strong> FAQPage schema · title dinâmico · noscript · preload fontes</div>
+    <div>🟢 <strong style="color:#f5f5f5">Low (4 itens):</strong> fb:app_id · preconnect Plausible · twitter:creator · sitemap /links</div>
+  </div>
+</div>

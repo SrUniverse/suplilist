@@ -6,6 +6,7 @@
 
 import { stateManager } from '../state/state-manager.js';
 import { eventBus } from './event-bus.js';
+import { todayISO } from '../utils/date.js';
 
 // ── SVG helpers ─────────────────────────────────────────────
 const ICONS = {
@@ -304,10 +305,8 @@ export class Nav {
 
   static _hasCheckinToday() {
     try {
-      const today = new Date().toDateString();
-      return (stateManager.checkins || []).some(c =>
-        new Date(c.timestamp).toDateString() === today
-      );
+      const today = todayISO();
+      return (stateManager.checkins || []).some(c => c.date === today);
     } catch {
       return true;
     }

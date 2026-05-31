@@ -60,7 +60,7 @@ function matchesCategory(item, cat) {
   if (!cat || cat === 'Todos') return true;
   const c = (item.category || '').toLowerCase();
   if (cat === 'Performance')    return c.includes('força') || c.includes('performance') || c.includes('resistência') || c.includes('endurance');
-  if (cat === 'Proteínas')      return c.includes('prote');
+  if (cat === 'Proteínas')      return c.startsWith('prote');
   if (cat === 'Vitaminas')      return c.includes('vitam');
   if (cat === 'Adaptógenos')    return c.includes('adapt');
   if (cat === 'Hormônios')      return c.includes('hormon') || c.includes('testoster') || c.includes('libido');

@@ -1,6 +1,7 @@
 import { stateManager } from '../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { todayISO, offsetISO } from '../utils/date.js';
+import { escapeHtml } from '../utils/escape.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const pad = n => String(n).padStart(2, '0');
@@ -381,7 +382,7 @@ export default class HistoryPage {
           type="search"
           class="hp-search-input"
           placeholder="Buscar suplemento..."
-          value="${this._searchQuery.replace(/"/g, '&quot;')}"
+          value="${escapeHtml(this._searchQuery)}"
           id="hp-search"
         />
         <div class="hp-chips">
@@ -429,13 +430,13 @@ export default class HistoryPage {
         }).join('');
 
         return `
-          <div class="hp-sup-card" data-sid="${e.sid}">
-            <div class="hp-sup-header" data-toggle="${e.sid}">
+          <div class="hp-sup-card" data-sid="${escapeHtml(e.sid)}">
+            <div class="hp-sup-header" data-toggle="${escapeHtml(e.sid)}">
               ${imgHtml}${placeholderHtml}
               <div class="hp-sup-info">
-                <div class="hp-sup-name">${e.name}</div>
+                <div class="hp-sup-name">${escapeHtml(e.name)}</div>
                 <div class="hp-sup-meta">
-                  ${e.category ? `<span class="hp-badge-cat">${e.category}</span>` : ''}
+                  ${e.category ? `<span class="hp-badge-cat">${escapeHtml(e.category)}</span>` : ''}
                   <span class="hp-sup-range">${firstLabel} → ${lastLabel}</span>
                 </div>
                 <div style="margin-top:4px;">
@@ -443,9 +444,9 @@ export default class HistoryPage {
                   <span style="font-size:12px;color:var(--color-text-muted);"> (${e.totalDays}/${e.totalPossible} dias)</span>
                 </div>
               </div>
-              <button class="hp-expand-btn" data-toggle="${e.sid}">${isExpanded ? 'Fechar ▲' : 'Ver Logs ▼'}</button>
+              <button class="hp-expand-btn" data-toggle="${escapeHtml(e.sid)}">${isExpanded ? 'Fechar ▲' : 'Ver Logs ▼'}</button>
             </div>
-            <div class="hp-logs-panel ${isExpanded ? 'open' : ''}" id="hp-logs-${e.sid}">
+            <div class="hp-logs-panel ${isExpanded ? 'open' : ''}" id="hp-logs-${escapeHtml(e.sid)}">
               <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:2px;">${e.totalDays} check-in${e.totalDays !== 1 ? 's' : ''} registrado${e.totalDays !== 1 ? 's' : ''}</div>
               ${logsHtml}
             </div>

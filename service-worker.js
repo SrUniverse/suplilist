@@ -97,7 +97,7 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             fetch(event.request).then((networkResponse) => {
               if (networkResponse.status === 200) {
-                cache.put(event.request, networkResponse);
+                cache.put(event.request, networkResponse.clone());
               }
             }).catch(() => { });
             return cachedResponse;
@@ -144,7 +144,7 @@ self.addEventListener('fetch', (event) => {
         fetch(event.request)
           .then((networkResponse) => {
             if (networkResponse.status === 200) {
-              caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, networkResponse));
+              caches.open(STATIC_CACHE).then((cache) => cache.put(event.request, networkResponse.clone()));
             }
           })
           .catch(() => { });

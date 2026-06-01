@@ -150,7 +150,9 @@ export class EventBus {
   subscribers = new Map();
   #history = [];
   #debug = false;
-  #maxHistorySize = 100;
+  // P12: shift() é O(n) — limite reduzido de 100 para 50 para manter footprint baixo.
+  // Para alta frequência real, substituir por buffer circular com índice de escrita.
+  #maxHistorySize = 50;
 
   /**
    * Subscribe to an event.

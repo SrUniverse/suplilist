@@ -161,9 +161,9 @@ export default class CalculatorPage {
       return `
         <button class="calcp-chip${active ? ' calcp-chip--active' : ''}"
           role="option" aria-selected="${active}"
-          data-supp-id="${s.id}" title="${s.name}">
-          <span class="calcp-chip-name">${s.name}</span>
-          <span class="calcp-chip-cat">${s.category ?? ''}</span>
+          data-supp-id="${escapeHtml(s.id)}" title="${escapeHtml(s.name)}">
+          <span class="calcp-chip-name">${escapeHtml(s.name)}</span>
+          <span class="calcp-chip-cat">${escapeHtml(s.category ?? '')}</span>
           <span class="calcp-ev-badge" style="background:${evStyle.bg};color:${evStyle.color}">${ev}</span>
         </button>`;
     }).join('');
@@ -230,7 +230,7 @@ export default class CalculatorPage {
 
       <!-- Add to protocol button -->
       <button class="calcp-btn-add${inStack ? ' calcp-btn-add--in' : ''}"
-        id="btn-add-protocol" data-supp-id="${supp.id}" data-supp-name="${supp.name}">
+        id="btn-add-protocol" data-supp-id="${escapeHtml(supp.id)}" data-supp-name="${escapeHtml(supp.name)}">
         ${inStack ? '✓ No meu Protocolo' : '+ Adicionar ao meu Protocolo'}
       </button>
 

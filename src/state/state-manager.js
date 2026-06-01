@@ -113,14 +113,21 @@ function reducer(state, action) {
   if (!action) return state;
 
   switch (action.type) {
-    case ACTIONS.SET_USER_PROFILE:
+    case ACTIONS.SET_USER_PROFILE: {
+      // P1: whitelist explícita — impede sobrescrita de tier/onboardingComplete via payload livre
+      const ALLOWED_PROFILE_KEYS = [
+        'name', 'email', 'weight', 'height', 'age',
+        'trainingFrequency', 'trainingAge', 'objective',
+        'restrictions', 'budget',
+      ];
+      const sanitized = Object.fromEntries(
+        Object.entries(action.payload ?? {}).filter(([k]) => ALLOWED_PROFILE_KEYS.includes(k))
+      );
       return {
         ...state,
-        user: {
-          ...state.user,
-          ...action.payload
-        }
+        user: { ...state.user, ...sanitized }
       };
+    }
 
     case ACTIONS.COMPLETE_ONBOARDING:
       return {
@@ -171,12 +178,15 @@ function reducer(state, action) {
       };
 
     case ACTIONS.ADD_CHECKIN: {
+      // P9: ID com entropia combinada (timestamp + random) evita colisões em sessões de alta frequência
       const checkin = {
-        id: action.payload.id || `chk_${Math.random().toString(36).substring(2, 11)}`,
-        timestamp: action.payload.timestamp || Date.now(),
+        id: action.payload.id ||
+          `chk_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 7)}`,
+        timestamp:    action.payload.timestamp || Date.now(),
         supplementId: action.payload.supplementId,
-        date: action.payload.date || todayISO(),
-        note: action.payload.note || ''
+        date:         action.payload.date || todayISO(),
+        // P9: limite de 500 chars na nota para evitar payload gigante no localStorage
+        note: (action.payload.note || '').substring(0, 500),
       };
       return {
         ...state,
@@ -581,6 +591,17 @@ export class StateManager {
   }
 
   /**
+   * P2: valida shape e tamanho antes de aceitar estado vindo de outra aba.
+   */
+  _validateCrossTabState(data) {
+    if (!data || typeof data !== 'object') return false;
+    if (Array.isArray(data.checkins) && data.checkins.length > 10000) return false;
+    if (Array.isArray(data.stack)    && data.stack.length    > 500)   return false;
+    if (Array.isArray(data.favorites) && data.favorites.length > 1000) return false;
+    return true;
+  }
+
+  /**
    * Escuta alterações de localStorage vindas de outras abas para manter a reatividade multi-abas.
    */
   _setupStorageSync() {
@@ -589,6 +610,11 @@ export class StateManager {
         if (event.key === STORAGE_KEY && event.newValue) {
           try {
             const parsed = JSON.parse(event.newValue);
+            // P2: rejeita estado inválido ou com volumes fora do esperado
+            if (!this._validateCrossTabState(parsed)) {
+              logger.warn('[StateManager] Cross-tab state rejected: invalid shape or size.');
+              return;
+            }
             const migrated = this._migrateState(parsed);
             const merged = this._deepMerge(DEFAULT_STATE, migrated);
             this._state = this._deepFreeze(merged);
@@ -775,6 +801,8 @@ export class StateManager {
   }
 
   setState(path, value, options = {}) {
+    // P3: caminhos arbitrários em dot-notation contornariam o reducer e toda a lógica de negócio.
+    // Apenas caminhos mapeados explicitamente são aceitos.
     if (path === 'favorites') {
       this.dispatch({
         type: ACTIONS.SET_FAVORITES,
@@ -791,41 +819,13 @@ export class StateManager {
       return;
     }
 
-    const keys = path.split('.');
-    const next = typeof value === 'function' ? value(this.get(path)) : value;
-
-    const prev = this._state;
-    const updated = this._setPath(this.export(), keys, next);
-    const frozen = this._deepFreeze({ ...updated, _lastUpdated: Date.now() });
-
-    // #2 FIX: Registrar no histórico para que undo() funcione
-    this._history.push(prev);
-    if (this._history.length > 20) this._history.shift();
-
-    this._state = frozen;
-    this._persist();
-
-    // #2 FIX: Notificar global subscribers (antes omitido)
-    this._subscribers.forEach(cb => {
-      try { cb(this._state); }
-      catch (e) { logger.error('[StateManager] Global subscriber error (setState):', e); }
-    });
-
-    // Notificar path subscribers
-    const directCallbacks = this._pathSubscribers.get(path);
-    if (directCallbacks) {
-      const oldVal = path.split('.').reduce((obj, key) => obj?.[key], prev);
-      directCallbacks.forEach(cb => {
-        try { cb(next, oldVal); }
-        catch (e) { logger.error(`[StateManager] Path subscriber error for "${path}" (setState):`, e); }
-      });
+    // P3: bloqueia qualquer outro caminho não mapeado — use dispatch() com uma action registrada
+    if (this._debug) {
+      logger.warn(
+        `[StateManager] setState() bloqueado para o caminho não mapeado: "${path}". ` +
+        'Use dispatch() com uma action registrada em ACTIONS.'
+      );
     }
-
-    eventBus.emit('state:changed', {
-      path,
-      value: next,
-      fullState: this.export()
-    });
   }
 
   _setPath(obj, keys, value) {

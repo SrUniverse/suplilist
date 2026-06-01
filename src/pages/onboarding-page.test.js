@@ -26,7 +26,10 @@ vi.mock('../ai/stack-recommender.js', () => ({
   },
 }));
 
-vi.mock('../core/event-bus.js', () => ({ eventBus: { on: vi.fn(), off: vi.fn(), emit: vi.fn() } }));
+vi.mock('../core/event-bus.js', () => ({
+  eventBus: { on: vi.fn(), off: vi.fn(), emit: vi.fn() },
+  EVENTS: { ROUTER_NAVIGATE: 'router:navigate' }
+}));
 
 function makeContainer() {
   const dom = new JSDOM('<!DOCTYPE html><div id="app"></div>');
@@ -216,21 +219,21 @@ describe('OnboardingPage', () => {
   });
 
   it('Step 3: submit navigates to /my-stack', async () => {
+    const { eventBus } = await import('../core/event-bus.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
-    const navigate = vi.fn();
-    window.__router.navigate = navigate;
     const page = new OnboardingPage(container);
     page.step = 3;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set() };
     page._suggestions = [];
     page._render();
     container.querySelector('.onboarding-btn-next').click();
-    expect(navigate).toHaveBeenCalledWith('/my-stack');
+    expect(eventBus.emit).toHaveBeenCalledWith('router:navigate', { path: '/my-stack' });
   });
 
   it('Step 3: empty recommender shows empty state, submit still works', async () => {
     const recommenderMock = await import('../ai/stack-recommender.js');
     recommenderMock.default.recommend.mockReturnValueOnce([]);
+    const { eventBus } = await import('../core/event-bus.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;
@@ -238,6 +241,6 @@ describe('OnboardingPage', () => {
     page._render();
     expect(container.innerHTML).toContain('Nenhuma sugestão encontrada');
     container.querySelector('.onboarding-btn-next').click();
-    expect(window.__router.navigate).toHaveBeenCalledWith('/my-stack');
+    expect(eventBus.emit).toHaveBeenCalledWith('router:navigate', { path: '/my-stack' });
   });
 });

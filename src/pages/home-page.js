@@ -110,7 +110,7 @@ export default class HomePage {
           <div class="lp-nav__inner">
             <a class="lp-logo" data-nav="/home" href="/home" aria-label="SupliList — início">SupliList</a>
             <div class="lp-nav__actions">
-              <a class="lp-nav__ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener" aria-label="Instagram SupliList">
+              <a class="lp-nav__ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener noreferrer" aria-label="Instagram SupliList">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                 @suplilist
               </a>
@@ -233,7 +233,7 @@ export default class HomePage {
                   class="lp-btn lp-btn--ig"
                   href="https://www.instagram.com/suplilist/?utm_source=site&utm_medium=landing&utm_campaign=seguir"
                   target="_blank"
-                  rel="noopener"
+                  rel="noopener noreferrer"
                   aria-label="Seguir @suplilist no Instagram"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
@@ -277,7 +277,7 @@ export default class HomePage {
 
             <div class="lp-footer__col">
               <h3 class="lp-footer__head">Redes Sociais</h3>
-              <a class="lp-footer__link lp-footer__link--ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener">
+              <a class="lp-footer__link lp-footer__link--ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener noreferrer">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline;vertical-align:middle;margin-right:6px"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                 Instagram
               </a>
@@ -303,7 +303,16 @@ export default class HomePage {
     const items = SUPPLEMENTS_DB.slice(0, 3);
     return `<div class="lp-mock-stack">
       ${items.map(item => {
-        const monthPrice = ((item.dosage?.maintenance ?? 5) * (item.pricePerGram ?? 0.3) * 30)
+        let dailyGrams = item.dosage?.maintenance ?? 5;
+        const unit = item.dosage?.unit || 'g';
+        if (unit === 'mg') {
+          dailyGrams = dailyGrams / 1000;
+        } else if (unit === 'mcg') {
+          dailyGrams = dailyGrams / 1_000_000;
+        } else if (unit === 'UI') {
+          dailyGrams = dailyGrams * 0.000025;
+        }
+        const monthPrice = (dailyGrams * (item.pricePerGram ?? 0.3) * 30)
           .toFixed(2).replace('.', ',');
         const ev = item.evidenceLevel || 'A';
         return `
@@ -311,7 +320,7 @@ export default class HomePage {
             <div class="lp-mock-card__ev">EV. ${escapeHtml(String(ev))}</div>
             <div class="lp-mock-card__name">${escapeHtml(item.name)}</div>
             <div class="lp-mock-card__cat">${escapeHtml(item.category || '')}</div>
-            <div class="lp-mock-card__price">R$ ${monthPrice}<span class="lp-mock-card__dose"> / mês</span></div>
+            <div class="lp-mock-card__price">R$ ${escapeHtml(monthPrice)}<span class="lp-mock-card__dose"> / mês</span></div>
           </div>`;
       }).join('')}
     </div>`;

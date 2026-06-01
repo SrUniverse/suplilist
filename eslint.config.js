@@ -59,6 +59,7 @@ export default [
         PopStateEvent: 'readonly',
         history: 'readonly',
         sessionStorage: 'readonly',
+        AbortController: 'readonly',
       },
     },
   },

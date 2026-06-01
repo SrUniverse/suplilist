@@ -91,7 +91,7 @@ export class Router {
       // P8: verifica novamente após mount (mount também é assíncrono)
       if (navigationToken !== this._navigationToken) {
         logger.warn('[Router] Stale navigation after mount, unmounting.');
-        try { await this.currentPage.unmount?.(); } catch (_) {}
+        try { await this.currentPage.unmount?.(); } catch (_) { /* ignore stale unmount errors */ }
         this.currentPage = null;
         return;
       }

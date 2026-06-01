@@ -177,6 +177,8 @@ export class DosageCalculator {
       let dailyGrams = result.daily;
       if (result.unit === 'mg') {
         dailyGrams = result.daily / 1000;
+      } else if (result.unit === 'mcg') {
+        dailyGrams = result.daily / 1_000_000; // H1 FIX: converter microgramas para gramas
       } else if (result.unit === 'UI') {
         dailyGrams = result.daily * 0.000025;
       }

@@ -1,6 +1,7 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import recommender from '../ai/stack-recommender.js';
 import { escapeHtml } from '../utils/escape.js';
+import { eventBus, EVENTS } from '../core/event-bus.js';
 
 const GOALS = [
   { key: 'bulk',       emoji: '💪', label: 'Hipertrofia' },
@@ -123,11 +124,11 @@ export default class OnboardingPage {
       ? this._suggestions.map(s => {
           const sel = this.data.selectedIds.has(s.id);
           return `
-            <div class="onboarding-supp-card${sel ? ' selected' : ''}" data-supp="${s.id}">
+            <div class="onboarding-supp-card${sel ? ' selected' : ''}" data-supp="${escapeHtml(s.id)}">
               <div class="onboarding-supp-card__check">${sel ? '✓' : ''}</div>
               <div class="onboarding-supp-card__info">
                 <div class="onboarding-supp-card__name">${escapeHtml(s.name)}</div>
-                <div class="onboarding-supp-card__meta">${escapeHtml(s.category)} · ${s.dosage.daily}${s.dosage.unit}/dia · Evidência ${s.evidenceLevel ?? s.priority}</div>
+                <div class="onboarding-supp-card__meta">${escapeHtml(s.category)} · ${escapeHtml(String(s.dosage.daily))}${escapeHtml(s.dosage.unit)}/dia · Evidência ${escapeHtml(s.evidenceLevel ?? s.priority)}</div>
               </div>
             </div>`;
         }).join('')
@@ -212,6 +213,7 @@ export default class OnboardingPage {
       });
 
     stateManager.dispatch(ACTIONS.COMPLETE_ONBOARDING);
-    window.__router?.navigate('/my-stack');
+    // P10: navegação via EventBus em vez de window.__router (global exposto)
+    eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
   }
 }

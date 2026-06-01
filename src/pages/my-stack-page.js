@@ -608,14 +608,17 @@ export class MyStackPage {
   }
 
   mount() {
+    this._isMounted = true; // L4 FIX: flag de montagem ativa
     this._attachStyles();
     this._render();
     fetchPrices().then(prices => {
+      if (!this._isMounted) return; // L4 FIX: abortar render se desmontado
       this._prices = prices;
       this._renderReplenishment();
     });
 
     this._unsub = stateManager.subscribe((state, action) => {
+      if (!this._isMounted) return; // L4 FIX: abortar se desmontado
       const relevant = ['ADD_TO_STACK', 'REMOVE_FROM_STACK', 'UPDATE_STACK_ITEM', 'SET_STACK_QUANTITY', 'ADD_CHECKIN'];
       if (!action || relevant.includes(action.type)) {
         this._renderAll();
@@ -624,6 +627,7 @@ export class MyStackPage {
   }
 
   unmount() {
+    this._isMounted = false; // L4 FIX: flag de montagem inativa
     if (this._docClickHandler) {
       document.removeEventListener('click', this._docClickHandler);
       this._docClickHandler = null;
@@ -779,14 +783,14 @@ export class MyStackPage {
           <div class="msp-item-info">
             ${category ? `<p class="msp-item-cat">${category}</p>` : ''}
             <p class="msp-item-name">${escapeHtml(item.name)}</p>
-            <p class="msp-item-dosage">${item.dosage ?? '—'} ${item.unit ?? 'g'}/dia</p>
+            <p class="msp-item-dosage">${item.dosage ?? '—'} ${escapeHtml(item.unit ?? 'g')}/dia</p>
             ${daysLeft !== null ? `<p class="msp-item-days">~${daysLeft} dias restantes</p>` : ''}
           </div>
           <div class="msp-item-right">
             ${badge}
             <div class="msp-item-actions">
-              <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${item.name}" title="Editar">✏️</button>
-              <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${item.name}" title="Remover">🗑️</button>
+              <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${escapeHtml(item.name)}" title="Editar">✏️</button>
+              <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${escapeHtml(item.name)}" title="Remover">🗑️</button>
               <a class="msp-btn-reorder"
                  href="${affLinks.amazon}"
                  target="_blank"
@@ -845,7 +849,7 @@ export class MyStackPage {
         <div class="msp-replen-item">
           <span class="msp-replen-name">${escapeHtml(item.name)}</span>
           <span class="msp-replen-price">Melhor: ${formatBRL(best.price)}</span>
-          <span class="msp-replen-market">${best.label}</span>
+          <span class="msp-replen-market">${escapeHtml(best.label)}</span>
         </div>
         ${divider}
       `;
@@ -1020,17 +1024,17 @@ export class MyStackPage {
 
         resultsBox.innerHTML = matches.map(s => `
           <button class="msp-result-btn"
-            data-id="${s.id}"
-            data-name="${s.name}"
-            data-unit="${s.dosage?.unit ?? 'g'}"
+            data-id="${escapeHtml(s.id)}"
+            data-name="${escapeHtml(s.name)}"
+            data-unit="${escapeHtml(s.dosage?.unit ?? 'g')}"
             data-dosage="${s.dosage?.maintenance ?? 5}"
-            data-img="${s.image ?? ''}">
-            <img class="msp-result-img" src="${s.image ?? ''}"
-              alt="${s.name}"
+            data-img="${escapeHtml(s.image ?? '')}">
+            <img class="msp-result-img" src="${escapeHtml(s.image ?? '')}"
+              alt="${escapeHtml(s.name)}"
               onerror="this.style.display='none'">
             <div class="msp-result-info">
-              <span class="msp-result-name">${s.name}</span>
-              <span class="msp-result-cat">${s.category ?? ''}</span>
+              <span class="msp-result-name">${escapeHtml(s.name)}</span>
+              <span class="msp-result-cat">${escapeHtml(s.category ?? '')}</span>
             </div>
           </button>
         `).join('');

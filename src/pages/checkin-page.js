@@ -305,8 +305,8 @@ export default class CheckinPage {
             ">Feito ✓</span>`
           : `<button
               class="btn-checkin-single"
-              data-id="${item.supplementId}"
-              data-name="${item.name}"
+              data-id="${escapeHtml(item.supplementId)}"
+              data-name="${escapeHtml(item.name)}"
               style="
                 background: var(--color-brand-muted);
                 color: var(--color-brand);

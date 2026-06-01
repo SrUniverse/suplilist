@@ -6,6 +6,8 @@ export class Router {
     this.routes = routes;
     this.container = container;
     this.currentPage = null;
+    // P8: token incrementado a cada navegação; descarta loads de navegações antigas
+    this._navigationToken = 0;
 
     window.addEventListener('popstate', () => this.handleRoute());
   }
@@ -42,6 +44,10 @@ export class Router {
   }
 
   async handleRoute() {
+    // P8: incrementa token a cada navegação; qualquer load anterior que terminar
+    // após este ponto será descartado sem montar.
+    const navigationToken = ++this._navigationToken;
+
     const pathname = window.location.pathname || '/';
     const search = window.location.search || '';
     const match = this.matchRoute(pathname + search);
@@ -71,9 +77,25 @@ export class Router {
 
     try {
       const mod = await route.load();
+
+      // P8: se outra navegação ocorreu enquanto aguardávamos o load, descarta este resultado
+      if (navigationToken !== this._navigationToken) {
+        logger.warn('[Router] Stale navigation discarded (token mismatch).');
+        return;
+      }
+
       const PageClass = mod.default;
       this.currentPage = new PageClass(this.container, params);
       await this.currentPage.mount();
+
+      // P8: verifica novamente após mount (mount também é assíncrono)
+      if (navigationToken !== this._navigationToken) {
+        logger.warn('[Router] Stale navigation after mount, unmounting.');
+        try { await this.currentPage.unmount?.(); } catch (_) {}
+        this.currentPage = null;
+        return;
+      }
+
       if (typeof window.plausible === 'function') {
         window.plausible('pageview', {
           u: 'https://suplilist.com' + pathname + search,

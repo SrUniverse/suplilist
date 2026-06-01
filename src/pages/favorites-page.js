@@ -6,6 +6,7 @@
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { EVIDENCE_COLORS } from '../utils/evidence.js';
+import { escapeHtml } from '../utils/escape.js';
 
 // ─── Helpers ────────────────────────────────────────────────
 // Single source of truth: stateManager.favorites (persisted in suplilist-state-v4).
@@ -379,37 +380,37 @@ export default class FavoritesPage {
     const priceStr = monthlyPrice ? `R$ ${monthlyPrice}` : null;
 
     return `
-      <article class="fv-card" data-id="${s.id}">
+      <article class="fv-card" data-id="${escapeHtml(s.id)}">
         <div class="fv-card-img-wrap">
           <img class="fv-card-img"
-            src="${imgSrc}" alt="${s.name}"
+            src="${escapeHtml(imgSrc)}" alt="${escapeHtml(s.name)}"
             loading="lazy"
             onerror="this.style.opacity='0'"
           />
-          <button class="fv-card-fav-btn" data-action="remove-fav" data-id="${s.id}"
+          <button class="fv-card-fav-btn" data-action="remove-fav" data-id="${escapeHtml(s.id)}"
             aria-label="Remover dos favoritos" type="button">♥</button>
         </div>
         <div class="fv-card-body">
           <div class="fv-card-badges">
             <span class="fv-badge-ev" style="background:${evColors.bg};color:${evColors.color};">
-              NÍVEL ${s.evidenceLevel ?? 'C'}
+              NÍVEL ${escapeHtml(s.evidenceLevel ?? 'C')}
             </span>
-            <span class="fv-badge-cat">${s.category ?? ''}</span>
+            <span class="fv-badge-cat">${escapeHtml(s.category ?? '')}</span>
           </div>
-          <h3 class="fv-card-name">${s.name}</h3>
-          ${desc ? `<p class="fv-card-desc">${desc}</p>` : ''}
+          <h3 class="fv-card-name">${escapeHtml(s.name)}</h3>
+          ${desc ? `<p class="fv-card-desc">${escapeHtml(desc)}</p>` : ''}
           ${priceStr ? `
             <div class="fv-card-price-row">
               <span class="fv-card-price-label">Melhor Preço</span>
-              <span class="fv-card-price-val">${priceStr}</span>
+              <span class="fv-card-price-val">${escapeHtml(priceStr)}</span>
               <span class="fv-card-price-unit">/mês</span>
             </div>
           ` : ''}
           <div class="fv-card-actions">
-            <button class="fv-btn-detail" data-action="go-list" data-id="${s.id}" type="button">
+            <button class="fv-btn-detail" data-action="go-list" data-id="${escapeHtml(s.id)}" type="button">
               Detalhes
             </button>
-            <button class="fv-btn-buy" data-action="go-list" data-id="${s.id}" type="button">
+            <button class="fv-btn-buy" data-action="go-list" data-id="${escapeHtml(s.id)}" type="button">
               Ver Preços
             </button>
           </div>

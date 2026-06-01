@@ -51,6 +51,16 @@ agent-profiles.json
 playwright-report/
 playwright.config.js
 
+# Scrapers e Scripts Locais
+scrape.js
+scrape_*.js
+scrape_*.py
+
+# Imagens não utilizadas/temporárias
+assets/banner.jpeg
+assets/logo.jpeg
+assets/logo2.jpeg
+
 # Sistema Operacional
 .DS_Store
 Thumbs.db

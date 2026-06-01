@@ -8,6 +8,17 @@ import affiliateEngine from '../monetization/affiliate-engine.js';
 import { dosageToGrams } from '../utils/dosage-converter.js';
 import { DAYS_PER_MONTH, PAGE_SIZE as CONST_PAGE_SIZE, DEBOUNCE_SEARCH_MS } from '../config/constants.js';
 
+// P6: valida URLs de afiliados — rejeita qualquer protocolo não-HTTP para evitar javascript: injection
+function sanitizeUrl(url) {
+  if (!url || typeof url !== 'string') return '#';
+  try {
+    const u = new URL(url);
+    return ['https:', 'http:'].includes(u.protocol) ? url : '#';
+  } catch {
+    return '#';
+  }
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const CATEGORIES = ['Todos', 'Performance', 'Proteínas', 'Vitaminas', 'Adaptógenos', 'Hormônios', 'Cognição', 'Antioxidantes', 'Sono', 'Saúde Geral'];
@@ -784,12 +795,14 @@ export default class ListPage {
 
       let topBadge = '';
       if (saving) {
+        // P4: escapeHtml em saving (número, mas pode ser string de priceData externo)
         topBadge = `<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
-          ECONOMIZE R$ ${saving} NA AMAZON
+          ECONOMIZE R$ ${escapeHtml(String(saving))} NA AMAZON
         </div>`;
       } else if (item.category) {
+        // P4: escapeHtml em category
         topBadge = `<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
-          ${item.category}
+          ${escapeHtml(item.category)}
         </div>`;
       }
 
@@ -801,13 +814,13 @@ export default class ListPage {
         ${topBadge}
         <div class="lp-card-img-wrap">
           <img class="lp-card-img"
-            src="${img}"
-            alt="${item.name}"
+            src="${escapeHtml(img)}"
+            alt="${escapeHtml(item.name)}"
             loading="lazy"
             importance="auto"
             onerror="this.style.display='none'"
           />
-          ${ev ? `<span class="lp-card-ev-badge" style="background:${evStyle.bg};color:${evStyle.color};">EV. ${ev}</span>` : ''}
+          ${ev ? `<span class="lp-card-ev-badge" style="background:${evStyle.bg};color:${evStyle.color};">EV. ${escapeHtml(String(ev))}</span>` : ''}
         </div>
         <div class="lp-card-info">
           <p class="lp-card-name">${escapeHtml(item.name)}</p>
@@ -923,13 +936,13 @@ export default class ListPage {
       priceCardsHtml = Object.entries(stores).map(([storeKey, store]) => `
         <div class="lp-price-card">
           <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${store.label}</span>
+            <span class="lp-price-card-store">${escapeHtml(String(store.label ?? ''))}</span>
             <span class="lp-price-card-val">${formatPrice(store.price)}</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            ${store.saving ? `<span class="lp-price-saving">-R$ ${store.saving}</span>` : ''}
+            ${store.saving ? `<span class="lp-price-saving">-R$ ${escapeHtml(String(store.saving))}</span>` : ''}
             <a class="lp-price-link"
-               href="${affLinks[storeKey] || store.url || '#'}"
+               href="${sanitizeUrl(affLinks[storeKey] || store.url)}"
                target="_blank"
                rel="noopener noreferrer"
                data-aff-id="${escapeHtml(item.id)}"
@@ -947,11 +960,11 @@ export default class ListPage {
       priceCardsHtml = MP_LIST.map(({ key, label }) => `
         <div class="lp-price-card">
           <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${label}</span>
+            <span class="lp-price-card-store">${escapeHtml(label)}</span>
             <span class="lp-price-card-val">${formatPrice(priceInfo.price)}</span>
           </div>
           <a class="lp-price-link"
-             href="${affLinks[key] || '#'}"
+             href="${sanitizeUrl(affLinks[key])}"
              target="_blank"
              rel="noopener noreferrer"
              data-aff-id="${escapeHtml(item.id)}"
@@ -960,12 +973,12 @@ export default class ListPage {
       `).join('');
     }
 
-    // Build safety content
+    // P5: escapeHtml em warnings e sideEffects (dados externos do database.js)
     const warnings = item.warnings?.length
-      ? `<ul>${item.warnings.map(w => `<li>${w}</li>`).join('')}</ul>`
+      ? `<ul>${item.warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul>`
       : '<p style="color:var(--color-text-muted)">Nenhum aviso registrado.</p>';
     const sideEffects = item.sideEffects?.length
-      ? `<p style="font-weight:600;color:var(--color-text-secondary);margin:10px 0 4px;">Efeitos Colaterais</p><ul>${item.sideEffects.map(s => `<li>${s}</li>`).join('')}</ul>`
+      ? `<p style="font-weight:600;color:var(--color-text-secondary);margin:10px 0 4px;">Efeitos Colaterais</p><ul>${item.sideEffects.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>`
       : '';
 
     const overlay = document.createElement('div');

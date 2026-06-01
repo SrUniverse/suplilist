@@ -1,4 +1,4 @@
-import { stateManager, ACTIONS } from '../state/state-manager.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 import { escapeHtml } from '../utils/escape.js';
 
@@ -325,7 +325,8 @@ export default class ProfilePage {
         const isCurrentlyDark = document.documentElement.getAttribute('data-theme') !== 'light';
         const newTheme = isCurrentlyDark ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+        // P11: usar chave canônica STORAGE_KEYS.THEME (antes gravava em 'theme' — chave legada)
+        localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
 
         // Update toggle UI
         const nowDark = newTheme === 'dark';
@@ -389,8 +390,11 @@ export default class ProfilePage {
         const confirmation = prompt('Para confirmar, digite RESETAR:');
         if (confirmation === 'RESETAR') {
           stateManager.reset();
-          // Also clear the separate favorites localStorage key (not managed by stateManager)
+          // P11: limpar todas as chaves do localStorage — incluindo a legada 'theme'
+          // que não é gerenciada pelo stateManager
           localStorage.removeItem('suplilist:favorites');
+          localStorage.removeItem(STORAGE_KEYS.THEME);  // chave canônica
+          localStorage.removeItem('theme');              // chave legada (retrocompat)
           localStorage.removeItem('suplilist:notif-checkin');
           localStorage.removeItem('suplilist:notif-restock');
           localStorage.removeItem('suplilist:sidebar-collapsed');

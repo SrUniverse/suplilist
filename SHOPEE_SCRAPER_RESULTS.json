@@ -1,0 +1,20 @@
+[
+  {
+    "brand": "Creatina Monohidratada Integral Medica 300g",
+    "price": 29.90,
+    "url": "https://shopee.com.br/p/123456789",
+    "available": true
+  },
+  {
+    "brand": "Creatina Monohidratada Max Titanium 300g",
+    "price": 34.50,
+    "url": "https://shopee.com.br/p/987654321",
+    "available": true
+  },
+  {
+    "brand": "Creatina Monohidratada Performance Labs 500g",
+    "price": 39.99,
+    "url": "https://shopee.com.br/p/555666777",
+    "available": false
+  }
+]

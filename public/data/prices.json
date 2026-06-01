@@ -1,42 +1,100 @@
 {
+  "_comment": "prices.json — SupliList price comparison data. Atualizado manualmente ou via script de scraping.",
+  "_instructions": {
+    "how_to_update": "Substitua os valores de 'price' com os preços reais coletados nas lojas. O campo 'saving' deve ser calculado como: max(prices) - price_desta_loja (0 se for o mais caro). As URLs usam affiliate IDs reais: Amazon=suplilist01-20, ML=SUPLILIST_ML, Shopee=SUPLILIST_SHOPEE. Para atualizar em lote, use o script scripts/update-prices.js (a criar).",
+    "saving_formula": "saving = preco_mais_caro_entre_lojas - preco_desta_loja  (0 quando esta loja é a mais cara)",
+    "price_unit": "BRL (R$)",
+    "last_updated": "2026-06-01",
+    "top_15_criteria": "Suplementos com maior evidência clínica (nivel A/B) e maior popularidade no mercado brasileiro"
+  },
+
   "creatina-monohidratada": {
-    "amazon": { "price": 89.90, "label": "Amazon Prime", "url": "#", "saving": 12 },
-    "mercadolivre": { "price": 79.90, "label": "Mercado Livre", "url": "#" },
-    "shopee": { "price": 74.50, "label": "Shopee Oficial", "url": "#", "saving": 5 }
+    "amazon":       { "price": 89.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=creatina+monohidratada&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 79.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=creatina+monohidratada&partner_id=SUPLILIST_ML", "saving": 10 },
+    "shopee":       { "price": 74.50, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=creatina+monohidratada&af_id=SUPLILIST_SHOPEE", "saving": 15 }
   },
+
   "whey-protein": {
-    "amazon": { "price": 189.90, "label": "Amazon Prime", "url": "#" },
-    "mercadolivre": { "price": 175.00, "label": "Mercado Livre", "url": "#", "saving": 15 },
-    "shopee": { "price": 169.90, "label": "Shopee Oficial", "url": "#" }
+    "amazon":       { "price": 199.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=whey+protein&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 179.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=whey+protein&partner_id=SUPLILIST_ML", "saving": 20 },
+    "shopee":       { "price": 169.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=whey+protein&af_id=SUPLILIST_SHOPEE", "saving": 30 }
   },
+
   "omega-3": {
-    "amazon": { "price": 54.90, "label": "Amazon Prime", "url": "#", "saving": 10 },
-    "mercadolivre": { "price": 49.90, "label": "Mercado Livre", "url": "#" },
-    "shopee": { "price": 44.90, "label": "Shopee Oficial", "url": "#" }
+    "amazon":       { "price": 59.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=omega+3+fish+oil&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 49.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=omega+3&partner_id=SUPLILIST_ML", "saving": 10 },
+    "shopee":       { "price": 44.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=omega+3&af_id=SUPLILIST_SHOPEE", "saving": 15 }
   },
+
   "vitamina-d3": {
-    "amazon": { "price": 34.90, "label": "Amazon Prime", "url": "#" },
-    "mercadolivre": { "price": 29.90, "label": "Mercado Livre", "url": "#" },
-    "shopee": { "price": 27.50, "label": "Shopee Oficial", "url": "#", "saving": 7 }
+    "amazon":       { "price": 39.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=vitamina+d3+2000ui&tag=suplilist01-20", "saving": 5 },
+    "mercadolivre": { "price": 44.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=vitamina+d3&partner_id=SUPLILIST_ML", "saving": 0 },
+    "shopee":       { "price": 32.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=vitamina+d3&af_id=SUPLILIST_SHOPEE", "saving": 12 }
   },
-  "magnesio-glicinato": {
-    "amazon": { "price": 79.90, "label": "Amazon Prime", "url": "#", "saving": 8 },
-    "mercadolivre": { "price": 72.00, "label": "Mercado Livre", "url": "#" },
-    "shopee": { "price": 69.90, "label": "Shopee Oficial", "url": "#" }
+
+  "magnesio-bisglicinato": {
+    "amazon":       { "price": 89.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=magnesio+bisglicinato&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 74.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=magnesio+bisglicinato&partner_id=SUPLILIST_ML", "saving": 15 },
+    "shopee":       { "price": 69.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=magnesio+bisglicinato&af_id=SUPLILIST_SHOPEE", "saving": 20 }
   },
+
   "ashwagandha": {
-    "amazon": { "price": 119.90, "label": "Amazon Prime", "url": "#" },
-    "mercadolivre": { "price": 109.00, "label": "Mercado Livre", "url": "#", "saving": 20 },
-    "shopee": { "price": 99.90, "label": "Shopee Oficial", "url": "#" }
+    "amazon":       { "price": 129.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=ashwagandha+ksm-66&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 109.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=ashwagandha+ksm66&partner_id=SUPLILIST_ML", "saving": 20 },
+    "shopee":       { "price": 99.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=ashwagandha+ksm66&af_id=SUPLILIST_SHOPEE", "saving": 30 }
   },
-  "cafeina": {
-    "amazon": { "price": 29.90, "label": "Amazon Prime", "url": "#" },
-    "mercadolivre": { "price": 24.90, "label": "Mercado Livre", "url": "#" },
-    "shopee": { "price": 22.90, "label": "Shopee Oficial", "url": "#", "saving": 5 }
+
+  "cafeina-teanina": {
+    "amazon":       { "price": 49.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=cafeina+teanina&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 39.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=cafeina+teanina&partner_id=SUPLILIST_ML", "saving": 10 },
+    "shopee":       { "price": 34.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=cafeina+teanina&af_id=SUPLILIST_SHOPEE", "saving": 15 }
   },
+
   "melatonina": {
-    "amazon": { "price": 44.90, "label": "Amazon Prime", "url": "#", "saving": 6 },
-    "mercadolivre": { "price": 39.90, "label": "Mercado Livre", "url": "#" },
-    "shopee": { "price": 37.90, "label": "Shopee Oficial", "url": "#" }
+    "amazon":       { "price": 49.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=melatonina+0.5mg&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 39.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=melatonina&partner_id=SUPLILIST_ML", "saving": 10 },
+    "shopee":       { "price": 34.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=melatonina&af_id=SUPLILIST_SHOPEE", "saving": 15 }
+  },
+
+  "l-citrulina": {
+    "amazon":       { "price": 99.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=l-citrulina+pura&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 84.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=l-citrulina&partner_id=SUPLILIST_ML", "saving": 15 },
+    "shopee":       { "price": 79.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=l-citrulina&af_id=SUPLILIST_SHOPEE", "saving": 20 }
+  },
+
+  "beta-alanina": {
+    "amazon":       { "price": 79.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=beta+alanina&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 64.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=beta+alanina&partner_id=SUPLILIST_ML", "saving": 15 },
+    "shopee":       { "price": 59.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=beta+alanina&af_id=SUPLILIST_SHOPEE", "saving": 20 }
+  },
+
+  "zinco-bisglicinato": {
+    "amazon":       { "price": 54.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=zinco+bisglicinato&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 44.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=zinco+bisglicinato&partner_id=SUPLILIST_ML", "saving": 10 },
+    "shopee":       { "price": 39.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=zinco+bisglicinato&af_id=SUPLILIST_SHOPEE", "saving": 15 }
+  },
+
+  "vitamina-c": {
+    "amazon":       { "price": 34.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=vitamina+c+500mg&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 27.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=vitamina+c+500mg&partner_id=SUPLILIST_ML", "saving": 7 },
+    "shopee":       { "price": 24.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=vitamina+c+500mg&af_id=SUPLILIST_SHOPEE", "saving": 10 }
+  },
+
+  "l-carnitina": {
+    "amazon":       { "price": 89.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=l-carnitina+tartarato&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 74.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=l-carnitina+tartarato&partner_id=SUPLILIST_ML", "saving": 15 },
+    "shopee":       { "price": 69.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=l-carnitina+tartarato&af_id=SUPLILIST_SHOPEE", "saving": 20 }
+  },
+
+  "colageno": {
+    "amazon":       { "price": 69.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=colageno+hidrolisado&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 59.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=colageno+hidrolisado&partner_id=SUPLILIST_ML", "saving": 10 },
+    "shopee":       { "price": 54.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=colageno+hidrolisado&af_id=SUPLILIST_SHOPEE", "saving": 15 }
+  },
+
+  "probiotico": {
+    "amazon":       { "price": 119.90, "label": "Amazon", "url": "https://www.amazon.com.br/s?k=probiotico+10+bilhoes+ufc&tag=suplilist01-20", "saving": 0 },
+    "mercadolivre": { "price": 99.90, "label": "Mercado Livre", "url": "https://www.mercadolivre.com.br/jm/search?as_word=probiotico+10+bilhoes&partner_id=SUPLILIST_ML", "saving": 20 },
+    "shopee":       { "price": 89.90, "label": "Shopee", "url": "https://shopee.com.br/search?keyword=probiotico+10+bilhoes&af_id=SUPLILIST_SHOPEE", "saving": 30 }
   }
 }

@@ -5,6 +5,8 @@
 // Decouples producers from consumers completely.
 // ============================================================
 
+import { logger } from '../utils/logger.js';
+
 /**
  * Valid event namespaces.
  * Format: 'namespace:action'
@@ -167,7 +169,7 @@ export class EventBus {
 
     if (typeof callback !== 'function') {
       if (this.#debug) {
-        console.warn(`[EventBus] handler must be a function.`);
+        logger.warn(`[EventBus] handler must be a function.`);
       }
       return () => { };
     }
@@ -205,7 +207,7 @@ export class EventBus {
 
     if (typeof callback !== 'function') {
       if (this.#debug) {
-        console.warn(`[EventBus] handler must be a function.`);
+        logger.warn(`[EventBus] handler must be a function.`);
       }
       return () => { };
     }
@@ -286,7 +288,7 @@ export class EventBus {
         try {
           listener.callback(payload, eventName);
         } catch (err) {
-          console.error(`[EventBus] Callback error for "${eventName}":`, err);
+          logger.error(`[EventBus] Callback error for "${eventName}":`, err);
 
           // Emit a system error to prevent crashing, but avoid infinite loop
           if (eventName !== 'error:system') {
@@ -311,7 +313,7 @@ export class EventBus {
         try {
           listener.callback(eventName, payload);
         } catch (err) {
-          console.error(`[EventBus] Wildcard callback error for "${eventName}":`, err);
+          logger.error(`[EventBus] Wildcard callback error for "${eventName}":`, err);
 
           if (eventName !== 'error:system') {
             this.emit('error:system', {

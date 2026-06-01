@@ -73,13 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Expor o router globalmente para uso nos data-nav
   window.__router = router;
 
-  // Redirect to onboarding if not complete and no stack exists
-  const onboardingDone = stateManager.user.onboardingComplete;
-  const hasStack = stateManager.stack && stateManager.stack.length > 0;
-  if (!onboardingDone && !hasStack && window.location.pathname !== '/onboarding') {
-    window.history.replaceState(null, null, '/onboarding');
-  }
-
   router.start();
 
   // Restaurar tema salvo

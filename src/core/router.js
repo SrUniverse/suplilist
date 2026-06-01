@@ -16,7 +16,9 @@ export class Router {
 
   navigate(path) {
     window.history.pushState(null, null, path);
-    this.handleRoute();
+    // Dispatch popstate so all listeners (landing mode, Nav.show/hide, title) fire
+    // consistently — same pipeline used by nav clicks and browser back/forward.
+    window.dispatchEvent(new PopStateEvent('popstate'));
   }
 
   matchRoute(pathname) {

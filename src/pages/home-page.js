@@ -136,7 +136,7 @@ export default class HomePage {
                   100% offline, sem assinatura.
                 </p>
                 <div class="lp-hero__cta lp-anim" style="--d:.24s">
-                  <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Começar Agora →</button>
+                  <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/onboarding" type="button">Começar Agora →</button>
                   <button class="lp-btn lp-btn--outline lp-btn--lg" data-action="scroll-features" type="button">Ver Recursos ↓</button>
                 </div>
                 <p class="lp-hero__stats lp-anim" style="--d:.32s">

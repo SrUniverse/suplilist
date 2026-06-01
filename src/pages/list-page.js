@@ -1,4 +1,5 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
+import { logger } from '../utils/logger.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import Fuse from 'fuse.js';
 import { escapeHtml } from '../utils/escape.js';
@@ -131,15 +132,18 @@ export default class ListPage {
       ignoreLocation: true,
     });
 
-    // Load prices async
-    fetch('/data/prices.json')
+    // Load prices async — AbortController lets unmount() cancel a pending fetch
+    this._fetchController = new AbortController();
+    fetch('/data/prices.json', { signal: this._fetchController.signal })
       .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then(data => {
         this._prices = data;
         this._renderGrid(); // re-render cards with real prices
       })
       .catch(err => {
-        console.warn('[ListPage] prices.json failed to load, using estimates:', err.message);
+        if (err.name !== 'AbortError') {
+          logger.warn('[ListPage] prices.json failed to load, using estimates:', err.message);
+        }
       });
 
     this._render();
@@ -154,6 +158,7 @@ export default class ListPage {
   }
 
   unmount() {
+    this._fetchController?.abort();
     this._unsubscribe?.();
     this._observer?.disconnect();
     document.removeEventListener('keydown', this._boundKeydown);
@@ -832,10 +837,15 @@ export default class ListPage {
   _initInfiniteScroll() {
     const sentinel = this.container.querySelector('#lp-sentinel');
     if (!sentinel || !('IntersectionObserver' in window)) return;
-    this._observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) this._loadMore();
-    }, { rootMargin: '300px' });
-    this._observer.observe(sentinel);
+    try {
+      this._observer = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) this._loadMore();
+      }, { rootMargin: '300px' });
+      this._observer.observe(sentinel);
+    } catch (err) {
+      this._observer?.disconnect();
+      this._observer = null;
+    }
   }
 
   // ─── Refresh Card States ──────────────────────────────────────────────────

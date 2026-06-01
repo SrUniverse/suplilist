@@ -1,0 +1,20 @@
+[
+  {
+    "brand": "Integralmedica",
+    "price": "R$ 48,00",
+    "url": "https://www.mercadolivre.com.br/nutri-whey-protein/p/MLB123456",
+    "available": true
+  },
+  {
+    "brand": "Black Skull",
+    "price": "R$ 76,90",
+    "url": "https://www.mercadolivre.com.br/whey-black-skull/p/MLB234567",
+    "available": true
+  },
+  {
+    "brand": "3VS Nutrition",
+    "price": "R$ 54,50",
+    "url": "https://www.mercadolivre.com.br/3vs-whey-concentrate/p/MLB345678",
+    "available": true
+  }
+]

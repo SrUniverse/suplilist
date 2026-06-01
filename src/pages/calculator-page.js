@@ -4,6 +4,7 @@
  */
 
 import { stateManager, ACTIONS } from '../state/state-manager.js';
+import { logger } from '../utils/logger.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import dosageCalculator from '../ai/dosage-calculator.js';
 import { escapeHtml } from '../utils/escape.js';
@@ -293,7 +294,7 @@ export default class CalculatorPage {
       const res = dosageCalculator.calculate(this._selectedSupp, profile);
       this._calcResult = res ?? null;
     } catch (err) {
-      console.warn('[CalculatorPage] dosage calc error', err);
+      logger.warn('[CalculatorPage] dosage calc error', err);
       this._calcResult = null;
     }
   }

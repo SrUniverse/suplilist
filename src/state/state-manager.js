@@ -7,6 +7,7 @@
 
 import { eventBus } from '../core/event-bus.js';
 import { todayISO, offsetISO } from '../utils/date.js';
+import { logger } from '../utils/logger.js';
 
 export const STATE_VERSION = '4.0.0';
 export const STORAGE_KEY = 'suplilist-state-v4';
@@ -275,7 +276,7 @@ function reducer(state, action) {
         ...state,
         stack: state.stack.map(item =>
           (item.supplementId ?? item.id) === itemId
-            ? { ...item, ...action.payload, supplementId: itemId }
+            ? { ...item, ...action.payload, dosage: { ...(item.dosage ?? {}), ...(action.payload.dosage ?? {}) }, supplementId: itemId }
             : item
         )
       };
@@ -410,7 +411,7 @@ export class StateManager {
 
     if (!action || typeof action.type !== 'string') {
       if (this._debug) {
-        console.warn('[StateManager] Invalid action dispatched:', actionOrType);
+        logger.warn('[StateManager] Invalid action dispatched:', actionOrType);
       }
       return;
     }
@@ -437,7 +438,7 @@ export class StateManager {
     // #3 FIX: Passa action como 2° arg — subscribers podem filtrar por action.type
     this._subscribers.forEach(cb => {
       try { cb(this._state, action); }
-      catch (e) { console.error('[StateManager] Global subscriber error:', e); }
+      catch (e) { logger.error('[StateManager] Global subscriber error:', e); }
     });
 
     // Notify path subscribers
@@ -447,7 +448,7 @@ export class StateManager {
       if (!Object.is(newVal, oldVal)) {
         callbacks.forEach(cb => {
           try { cb(newVal, oldVal); }
-          catch (e) { console.error(`[StateManager] Path subscriber error for "${path}":`, e); }
+          catch (e) { logger.error(`[StateManager] Path subscriber error for "${path}":`, e); }
         });
       }
     });
@@ -502,7 +503,7 @@ export class StateManager {
    */
   reset() {
     this._history = [];
-    this._state = this._deepFreeze(DEFAULT_STATE);
+    this.hydrate(DEFAULT_STATE);
     this._flushPersist();
   }
 
@@ -532,7 +533,7 @@ export class StateManager {
         delete persistable.ui;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
       } catch (error) {
-        console.error('[StateManager] Failed to persist state:', error);
+        logger.error('[StateManager] Failed to persist state:', error);
         if (error.name === 'QuotaExceededError') {
           this._pruneStorage();
         }
@@ -550,7 +551,7 @@ export class StateManager {
       delete persistable.ui; // UI states are transient and should not be persisted
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     } catch (error) {
-      console.error('[StateManager] Failed to persist state:', error);
+      logger.error('[StateManager] Failed to persist state:', error);
       if (error.name === 'QuotaExceededError') {
         this._pruneStorage();
       }
@@ -573,7 +574,7 @@ export class StateManager {
         this._flushPersist();
       }
     } catch (e) {
-      console.error('[StateManager] Storage pruning failed:', e);
+      logger.error('[StateManager] Storage pruning failed:', e);
     } finally {
       this._isPruning = false;
     }
@@ -595,7 +596,7 @@ export class StateManager {
             // Notifica subscribers globais com um payload que identifica a sincronização
             this._subscribers.forEach(cb => {
               try { cb(this._state, { type: 'STATE_REHYDRATED_STORAGE', payload: merged }); }
-              catch (e) { console.error('[StateManager] Subscriber error on cross-tab sync:', e); }
+              catch (e) { logger.error('[StateManager] Subscriber error on cross-tab sync:', e); }
             });
             
             // Emite notificação via EventBus
@@ -605,7 +606,7 @@ export class StateManager {
               fullState: this.export()
             });
           } catch (e) {
-            console.warn('[StateManager] Failed to parse cross-tab storage sync state:', e);
+            logger.warn('[StateManager] Failed to parse cross-tab storage sync state:', e);
           }
         }
       });
@@ -628,7 +629,7 @@ export class StateManager {
       this._state = this._deepFreeze(merged);
       return merged;
     } catch (err) {
-      console.warn('[StateManager] Corrupted storage detected, falling back to default:', err);
+      logger.warn('[StateManager] Corrupted storage detected, falling back to default:', err);
       this._state = this._deepFreeze(DEFAULT_STATE);
       return DEFAULT_STATE;
     }
@@ -807,7 +808,7 @@ export class StateManager {
     // #2 FIX: Notificar global subscribers (antes omitido)
     this._subscribers.forEach(cb => {
       try { cb(this._state); }
-      catch (e) { console.error('[StateManager] Global subscriber error (setState):', e); }
+      catch (e) { logger.error('[StateManager] Global subscriber error (setState):', e); }
     });
 
     // Notificar path subscribers
@@ -816,7 +817,7 @@ export class StateManager {
       const oldVal = path.split('.').reduce((obj, key) => obj?.[key], prev);
       directCallbacks.forEach(cb => {
         try { cb(next, oldVal); }
-        catch (e) { console.error(`[StateManager] Path subscriber error for "${path}" (setState):`, e); }
+        catch (e) { logger.error(`[StateManager] Path subscriber error for "${path}" (setState):`, e); }
       });
     }
 

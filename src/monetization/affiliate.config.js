@@ -1,7 +1,9 @@
+import { logger } from '../utils/logger.js';
+
 const getAffiliateId = (envKey, fallback) => {
   const value = import.meta.env[envKey];
   if (!value) {
-    console.warn(`[Affiliate] ${envKey} not set, using fallback: ${fallback}`);
+    logger.warn(`[Affiliate] ${envKey} not set, using fallback: ${fallback}`);
     return fallback;
   }
   return value;

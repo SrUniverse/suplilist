@@ -1,4 +1,5 @@
 import { Nav } from './nav.js';
+import { logger } from '../utils/logger.js';
 
 export class Router {
   constructor(routes, container) {
@@ -59,7 +60,7 @@ export class Router {
       try {
         await this.currentPage.unmount();
       } catch (unmountErr) {
-        console.error('[Router] unmount error (continuing transition):', unmountErr);
+        logger.error('[Router] unmount error (continuing transition):', unmountErr);
       }
     }
 
@@ -77,7 +78,7 @@ export class Router {
         });
       }
     } catch (mountErr) {
-      console.error('[Router] page load/mount error:', mountErr);
+      logger.error('[Router] page load/mount error:', mountErr);
       this.container.innerHTML = '<p style="color:var(--color-error);padding:2rem;">Erro ao carregar a página. Tente novamente.</p>';
     }
 

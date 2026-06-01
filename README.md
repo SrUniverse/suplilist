@@ -21,6 +21,123 @@ Abra seu navegador em [http://localhost:5173/](http://localhost:5173/) para expl
 
 ---
 
+## MCP Server (Claude Code Integration)
+
+O SupliList inclui um **Model Context Protocol (MCP) server** que expõe o banco de dados de suplementos e o engine de recomendações para Claude Code e outras ferramentas de IA.
+
+### Setup Rápido do MCP
+
+```bash
+# 1. Instalar o servidor MCP
+cd mcp-server
+npm install
+
+# 2. Configurar Claude Code (auto em Windows/Mac)
+bash setup.sh        # Mac/Linux
+# ou
+setup.bat           # Windows
+
+# 3. Iniciar o servidor (em outro terminal)
+npm run dev
+```
+
+### Usar o MCP em Claude Code
+
+Pergunte ao Claude qualquer coisa sobre suplementos:
+
+```
+Recomenda um stack de suplementos para:
+- 75kg, objetivo: definição muscular
+- Orçamento: R$ 300/mês
+- Sem restrições
+```
+
+### Recursos Disponíveis
+
+| Ferramenta | O que faz |
+|-----------|----------|
+| `recommend_stack` | Recomendações personalizadas (peso, objetivo, orçamento) |
+| `calculate_dosage` | Dosagem exata por peso e objetivo |
+| `search_supplement` | Buscar suplementos por nome/ID |
+| `get_supplement` | Detalhes completos de um suplemento |
+| `check_interactions` | Verificar interações entre suplementos |
+| `list_supplements` | Listar tudo com filtros opcionais |
+
+### Exemplos de Uso
+
+- "Quais suplementos com maior comprovação científica (nível A)?"
+- "Recomenda um stack barato (até R$ 150/mês) para ganho de força?"
+- "A cafeína + Ginseng + Melatonina são seguros juntos?"
+- "Calcula a dose de creatina para um atleta de 85kg"
+
+👉 **Mais exemplos**: Veja [`MCP_USAGE_EXAMPLES.md`](./MCP_USAGE_EXAMPLES.md)
+
+### E2E Testing com Playwright MCP
+
+Automate testes interativos do navegador usando **Playwright MCP**:
+
+```
+Em Claude Code, peça:
+"Teste o fluxo completo:
+1. Navegue para http://localhost:5173
+2. Vá para Stack Recommender
+3. Preencha: 75kg, cutting, R$300
+4. Verifique recomendações
+5. Clique no primeiro suplemento
+6. Tire screenshot"
+```
+
+**Recursos:**
+- **Guia Completo**: [`PLAYWRIGHT_E2E_GUIDE.md`](./PLAYWRIGHT_E2E_GUIDE.md) — 5+ cenários de teste
+- **Prompts Prontos**: Testes de responsividade, acessibilidade, favoritos, performance
+- **Configuração**: `.playwright-config.json` + `.claude/settings.json`
+
+👉 Veja [`PLAYWRIGHT_E2E_GUIDE.md`](./PLAYWRIGHT_E2E_GUIDE.md) para todos os exemplos
+
+### Web Scraping com Firecrawl MCP
+
+Extraia dados de sites em tempo real usando **Firecrawl MCP** — monitorar preços, pesquisar evidência científica, atualizar catálogo.
+
+```
+Em Claude Code:
+"Use Firecrawl para extrair preços atualizados de Creatina em:
+- Shopee
+- Mercado Livre  
+- Amazon
+
+Retorne: Preço, marca, link de afiliado"
+```
+
+**Recursos:**
+- **Guia Completo**: [`FIRECRAWL_MCP_GUIDE.md`](./FIRECRAWL_MCP_GUIDE.md) — 5+ casos de uso (preços, pesquisa, novos suplementos)
+- **Setup**: Obter API key gratuita em [firecrawl.dev](https://firecrawl.dev)
+- **Integração**: `.claude/settings.json` + variável `FIRECRAWL_API_KEY`
+
+👉 Veja [`FIRECRAWL_MCP_GUIDE.md`](./FIRECRAWL_MCP_GUIDE.md) para prompts prontos
+
+### Debugging com Chrome DevTools MCP
+
+Inspect, debug e meça performance em tempo real usando **Chrome DevTools MCP** — sem abrir DevTools manualmente.
+
+```
+Em Claude Code:
+"Meça a performance de http://localhost:5173:
+- Largest Contentful Paint (LCP)
+- Interaction to Next Paint (INP)
+- Cumulative Layout Shift (CLS)
+
+Compare com targets: LCP < 2.5s, INP < 200ms"
+```
+
+**Recursos:**
+- **Guia Completo**: [`CHROME_DEVTOOLS_MCP_GUIDE.md`](./CHROME_DEVTOOLS_MCP_GUIDE.md) — 8+ cenários de debugging
+- **Integração**: `.claude/settings.json` + Chrome instalado
+- **Uso**: Measure performance, debug console errors, inspecionar DOM
+
+👉 Veja [`CHROME_DEVTOOLS_MCP_GUIDE.md`](./CHROME_DEVTOOLS_MCP_GUIDE.md) para workflows de debugging
+
+---
+
 ## Arquitetura
 
 O sistema adota um padrão arquitetural orientado a eventos e fortemente desacoplado, contendo as seguintes diretrizes fundamentais:

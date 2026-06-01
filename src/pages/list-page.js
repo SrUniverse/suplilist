@@ -4,6 +4,8 @@ import Fuse from 'fuse.js';
 import { escapeHtml } from '../utils/escape.js';
 import { EVIDENCE_COLORS } from '../utils/evidence.js';
 import affiliateEngine from '../monetization/affiliate-engine.js';
+import { dosageToGrams } from '../utils/dosage-converter.js';
+import { DAYS_PER_MONTH, PAGE_SIZE as CONST_PAGE_SIZE, DEBOUNCE_SEARCH_MS } from '../config/constants.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -18,45 +20,35 @@ const OBJECTIVE_KEY_MAP = {
   'Foco': 'endurance',
 };
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = CONST_PAGE_SIZE;
+
+/** Returns the cheapest store entry from prices[item.id], or null. Single source of truth. */
+function getCheapestStore(item, prices) {
+  const entries = prices && prices[item.id] ? Object.values(prices[item.id]) : null;
+  if (!entries || !entries.length) return null;
+  return entries.reduce((a, b) => a.price < b.price ? a : b);
+}
 
 function getPriceLabel(item, prices) {
-  const key = item.id;
-  if (prices && prices[key]) {
-    const entries = Object.values(prices[key]);
-    const cheapest = entries.reduce((a, b) => a.price < b.price ? a : b);
-    return { price: cheapest.price, label: cheapest.label };
-  }
-  // fallback: dosage.maintenance (converted to grams) * pricePerGram * 30
+  const cheapest = getCheapestStore(item, prices);
+  if (cheapest) return { price: cheapest.price, label: cheapest.label };
+  // fallback: dosage.maintenance (converted to grams) * pricePerGram * DAYS_PER_MONTH
   const dose = item.dosage?.maintenance ?? 5;
-  const unit = (item.dosage?.unit || 'g').toLowerCase();
+  const unit = item.dosage?.unit || 'g';
   const ppg = item.pricePerGram ?? 0.3;
-  let doseInGrams;
-  if (unit === 'g')         doseInGrams = dose;
-  else if (unit === 'mg')   doseInGrams = dose / 1000;
-  else if (unit === 'mcg')  doseInGrams = dose / 1_000_000;
-  else                      doseInGrams = dose; // UI, caps — best-effort
-  const estimated = doseInGrams * ppg * 30;
-  return { price: estimated, label: null };
+  const doseInGrams = dosageToGrams(dose, unit);
+  return { price: doseInGrams * ppg * DAYS_PER_MONTH, label: null };
 }
 
 function getDosePrice(item, prices) {
-  const key = item.id;
-  if (prices && prices[key]) {
-    const entries = Object.values(prices[key]);
-    const cheapest = entries.reduce((a, b) => a.price < b.price ? a : b);
-    const dose = item.dosage?.maintenance ?? 5;
-    const dosePrice = (cheapest.price / 30).toFixed(2);
-    return `R$ ${dosePrice.replace('.', ',')} / dose`;
+  const cheapest = getCheapestStore(item, prices);
+  if (cheapest) {
+    return `R$ ${(cheapest.price / DAYS_PER_MONTH).toFixed(2).replace('.', ',')} / dose`;
   }
   const dose = item.dosage?.maintenance ?? 5;
-  const unit = (item.dosage?.unit || 'g').toLowerCase();
+  const unit = item.dosage?.unit || 'g';
   const ppg = item.pricePerGram ?? 0.3;
-  let doseInGrams;
-  if (unit === 'g')         doseInGrams = dose;
-  else if (unit === 'mg')   doseInGrams = dose / 1000;
-  else if (unit === 'mcg')  doseInGrams = dose / 1_000_000;
-  else                      doseInGrams = dose;
+  const doseInGrams = dosageToGrams(dose, unit);
   return `R$ ${(doseInGrams * ppg).toFixed(2).replace('.', ',')} / dose`;
 }
 
@@ -126,6 +118,7 @@ export default class ListPage {
     this._debounceTimer = null;
     this._observer = null;
     this._boundKeydown = this._onKeydown.bind(this);
+    this._scrollLockStack = [];  // Stack of scroll lock sources (modal, etc)
   }
 
   mount() {
@@ -140,12 +133,14 @@ export default class ListPage {
 
     // Load prices async
     fetch('/data/prices.json')
-      .then(r => r.ok ? r.json() : null)
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then(data => {
         this._prices = data;
         this._renderGrid(); // re-render cards with real prices
       })
-      .catch(() => {});
+      .catch(err => {
+        console.warn('[ListPage] prices.json failed to load, using estimates:', err.message);
+      });
 
     this._render();
     this._syncObjectiveChip();
@@ -729,6 +724,9 @@ export default class ListPage {
   // ─── Grid ─────────────────────────────────────────────────────────────────
 
   _renderGrid() {
+    // Guard: don't render if modal is open (prevents listeners orphaning)
+    if (this._modalOpen) return;
+
     const grid = this.container.querySelector('#lp-grid');
     if (!grid) return;
     this._page = 0;
@@ -801,6 +799,7 @@ export default class ListPage {
             src="${img}"
             alt="${item.name}"
             loading="lazy"
+            importance="auto"
             onerror="this.style.display='none'"
           />
           ${ev ? `<span class="lp-card-ev-badge" style="background:${evStyle.bg};color:${evStyle.color};">EV. ${ev}</span>` : ''}
@@ -867,6 +866,26 @@ export default class ListPage {
         const inStack = stack.some(s => s.supplementId === this._modalOpen);
         addBtn.classList.toggle('in-stack', inStack);
         addBtn.textContent = inStack ? '✓ Já no Stack' : '+ Adicionar ao Stack';
+      }
+    }
+  }
+
+  // ─── Scroll Lock Stack ────────────────────────────────────────────────────────────────
+
+  _pushScrollLock(source = 'modal') {
+    if (!this._scrollLockStack.includes(source)) {
+      this._scrollLockStack.push(source);
+      // Use CSS class flag instead of direct style — survives router transitions
+      document.body.classList.add('has-modal-open');
+    }
+  }
+
+  _popScrollLock(source = 'modal') {
+    const idx = this._scrollLockStack.indexOf(source);
+    if (idx !== -1) {
+      this._scrollLockStack.splice(idx, 1);
+      if (this._scrollLockStack.length === 0) {
+        document.body.classList.remove('has-modal-open');
       }
     }
   }
@@ -995,10 +1014,8 @@ export default class ListPage {
     `;
 
     document.body.appendChild(overlay);
-    // Lock scroll on the router-outlet (the real scroll container after App Shell redesign)
-    const outlet = document.getElementById('router-outlet');
-    if (outlet) outlet.style.overflow = 'hidden';
-    else document.body.style.overflow = 'hidden'; // fallback
+    // Lock scroll using stack (prevents conflicts during navigation)
+    this._pushScrollLock('modal'); // fallback
 
     // Tab switching
     overlay.querySelectorAll('.lp-tab').forEach(tab => {
@@ -1046,9 +1063,7 @@ export default class ListPage {
     const existing = document.getElementById('lp-modal-overlay');
     if (existing) {
       existing.remove();
-      const outlet = document.getElementById('router-outlet');
-      if (outlet) outlet.style.overflow = '';
-      document.body.style.overflow = '';
+      this._popScrollLock('modal');
     }
     this._modalOpen = null;
   }
@@ -1076,10 +1091,11 @@ export default class ListPage {
       searchEl.addEventListener('input', e => {
         clearTimeout(this._debounceTimer);
         this._debounceTimer = setTimeout(() => {
+          this._debounceTimer = null;
           this._query = e.target.value;
           this._applyFilters();
           this._renderGrid();
-        }, 250);
+        }, DEBOUNCE_SEARCH_MS);
       });
     }
 

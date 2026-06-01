@@ -1,5 +1,14 @@
+const getAffiliateId = (envKey, fallback) => {
+  const value = import.meta.env[envKey];
+  if (!value) {
+    console.warn(`[Affiliate] ${envKey} not set, using fallback: ${fallback}`);
+    return fallback;
+  }
+  return value;
+};
+
 export const AFFILIATE_CONFIG = {
-  amazon:       'suplilist01-20',
-  mercadolivre: 'SUPLILIST_ML',     // TODO: replace with real Mercado Livre partner ID
-  shopee:       'SUPLILIST_SHOPEE', // TODO: replace with real Shopee affiliate ID
+  amazon:       getAffiliateId('VITE_AMAZON_AFFILIATE_ID', 'suplilist01-20'),
+  mercadolivre: getAffiliateId('VITE_ML_AFFILIATE_ID', 'SUPLILIST_ML'),
+  shopee:       getAffiliateId('VITE_SHOPEE_AFFILIATE_ID', 'SUPLILIST_SHOPEE'),
 };

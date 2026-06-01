@@ -1,4 +1,4 @@
-import{s as h,A as _}from"./main-DL05SHUY.js";import{S as $}from"./stack-recommender-DY8xicr2.js";import{F as I}from"./vendor-CMLop-UK.js";import{e as g}from"./escape-Br5wU8qn.js";import{E as w}from"./evidence-D5RtUc7g.js";import{a as j}from"./affiliate-engine-DpGSjpY-.js";const A=["Todos","Performance","Proteínas","Vitaminas","Adaptógenos","Hormônios","Cognição","Antioxidantes","Sono","Saúde Geral"],F=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco"],q={Hipertrofia:"bulk","Saúde Geral":"general",Longevidade:"general",Performance:"endurance",Foco:"endurance"},E=24;function z(s,t){const e=s.id;if(t&&t[e]){const d=Object.values(t[e]).reduce((v,m)=>v.price<m.price?v:m);return{price:d.price,label:d.label}}const r=s.dosage?.maintenance??5,i=(s.dosage?.unit||"g").toLowerCase(),a=s.pricePerGram??.3;let o;return i==="g"?o=r:i==="mg"?o=r/1e3:i==="mcg"?o=r/1e6:o=r,{price:o*a*30,label:null}}function O(s,t){const e=s.id;if(t&&t[e]){const c=Object.values(t[e]).reduce((v,m)=>v.price<m.price?v:m);return s.dosage?.maintenance,`R$ ${(c.price/30).toFixed(2).replace(".",",")} / dose`}const r=s.dosage?.maintenance??5,i=(s.dosage?.unit||"g").toLowerCase(),a=s.pricePerGram??.3;let o;return i==="g"?o=r:i==="mg"?o=r/1e3:i==="mcg"?o=r/1e6:o=r,`R$ ${(o*a).toFixed(2).replace(".",",")} / dose`}function M(s,t){const e=s.id;if(!t||!t[e])return null;const r=Object.values(t[e]),i=Math.max(...r.map(a=>a.saving||0));return i>0?i:null}function T(s,t){if(!t||t==="Todos")return!0;const e=(s.category||"").toLowerCase();return t==="Performance"?e.includes("força")||e.includes("performance")||e.includes("resistência")||e.includes("endurance")||e.includes("queima")||e.includes("gordura")||e.includes("recovery"):t==="Proteínas"?e.startsWith("prote"):t==="Vitaminas"?e.includes("vitam"):t==="Adaptógenos"?e.includes("adapt"):t==="Hormônios"?e.includes("hormon")||e.includes("testoster")||e.includes("libido"):t==="Cognição"?e.includes("cogni")||e.includes("neuro")||e.includes("foco"):t==="Antioxidantes"?e.includes("antioxid")||e.includes("anti-inflamat"):t==="Sono"?e.includes("sono")||e.includes("recuper"):t==="Saúde Geral"?e.includes("saúde")||e.includes("geral")||e.includes("imun")||e.includes("intestin")||e.includes("articular")||e.includes("pele")||e.includes("mineral")||e.includes("miner")||e.includes("omega")||e.includes("ômega"):!0}function P(s,t){if(!t)return!0;const e=q[t];return e?s.targets&&s.targets[e]!=null&&s.targets[e]>0:!0}function k(){return new Set(h.favorites??[])}function B(s){k().has(s)?h.dispatch(_.REMOVE_FAVORITE,{supplementId:s}):h.dispatch(_.ADD_FAVORITE,{supplementId:s})}function C(s){return`R$ ${Number(s).toFixed(2).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".")}`}class K{constructor(t,e={}){this.container=t,this._unsubscribe=null,this._fuse=null,this._allItems=[],this._filtered=[],this._page=0,this._query="",this._category="Todos",this._objective=e.objective||"",this._prices=null,this._modalOpen=null,this._debounceTimer=null,this._observer=null,this._boundKeydown=this._onKeydown.bind(this)}mount(){this._attachStyles(),this._allItems=$,this._fuse=new I(this._allItems,{keys:["name","category","benefits"],threshold:.35,includeScore:!0,ignoreLocation:!0}),fetch("/data/prices.json").then(t=>t.ok?t.json():null).then(t=>{this._prices=t,this._renderGrid()}).catch(()=>{}),this._render(),this._syncObjectiveChip(),this._applyFilters(),this._renderStats(),this._renderGrid(),this._initInfiniteScroll(),this._attachListeners(),this._unsubscribe=h.subscribe(()=>this._refreshCardStates()),document.addEventListener("keydown",this._boundKeydown)}unmount(){this._unsubscribe?.(),this._observer?.disconnect(),document.removeEventListener("keydown",this._boundKeydown),this._closeModal(),clearTimeout(this._debounceTimer);const t=document.getElementById("router-outlet");t&&(t.style.overflow=""),document.body.style.overflow=""}_attachStyles(){if(document.getElementById("list-page-styles"))return;const t=document.createElement("style");t.id="list-page-styles",t.textContent=`
+import{s as m,A as w}from"./main-Cc1NkQ61.js";import{S}from"./stack-recommender-DF0wTc9D.js";import{F}from"./vendor-CMLop-UK.js";import{e as f}from"./escape-Br5wU8qn.js";import{E as y}from"./evidence-D5RtUc7g.js";import{a as C}from"./affiliate-engine-CoPw7yg1.js";function z(a,t){const e=(t||"g").toLowerCase().trim();return e==="g"?a:e==="mg"?a/1e3:e==="mcg"?a/1e6:e==="ui"||e==="caps"||e==="capsules"||e==="pills"?a/1e3:a}const I=30,T=24,O=300,q=["Todos","Performance","Proteínas","Vitaminas","Adaptógenos","Hormônios","Cognição","Antioxidantes","Sono","Saúde Geral"],M=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco"],P={Hipertrofia:"bulk","Saúde Geral":"general",Longevidade:"general",Performance:"endurance",Foco:"endurance"},$=T;function A(a,t){const e=t&&t[a.id]?Object.values(t[a.id]):null;return!e||!e.length?null:e.reduce((r,n)=>r.price<n.price?r:n)}function j(a,t){const e=A(a,t);if(e)return{price:e.price,label:e.label};const r=a.dosage?.maintenance??5,n=a.dosage?.unit||"g",o=a.pricePerGram??.3;return{price:z(r,n)*o*I,label:null}}function B(a,t){const e=A(a,t);if(e)return`R$ ${(e.price/I).toFixed(2).replace(".",",")} / dose`;const r=a.dosage?.maintenance??5,n=a.dosage?.unit||"g",o=a.pricePerGram??.3;return`R$ ${(z(r,n)*o).toFixed(2).replace(".",",")} / dose`}function R(a,t){const e=a.id;if(!t||!t[e])return null;const r=Object.values(t[e]),n=Math.max(...r.map(o=>o.saving||0));return n>0?n:null}function G(a,t){if(!t||t==="Todos")return!0;const e=(a.category||"").toLowerCase();return t==="Performance"?e.includes("força")||e.includes("performance")||e.includes("resistência")||e.includes("endurance")||e.includes("queima")||e.includes("gordura")||e.includes("recovery"):t==="Proteínas"?e.startsWith("prote"):t==="Vitaminas"?e.includes("vitam"):t==="Adaptógenos"?e.includes("adapt"):t==="Hormônios"?e.includes("hormon")||e.includes("testoster")||e.includes("libido"):t==="Cognição"?e.includes("cogni")||e.includes("neuro")||e.includes("foco"):t==="Antioxidantes"?e.includes("antioxid")||e.includes("anti-inflamat"):t==="Sono"?e.includes("sono")||e.includes("recuper"):t==="Saúde Geral"?e.includes("saúde")||e.includes("geral")||e.includes("imun")||e.includes("intestin")||e.includes("articular")||e.includes("pele")||e.includes("mineral")||e.includes("miner")||e.includes("omega")||e.includes("ômega"):!0}function N(a,t){if(!t)return!0;const e=P[t];return e?a.targets&&a.targets[e]!=null&&a.targets[e]>0:!0}function k(){return new Set(m.favorites??[])}function H(a){k().has(a)?m.dispatch(w.REMOVE_FAVORITE,{supplementId:a}):m.dispatch(w.ADD_FAVORITE,{supplementId:a})}function E(a){return`R$ ${Number(a).toFixed(2).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".")}`}class U{constructor(t,e={}){this.container=t,this._unsubscribe=null,this._fuse=null,this._allItems=[],this._filtered=[],this._page=0,this._query="",this._category="Todos",this._objective=e.objective||"",this._prices=null,this._modalOpen=null,this._debounceTimer=null,this._observer=null,this._boundKeydown=this._onKeydown.bind(this),this._scrollLockStack=[]}mount(){this._attachStyles(),this._allItems=S,this._fuse=new F(this._allItems,{keys:["name","category","benefits"],threshold:.35,includeScore:!0,ignoreLocation:!0}),fetch("/data/prices.json").then(t=>t.ok?t.json():Promise.reject(new Error(`HTTP ${t.status}`))).then(t=>{this._prices=t,this._renderGrid()}).catch(t=>{console.warn("[ListPage] prices.json failed to load, using estimates:",t.message)}),this._render(),this._syncObjectiveChip(),this._applyFilters(),this._renderStats(),this._renderGrid(),this._initInfiniteScroll(),this._attachListeners(),this._unsubscribe=m.subscribe(()=>this._refreshCardStates()),document.addEventListener("keydown",this._boundKeydown)}unmount(){this._unsubscribe?.(),this._observer?.disconnect(),document.removeEventListener("keydown",this._boundKeydown),this._closeModal(),clearTimeout(this._debounceTimer);const t=document.getElementById("router-outlet");t&&(t.style.overflow=""),document.body.style.overflow=""}_attachStyles(){if(document.getElementById("list-page-styles"))return;const t=document.createElement("style");t.id="list-page-styles",t.textContent=`
       /* ── Layout ── */
       #lp-root {
         display: flex; flex-direction: column; gap: 0;
@@ -466,13 +466,13 @@ import{s as h,A as _}from"./main-DL05SHUY.js";import{S as $}from"./stack-recomme
           <div class="lp-filter-row-wrap">
             <div class="lp-filter-row" id="lp-cat-row">
               <span class="lp-filter-label">Categoria</span>
-              ${A.map(t=>`<button class="lp-chip${t==="Todos"?" active":""}" data-cat="${t}">${t}</button>`).join("")}
+              ${q.map(t=>`<button class="lp-chip${t==="Todos"?" active":""}" data-cat="${t}">${t}</button>`).join("")}
             </div>
           </div>
           <div class="lp-filter-row-wrap">
             <div class="lp-filter-row" id="lp-obj-row">
               <span class="lp-filter-label">Objetivo</span>
-              ${F.map(t=>`<button class="lp-chip" data-obj="${t}">${t}</button>`).join("")}
+              ${M.map(t=>`<button class="lp-chip" data-obj="${t}">${t}</button>`).join("")}
             </div>
           </div>
         </div>
@@ -484,91 +484,92 @@ import{s as h,A as _}from"./main-DL05SHUY.js";import{S as $}from"./stack-recomme
           <div class="lp-loading-more" id="lp-loading-more">Carregando mais...</div>
         </div>
       </div>
-    `}_renderStats(){const t=$.length,e=(h.stack||[]).length,r=k().size,i=$.filter(c=>c.evidenceLevel==="A").length,a=157.1,o=(c,d,v,m,y)=>{const p=this.container.querySelector(c),x=this.container.querySelector(d);if(!p||!x)return;x.textContent=v;const b=m>0?Math.min(1,v/m):0;p.style.stroke=y,p.style.strokeDashoffset=a*(1-b)};o("#lp-ring-total","#lp-stat-total",t,t,"var(--color-brand)"),o("#lp-ring-stack","#lp-stat-stack",e,t,"#8B5CF6"),o("#lp-ring-favs","#lp-stat-favs",r,t,"#EF4444"),o("#lp-ring-eva","#lp-stat-eva",i,t,"#22C55E"),this.container.querySelector("#lp-stat-stack")?.closest(".lp-stat-box")?.classList.toggle("stat--empty",e===0)}_applyFilters(){let t=this._allItems;this._query.trim()&&(t=this._fuse?this._fuse.search(this._query).map(r=>r.item):t.filter(r=>r.name.toLowerCase().includes(this._query.toLowerCase()))),t=t.filter(r=>T(r,this._category)),t=t.filter(r=>P(r,this._objective)),this._filtered=t;const e=this.container.querySelector("#lp-results-label");e&&(e.textContent=this._query||this._category!=="Todos"||this._objective?`${this._filtered.length} resultado(s)`:"")}_renderGrid(){const t=this.container.querySelector("#lp-grid");if(!t)return;if(this._page=0,t.innerHTML="",!this._filtered.length){t.innerHTML=`
+    `}_renderStats(){const t=S.length,e=(m.stack||[]).length,r=k().size,n=S.filter(c=>c.evidenceLevel==="A").length,o=157.1,s=(c,g,v,b,x)=>{const d=this.container.querySelector(c),h=this.container.querySelector(g);if(!d||!h)return;h.textContent=v;const i=b>0?Math.min(1,v/b):0;d.style.stroke=x,d.style.strokeDashoffset=o*(1-i)};s("#lp-ring-total","#lp-stat-total",t,t,"var(--color-brand)"),s("#lp-ring-stack","#lp-stat-stack",e,t,"#8B5CF6"),s("#lp-ring-favs","#lp-stat-favs",r,t,"#EF4444"),s("#lp-ring-eva","#lp-stat-eva",n,t,"#22C55E"),this.container.querySelector("#lp-stat-stack")?.closest(".lp-stat-box")?.classList.toggle("stat--empty",e===0)}_applyFilters(){let t=this._allItems;this._query.trim()&&(t=this._fuse?this._fuse.search(this._query).map(r=>r.item):t.filter(r=>r.name.toLowerCase().includes(this._query.toLowerCase()))),t=t.filter(r=>G(r,this._category)),t=t.filter(r=>N(r,this._objective)),this._filtered=t;const e=this.container.querySelector("#lp-results-label");e&&(e.textContent=this._query||this._category!=="Todos"||this._objective?`${this._filtered.length} resultado(s)`:"")}_renderGrid(){if(this._modalOpen)return;const t=this.container.querySelector("#lp-grid");if(!t)return;if(this._page=0,t.innerHTML="",!this._filtered.length){t.innerHTML=`
         <div class="lp-empty">
           <div class="lp-empty-icon">🔍</div>
           <p style="font-weight:700;margin:0 0 6px;">Nenhum resultado</p>
           <p style="font-size:13px;margin:0;">Tente outra busca ou remova os filtros.</p>
-        </div>`;return}const e=this._buildFragment(0,E);t.appendChild(e),this._page=1}_loadMore(){const t=this._page*E;if(t>=this._filtered.length)return;const e=this.container.querySelector("#lp-grid");if(!e)return;const r=this.container.querySelector("#lp-loading-more");r&&(r.style.display="block"),requestAnimationFrame(()=>{e.appendChild(this._buildFragment(t,t+E)),this._page++,r&&(r.style.display="none")})}_buildFragment(t,e){const r=document.createDocumentFragment();h.stack;const i=k();return this._filtered.slice(t,e).forEach(a=>{const o=i.has(a.id),n=a.evidenceLevel,c=w[n]??w.C,d=a.benefits?.[0]??"",v=a.image||`/assets/${a.id.replace(/-/g,"_")}.png`,m=M(a,this._prices),y=z(a,this._prices),p=O(a,this._prices);let x="";m?x=`<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
-          ECONOMIZE R$ ${m} NA AMAZON
-        </div>`:a.category&&(x=`<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
-          ${a.category}
-        </div>`);const b=document.createElement("div");b.className="lp-card",b.role="listitem",b.dataset.id=a.id,b.innerHTML=`
-        ${x}
+        </div>`;return}const e=this._buildFragment(0,$);t.appendChild(e),this._page=1}_loadMore(){const t=this._page*$;if(t>=this._filtered.length)return;const e=this.container.querySelector("#lp-grid");if(!e)return;const r=this.container.querySelector("#lp-loading-more");r&&(r.style.display="block"),requestAnimationFrame(()=>{e.appendChild(this._buildFragment(t,t+$)),this._page++,r&&(r.style.display="none")})}_buildFragment(t,e){const r=document.createDocumentFragment();m.stack;const n=k();return this._filtered.slice(t,e).forEach(o=>{const s=n.has(o.id),l=o.evidenceLevel,c=y[l]??y.C,g=o.benefits?.[0]??"",v=o.image||`/assets/${o.id.replace(/-/g,"_")}.png`,b=R(o,this._prices),x=j(o,this._prices),d=B(o,this._prices);let h="";b?h=`<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
+          ECONOMIZE R$ ${b} NA AMAZON
+        </div>`:o.category&&(h=`<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
+          ${o.category}
+        </div>`);const i=document.createElement("div");i.className="lp-card",i.role="listitem",i.dataset.id=o.id,i.innerHTML=`
+        ${h}
         <div class="lp-card-img-wrap">
           <img class="lp-card-img"
             src="${v}"
-            alt="${a.name}"
+            alt="${o.name}"
             loading="lazy"
+            importance="auto"
             onerror="this.style.display='none'"
           />
-          ${n?`<span class="lp-card-ev-badge" style="background:${c.bg};color:${c.color};">EV. ${n}</span>`:""}
+          ${l?`<span class="lp-card-ev-badge" style="background:${c.bg};color:${c.color};">EV. ${l}</span>`:""}
         </div>
         <div class="lp-card-info">
-          <p class="lp-card-name">${g(a.name)}</p>
-          <p class="lp-card-cat">${g(a.category??"")}</p>
-          ${d?`<p class="lp-card-desc">${g(d)}</p>`:""}
+          <p class="lp-card-name">${f(o.name)}</p>
+          <p class="lp-card-cat">${f(o.category??"")}</p>
+          ${g?`<p class="lp-card-desc">${f(g)}</p>`:""}
           <div class="lp-card-price-row">
-            <span class="lp-card-price">${C(y.price)}</span>
-            <span class="lp-card-dose">${p}</span>
+            <span class="lp-card-price">${E(x.price)}</span>
+            <span class="lp-card-dose">${d}</span>
           </div>
           <div class="lp-card-actions">
-            <button class="lp-btn-fav${o?" faved":""}" data-action="toggle-fav" data-id="${a.id}" aria-label="${o?"Remover dos favoritos":"Favoritar"}" type="button">
-              ${o?"♥":"♡"}
+            <button class="lp-btn-fav${s?" faved":""}" data-action="toggle-fav" data-id="${o.id}" aria-label="${s?"Remover dos favoritos":"Favoritar"}" type="button">
+              ${s?"♥":"♡"}
             </button>
-            <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${a.id}" type="button">
+            <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${o.id}" type="button">
               VER PREÇOS →
             </button>
           </div>
         </div>
-      `,r.appendChild(b)}),r}_initInfiniteScroll(){const t=this.container.querySelector("#lp-sentinel");!t||!("IntersectionObserver"in window)||(this._observer=new IntersectionObserver(e=>{e[0].isIntersecting&&this._loadMore()},{rootMargin:"300px"}),this._observer.observe(t))}_refreshCardStates(){this._renderStats();const t=h.stack??[],e=k();if(this.container.querySelectorAll(".lp-card").forEach(r=>{const i=r.dataset.id,a=e.has(i),o=r.querySelector('[data-action="toggle-fav"]');o&&(o.classList.toggle("faved",a),o.textContent=a?"♥":"♡",o.setAttribute("aria-label",a?"Remover dos favoritos":"Favoritar"))}),this._modalOpen){const r=document.querySelector("#lp-modal-add-btn");if(r){const i=t.some(a=>a.supplementId===this._modalOpen);r.classList.toggle("in-stack",i),r.textContent=i?"✓ Já no Stack":"+ Adicionar ao Stack"}}}_openModal(t){this._closeModal();const e=this._allItems.find(l=>l.id===t);if(!e)return;this._modalOpen=t;const r=e.evidenceLevel,i=w[r]??w.C,a=e.image||`/assets/${e.id.replace(/-/g,"_")}.png`,n=(h.stack??[]).some(l=>l.supplementId===e.id),c=j.getLinks(e.name);let d="";const v=e.id;if(this._prices&&this._prices[v]){const l=this._prices[v];d=Object.entries(l).map(([u,f])=>`
+      `,r.appendChild(i)}),r}_initInfiniteScroll(){const t=this.container.querySelector("#lp-sentinel");!t||!("IntersectionObserver"in window)||(this._observer=new IntersectionObserver(e=>{e[0].isIntersecting&&this._loadMore()},{rootMargin:"300px"}),this._observer.observe(t))}_refreshCardStates(){this._renderStats();const t=m.stack??[],e=k();if(this.container.querySelectorAll(".lp-card").forEach(r=>{const n=r.dataset.id,o=e.has(n),s=r.querySelector('[data-action="toggle-fav"]');s&&(s.classList.toggle("faved",o),s.textContent=o?"♥":"♡",s.setAttribute("aria-label",o?"Remover dos favoritos":"Favoritar"))}),this._modalOpen){const r=document.querySelector("#lp-modal-add-btn");if(r){const n=t.some(o=>o.supplementId===this._modalOpen);r.classList.toggle("in-stack",n),r.textContent=n?"✓ Já no Stack":"+ Adicionar ao Stack"}}}_pushScrollLock(t="modal"){this._scrollLockStack.includes(t)||(this._scrollLockStack.push(t),document.body.classList.add("has-modal-open"))}_popScrollLock(t="modal"){const e=this._scrollLockStack.indexOf(t);e!==-1&&(this._scrollLockStack.splice(e,1),this._scrollLockStack.length===0&&document.body.classList.remove("has-modal-open"))}_openModal(t){this._closeModal();const e=this._allItems.find(i=>i.id===t);if(!e)return;this._modalOpen=t;const r=e.evidenceLevel,n=y[r]??y.C,o=e.image||`/assets/${e.id.replace(/-/g,"_")}.png`,l=(m.stack??[]).some(i=>i.supplementId===e.id),c=C.getLinks(e.name);let g="";const v=e.id;if(this._prices&&this._prices[v]){const i=this._prices[v];g=Object.entries(i).map(([u,p])=>`
         <div class="lp-price-card">
           <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${f.label}</span>
-            <span class="lp-price-card-val">${C(f.price)}</span>
+            <span class="lp-price-card-store">${p.label}</span>
+            <span class="lp-price-card-val">${E(p.price)}</span>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            ${f.saving?`<span class="lp-price-saving">-R$ ${f.saving}</span>`:""}
+            ${p.saving?`<span class="lp-price-saving">-R$ ${p.saving}</span>`:""}
             <a class="lp-price-link"
-               href="${c[u]||f.url||"#"}"
+               href="${c[u]||p.url||"#"}"
                target="_blank"
                rel="noopener noreferrer"
-               data-aff-id="${g(e.id)}"
-               data-aff-mp="${g(u)}">Ver Oferta →</a>
+               data-aff-id="${f(e.id)}"
+               data-aff-mp="${f(u)}">Ver Oferta →</a>
           </div>
         </div>
-      `).join("")}else{const l=z(e,null);d=[{key:"amazon",label:"Amazon"},{key:"mercadolivre",label:"Mercado Livre"},{key:"shopee",label:"Shopee"}].map(({key:f,label:L})=>`
+      `).join("")}else{const i=j(e,null);g=[{key:"amazon",label:"Amazon"},{key:"mercadolivre",label:"Mercado Livre"},{key:"shopee",label:"Shopee"}].map(({key:p,label:L})=>`
         <div class="lp-price-card">
           <div class="lp-price-card-left">
             <span class="lp-price-card-store">${L}</span>
-            <span class="lp-price-card-val">${C(l.price)}</span>
+            <span class="lp-price-card-val">${E(i.price)}</span>
           </div>
           <a class="lp-price-link"
-             href="${c[f]||"#"}"
+             href="${c[p]||"#"}"
              target="_blank"
              rel="noopener noreferrer"
-             data-aff-id="${g(e.id)}"
-             data-aff-mp="${g(f)}">Ver Oferta →</a>
+             data-aff-id="${f(e.id)}"
+             data-aff-mp="${f(p)}">Ver Oferta →</a>
         </div>
-      `).join("")}const m=e.warnings?.length?`<ul>${e.warnings.map(l=>`<li>${l}</li>`).join("")}</ul>`:'<p style="color:var(--color-text-muted)">Nenhum aviso registrado.</p>',y=e.sideEffects?.length?`<p style="font-weight:600;color:var(--color-text-secondary);margin:10px 0 4px;">Efeitos Colaterais</p><ul>${e.sideEffects.map(l=>`<li>${l}</li>`).join("")}</ul>`:"",p=document.createElement("div");p.id="lp-modal-overlay",p.innerHTML=`
+      `).join("")}const b=e.warnings?.length?`<ul>${e.warnings.map(i=>`<li>${i}</li>`).join("")}</ul>`:'<p style="color:var(--color-text-muted)">Nenhum aviso registrado.</p>',x=e.sideEffects?.length?`<p style="font-weight:600;color:var(--color-text-secondary);margin:10px 0 4px;">Efeitos Colaterais</p><ul>${e.sideEffects.map(i=>`<li>${i}</li>`).join("")}</ul>`:"",d=document.createElement("div");d.id="lp-modal-overlay",d.innerHTML=`
       <div id="lp-modal-box" role="dialog" aria-modal="true" aria-label="${e.name}">
         <button id="lp-modal-close" aria-label="Fechar">✕</button>
 
         <div class="lp-modal-top">
           <div class="lp-modal-img-col">
             <div class="lp-modal-img-wrap">
-              <img class="lp-modal-img" src="${a}" alt="${g(e.name)}" onerror="this.style.display='none'" />
+              <img class="lp-modal-img" src="${o}" alt="${f(e.name)}" onerror="this.style.display='none'" />
             </div>
-            <p class="lp-modal-img-col-name">${g(e.name)}</p>
-            <p class="lp-modal-img-col-cat">${g(e.category??"")}</p>
-            ${r?`<span style="display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:${i.bg};color:${i.color};">Evidência ${r}</span>`:""}
-            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin:4px 0 0;">${g(e.benefits?.join(" · ")??"")}</p>
+            <p class="lp-modal-img-col-name">${f(e.name)}</p>
+            <p class="lp-modal-img-col-cat">${f(e.category??"")}</p>
+            ${r?`<span style="display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:${n.bg};color:${n.color};">Evidência ${r}</span>`:""}
+            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin:4px 0 0;">${f(e.benefits?.join(" · ")??"")}</p>
           </div>
 
           <div class="lp-modal-info-col">
             <div>
               <h3>Comparação de Preços</h3>
-              <div class="lp-price-cards">${d}</div>
+              <div class="lp-price-cards">${g}</div>
             </div>
 
             <div>
@@ -579,16 +580,16 @@ import{s as h,A as _}from"./main-DL05SHUY.js";import{S as $}from"./stack-recomme
               </div>
               <div class="lp-tab-content">
                 <div class="lp-tab-pane active" id="lp-tab-dose">
-                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Dose de manutenção:</strong> ${g(String(e.dosage?.maintenance??"—"))} ${g(e.dosage?.unit??"")}</p>
-                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Limite superior:</strong> ${g(String(e.dosage?.upperLimit??"—"))} ${g(e.dosage?.unit??"")}</p>
-                  <p style="margin:0;"><strong style="color:var(--color-text-primary);">Quando tomar:</strong> ${g(e.dosage?.timing??"—")}</p>
+                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Dose de manutenção:</strong> ${f(String(e.dosage?.maintenance??"—"))} ${f(e.dosage?.unit??"")}</p>
+                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Limite superior:</strong> ${f(String(e.dosage?.upperLimit??"—"))} ${f(e.dosage?.unit??"")}</p>
+                  <p style="margin:0;"><strong style="color:var(--color-text-primary);">Quando tomar:</strong> ${f(e.dosage?.timing??"—")}</p>
                 </div>
                 <div class="lp-tab-pane" id="lp-tab-benefits">
-                  ${e.benefits?.length?`<ul>${e.benefits.map(l=>`<li>${g(l)}</li>`).join("")}</ul>`:'<p style="color:var(--color-text-muted)">Sem dados.</p>'}
+                  ${e.benefits?.length?`<ul>${e.benefits.map(i=>`<li>${f(i)}</li>`).join("")}</ul>`:'<p style="color:var(--color-text-muted)">Sem dados.</p>'}
                 </div>
                 <div class="lp-tab-pane" id="lp-tab-safety">
-                  ${m}
-                  ${y}
+                  ${b}
+                  ${x}
                 </div>
               </div>
             </div>
@@ -596,9 +597,9 @@ import{s as h,A as _}from"./main-DL05SHUY.js";import{S as $}from"./stack-recomme
         </div>
 
         <div class="lp-modal-bottom">
-          <button id="lp-modal-add-btn" class="lp-modal-add-btn${n?" in-stack":""}" data-id="${e.id}">
-            ${n?"✓ Já no Stack":"+ Adicionar ao Stack"}
+          <button id="lp-modal-add-btn" class="lp-modal-add-btn${l?" in-stack":""}" data-id="${e.id}">
+            ${l?"✓ Já no Stack":"+ Adicionar ao Stack"}
           </button>
         </div>
       </div>
-    `,document.body.appendChild(p);const x=document.getElementById("router-outlet");x?x.style.overflow="hidden":document.body.style.overflow="hidden",p.querySelectorAll(".lp-tab").forEach(l=>{l.addEventListener("click",()=>{p.querySelectorAll(".lp-tab").forEach(f=>f.classList.remove("active")),p.querySelectorAll(".lp-tab-pane").forEach(f=>f.classList.remove("active")),l.classList.add("active");const u=p.querySelector(`#lp-tab-${l.dataset.tab}`);u&&u.classList.add("active")})}),p.querySelector("#lp-modal-close").addEventListener("click",()=>this._closeModal()),p.addEventListener("click",l=>{l.target===p&&this._closeModal()}),p.addEventListener("click",l=>{const u=l.target.closest("[data-aff-mp]");u&&j.trackClick(u.dataset.affId,u.dataset.affMp)});const b=p.querySelector("#lp-modal-add-btn");b.addEventListener("click",l=>{l.stopPropagation();const u=b.dataset.id,f=this._allItems.find(S=>S.id===u);if(!f)return;(h.stack??[]).some(S=>S.supplementId===u)?h.dispatch(_.REMOVE_FROM_STACK,{supplementId:u}):h.dispatch(_.ADD_TO_STACK,{supplementId:f.id,name:f.name,dosage:f.dosage?.maintenance??5,unit:f.dosage?.unit??"g",quantity:0}),this._refreshCardStates()})}_closeModal(){const t=document.getElementById("lp-modal-overlay");if(t){t.remove();const e=document.getElementById("router-outlet");e&&(e.style.overflow=""),document.body.style.overflow=""}this._modalOpen=null}_onKeydown(t){t.key==="Escape"&&this._modalOpen&&this._closeModal()}_syncObjectiveChip(){if(!this._objective)return;const t=this.container.querySelector("#lp-obj-row");if(!t)return;const e=t.querySelector(`[data-obj="${this._objective}"]`);e&&e.classList.add("active")}_attachListeners(){const t=this.container.querySelector("#lp-search");t&&t.addEventListener("input",o=>{clearTimeout(this._debounceTimer),this._debounceTimer=setTimeout(()=>{this._query=o.target.value,this._applyFilters(),this._renderGrid()},250)});const e=this.container.querySelector("#lp-trending");e&&e.addEventListener("click",o=>{const n=o.target.closest("[data-trend]");if(!n)return;const c=this.container.querySelector("#lp-search");c&&(c.value=n.dataset.trend),this._query=n.dataset.trend,this._applyFilters(),this._renderGrid()});const r=this.container.querySelector("#lp-cat-row");r&&r.addEventListener("click",o=>{const n=o.target.closest("[data-cat]");n&&(r.querySelectorAll(".lp-chip").forEach(c=>c.classList.remove("active")),n.classList.add("active"),this._category=n.dataset.cat,this._applyFilters(),this._renderGrid())});const i=this.container.querySelector("#lp-obj-row");i&&i.addEventListener("click",o=>{const n=o.target.closest("[data-obj]");if(!n)return;const c=n.classList.contains("active");i.querySelectorAll(".lp-chip").forEach(d=>d.classList.remove("active")),c?this._objective="":(n.classList.add("active"),this._objective=n.dataset.obj),this._applyFilters(),this._renderGrid()});const a=this.container.querySelector("#lp-grid");a&&a.addEventListener("click",o=>{const n=o.target.closest('[data-action="toggle-fav"]');if(n){o.stopPropagation(),B(n.dataset.id),this._refreshCardStates();return}const c=o.target.closest('[data-action="open-modal"]');if(c){o.stopPropagation(),this._openModal(c.dataset.id);return}const d=o.target.closest(".lp-card");d&&d.dataset.id&&this._openModal(d.dataset.id)})}}export{K as default};
+    `,document.body.appendChild(d),this._pushScrollLock("modal"),d.querySelectorAll(".lp-tab").forEach(i=>{i.addEventListener("click",()=>{d.querySelectorAll(".lp-tab").forEach(p=>p.classList.remove("active")),d.querySelectorAll(".lp-tab-pane").forEach(p=>p.classList.remove("active")),i.classList.add("active");const u=d.querySelector(`#lp-tab-${i.dataset.tab}`);u&&u.classList.add("active")})}),d.querySelector("#lp-modal-close").addEventListener("click",()=>this._closeModal()),d.addEventListener("click",i=>{i.target===d&&this._closeModal()}),d.addEventListener("click",i=>{const u=i.target.closest("[data-aff-mp]");u&&C.trackClick(u.dataset.affId,u.dataset.affMp)});const h=d.querySelector("#lp-modal-add-btn");h.addEventListener("click",i=>{i.stopPropagation();const u=h.dataset.id,p=this._allItems.find(_=>_.id===u);if(!p)return;(m.stack??[]).some(_=>_.supplementId===u)?m.dispatch(w.REMOVE_FROM_STACK,{supplementId:u}):m.dispatch(w.ADD_TO_STACK,{supplementId:p.id,name:p.name,dosage:p.dosage?.maintenance??5,unit:p.dosage?.unit??"g",quantity:0}),this._refreshCardStates()})}_closeModal(){const t=document.getElementById("lp-modal-overlay");t&&(t.remove(),this._popScrollLock("modal")),this._modalOpen=null}_onKeydown(t){t.key==="Escape"&&this._modalOpen&&this._closeModal()}_syncObjectiveChip(){if(!this._objective)return;const t=this.container.querySelector("#lp-obj-row");if(!t)return;const e=t.querySelector(`[data-obj="${this._objective}"]`);e&&e.classList.add("active")}_attachListeners(){const t=this.container.querySelector("#lp-search");t&&t.addEventListener("input",s=>{clearTimeout(this._debounceTimer),this._debounceTimer=setTimeout(()=>{this._debounceTimer=null,this._query=s.target.value,this._applyFilters(),this._renderGrid()},O)});const e=this.container.querySelector("#lp-trending");e&&e.addEventListener("click",s=>{const l=s.target.closest("[data-trend]");if(!l)return;const c=this.container.querySelector("#lp-search");c&&(c.value=l.dataset.trend),this._query=l.dataset.trend,this._applyFilters(),this._renderGrid()});const r=this.container.querySelector("#lp-cat-row");r&&r.addEventListener("click",s=>{const l=s.target.closest("[data-cat]");l&&(r.querySelectorAll(".lp-chip").forEach(c=>c.classList.remove("active")),l.classList.add("active"),this._category=l.dataset.cat,this._applyFilters(),this._renderGrid())});const n=this.container.querySelector("#lp-obj-row");n&&n.addEventListener("click",s=>{const l=s.target.closest("[data-obj]");if(!l)return;const c=l.classList.contains("active");n.querySelectorAll(".lp-chip").forEach(g=>g.classList.remove("active")),c?this._objective="":(l.classList.add("active"),this._objective=l.dataset.obj),this._applyFilters(),this._renderGrid()});const o=this.container.querySelector("#lp-grid");o&&o.addEventListener("click",s=>{const l=s.target.closest('[data-action="toggle-fav"]');if(l){s.stopPropagation(),H(l.dataset.id),this._refreshCardStates();return}const c=s.target.closest('[data-action="open-modal"]');if(c){s.stopPropagation(),this._openModal(c.dataset.id);return}const g=s.target.closest(".lp-card");g&&g.dataset.id&&this._openModal(g.dataset.id)})}}export{U as default};

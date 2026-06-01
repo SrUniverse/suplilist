@@ -1,4 +1,4 @@
-import{S as g,s as u,A as x}from"./main-DL05SHUY.js";class k{constructor(t,o){this.container=t,this.params=o}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const t=document.createElement("style");t.id="settings-page-styles",t.textContent=`
+import{S as g,s as u,A as x}from"./main-Cc1NkQ61.js";class k{constructor(t,o){this.container=t,this.params=o}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const t=document.createElement("style");t.id="settings-page-styles",t.textContent=`
       .sp-page {
         padding: 24px;
         max-width: 700px;

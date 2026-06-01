@@ -125,7 +125,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://plausible.io" crossorigin>
+  <link rel="dns-prefetch" href="https://plausible.io">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" as="style">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
 
   <!-- Privacy-friendly analytics by Plausible -->
@@ -223,6 +224,9 @@
       grid-template-areas: "sidebar main";
       height: 100dvh;
     }
+
+    /* Modal scroll lock — aplicado via JS classList para evitar conflitos com router */
+    body.has-modal-open #router-outlet { overflow: hidden !important; }
 
     /* Landing mode — esconde toda navegação */
     body.body--landing #sidebar-nav,
@@ -436,7 +440,9 @@
   <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
 
 
-  <!-- App v4.0 -->
+  <!-- App v4.0 — Modulepreload para dependências críticas -->
+  <link rel="modulepreload" href="/src/core/app.js">
+  <link rel="modulepreload" href="/src/ai/stack-recommender.js">
   <script type="module" src="/src/core/app.js"></script>
 </body>
 

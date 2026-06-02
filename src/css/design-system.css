@@ -886,3 +886,24 @@ h3, .h3 {
 .animate-fade-in  { animation: fadeIn  var(--transition-normal) ease both; }
 .animate-slide-up { animation: slideUp var(--transition-normal) ease both; }
 .animate-spin     { animation: spin 1s linear infinite; }
+
+/* ---------------------------------------------------------------
+   21. FOCUS VISIBLE — keyboard navigation
+--------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------------------------
+   22. REDUCED MOTION — global
+--------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

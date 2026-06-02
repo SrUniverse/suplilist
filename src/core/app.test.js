@@ -4,7 +4,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 vi.mock('../css/main.css', { default: '' });
 vi.mock('../state/state-manager.js', () => ({
   stateManager: {
-    _setupStorageSync: vi.fn().mockResolvedValue(undefined)
+    _setupStorageSync: vi.fn().mockResolvedValue(undefined),
+    state: { checkins: [], stack: [] },
+    subscribe: vi.fn(() => vi.fn())
   },
   STORAGE_KEYS: {
     THEME: 'suplilist:theme'

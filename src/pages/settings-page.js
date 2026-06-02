@@ -1,10 +1,12 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { StorageManager } from '../core/storage-manager.js';
+import NotificationService from '../features/notifications/notification-service.js';
 
 export default class SettingsPage {
   constructor(container, params) {
     this.container = container;
     this.params = params;
+    this.notifService = new NotificationService();
   }
 
   mount() {
@@ -381,7 +383,20 @@ export default class SettingsPage {
     // Notif: check-in
     const notifCheckin = this.container.querySelector('#sp-notif-checkin');
     if (notifCheckin) {
-      notifCheckin.addEventListener('change', () => {
+      notifCheckin.addEventListener('change', async () => {
+        if (notifCheckin.checked) {
+          const granted = await this.notifService.requestPermission();
+          if (!granted) {
+            alert('Permissão de notificações negada. Por favor, ative as notificações nas configurações do seu navegador para receber lembretes.');
+            notifCheckin.checked = false;
+            return;
+          }
+          // Envia notificação de boas-vindas
+          this.notifService.sendLocalNotification('Lembretes Ativados! 💊', {
+            body: 'Agora você receberá lembretes diários para não esquecer seus suplementos.',
+            data: { url: '/settings' }
+          });
+        }
         StorageManager.setItem('suplilist:notif-checkin', notifCheckin.checked ? 'true' : 'false');
       });
     }
@@ -389,7 +404,20 @@ export default class SettingsPage {
     // Notif: restock
     const notifRestock = this.container.querySelector('#sp-notif-restock');
     if (notifRestock) {
-      notifRestock.addEventListener('change', () => {
+      notifRestock.addEventListener('change', async () => {
+        if (notifRestock.checked) {
+          const granted = await this.notifService.requestPermission();
+          if (!granted) {
+            alert('Permissão de notificações negada. Por favor, ative as notificações nas configurações do seu navegador para receber alertas de estoque.');
+            notifRestock.checked = false;
+            return;
+          }
+          // Envia notificação de boas-vindas
+          this.notifService.sendLocalNotification('Alertas de Estoque Ativados! 📦', {
+            body: 'Você receberá avisos quando seus suplementos estiverem acabando.',
+            data: { url: '/settings' }
+          });
+        }
         StorageManager.setItem('suplilist:notif-restock', notifRestock.checked ? 'true' : 'false');
       });
     }

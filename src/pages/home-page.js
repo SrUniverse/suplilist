@@ -5,6 +5,7 @@
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { escapeHtml } from '../utils/escape.js';
+import { SchemaManager } from '../core/schema-manager.js';
 
 export default class HomePage {
   constructor(container) {
@@ -17,6 +18,10 @@ export default class HomePage {
     this._injectStyle();
     this.container.innerHTML = this._template();
     this._bindEvents();
+
+    // Insert WebApplication schema for SEO
+    const appSchema = SchemaManager.createWebApplicationSchema();
+    SchemaManager.insertSchema(appSchema);
   }
 
   unmount() {

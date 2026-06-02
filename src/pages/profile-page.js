@@ -1,6 +1,7 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 import { escapeHtml } from '../utils/escape.js';
+import { StorageManager } from '../core/storage-manager.js';
 
 const OBJECTIVES = [
   { value: 'bulk',      label: 'Bulk',       desc: 'Ganho de Massa' },
@@ -326,7 +327,7 @@ export default class ProfilePage {
         const newTheme = isCurrentlyDark ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         // P11: usar chave canônica STORAGE_KEYS.THEME (antes gravava em 'theme' — chave legada)
-        localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
+        StorageManager.setItem(STORAGE_KEYS.THEME, newTheme);
 
         // Update toggle UI
         const nowDark = newTheme === 'dark';
@@ -392,12 +393,12 @@ export default class ProfilePage {
           stateManager.reset();
           // P11: limpar todas as chaves do localStorage — incluindo a legada 'theme'
           // que não é gerenciada pelo stateManager
-          localStorage.removeItem('suplilist:favorites');
-          localStorage.removeItem(STORAGE_KEYS.THEME);  // chave canônica
-          localStorage.removeItem('theme');              // chave legada (retrocompat)
-          localStorage.removeItem('suplilist:notif-checkin');
-          localStorage.removeItem('suplilist:notif-restock');
-          localStorage.removeItem('suplilist:sidebar-collapsed');
+          StorageManager.removeItem('suplilist:favorites');
+          StorageManager.removeItem(STORAGE_KEYS.THEME);  // chave canônica
+          StorageManager.removeItem('theme');              // chave legada (retrocompat)
+          StorageManager.removeItem('suplilist:notif-checkin');
+          StorageManager.removeItem('suplilist:notif-restock');
+          StorageManager.removeItem('suplilist:sidebar-collapsed');
           eventBus.emit('toast:show', { message: 'App resetado com sucesso.', type: 'info' });
           window.history.pushState(null, null, '/home');
           window.dispatchEvent(new PopStateEvent('popstate'));

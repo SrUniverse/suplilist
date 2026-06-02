@@ -425,9 +425,9 @@ export default class HomePage {
       }
       .lp-hero__title {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
-        font-size: clamp(36px, 8vw, 112px); line-height: 1.02;
+        font-size: clamp(36px, 4.5vw, 64px); line-height: 1.05;
         letter-spacing: -0.04em; margin: 0 0 28px;
-        overflow-wrap: break-word; word-break: break-word;
+        overflow-wrap: break-word;
       }
       .lp-accent { color: var(--color-brand, #7C3AED); }
       .lp-hero__sub {

@@ -10,6 +10,9 @@ import { renderEvidenceBadge } from '../utils/evidence.js';
 import { getSupplementId } from '../utils/stack.js';
 import { escapeHtml } from '../utils/escape.js';
 import affiliateEngine from '../monetization/affiliate-engine.js';
+import ShareService from '../features/sharing/share-service.js';
+import QRGenerator from '../features/sharing/qr-generator.js';
+
 
 // Prices loaded lazily from /data/prices.json
 let PRICES_DB = null;
@@ -189,6 +192,28 @@ const STYLES = `
     transition: background 150ms;
   }
   .msp-btn-add:hover { background: var(--color-brand-hover); }
+
+  .msp-btn-share {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: transparent;
+    border: 1.5px solid var(--color-border-strong);
+    color: var(--color-text-primary);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 150ms ease;
+  }
+  .msp-btn-share:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--color-surface-hover);
+  }
+
 
   /* Stack list */
   .msp-list { display: flex; flex-direction: column; gap: 10px; }
@@ -609,6 +634,8 @@ export class MyStackPage {
     this._modalOpen = false;
     this._prices = null;
     this._docClickHandler = null;
+    this.shareService = new ShareService();
+    this.qrGenerator = new QRGenerator();
   }
 
   mount() {
@@ -668,9 +695,14 @@ export class MyStackPage {
           <div>
             <div class="msp-section-header">
               <h2 class="msp-section-title">Suplementos Ativos</h2>
-              <button class="msp-btn-add" id="msp-open-modal">
-                <span>+</span> Adicionar Suplemento
-              </button>
+              <div style="display: flex; gap: 8px;">
+                <button class="msp-btn-share" id="msp-share-stack">
+                  <span>🔗</span> Compartilhar
+                </button>
+                <button class="msp-btn-add" id="msp-open-modal">
+                  <span>+</span> Adicionar Suplemento
+                </button>
+              </div>
             </div>
             <div class="msp-list" id="msp-list"></div>
           </div>
@@ -692,6 +724,7 @@ export class MyStackPage {
     this._attachDelegatedListeners();
 
     this.container.querySelector('#msp-open-modal')?.addEventListener('click', () => this._openModal());
+    this.container.querySelector('#msp-share-stack')?.addEventListener('click', () => this._openShareModal());
   }
 
   // ─── Render all dynamic sections ──────────────────────────────────────────
@@ -1104,6 +1137,100 @@ export class MyStackPage {
     // Restore router-outlet scroll
     const outlet = document.getElementById('router-outlet');
     if (outlet) outlet.style.overflow = '';
+  }
+
+  _openShareModal() {
+    const stack = stateManager.stack || [];
+    if (!stack.length) {
+      alert('Seu stack de suplementação está vazio. Adicione suplementos para poder compartilhá-lo!');
+      return;
+    }
+
+    const shareUrl = this.shareService.generateShareUrl(stack);
+    const shareText = this.shareService.formatStackText(stack);
+
+    // Create modal element
+    const modalDiv = document.createElement('div');
+    modalDiv.className = 'msp-modal-overlay';
+    modalDiv.id = 'msp-share-modal';
+    modalDiv.style.zIndex = '2000';
+
+    modalDiv.innerHTML = `
+      <div class="msp-modal" style="max-width: 440px; padding: 24px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 class="msp-modal-title" style="margin: 0; font-size: 18px;">🔗 Compartilhar Meu Stack</h3>
+          <button class="msp-btn-icon" id="msp-close-share" style="font-size: 20px;">✕</button>
+        </div>
+
+        <p style="color: var(--color-text-secondary); font-size: 13px; margin: 0 0 16px 0;">
+          Compartilhe sua rotina de suplementação offline-first de forma 100% segura. Seus dados ficam no seu link!
+        </p>
+
+        <!-- QR Code Canvas Container -->
+        <div style="background: var(--color-surface-secondary); padding: 16px; border-radius: 12px; display: inline-block; margin-bottom: 20px; border: 1px solid var(--color-border);">
+          <canvas id="msp-share-qr-canvas" style="display: block; max-width: 100%; border-radius: 8px;"></canvas>
+          <span style="font-size: 11px; color: var(--color-text-muted); display: block; margin-top: 8px;">Aponte a câmera para escanear e importar</span>
+        </div>
+
+        <!-- Sharing action buttons -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+          <button class="msp-btn-save" id="msp-share-native-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>📱</span> Compartilhar no Aparelho
+          </button>
+          
+          <div style="display: flex; gap: 8px;">
+            <button class="msp-btn-cancel" id="msp-share-wa-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border-color: #25D366; color: #25D366; background: rgba(37,211,102,0.06);">
+              <span>💬</span> WhatsApp
+            </button>
+            <button class="msp-btn-cancel" id="msp-share-tg-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border-color: #0088cc; color: #0088cc; background: rgba(0,136,204,0.06);">
+              <span>✈️</span> Telegram
+            </button>
+          </div>
+
+          <button class="msp-btn-cancel" id="msp-share-copy-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>📋</span> Copiar Link de Importação
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modalDiv);
+
+    // Render QR Code
+    const canvas = modalDiv.querySelector('#msp-share-qr-canvas');
+    if (canvas) {
+      this.qrGenerator.renderQRCode(canvas, shareUrl);
+    }
+
+    // Attach listeners
+    modalDiv.querySelector('#msp-close-share')?.addEventListener('click', () => modalDiv.remove());
+    
+    // Native sharing
+    modalDiv.querySelector('#msp-share-native-btn')?.addEventListener('click', async () => {
+      await this.shareService.shareStack(stack);
+    });
+
+    // WhatsApp
+    modalDiv.querySelector('#msp-share-wa-btn')?.addEventListener('click', () => {
+      const link = this.shareService.getWhatsAppLink(shareText, shareUrl);
+      window.open(link, '_blank');
+    });
+
+    // Telegram
+    modalDiv.querySelector('#msp-share-tg-btn')?.addEventListener('click', () => {
+      const link = this.shareService.getTelegramLink(shareText, shareUrl);
+      window.open(link, '_blank');
+    });
+
+    // Copy Link
+    modalDiv.querySelector('#msp-share-copy-btn')?.addEventListener('click', async () => {
+      await this.shareService.copyToClipboard(shareUrl, 'Link de importação copiado!');
+    });
+
+    // Close on overlay click
+    modalDiv.addEventListener('click', (e) => {
+      if (e.target === modalDiv) modalDiv.remove();
+    });
   }
 }
 

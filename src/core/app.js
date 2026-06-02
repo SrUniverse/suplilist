@@ -309,6 +309,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // L3 query string shared stack auto-import integration
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedStack = urlParams.get('stack');
+  if (sharedStack) {
+    try {
+      const decoded = decodeURIComponent(escape(atob(sharedStack)));
+      const stackItems = JSON.parse(decoded);
+      if (Array.isArray(stackItems) && stackItems.length > 0) {
+        setTimeout(() => {
+          if (confirm(`Deseja importar o stack compartilhado com ${stackItems.length} suplemento(s)? Isso substituirá sua rotina atual.`)) {
+            stateManager.dispatch('IMPORT_STACK', stackItems);
+            eventBus.emit('toast:show', { message: 'Stack importado com sucesso!', type: 'success' });
+            
+            // Clean up URL parameters safely
+            const newUrl = window.location.pathname;
+            window.history.replaceState(null, null, newUrl);
+            
+            // Re-route to my-stack to show imported items
+            if (window.location.pathname !== '/my-stack') {
+              eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
+            }
+          } else {
+            // Clean up parameter to avoid prompt on page refresh
+            const newUrl = window.location.pathname;
+            window.history.replaceState(null, null, newUrl);
+          }
+        }, 800);
+      }
+    } catch (e) {
+      console.error('[App] Shared stack parsing failed:', e);
+    }
+  }
+
   // Flush analytics before page unload
   window.addEventListener('beforeunload', () => {
     if (analyticsEngine.isInitialized()) {

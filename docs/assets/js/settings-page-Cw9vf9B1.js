@@ -1,4 +1,4 @@
-import{N as v,S as s,a as m,s as x,A as k}from"./main-CO65l4MM.js";class E{constructor(t,o){this.container=t,this.params=o,this.notifService=new v}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const t=document.createElement("style");t.id="settings-page-styles",t.textContent=`
+import{N as v,S as s,a as m,s as x,A as k}from"./main-CJX8mWV_.js";class E{constructor(t,o){this.container=t,this.params=o,this.notifService=new v}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const t=document.createElement("style");t.id="settings-page-styles",t.textContent=`
       .sp-page {
         padding: 24px;
         max-width: 700px;

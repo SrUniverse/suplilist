@@ -3,6 +3,7 @@ import { stateManager, STORAGE_KEYS } from '../state/state-manager.js';
 import { eventBus, EVENTS } from './event-bus.js';
 import { Router } from './router.js';
 import { Nav } from './nav.js';
+import { analyticsEngine } from '../analytics/analytics-engine.js';
 
 const routes = [
   { path: '/onboarding', load: () => import('../pages/onboarding-page.js') },
@@ -167,6 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   router.start();
 
+  // Initialize Analytics Engine (captures events from EventBus)
+  analyticsEngine.init().catch((err) => {
+    // Analytics errors should not crash the app
+    console.error('[App] Analytics init error:', err);
+  });
+
   // Restaurar tema salvo
   const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || localStorage.getItem('theme');
   if (savedTheme === 'light' || savedTheme === 'dark') {
@@ -254,4 +261,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Flush analytics before page unload
+  window.addEventListener('beforeunload', () => {
+    if (analyticsEngine.isInitialized()) {
+      analyticsEngine.flush().catch(() => {
+        // Silently ignore flush errors on unload
+      });
+      analyticsEngine.endSession().catch(() => {
+        // Silently ignore session end errors on unload
+      });
+    }
+  });
 });

@@ -7,7 +7,7 @@ const TABS = [
 
 const DOC_TO_INDEX = { termos: 0, privacidade: 1, medico: 2, afiliados: 3 };
 
-const LAST_UPDATED = '<p class="lg-updated">Última atualização: Janeiro de 2025</p>';
+const LAST_UPDATED = '<p class="lg-updated">Última atualização: Junho de 2026 (Sprint 23 Analytics)</p>';
 
 const TAB_CONTENTS = [
   // 0 — Termos de Uso
@@ -21,22 +21,25 @@ const TAB_CONTENTS = [
   <h3>3. Uso Adequado</h3>
   <p>Você se compromete a utilizar o SupliList exclusivamente para fins pessoais e lícitos, em conformidade com a legislação brasileira aplicável.</p>
 
-  <h3>4. Isenção de Responsabilidade</h3>
+  <h3>4. Dados do Usuário e Analytics</h3>
+  <p>O SupliList utiliza um sistema de analytics on-device que coleta dados completamente anonimizados, armazenados apenas no seu navegador. Nenhum dado pessoal é transmitido para servidores externos. O sistema de analytics pode ser desabilitado a qualquer momento em Configurações → Privacidade. Você pode exportar ou deletar todos os seus dados a qualquer momento. Consulte nossa <strong>Política de Privacidade (LGPD)</strong> para detalhes completos.</p>
+
+  <h3>5. Isenção de Responsabilidade</h3>
   <p>As informações disponibilizadas têm caráter estritamente educativo e informativo. O SupliList não se responsabiliza por quaisquer decisões de saúde tomadas com base nas informações do aplicativo. Consulte sempre um profissional de saúde habilitado antes de iniciar, alterar ou interromper qualquer suplementação ou tratamento.</p>
 
-  <h3>5. Propriedade Intelectual</h3>
+  <h3>6. Propriedade Intelectual</h3>
   <p>O nome SupliList, logotipo, design, conteúdo editorial e código-fonte são de propriedade exclusiva do SupliList, protegidos pela legislação de direitos autorais (Lei nº 9.610/98) e de propriedade industrial (Lei nº 9.279/96).</p>
 
-  <h3>6. Links de Terceiros</h3>
+  <h3>7. Links de Terceiros</h3>
   <p>O SupliList pode conter links para sites de terceiros (Amazon, Mercado Livre, Shopee). Não nos responsabilizamos pelo conteúdo, preços, disponibilidade ou práticas de privacidade desses sites.</p>
 
-  <h3>7. Modificações</h3>
+  <h3>8. Modificações</h3>
   <p>Reservamo-nos o direito de modificar estes Termos a qualquer momento. Alterações significativas serão comunicadas na plataforma. O uso continuado após as alterações constitui aceitação dos novos termos.</p>
 
-  <h3>8. Legislação Aplicável</h3>
+  <h3>9. Legislação Aplicável</h3>
   <p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca do domicílio do usuário para dirimir quaisquer controvérsias.</p>
 
-  <h3>9. Contato</h3>
+  <h3>10. Contato</h3>
   <p>E-mail: contato@suplilist.com</p>`,
 
   // 1 — Privacidade (LGPD)
@@ -47,13 +50,24 @@ const TAB_CONTENTS = [
   <p>O SupliList foi construído com o princípio de privacy-by-design. Nossa arquitetura foi deliberadamente projetada para eliminar a necessidade de coletar, transmitir ou armazenar dados pessoais em servidores.</p>
 
   <h3>2. Quais Dados Coletamos</h3>
-  <p>NENHUM dado pessoal é coletado, transmitido ou armazenado em servidores externos. Todas as informações que você insere no SupliList (stack de suplementos, check-ins, perfil biométrico, preferências) ficam armazenadas exclusivamente no localStorage do seu próprio navegador, no seu próprio dispositivo.</p>
+  <p>Nenhum dado pessoalmente identificável (email, telefone, endereço, IP) é coletado ou transmitido. Todas as informações que você insere no SupliList (stack de suplementos, check-ins, perfil biométrico, preferências) ficam armazenadas exclusivamente no localStorage do seu navegador, no seu próprio dispositivo.</p>
+
+  <h3>2.1. Analytics On-Device (Anônimo)</h3>
+  <p>O SupliList inclui um sistema de analytics on-device que coleta dados <strong>completamente anonimizados</strong>, armazenados localmente no seu navegador. Este sistema:</p>
+  <ul style="margin: 8px 0 12px 24px; color: var(--color-text-secondary);">
+    <li><strong>Não armazena IDs de usuário</strong> — usa fingerprints criptográficas anônimas</li>
+    <li><strong>Não transmite dados</strong> — tudo fica no seu dispositivo (IndexedDB)</li>
+    <li><strong>Não coleta PII</strong> — nenhum email, telefone, ou dados pessoais</li>
+    <li><strong>É totalmente transparente</strong> — você pode visualizar, exportar ou deletar dados em Configurações</li>
+  </ul>
+  <p><strong>O que este sistema coleta:</strong> Eventos anônimos (check-ins, visualizações, alterações no stack), métricas agregadas (usuários ativos, retenção), dispositivo/navegador (Chrome, Firefox, etc.), fuso horário e idioma. <strong>Nada disso sai do seu navegador.</strong></p>
+  <p><strong>Como desabilitar:</strong> Configurações → Privacidade → Desabilitar analytics. Dados históricos podem ser deletados em Configurações → Resetar dados.</p>
 
   <h3>3. Base Legal (Lei nº 13.709/2018 — LGPD)</h3>
-  <p>Como não há qualquer coleta ou tratamento de dados pessoais em sistemas do SupliList, a LGPD, em seus aspectos relacionados ao controlador de dados, não se aplica diretamente. Você é o único controlador dos seus próprios dados. O SupliList atua como mero fornecedor de software local.</p>
+  <p>Como os dados estão no seu dispositivo e nenhum dado pessoal é transmitido para controladores externos, a LGPD, em seus aspectos relacionados ao controlador de dados, não se aplica diretamente. Você é o único controlador dos seus próprios dados. O SupliList atua como mero fornecedor de software local.</p>
 
   <h3>4. Cookies e Rastreamento</h3>
-  <p>Não utilizamos cookies de rastreamento, pixels de marketing, ferramentas de analytics invasivas (Google Analytics, Facebook Pixel, etc.) ou qualquer outro mecanismo de rastreamento de comportamento.</p>
+  <p>Não utilizamos cookies de rastreamento, pixels de marketing, ferramentas de analytics invasivas (Google Analytics, Facebook Pixel, Hotjar, etc.) ou qualquer outro mecanismo de rastreamento de comportamento externo. O sistema de analytics local é transparente e anonimizado.</p>
 
   <h3>5. Seus Direitos (Art. 18, LGPD)</h3>
   <p>Como seus dados estão no seu dispositivo, você já tem controle total: Acesso: visualize seus dados a qualquer momento no app. Exportação: Configurações → Exportar meus dados. Exclusão: Configurações → Resetar tudo.</p>

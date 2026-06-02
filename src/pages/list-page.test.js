@@ -1,23 +1,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../data/supplements-db.js', () => ({
+vi.mock('../ai/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
-    { id: '1', name: 'Whey', category: 'Protein', objectives: ['muscle'], ppg: 0.20, price: 150 },
-    { id: '2', name: 'Creatine', category: 'Performance', objectives: ['strength'], ppg: 0.05, price: 80 },
-    { id: '3', name: 'Vitamin D', category: 'Health', objectives: ['immunity'], ppg: 0.10, price: 60 }
+    { id: '1', name: 'Whey Protein', category: 'Proteínas', objectives: ['muscle'], ppg: 0.20, price: 150 },
+    { id: '2', name: 'Creatina', category: 'Performance', objectives: ['strength'], ppg: 0.05, price: 80 },
+    { id: '3', name: 'Vitamin D', category: 'Vitaminas', objectives: ['immunity'], ppg: 0.10, price: 60 }
   ]
 }));
 
 vi.mock('../state/state-manager.js', () => ({
   stateManager: {
-    subscribe: vi.fn((callback) => callback),
+    subscribe: vi.fn(() => vi.fn()),
     dispatch: vi.fn(),
     getState: vi.fn(() => ({
       stack: [],
       favorites: [],
       checkins: []
     }))
+  },
+  ACTIONS: {
+    ADD_FAVORITE: 'ADD_FAVORITE',
+    REMOVE_FAVORITE: 'REMOVE_FAVORITE'
   }
 }));
 
@@ -34,7 +38,7 @@ vi.mock('fuse.js', () => ({
   }
 }));
 
-vi.mock('../components/virtual-scroller.js', () => ({
+vi.mock('../core/virtual-scroller.js', () => ({
   VirtualScroller: class {
     constructor(container, items, renderFn) {
       this.container = container;
@@ -44,19 +48,33 @@ vi.mock('../components/virtual-scroller.js', () => ({
     }
     mount() {
       this.mounted = true;
+      this.container.innerHTML = `<div id="lp-grid" data-component="supplement-grid">` + 
+        this.items.map(item => this.renderFn(item)).join('') + 
+        `</div>`;
     }
     unmount() {
       this.mounted = false;
+      this.container.innerHTML = '';
     }
     updateItems(items) {
       this.items = items;
+      if (this.mounted) {
+        this.container.innerHTML = `<div id="lp-grid" data-component="supplement-grid">` + 
+          this.items.map(item => this.renderFn(item)).join('') + 
+          `</div>`;
+      }
     }
   }
 }));
 
-vi.mock('../analytics/affiliate-engine.js', () => ({
-  affiliateEngine: {
-    generateLink: vi.fn((url) => `${url}?aff=123`)
+vi.mock('../monetization/affiliate-engine.js', () => ({
+  default: {
+    getLinks: vi.fn(() => ({
+      amazon: 'https://amazon.com/example',
+      mercadolivre: 'https://mercadolivre.com/example',
+      shopee: 'https://shopee.com/example'
+    })),
+    trackClick: vi.fn()
   }
 }));
 
@@ -70,27 +88,8 @@ describe('ListPage — Supplement Catalog', () => {
     container.id = 'list-page';
     document.body.appendChild(container);
 
-    // Create modal container
-    const modal = document.createElement('div');
-    modal.id = 'supplement-modal';
-    modal.innerHTML = `
-      <div class="modal__overlay"></div>
-      <div class="modal__content">
-        <button class="modal__close"></button>
-        <div class="modal__tabs">
-          <button data-tab="info" class="modal__tab active"></button>
-          <button data-tab="reviews" class="modal__tab"></button>
-        </div>
-        <div class="modal__panels">
-          <div class="modal__panel--info"></div>
-          <div class="modal__panel--reviews"></div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-
     // Dynamic import to get fresh class instance
-    const { ListPage } = await import('./list-page.js');
+    const ListPage = (await import('./list-page.js')).default;
     listPage = new ListPage(container, {});
   });
 
@@ -104,9 +103,9 @@ describe('ListPage — Supplement Catalog', () => {
     await listPage.mount();
 
     const grid = container.querySelector('[data-component="supplement-grid"]');
-    expect(grid).toBeDefined();
+    expect(grid).not.toBeNull();
 
-    const cards = container.querySelectorAll('[data-supplement-id]');
+    const cards = container.querySelectorAll('.lp-card');
     expect(cards.length).toBeGreaterThan(0);
   });
 
@@ -114,16 +113,13 @@ describe('ListPage — Supplement Catalog', () => {
     await listPage.mount();
 
     // Click category filter
-    const categoryFilter = container.querySelector('[data-filter="category"]');
-    if (categoryFilter) {
-      const proteinOption = categoryFilter.querySelector('[data-value="Protein"]');
-      proteinOption?.click();
-    }
+    const proteinOption = container.querySelector('.lp-chip[data-cat="Proteínas"]');
+    proteinOption?.click();
 
     // Verify filtered results
-    const visibleCards = container.querySelectorAll('[data-supplement-id]');
+    const visibleCards = container.querySelectorAll('.lp-card');
     const names = Array.from(visibleCards).map(card =>
-      card.querySelector('[data-name]')?.textContent
+      card.querySelector('.lp-card-name')?.textContent
     );
 
     expect(names.some(name => name?.includes('Whey'))).toBe(true);
@@ -132,7 +128,7 @@ describe('ListPage — Supplement Catalog', () => {
   it('3. Search query filters supplements and updates grid', async () => {
     await listPage.mount();
 
-    const searchInput = container.querySelector('[data-search="supplements"]');
+    const searchInput = container.querySelector('#lp-search');
     if (searchInput) {
       searchInput.value = 'Whey';
       searchInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -141,9 +137,9 @@ describe('ListPage — Supplement Catalog', () => {
     // Wait for debounce
     await new Promise(resolve => setTimeout(resolve, 350));
 
-    const visibleCards = container.querySelectorAll('[data-supplement-id]');
+    const visibleCards = container.querySelectorAll('.lp-card');
     const names = Array.from(visibleCards).map(card =>
-      card.querySelector('[data-name]')?.textContent
+      card.querySelector('.lp-card-name')?.textContent
     );
 
     expect(names.length).toBeGreaterThan(0);
@@ -152,57 +148,55 @@ describe('ListPage — Supplement Catalog', () => {
   it('4. Modal opens with supplement data and handles tab switching', async () => {
     await listPage.mount();
 
-    const firstCard = container.querySelector('[data-supplement-id]');
-    if (firstCard) {
-      firstCard.click();
-    }
+    const firstBtn = container.querySelector('.lp-btn-ver-precos');
+    firstBtn?.click();
 
-    const modal = document.getElementById('supplement-modal');
-    expect(modal.style.display).not.toBe('none');
+    const modal = document.getElementById('lp-modal-overlay');
+    expect(modal).not.toBeNull();
 
-    // Click reviews tab
-    const reviewsTab = modal.querySelector('[data-tab="reviews"]');
-    if (reviewsTab) {
-      reviewsTab.click();
-      expect(reviewsTab.classList.contains('active')).toBe(true);
+    // Click benefits tab
+    const benefitsTab = modal.querySelector('.lp-tab[data-tab="benefits"]');
+    if (benefitsTab) {
+      benefitsTab.click();
+      expect(benefitsTab.classList.contains('active')).toBe(true);
     }
   });
 
   it('5. Modal closes on close button, overlay click, and Escape key', async () => {
     await listPage.mount();
 
-    const firstCard = container.querySelector('[data-supplement-id]');
-    firstCard?.click();
+    const firstBtn = container.querySelector('.lp-btn-ver-precos');
+    firstBtn?.click();
 
-    const modal = document.getElementById('supplement-modal');
-    const closeBtn = modal.querySelector('.modal__close');
+    const modal = document.getElementById('lp-modal-overlay');
+    expect(modal).not.toBeNull();
 
+    const closeBtn = modal.querySelector('#lp-modal-close');
     closeBtn?.click();
-    expect(modal.style.display).toBe('none');
+    expect(document.getElementById('lp-modal-overlay')).toBeNull();
 
-    // Reopen and test overlay
-    firstCard?.click();
-    const overlay = modal.querySelector('.modal__overlay');
-    overlay?.click();
-    expect(modal.style.display).toBe('none');
+    // Reopen and test overlay click
+    firstBtn?.click();
+    const newModal = document.getElementById('lp-modal-overlay');
+    newModal?.click();
+    expect(document.getElementById('lp-modal-overlay')).toBeNull();
 
     // Reopen and test Escape key
-    firstCard?.click();
+    firstBtn?.click();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-    expect(modal.style.display).toBe('none');
+    expect(document.getElementById('lp-modal-overlay')).toBeNull();
   });
 
   it('6. Favorite toggle dispatches ADD_FAVORITE/REMOVE_FAVORITE', async () => {
     const { stateManager } = await import('../state/state-manager.js');
     await listPage.mount();
 
-    const favoriteBtn = container.querySelector('[data-action="toggle-favorite"]');
+    const favoriteBtn = container.querySelector('[data-action="toggle-fav"]');
     if (favoriteBtn) {
       favoriteBtn.click();
       expect(stateManager.dispatch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: expect.stringMatching(/ADD_FAVORITE|REMOVE_FAVORITE/)
-        })
+        expect.stringMatching(/ADD_FAVORITE|REMOVE_FAVORITE/),
+        expect.any(Object)
       );
     }
   });
@@ -212,9 +206,15 @@ describe('ListPage — Supplement Catalog', () => {
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
-          '1': 150,
-          '2': 80,
-          '3': 60
+          '1': {
+            'store1': { price: 150, label: 'Amazon', pricePerUnit: 0.2, unit: 'g' }
+          },
+          '2': {
+            'store1': { price: 80, label: 'Mercado Livre' }
+          },
+          '3': {
+            'store1': { price: 60, label: 'Shopee' }
+          }
         })
       })
     );
@@ -222,7 +222,7 @@ describe('ListPage — Supplement Catalog', () => {
     await listPage.mount();
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    const priceElement = container.querySelector('[data-price]');
+    const priceElement = container.querySelector('.lp-card-price');
     if (priceElement) {
       expect(priceElement.textContent).toMatch(/R\$|price/);
     }
@@ -230,10 +230,8 @@ describe('ListPage — Supplement Catalog', () => {
 
   it('8. Unmount clears listeners and virtual scroller', () => {
     listPage.mount();
+    const spy = vi.spyOn(listPage._scroller, 'unmount');
     listPage.unmount();
-
-    // Verify no event listeners remain
-    const grid = container.querySelector('[data-component="supplement-grid"]');
-    expect(grid?.onclick).toBeUndefined();
+    expect(spy).toHaveBeenCalled();
   });
 });

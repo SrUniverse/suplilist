@@ -210,6 +210,16 @@ describe('IntersectionVirtualScroller — Observer-based Rendering', () => {
   const renderItem = (item) => `<div>${item.name}</div>`;
 
   beforeEach(() => {
+    // Mock IntersectionObserver globally using class syntax so it's a constructor
+    global.IntersectionObserver = class {
+      constructor(callback) {
+        this.callback = callback;
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+
     container = document.createElement('div');
     document.body.appendChild(container);
 

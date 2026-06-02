@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../data/supplements-db.js', () => ({
+vi.mock('../ai/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
     { id: '1', name: 'Whey', image: 'whey.jpg' },
     { id: '2', name: 'Creatine', image: 'creatine.jpg' },
@@ -9,44 +9,38 @@ vi.mock('../data/supplements-db.js', () => ({
   ]
 }));
 
-vi.mock('../state/state-manager.js', () => ({
-  stateManager: {
-    subscribe: vi.fn((callback) => {
-      callback({
-        stack: [
-          { id: '1', supplementId: '1', dosage: 30 },
-          { id: '2', supplementId: '2', dosage: 5 },
-          { id: '3', supplementId: '3', dosage: 2000 }
-        ],
-        checkins: [
-          { supplementId: '1', date: '2026-06-01' },
-          { supplementId: '1', date: '2026-06-02' },
-          { supplementId: '2', date: '2026-06-01' },
-          { supplementId: '2', date: '2026-06-02' },
-          { supplementId: '3', date: '2026-06-02' }
-        ]
-      });
-      return vi.fn();
-    }),
-    dispatch: vi.fn(),
-    getState: vi.fn(() => ({
-      stack: [
-        { id: '1', supplementId: '1', dosage: 30 },
-        { id: '2', supplementId: '2', dosage: 5 },
-        { id: '3', supplementId: '3', dosage: 2000 }
-      ],
-      checkins: [
-        { supplementId: '1', date: '2026-06-01' },
-        { supplementId: '1', date: '2026-06-02' },
-        { supplementId: '2', date: '2026-06-01' },
-        { supplementId: '2', date: '2026-06-02' },
-        { supplementId: '3', date: '2026-06-02' }
-      ]
-    }))
-  }
-}));
+let sharedState = {
+  stack: [
+    { id: '1', supplementId: '1', dosage: 30 },
+    { id: '2', supplementId: '2', dosage: 5 },
+    { id: '3', supplementId: '3', dosage: 2000 }
+  ],
+  checkins: [
+    { supplementId: '1', date: '2026-06-01' },
+    { supplementId: '1', date: '2026-06-02' },
+    { supplementId: '2', date: '2026-06-01' },
+    { supplementId: '2', date: '2026-06-02' },
+    { supplementId: '3', date: '2026-06-02' }
+  ]
+};
 
-vi.mock('../utils/date-utils.js', () => ({
+vi.mock('../state/state-manager.js', () => {
+  return {
+    stateManager: {
+      subscribe: vi.fn((callback) => {
+        callback(sharedState);
+        return vi.fn();
+      }),
+      dispatch: vi.fn(),
+      calculateStreak: vi.fn(() => 5),
+      getState: vi.fn(() => sharedState),
+      get stack() { return sharedState.stack; },
+      get checkins() { return sharedState.checkins; }
+    }
+  };
+});
+
+vi.mock('../utils/date.js', () => ({
   todayISO: () => '2026-06-02'
 }));
 
@@ -67,7 +61,22 @@ describe('CheckinPage — Daily Check-in', () => {
     container.id = 'checkin-page';
     document.body.appendChild(container);
 
-    const { CheckinPage } = await import('./checkin-page.js');
+    sharedState = {
+      stack: [
+        { id: '1', supplementId: '1', dosage: 30 },
+        { id: '2', supplementId: '2', dosage: 5 },
+        { id: '3', supplementId: '3', dosage: 2000 }
+      ],
+      checkins: [
+        { supplementId: '1', date: '2026-06-01' },
+        { supplementId: '1', date: '2026-06-02' },
+        { supplementId: '2', date: '2026-06-01' },
+        { supplementId: '2', date: '2026-06-02' },
+        { supplementId: '3', date: '2026-06-02' }
+      ]
+    };
+
+    const CheckinPage = (await import('./checkin-page.js')).default;
     checkinPage = new CheckinPage(container);
   });
 
@@ -184,19 +193,16 @@ describe('CheckinPage — Daily Check-in', () => {
   });
 
   it('8. Empty stack shows CTA with navigation link', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
-    stateManager.getState.mockReturnValue({
-      stack: [],
-      checkins: []
-    });
+    sharedState.stack = [];
+    sharedState.checkins = [];
 
     await checkinPage.mount();
 
-    const emptyState = container.querySelector('[data-empty-state]');
-    expect(emptyState).toBeDefined();
+    expect(container.textContent).toContain('Stack vazio');
 
-    const ctaLink = container.querySelector('[data-action="go-to-stack"]');
-    expect(ctaLink?.href).toContain('/my-stack');
+    const ctaLink = container.querySelector('a[href="/my-stack"]');
+    expect(ctaLink).not.toBeNull();
+    expect(ctaLink.getAttribute('href')).toBe('/my-stack');
   });
 
   it('9. Checked supplement shows Feito checkmark icon', async () => {

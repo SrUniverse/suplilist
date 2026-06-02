@@ -1,4 +1,4 @@
-import{S as g,s as u,A as x}from"./main-BbCNeYDc.js";class k{constructor(t,o){this.container=t,this.params=o}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const t=document.createElement("style");t.id="settings-page-styles",t.textContent=`
+import{S as s,a as m,s as f,A as v}from"./main-8KErQew8.js";class S{constructor(t,o){this.container=t,this.params=o}mount(){this._injectStyles(),this.container.innerHTML=this._render(),this._bindEvents()}unmount(){this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const t=document.createElement("style");t.id="settings-page-styles",t.textContent=`
       .sp-page {
         padding: 24px;
         max-width: 700px;
@@ -218,18 +218,18 @@ import{S as g,s as u,A as x}from"./main-BbCNeYDc.js";class k{constructor(t,o){th
         font-size: 14px;
         flex-shrink: 0;
       }
-    `,document.head.appendChild(t)}_getThemeState(){const t=localStorage.getItem(g.THEME);return t?t==="dark":document.documentElement.getAttribute("data-theme")==="dark"}_getBoolPref(t){return localStorage.getItem(t)==="true"}_switchHTML(t,o,r,c){return`
+    `,document.head.appendChild(t)}_getThemeState(){const t=s.getItem(m.THEME);return t?t==="dark":document.documentElement.getAttribute("data-theme")==="dark"}_getBoolPref(t){return s.getItem(t)==="true"}_switchHTML(t,o,n,p){return`
       <div class="sp-toggle-row">
         <span class="sp-toggle-label">
-          <span class="sp-toggle-icon" id="${t}-icon">${c}</span>
-          ${r}
+          <span class="sp-toggle-icon" id="${t}-icon">${p}</span>
+          ${n}
         </span>
-        <label class="sp-switch" aria-label="${r}">
+        <label class="sp-switch" aria-label="${n}">
           <input type="checkbox" id="${t}"${o?" checked":""}>
           <span class="sp-switch-track"></span>
         </label>
       </div>
-    `}_render(){const t=this._getThemeState(),o=this._getBoolPref("suplilist:notif-checkin"),r=this._getBoolPref("suplilist:notif-restock");return`
+    `}_render(){const t=this._getThemeState(),o=this._getBoolPref("suplilist:notif-checkin"),n=this._getBoolPref("suplilist:notif-restock");return`
       <div class="sp-page">
 
         <!-- Header -->
@@ -248,7 +248,7 @@ import{S as g,s as u,A as x}from"./main-BbCNeYDc.js";class k{constructor(t,o){th
         <div class="sp-card">
           <h2 class="sp-section-label">Notificações</h2>
           ${this._switchHTML("sp-notif-checkin",o,"Lembrete diário de check-in","💊")}
-          ${this._switchHTML("sp-notif-restock",r,"Alertas de reposição de estoque","📦")}
+          ${this._switchHTML("sp-notif-restock",n,"Alertas de reposição de estoque","📦")}
           <p class="sp-notif-note">Notificações são locais e não requerem cadastro. Nada é enviado para servidores.</p>
         </div>
 
@@ -259,8 +259,16 @@ import{S as g,s as u,A as x}from"./main-BbCNeYDc.js";class k{constructor(t,o){th
             🔒 Seus dados ficam 100% no seu dispositivo. Não temos servidores e nunca coletamos informações pessoais. (LGPD)
           </div>
           <div class="sp-action-row">
-            <span class="sp-action-label">Exportar meus dados</span>
+            <span class="sp-action-label">Exportar meus dados (download)</span>
             <button class="sp-btn sp-btn-outline" id="sp-export-btn">Exportar</button>
+          </div>
+          <div class="sp-action-row" id="sp-export-file-row" style="display:none;">
+            <span class="sp-action-label">Salvar backup (no seu PC)</span>
+            <button class="sp-btn sp-btn-outline" id="sp-export-file-btn">Salvar</button>
+          </div>
+          <div class="sp-action-row" id="sp-import-file-row" style="display:none;">
+            <span class="sp-action-label">Restaurar backup (do seu PC)</span>
+            <button class="sp-btn sp-btn-outline" id="sp-import-file-btn">Restaurar</button>
           </div>
           <div class="sp-action-row">
             <span class="sp-action-label">Limpar histórico de check-ins</span>
@@ -299,4 +307,4 @@ import{S as g,s as u,A as x}from"./main-BbCNeYDc.js";class k{constructor(t,o){th
         </div>
 
       </div>
-    `}_bindEvents(){const t=this.container.querySelector("#sp-theme-toggle");t&&t.addEventListener("change",()=>{const e=t.checked,n=e?"dark":"light";document.documentElement.setAttribute("data-theme",n),localStorage.setItem(g.THEME,n);const i=this.container.querySelector("#sp-theme-toggle-icon");i&&(i.textContent=e?"🌙":"☀️");const s=e?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',h=document.querySelector("#btn-theme .sb-item__icon");h&&(h.innerHTML=s);const b=document.getElementById("btn-theme-mobile");b&&(b.innerHTML=s)});const o=this.container.querySelector("#sp-notif-checkin");o&&o.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-checkin",o.checked?"true":"false")});const r=this.container.querySelector("#sp-notif-restock");r&&r.addEventListener("change",()=>{localStorage.setItem("suplilist:notif-restock",r.checked?"true":"false")});const c=this.container.querySelector("#sp-export-btn");c&&c.addEventListener("click",()=>{const e={};for(let l=0;l<localStorage.length;l++){const s=localStorage.key(l);if(s&&s.startsWith("suplilist"))try{e[s]=JSON.parse(localStorage.getItem(s))}catch{e[s]=localStorage.getItem(s)}}const n=new Blob([JSON.stringify(e,null,2)],{type:"application/json"}),i=URL.createObjectURL(n),a=document.createElement("a");a.href=i,a.download=`suplilist-export-${new Date().toISOString().slice(0,10)}.json`,document.body.appendChild(a),a.click(),document.body.removeChild(a),setTimeout(()=>URL.revokeObjectURL(i),1e3)});const p=this.container.querySelector("#sp-clear-checkins-btn");p&&p.addEventListener("click",()=>{confirm("Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita.")&&u.dispatch(x.CLEAR_CHECKINS)});const d=this.container.querySelector("#sp-reset-btn");d&&d.addEventListener("click",()=>{confirm("⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.")&&(Object.keys(localStorage).filter(e=>e.startsWith("suplilist")).forEach(e=>localStorage.removeItem(e)),location.reload())}),this.container.querySelectorAll(".sp-link-btn[data-path]").forEach(e=>{e.addEventListener("click",()=>{const n=e.getAttribute("data-path");window.history.pushState(null,null,n),window.dispatchEvent(new PopStateEvent("popstate"))})})}}export{k as default};
+    `}_bindEvents(){const t=this.container.querySelector("#sp-theme-toggle");t&&t.addEventListener("change",()=>{const e=t.checked,c=e?"dark":"light";document.documentElement.setAttribute("data-theme",c),s.setItem(m.THEME,c);const d=this.container.querySelector("#sp-theme-toggle-icon");d&&(d.textContent=e?"🌙":"☀️");const r=e?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',g=document.querySelector("#btn-theme .sb-item__icon");g&&(g.innerHTML=r);const x=document.getElementById("btn-theme-mobile");x&&(x.innerHTML=r)});const o=this.container.querySelector("#sp-notif-checkin");o&&o.addEventListener("change",()=>{s.setItem("suplilist:notif-checkin",o.checked?"true":"false")});const n=this.container.querySelector("#sp-notif-restock");n&&n.addEventListener("change",()=>{s.setItem("suplilist:notif-restock",n.checked?"true":"false")});const p=this.container.querySelector("#sp-export-btn");p&&p.addEventListener("click",()=>{const e={},c=s.getAllKeys();for(const r of c)if(r&&r.startsWith("suplilist"))try{e[r]=JSON.parse(s.getItem(r))}catch{e[r]=s.getItem(r)}const d=new Blob([JSON.stringify(e,null,2)],{type:"application/json"}),b=URL.createObjectURL(d),l=document.createElement("a");l.href=b,l.download=`suplilist-export-${new Date().toISOString().slice(0,10)}.json`,document.body.appendChild(l),l.click(),document.body.removeChild(l),setTimeout(()=>URL.revokeObjectURL(b),1e3)});const a=this.container.querySelector("#sp-export-file-btn");a&&s.isFileSystemAPIAvailable()&&(this.container.querySelector("#sp-export-file-row").style.display="flex",a.addEventListener("click",async()=>{a.disabled=!0,a.textContent="Salvando...";try{const e=await s.exportToFile();alert(e.message),e.success&&(a.textContent="✓ Salvo",setTimeout(()=>{a.textContent="Salvar"},2e3))}finally{a.disabled=!1}}));const i=this.container.querySelector("#sp-import-file-btn");i&&s.isFileSystemAPIAvailable()&&(this.container.querySelector("#sp-import-file-row").style.display="flex",i.addEventListener("click",async()=>{i.disabled=!0,i.textContent="Restaurando...";try{const e=await s.importFromFile();alert(e.message),e.success&&(i.textContent="✓ Restaurado",setTimeout(()=>{i.textContent="Restaurar",location.reload()},2e3))}finally{i.disabled=!1}}));const u=this.container.querySelector("#sp-clear-checkins-btn");u&&u.addEventListener("click",()=>{confirm("Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita.")&&f.dispatch(v.CLEAR_CHECKINS)});const h=this.container.querySelector("#sp-reset-btn");h&&h.addEventListener("click",()=>{confirm("⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.")&&(Object.keys(localStorage).filter(e=>e.startsWith("suplilist")).forEach(e=>s.removeItem(e)),location.reload())}),this.container.querySelectorAll(".sp-link-btn[data-path]").forEach(e=>{e.addEventListener("click",()=>{const c=e.getAttribute("data-path");window.history.pushState(null,null,c),window.dispatchEvent(new PopStateEvent("popstate"))})})}}export{S as default};

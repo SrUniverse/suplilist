@@ -236,6 +236,9 @@ export class IntersectionVirtualScroller {
       this._observer.disconnect();
     }
     this.itemElements.forEach(el => el.remove());
+    if (this.listElement) {
+      this.listElement.remove();
+    }
   }
 
   updateItems(items) {

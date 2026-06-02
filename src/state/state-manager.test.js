@@ -2,6 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StateManager, ACTIONS, STORAGE_KEY } from './state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 
+vi.mock('../core/storage-manager.js', () => ({
+  StorageManager: {
+    init: vi.fn(),
+    setItem: vi.fn((key, val) => {
+      try {
+        localStorage.setItem(key, val);
+        return true;
+      } catch (err) {
+        throw err;
+      }
+    }),
+    getItem: vi.fn((key) => localStorage.getItem(key)),
+    removeItem: vi.fn((key) => localStorage.removeItem(key))
+  }
+}));
+
 function createTestSM() {
   localStorage.clear();
   StateManager.resetInstance();

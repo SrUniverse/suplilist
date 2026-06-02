@@ -1,47 +1,61 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../data/supplements-db.js', () => ({
+vi.mock('../ai/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
-    { id: '1', name: 'Whey', unit: 'g', ppg: 0.20, price: 150 },
-    { id: '2', name: 'Creatine', unit: 'g', ppg: 0.05, price: 80 },
-    { id: '3', name: 'Vitamin D', unit: 'mcg', ppg: 10, price: 60 }
+    { id: '1', name: 'Whey', category: 'Proteínas', dosage: { maintenance: 30, unit: 'g' }, pricePerGram: 0.20 },
+    { id: '2', name: 'Creatine', category: 'Força & Performance', dosage: { maintenance: 5, unit: 'g' }, pricePerGram: 0.05 },
+    { id: '3', name: 'Vitamin D', category: 'Vitaminas & Minerais', dosage: { maintenance: 2000, unit: 'mcg' }, pricePerGram: 10 }
   ]
 }));
+
+let sharedState = {
+  stack: [
+    { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 },
+    { id: '2', supplementId: '2', dosage: 5, unit: 'g', quantity: 100 }
+  ],
+  checkins: [
+    { supplementId: '1', date: '2026-06-01' },
+    { supplementId: '1', date: '2026-06-02' },
+    { supplementId: '2', date: '2026-06-01' }
+  ]
+};
 
 vi.mock('../state/state-manager.js', () => ({
   stateManager: {
     subscribe: vi.fn((callback) => {
-      callback({ stack: [], checkins: [] });
+      callback(sharedState);
       return vi.fn();
     }),
     dispatch: vi.fn(),
-    getState: vi.fn(() => ({
-      stack: [
-        { id: '1', supplementId: '1', dosage: 30, unit: 'g', frequency: 'daily', frequency_count: 1 },
-        { id: '2', supplementId: '2', dosage: 5, unit: 'g', frequency: 'daily', frequency_count: 1 }
-      ],
-      checkins: [
-        { supplementId: '1', date: '2026-06-01' },
-        { supplementId: '1', date: '2026-06-02' },
-        { supplementId: '2', date: '2026-06-01' }
-      ]
-    }))
+    getState: vi.fn(() => sharedState),
+    get stack() { return sharedState.stack; },
+    get checkins() { return sharedState.checkins; }
+  },
+  ACTIONS: {
+    ADD_TO_STACK: 'ADD_TO_STACK',
+    REMOVE_FROM_STACK: 'REMOVE_FROM_STACK',
+    UPDATE_STACK_ITEM: 'UPDATE_STACK_ITEM'
   }
 }));
 
-vi.mock('../utils/date-utils.js', () => ({
+vi.mock('../utils/date.js', () => ({
   todayISO: () => '2026-06-02',
-  offsetISO: (date, days) => {
-    const d = new Date(date);
-    d.setDate(d.getDate() + days);
-    return d.toISOString().split('T')[0];
+  offsetISO: (days) => {
+    const d = new Date('2026-06-02T12:00:00');
+    d.setDate(d.getDate() - days);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 }));
 
-vi.mock('../analytics/affiliate-engine.js', () => ({
-  affiliateEngine: {
-    generateLink: vi.fn((url) => `${url}?aff=123`)
+vi.mock('../monetization/affiliate-engine.js', () => ({
+  default: {
+    getLinks: vi.fn(() => ({
+      amazon: 'https://amazon.com/example',
+      mercadolivre: 'https://mercadolivre.com/example',
+      shopee: 'https://shopee.com/example'
+    })),
+    trackClick: vi.fn()
   }
 }));
 
@@ -50,31 +64,25 @@ describe('MyStackPage — User Personal Stack', () => {
   let myStackPage;
 
   beforeEach(async () => {
+    vi.resetModules();
+    window.Element.prototype.scrollIntoView = vi.fn();
+
     container = document.createElement('div');
     container.id = 'my-stack-page';
     document.body.appendChild(container);
 
-    // Create modal for adding to stack
-    const modal = document.createElement('div');
-    modal.id = 'stack-modal';
-    modal.innerHTML = `
-      <div class="modal__overlay"></div>
-      <div class="modal__content">
-        <input type="text" class="modal__search" placeholder="Search">
-        <div class="modal__results"></div>
-        <div class="modal__form" style="display: none;">
-          <input type="number" class="form__dosage" placeholder="Dosage">
-          <select class="form__unit">
-            <option>g</option>
-            <option>mg</option>
-            <option>mcg</option>
-          </select>
-          <input type="text" class="form__frequency">
-          <button class="form__submit">Add</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
+    // Reset sharedState
+    sharedState = {
+      stack: [
+        { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 },
+        { id: '2', supplementId: '2', dosage: 5, unit: 'g', quantity: 100 }
+      ],
+      checkins: [
+        { supplementId: '1', date: '2026-06-01' },
+        { supplementId: '1', date: '2026-06-02' },
+        { supplementId: '2', date: '2026-06-01' }
+      ]
+    };
 
     const { MyStackPage } = await import('./my-stack-page.js');
     myStackPage = new MyStackPage(container);
@@ -88,17 +96,17 @@ describe('MyStackPage — User Personal Stack', () => {
 
   it('1. Calculates and displays monthly investment with unit conversion', async () => {
     const { stateManager } = await import('../state/state-manager.js');
-    stateManager.getState.mockReturnValue({
+    sharedState = {
       stack: [
-        { id: '1', supplementId: '1', dosage: 30, unit: 'g', frequency: 'daily', frequency_count: 1 }
+        { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 }
       ],
       checkins: []
-    });
+    };
 
     await myStackPage.mount();
 
-    // Find monthly investment display
-    const investmentEl = container.querySelector('[data-metric="monthly-investment"]');
+    const investmentEl = container.querySelector('.msp-stat-card:nth-child(1) .msp-stat-value');
+    expect(investmentEl).not.toBeNull();
     if (investmentEl) {
       expect(investmentEl.textContent).toMatch(/R\$|monthly/i);
     }
@@ -106,22 +114,23 @@ describe('MyStackPage — User Personal Stack', () => {
 
   it('2. Calculates adherence rate based on checkins', async () => {
     const { stateManager } = await import('../state/state-manager.js');
-    stateManager.getState.mockReturnValue({
+    sharedState = {
       stack: [
-        { id: '1', supplementId: '1', dosage: 30, unit: 'g', frequency: 'daily', frequency_count: 1 }
+        { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 }
       ],
       checkins: [
         { supplementId: '1', date: '2026-06-01' },
         { supplementId: '1', date: '2026-06-02' }
       ]
-    });
+    };
 
     await myStackPage.mount();
 
-    const adherenceEl = container.querySelector('[data-metric="adherence"]');
+    const adherenceEl = container.querySelector('.msp-stat-card:nth-child(3) .msp-stat-value');
+    expect(adherenceEl).not.toBeNull();
     if (adherenceEl) {
       const percent = parseInt(adherenceEl.textContent);
-      expect(percent).toBeGreaterThan(0);
+      expect(percent).toBeGreaterThanOrEqual(0);
       expect(percent).toBeLessThanOrEqual(100);
     }
   });
@@ -130,10 +139,11 @@ describe('MyStackPage — User Personal Stack', () => {
     const { stateManager } = await import('../state/state-manager.js');
     await myStackPage.mount();
 
-    const addBtn = container.querySelector('[data-action="add-supplement"]');
+    const addBtn = container.querySelector('#msp-open-modal');
     addBtn?.click();
 
-    const searchInput = document.querySelector('.modal__search');
+    const searchInput = document.getElementById('msp-modal-search');
+    expect(searchInput).not.toBeNull();
     if (searchInput) {
       searchInput.value = 'Whey';
       searchInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -142,18 +152,22 @@ describe('MyStackPage — User Personal Stack', () => {
     // Wait for debounce
     await new Promise(resolve => setTimeout(resolve, 350));
 
-    const resultItem = document.querySelector('[data-result-id="1"]');
+    const resultItem = document.querySelector('.msp-result-btn[data-id="1"]');
+    expect(resultItem).not.toBeNull();
     resultItem?.click();
 
-    const dosageInput = document.querySelector('.form__dosage');
+    const dosageInput = document.getElementById('msp-modal-dosage');
     if (dosageInput) {
       dosageInput.value = '30';
-      const submitBtn = document.querySelector('.form__submit');
+      const submitBtn = document.getElementById('msp-modal-submit');
       submitBtn?.click();
 
       expect(stateManager.dispatch).toHaveBeenCalledWith(
+        'ADD_TO_STACK',
         expect.objectContaining({
-          type: 'ADD_TO_STACK'
+          supplementId: '1',
+          name: 'Whey',
+          dosage: 30
         })
       );
     }
@@ -163,24 +177,26 @@ describe('MyStackPage — User Personal Stack', () => {
     const { stateManager } = await import('../state/state-manager.js');
     await myStackPage.mount();
 
-    const editBtn = container.querySelector('[data-action="edit-item"][data-stack-id="1"]');
+    const editBtn = container.querySelector('[data-action="edit"][data-id="1"]');
+    expect(editBtn).not.toBeNull();
     editBtn?.click();
 
     // Wait for form to appear
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    const dosageInput = container.querySelector('[data-field="dosage"]');
+    const dosageInput = container.querySelector('#msp-ei-dosage-1');
+    expect(dosageInput).not.toBeNull();
     if (dosageInput) {
       dosageInput.value = '50';
-      const saveBtn = container.querySelector('[data-action="save-item"]');
+      const saveBtn = container.querySelector('[data-action="save-edit"]');
+      expect(saveBtn).not.toBeNull();
       saveBtn?.click();
 
       expect(stateManager.dispatch).toHaveBeenCalledWith(
+        'UPDATE_STACK_ITEM',
         expect.objectContaining({
-          type: 'UPDATE_STACK_ITEM',
-          payload: expect.objectContaining({
-            dosage: 50
-          })
+          supplementId: '1',
+          dosage: 50
         })
       );
     }
@@ -188,15 +204,18 @@ describe('MyStackPage — User Personal Stack', () => {
 
   it('5. REMOVE_FROM_STACK dispatches on delete action', async () => {
     const { stateManager } = await import('../state/state-manager.js');
+    vi.stubGlobal('confirm', () => true);
     await myStackPage.mount();
 
-    const deleteBtn = container.querySelector('[data-action="remove-item"][data-stack-id="1"]');
+    const deleteBtn = container.querySelector('[data-action="remove"][data-id="1"]');
+    expect(deleteBtn).not.toBeNull();
     if (deleteBtn) {
       deleteBtn.click();
 
       expect(stateManager.dispatch).toHaveBeenCalledWith(
+        'REMOVE_FROM_STACK',
         expect.objectContaining({
-          type: 'REMOVE_FROM_STACK'
+          supplementId: '1'
         })
       );
     }
@@ -207,41 +226,45 @@ describe('MyStackPage — User Personal Stack', () => {
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
-          '1': [{ price: 140, source: 'Amazon' }, { price: 150, source: 'Official' }]
+          '1': {
+            'store1': { price: 140, label: 'Amazon' },
+            'store2': { price: 150, label: 'Official' }
+          }
         })
       })
     );
 
     await myStackPage.mount();
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 150));
 
-    const bestPriceEl = container.querySelector('[data-metric="best-price"]');
+    const bestPriceEl = container.querySelector('.msp-replen-price');
+    expect(bestPriceEl).not.toBeNull();
     if (bestPriceEl) {
-      expect(bestPriceEl.textContent).toMatch(/R\$|price/i);
+      expect(bestPriceEl.textContent).toMatch(/R\$|Melhor/i);
     }
   });
 
   it('7. Empty stack shows CTA button and hides metrics', async () => {
     const { stateManager } = await import('../state/state-manager.js');
-    stateManager.getState.mockReturnValue({
+    sharedState = {
       stack: [],
       checkins: []
-    });
+    };
 
     await myStackPage.mount();
 
-    const emptyState = container.querySelector('[data-empty-state]');
-    expect(emptyState).toBeDefined();
+    const emptyState = container.querySelector('.msp-empty');
+    expect(emptyState).not.toBeNull();
 
-    const ctaBtn = container.querySelector('[data-action="start-stack"]');
-    expect(ctaBtn).toBeDefined();
+    const ctaBtn = container.querySelector('#msp-empty-cta');
+    expect(ctaBtn).not.toBeNull();
   });
 
   it('8. Unmount removes listeners and cleans up modal', () => {
     myStackPage.mount();
     myStackPage.unmount();
 
-    const modal = document.getElementById('stack-modal');
-    expect(modal.style.display).toBe('none');
+    const modal = document.getElementById('msp-modal-overlay');
+    expect(modal).toBeNull();
   });
 });

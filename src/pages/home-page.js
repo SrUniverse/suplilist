@@ -90,17 +90,37 @@ export default class HomePage {
       {
         name: 'Amazon',
         color: '#FF9900',
-        logo: `<svg width="90" height="28" viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#FF9900">amazon</text></svg>`,
+        logo: `<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
+          <text x="0" y="26" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#FF9900" letter-spacing="-1">amazon</text>
+          <path d="M8 33 C22 40 52 40 66 33" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M63 30 L67 33 L62 36" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`,
       },
       {
         name: 'Mercado Livre',
         color: '#FFE600',
-        logo: `<svg width="110" height="28" viewBox="0 0 110 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#FFE600">Mercado Livre</text></svg>`,
+        logo: `<svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg" aria-label="Mercado Livre" role="img">
+          <!-- Ícone carrinho ML -->
+          <path d="M4 8 L8 8 L12 24 L32 24 L36 12 L10 12" stroke="#3483FA" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 30 A2 2 0 1 0 14.01 30" stroke="#3483FA" stroke-width="2.5" fill="#3483FA"/>
+          <path d="M28 30 A2 2 0 1 0 28.01 30" stroke="#3483FA" stroke-width="2.5" fill="#3483FA"/>
+          <!-- Texto -->
+          <text x="42" y="18" font-family="Arial,sans-serif" font-size="13" font-weight="800" fill="#FFE600">Mercado</text>
+          <text x="42" y="34" font-family="Arial,sans-serif" font-size="13" font-weight="800" fill="#3483FA">Livre</text>
+        </svg>`,
       },
       {
         name: 'Shopee',
         color: '#EE4D2D',
-        logo: `<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#EE4D2D">shopee</text></svg>`,
+        logo: `<svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" aria-label="Shopee" role="img">
+          <!-- Ícone sacola Shopee -->
+          <path d="M4 14 L4 34 Q4 38 8 38 L28 38 Q32 38 32 34 L32 14 Z" fill="#EE4D2D"/>
+          <path d="M10 14 Q10 6 18 6 Q26 6 26 14" stroke="#EE4D2D" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M10 14 Q10 6 18 6 Q26 6 26 14" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M10 22 Q18 28 26 22" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Texto -->
+          <text x="38" y="27" font-family="Arial,sans-serif" font-size="22" font-weight="800" fill="#EE4D2D" letter-spacing="-0.5">shopee</text>
+        </svg>`,
       },
     ];
 
@@ -578,7 +598,7 @@ export default class HomePage {
         transform: translateY(-5px);
         box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
       }
-      .lp-market__logo { display: flex; align-items: center; }
+      .lp-market__logo { display: flex; align-items: center; min-height: 40px; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;
         color: var(--color-success, #22C55E);

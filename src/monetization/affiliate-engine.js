@@ -16,9 +16,9 @@ class AffiliateEngine {
       .trim()
       .replace(/\s+/g, '-');
     return {
-      amazon:       `https://www.amazon.com.br/s?k=${q}&tag=${this._config.amazon}&s=review-rank`,
-      mercadolivre: `https://lista.mercadolivre.com.br/${slug}`,
-      shopee:       `https://shopee.com.br/search?keyword=${q}&sortBy=sales`,
+      amazon:       `https://www.amazon.com.br/s?k=${q}&tag=${this._config.amazon}&s=review-rank&rh=p_72%3A19065857011`,
+      mercadolivre: `https://lista.mercadolivre.com.br/${slug}_OrderId_PRICE_ASC*`,
+      shopee:       `https://shopee.com.br/search?keyword=${q}&sortBy=sales&rating=4`,
     };
   }
 

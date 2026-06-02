@@ -1,5 +1,5 @@
 import '../css/main.css';
-import { stateManager, STORAGE_KEYS } from '../state/state-manager.js';
+import { stateManager, STORAGE_KEYS, ACTIONS } from '../state/state-manager.js';
 import { eventBus, EVENTS } from './event-bus.js';
 import { Router } from './router.js';
 import { Nav } from './nav.js';
@@ -165,6 +165,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // State is initialized in the StateManager constructor (_initializeState reads from localStorage).
   // Do NOT call hydrate() here — hydrate(undefined) merges with DEFAULT_STATE, wiping user data.
+
+  // C-1/M-2: Hydrate saved tier on boot so upgrades persist across reloads
+  const savedTier = StorageManager.getItem('suplilist:tier');
+  const VALID_TIERS = ['free', 'pro', 'elite'];
+  if (savedTier && VALID_TIERS.includes(savedTier)) {
+    stateManager.dispatch(ACTIONS.SET_TIER, { tier: savedTier });
+  }
 
   Nav.init();
   Nav.updateActive(window.location.pathname);

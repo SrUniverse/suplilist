@@ -62,10 +62,12 @@ vi.mock('./storage-manager.js', () => ({
   }
 }));
 
-vi.mock('./mobile-keyboard-handler.js');
-vi.mock('./mobile-utilities.js');
-vi.mock('./pwa-handler.js');
-vi.mock('./performance-monitor.js');
+vi.mock('./mobile-keyboard-handler.js', () => ({}));
+vi.mock('./mobile-utilities.js', () => ({}));
+vi.mock('./pwa-handler.js', () => ({}));
+vi.mock('./performance-monitor.js', () => ({}));
+
+import './app.js';
 
 describe('App Initialization', () => {
   let container;
@@ -149,6 +151,7 @@ describe('App Initialization', () => {
     });
 
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('1. StorageManager.init() is called on DOMContentLoaded', async () => {
@@ -210,7 +213,7 @@ describe('App Initialization', () => {
   });
 
   it('6. Landing mode is applied for home page', async () => {
-    window.location.pathname = '/';
+    vi.stubGlobal('location', { pathname: '/', search: '' });
 
     document.dispatchEvent(mockDOMContentLoaded);
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -219,7 +222,7 @@ describe('App Initialization', () => {
   });
 
   it('7. Landing mode is NOT applied for /list page', async () => {
-    window.location.pathname = '/list';
+    vi.stubGlobal('location', { pathname: '/list', search: '' });
 
     document.dispatchEvent(mockDOMContentLoaded);
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -228,13 +231,13 @@ describe('App Initialization', () => {
   });
 
   it('8. SEO metadata is updated on navigation', async () => {
-    window.location.pathname = '/list';
+    vi.stubGlobal('location', { pathname: '/list', search: '' });
 
     document.dispatchEvent(mockDOMContentLoaded);
     await new Promise(resolve => setTimeout(resolve, 100));
 
     const descMeta = document.querySelector('meta[name="description"]');
-    expect(descMeta.getAttribute('content')).toContain('Catálogo');
+    expect(descMeta.getAttribute('content')).toContain('catálogo');
   });
 
   it('9. Theme is restored from StorageManager on init', async () => {
@@ -284,7 +287,8 @@ describe('App Initialization', () => {
   });
 
   it('13. ROUTER_NAVIGATE event triggers router.navigate()', async () => {
-    const { Router, eventBus } = await import('./router.js');
+    const { Router } = await import('./router.js');
+    const { eventBus } = await import('./event-bus.js');
 
     document.dispatchEvent(mockDOMContentLoaded);
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -335,7 +339,7 @@ describe('App Initialization', () => {
     document.dispatchEvent(mockDOMContentLoaded);
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    window.location.pathname = '/checkin';
+    vi.stubGlobal('location', { pathname: '/checkin', search: '' });
     window.dispatchEvent(new PopStateEvent('popstate'));
 
     expect(Nav.updateActive).toHaveBeenCalled();

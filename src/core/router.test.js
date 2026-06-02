@@ -23,6 +23,19 @@ vi.mock('../utils/logger.js', () => ({
   }
 }));
 
+beforeEach(() => {
+  vi.stubGlobal('location', {
+    pathname: '/',
+    search: '',
+    hash: '',
+    origin: 'https://suplilist.com'
+  });
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe('Router — Basic Navigation', () => {
   let router;
   let container;
@@ -35,7 +48,7 @@ describe('Router — Basic Navigation', () => {
 
     // Mock window.history
     window.history.pushState = vi.fn();
-    window.dispatchEvent = vi.fn();
+    vi.spyOn(window, 'dispatchEvent');
 
     // Create router with test routes
     const routes = [
@@ -118,7 +131,7 @@ describe('Router — Route Parameters', () => {
     document.body.appendChild(container);
 
     window.history.pushState = vi.fn();
-    window.dispatchEvent = vi.fn();
+    vi.spyOn(window, 'dispatchEvent');
 
     const routes = [
       { path: '/supplement/:id', load: () => Promise.resolve({ default: MockPage }) },
@@ -207,13 +220,15 @@ describe('Router — Page Lifecycle', () => {
     document.body.appendChild(container);
 
     window.history.pushState = vi.fn();
-    window.dispatchEvent = vi.fn();
+    vi.spyOn(window, 'dispatchEvent');
 
     // Mock page class
-    PageClass = vi.fn((el, params) => ({
-      mount: vi.fn().mockResolvedValue(undefined),
-      unmount: vi.fn().mockResolvedValue(undefined)
-    }));
+    PageClass = vi.fn().mockImplementation(function() {
+      return {
+        mount: vi.fn().mockResolvedValue(undefined),
+        unmount: vi.fn().mockResolvedValue(undefined)
+      };
+    });
 
     const routes = [
       {
@@ -265,7 +280,7 @@ describe('Router — Stale Navigation Prevention (Token System)', () => {
     document.body.appendChild(container);
 
     window.history.pushState = vi.fn();
-    window.dispatchEvent = vi.fn();
+    vi.spyOn(window, 'dispatchEvent');
 
     const slowPage = {
       load: () => new Promise(resolve => {
@@ -375,13 +390,13 @@ describe('Router — Cleanup', () => {
   });
 
   it('19. destroy() removes popstate listener', () => {
-    const listener = vi.fn();
-    window.addEventListener('popstate', listener);
+    const handleRouteSpy = vi.spyOn(router, 'handleRoute');
 
     router.destroy();
 
     window.dispatchEvent(new PopStateEvent('popstate'));
-    expect(listener).not.toHaveBeenCalled();
+    expect(handleRouteSpy).not.toHaveBeenCalled();
+    handleRouteSpy.mockRestore();
   });
 
   it('20. start() calls handleRoute()', async () => {

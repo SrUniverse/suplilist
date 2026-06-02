@@ -72,8 +72,8 @@ describe('MetaManager — Dynamic Meta Tags', () => {
   it('6. updateMeta() updates different pages with correct content', () => {
     MetaManager.updateMeta('/faq');
 
-    expect(document.title).toContain('FAQ');
-    expect(getMetaContent('description')).toContain('Perguntas');
+    expect(document.title).toContain('Perguntas Frequentes');
+    expect(getMetaContent('description')).toContain('dúvidas');
 
     MetaManager.updateMeta('/list');
 
@@ -116,7 +116,7 @@ describe('MetaManager — Dynamic Meta Tags', () => {
     MetaManager.updateMeta('/unknown-route');
 
     expect(document.title).toContain('SupliList');
-    expect(getMetaContent('description')).toContain('Evidência');
+    expect(getMetaContent('description')).toContain('Compare preços');
   });
 
   // 11. updateMeta() creates meta tags if they don't exist

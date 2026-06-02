@@ -1,13 +1,32 @@
-import{S as n}from"./stack-recommender-De9B_8gK.js";import{e as i}from"./escape-Br5wU8qn.js";import"./main-BbCNeYDc.js";class g{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents()}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const r=a.target.closest("[data-nav]");if(r){a.preventDefault();const t=r.getAttribute("data-nav");t&&t.startsWith("/")&&(window.history.pushState(null,null,t),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const l=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:l?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=n.length,r=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],t=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=[{name:"Amazon",color:"#FF9900",logo:'<svg width="90" height="28" viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#FF9900">amazon</text></svg>'},{name:"Mercado Livre",color:"#FFE600",logo:'<svg width="110" height="28" viewBox="0 0 110 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#FFE600">Mercado Livre</text></svg>'},{name:"Shopee",color:"#EE4D2D",logo:'<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#EE4D2D">shopee</text></svg>'}];return`
+import{S as n}from"./stack-recommender-DZBCs9MK.js";import{e as i}from"./escape-Br5wU8qn.js";import{S as s}from"./schema-manager-DpTEqGGv.js";import"./main-8KErQew8.js";class x{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents();const a=s.createWebApplicationSchema();s.insertSchema(a)}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const r=a.target.closest("[data-nav]");if(r){a.preventDefault();const t=r.getAttribute("data-nav");t&&t.startsWith("/")&&(window.history.pushState(null,null,t),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const l=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:l?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=n.length,r=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],t=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=[{name:"Amazon",color:"#FF9900",logo:`<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
+          <text x="0" y="26" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#FF9900" letter-spacing="-1">amazon</text>
+          <path d="M8 33 C22 40 52 40 66 33" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M63 30 L67 33 L62 36" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`},{name:"Mercado Livre",color:"#FFE600",logo:`<svg width="160" height="40" viewBox="0 0 160 40" xmlns="http://www.w3.org/2000/svg" aria-label="Mercado Livre" role="img">
+          <!-- Ícone carrinho ML -->
+          <path d="M4 8 L8 8 L12 24 L32 24 L36 12 L10 12" stroke="#3483FA" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 30 A2 2 0 1 0 14.01 30" stroke="#3483FA" stroke-width="2.5" fill="#3483FA"/>
+          <path d="M28 30 A2 2 0 1 0 28.01 30" stroke="#3483FA" stroke-width="2.5" fill="#3483FA"/>
+          <!-- Texto -->
+          <text x="42" y="18" font-family="Arial,sans-serif" font-size="13" font-weight="800" fill="#FFE600">Mercado</text>
+          <text x="42" y="34" font-family="Arial,sans-serif" font-size="13" font-weight="800" fill="#3483FA">Livre</text>
+        </svg>`},{name:"Shopee",color:"#EE4D2D",logo:`<svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" aria-label="Shopee" role="img">
+          <!-- Ícone sacola Shopee -->
+          <path d="M4 14 L4 34 Q4 38 8 38 L28 38 Q32 38 32 34 L32 14 Z" fill="#EE4D2D"/>
+          <path d="M10 14 Q10 6 18 6 Q26 6 26 14" stroke="#EE4D2D" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M10 14 Q10 6 18 6 Q26 6 26 14" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M10 22 Q18 28 26 22" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Texto -->
+          <text x="38" y="27" font-family="Arial,sans-serif" font-size="22" font-weight="800" fill="#EE4D2D" letter-spacing="-0.5">shopee</text>
+        </svg>`}];return`
       <div class="lp-root">
 
         <nav class="lp-nav" aria-label="Navegação principal">
           <div class="lp-nav__inner">
             <a class="lp-logo" data-nav="/home" href="/home" aria-label="SupliList — início">SupliList</a>
             <div class="lp-nav__actions">
-              <a class="lp-nav__ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener noreferrer" aria-label="Instagram SupliList">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-                @suplilist
+              <a class="lp-nav__ig" href="https://www.instagram.com/suplilist/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @suplilist">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               </a>
               <button class="lp-btn lp-btn--primary lp-btn--sm" data-nav="/list" type="button">
                 Entrar no App →
@@ -271,9 +290,9 @@ import{S as n}from"./stack-recommender-De9B_8gK.js";import{e as i}from"./escape-
       }
       .lp-hero__title {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
-        font-size: clamp(36px, 8vw, 112px); line-height: 1.02;
+        font-size: clamp(36px, 4.5vw, 64px); line-height: 1.05;
         letter-spacing: -0.04em; margin: 0 0 28px;
-        overflow-wrap: break-word; word-break: break-word;
+        overflow-wrap: break-word;
       }
       .lp-accent { color: var(--color-brand, #7C3AED); }
       .lp-hero__sub {
@@ -424,7 +443,7 @@ import{S as n}from"./stack-recommender-De9B_8gK.js";import{e as i}from"./escape-
         transform: translateY(-5px);
         box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
       }
-      .lp-market__logo { display: flex; align-items: center; }
+      .lp-market__logo { display: flex; align-items: center; min-height: 40px; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;
         color: var(--color-success, #22C55E);
@@ -614,4 +633,4 @@ import{S as n}from"./stack-recommender-De9B_8gK.js";import{e as i}from"./escape-
         .lp-btn--primary:hover { transform: none; }
         .lp-mock-card:hover { transform: none; }
       }
-    `,document.head.appendChild(a),this._styleEl=a}}export{g as default};
+    `,document.head.appendChild(a),this._styleEl=a}}export{x as default};

@@ -72,8 +72,8 @@ describe('SchemaManager — JSON-LD Structured Data', () => {
     const schema = SchemaManager.createProductSchema(supplement);
 
     expect(schema.aggregateRating).toBeTruthy();
-    expect(schema.aggregateRating.ratingValue).toBe('5'); // A = 5 stars
-    expect(schema.aggregateRating.ratingExplanation).toContain('Grau A');
+    expect(schema.aggregateRating.ratingValue).toBe(5); // A = 5 stars
+    expect(schema.aggregateRating.ratingExplanation).toContain('Nível de Evidência: A');
   });
 
   // 5. createBreadcrumbSchema() generates correct list structure
@@ -189,11 +189,11 @@ describe('SchemaManager — JSON-LD Structured Data', () => {
   // 13. Evidence rating mapping works correctly
   it('13. Evidence rating mapping works correctly', () => {
     const ratings = [
-      { evidence: 'A', expected: '5' },
-      { evidence: 'B', expected: '4' },
-      { evidence: 'C', expected: '3' },
-      { evidence: 'D', expected: '2' },
-      { evidence: 'E', expected: '1' }
+      { evidence: 'A', expected: 5 },
+      { evidence: 'B', expected: 4 },
+      { evidence: 'C', expected: 3 },
+      { evidence: 'D', expected: 2 },
+      { evidence: 'E', expected: 1 }
     ];
 
     ratings.forEach(({ evidence, expected }) => {

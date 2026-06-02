@@ -6,12 +6,19 @@ class AffiliateEngine {
     this._config = config;
   }
 
-  getLinks(supplementName) {
+  getLinks(supplementName, supplementId = null) {
     const q = encodeURIComponent(supplementName);
+    const slug = supplementId || supplementName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
     return {
-      amazon:       `https://www.amazon.com.br/s?k=${q}&tag=${this._config.amazon}`,
-      mercadolivre: `https://www.mercadolivre.com.br/jm/search?as_word=${q}&partner_id=${this._config.mercadolivre}`,
-      shopee:       `https://shopee.com.br/search?keyword=${q}&af_id=${this._config.shopee}`,
+      amazon:       `https://www.amazon.com.br/s?k=${q}&tag=${this._config.amazon}&s=review-rank`,
+      mercadolivre: `https://lista.mercadolivre.com.br/${slug}`,
+      shopee:       `https://shopee.com.br/search?keyword=${q}&sortBy=sales`,
     };
   }
 

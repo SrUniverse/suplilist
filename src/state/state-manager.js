@@ -229,14 +229,13 @@ function reducer(state, action) {
         }
       };
 
-    case ACTIONS.SET_TIER:
-      return {
-        ...state,
-        user: {
-          ...state.user,
-          tier: action.payload.tier
-        }
-      };
+    case ACTIONS.SET_TIER: {
+      const VALID_TIERS = ['free', 'pro', 'elite'];
+      const tier = VALID_TIERS.includes(action.payload?.tier)
+        ? action.payload.tier
+        : state.user.tier;
+      return { ...state, user: { ...state.user, tier } };
+    }
 
     case ACTIONS.SET_ROUTE:
       return {

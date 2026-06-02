@@ -1,6 +1,7 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { StorageManager } from '../core/storage-manager.js';
 import NotificationService from '../features/notifications/notification-service.js';
+import { CheckoutModal } from '../features/premium/checkout-modal.js';
 
 export default class SettingsPage {
   constructor(container, params) {
@@ -11,11 +12,25 @@ export default class SettingsPage {
 
   mount() {
     this._injectStyles();
+    const state = stateManager.getState();
+    this._lastTier = state.user?.tier ?? 'free';
     this.container.innerHTML = this._render();
     this._bindEvents();
+    this._unsubscribe = stateManager.subscribe(() => {
+      const newState = stateManager.getState();
+      const newTier = newState.user?.tier ?? 'free';
+      if (newTier === this._lastTier) return;
+      this._lastTier = newTier;
+      const subSection = this.container.querySelector('.sp-subscription-section');
+      if (subSection) {
+        subSection.outerHTML = `<div class="sp-subscription-section">${this._renderSubscriptionSection(newTier)}</div>`;
+        this._bindSubscriptionEvents();
+      }
+    });
   }
 
   unmount() {
+    this._unsubscribe?.();
     this.container.innerHTML = '';
   }
 
@@ -272,10 +287,72 @@ export default class SettingsPage {
     `;
   }
 
+  _renderSubscriptionSection(tier) {
+    if (tier === 'free') {
+      return `
+        <div class="sp-card" style="border: 1px dashed rgba(124, 58, 237, 0.4); background: rgba(124, 58, 237, 0.02);">
+          <h2 class="sp-section-label" style="color: var(--color-brand); margin-bottom: 12px;">Assinatura Premium</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px;">Plano Atual: Gratuito 🟢</div>
+              <p style="font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0 0; max-width: 340px; line-height: 1.45;">Desbloqueie consistência avançada, remova anúncios e baixe relatórios em Excel.</p>
+            </div>
+            <button class="sp-btn" id="sp-upgrade-btn" style="background: var(--color-brand); color: #fff; border: none; font-weight: 700; height: 38px; border-radius: 8px; box-shadow: 0 4px 12px rgba(124,58,237,0.25); cursor: pointer; padding: 0 20px;">Quero Premium</button>
+          </div>
+        </div>
+      `;
+    }
+    const planName = tier === 'elite' ? 'ELITE 🏆' : 'PRO ⭐';
+    return `
+      <div class="sp-card" style="border: 1px solid rgba(34, 197, 94, 0.4); background: rgba(34, 197, 94, 0.02);">
+        <h2 class="sp-section-label" style="color: #22c55e; margin-bottom: 12px;">Minha Assinatura</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--color-text-primary);">Plano Ativo: SupliList ${planName}</div>
+            <p style="font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0 0; max-width: 320px; line-height: 1.45;">Seu acesso premium está ativo. Obrigado por apoiar o SupliList!</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="sp-btn sp-btn-outline" id="sp-manage-plan-btn" style="height: 38px; padding: 0 16px;">Alterar</button>
+            <button class="sp-btn" id="sp-cancel-plan-btn" style="border: 1.5px solid var(--color-error); color: var(--color-error); background: transparent; font-weight: 600; height: 38px; border-radius: 8px; cursor: pointer; padding: 0 16px;">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  _bindSubscriptionEvents() {
+    const upgradeBtn = this.container.querySelector('#sp-upgrade-btn');
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', () => {
+        CheckoutModal.show({ tier: 'pro' });
+      });
+    }
+
+    const manageBtn = this.container.querySelector('#sp-manage-plan-btn');
+    if (manageBtn) {
+      manageBtn.addEventListener('click', () => {
+        CheckoutModal.show({ tier: 'elite' });
+      });
+    }
+
+    const cancelBtn = this.container.querySelector('#sp-cancel-plan-btn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        if (confirm('Deseja realmente cancelar sua assinatura Premium? Você perderá acesso aos anúncios removidos e análises de gráficos.')) {
+          stateManager.dispatch(ACTIONS.SET_TIER, { tier: 'free' });
+          StorageManager.setItem('suplilist:tier', 'free');
+          alert('Sua assinatura foi cancelada e sua conta retornou ao plano gratuito.');
+        }
+      });
+    }
+  }
+
   _render() {
     const isDark = this._getThemeState();
     const notifCheckin = this._getBoolPref('suplilist:notif-checkin');
     const notifRestock = this._getBoolPref('suplilist:notif-restock');
+    const state = stateManager.getState();
+    const tier = state.user?.tier ?? 'free';
 
     return `
       <div class="sp-page">
@@ -285,6 +362,9 @@ export default class SettingsPage {
           <h1>Configurações</h1>
           <p>Preferências do app, dados e privacidade</p>
         </div>
+
+        <!-- Assinatura -->
+        <div class="sp-subscription-section">${this._renderSubscriptionSection(tier)}</div>
 
         <!-- Aparência -->
         <div class="sp-card">
@@ -359,6 +439,8 @@ export default class SettingsPage {
   }
 
   _bindEvents() {
+    this._bindSubscriptionEvents();
+
     // Theme toggle
     const themeToggle = this.container.querySelector('#sp-theme-toggle');
     if (themeToggle) {

@@ -427,7 +427,9 @@ export default class SettingsPage {
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
         if (!confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.')) return;
-        localStorage.clear();
+        Object.keys(localStorage)
+          .filter(k => k.startsWith('suplilist'))
+          .forEach(k => localStorage.removeItem(k));
         location.reload();
       });
     }

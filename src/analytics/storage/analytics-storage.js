@@ -115,7 +115,7 @@ export class AnalyticsStorage {
     return new Promise((resolve, reject) => {
       const tx = this.#db.transaction([STORES.EVENTS], 'readwrite');
       const store = tx.objectStore(STORES.EVENTS);
-      const request = store.add(event);
+      const request = store.put(event);
 
       request.onerror = () => {
         logger.error('[AnalyticsStorage] addEvent failed:', request.error);

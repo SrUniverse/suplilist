@@ -46,12 +46,16 @@ function calcMonthlyInvestment(stack) {
 
 function calcAdherenceRate(stack) {
   if (!stack.length) return '0%';
-  const days = [];
-  for (let i = 0; i < 7; i++) days.push(offsetISO(i));
   const checkins = stateManager.checkins ?? [];
-  const checkinDays = new Set(checkins.map(c => c.date));
-  const daysHit = days.filter(d => checkinDays.has(d)).length;
-  return Math.round((daysHit / 7) * 100) + '%';
+  const stackIds = new Set(stack.map(item => item.supplementId ?? item.id));
+  let completeDays = 0;
+  for (let i = 0; i < 7; i++) {
+    const day = offsetISO(i);
+    const dayIds = new Set(checkins.filter(c => c.date === day).map(c => c.supplementId));
+    const allChecked = [...stackIds].every(id => dayIds.has(id));
+    if (allChecked) completeDays++;
+  }
+  return Math.round((completeDays / 7) * 100) + '%';
 }
 
 function getSupplementImage(item) {

@@ -83,7 +83,7 @@ export class SessionTracker {
 
     const sessionData = this.getSessionData();
     await analyticsStorage.addEvent({
-      eventId: `session-end-${this.#sessionId}`,
+      eventId: `session-end-${this.#sessionId}-${Date.now()}`,
       eventName: 'analytics:sessionEnded',
       payload: sessionData,
       sessionId: this.#sessionId,

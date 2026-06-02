@@ -55,25 +55,18 @@ export default class FavoritesPage {
     this.container = container;
     this._activeGoal = 'all';
     this._sortKey = 'evidence';
-    this._handleStorageChange = this._onStorageChange.bind(this);
+    this._unsub = null;
   }
 
   mount() {
     this._injectStyles();
-    window.removeEventListener('storage', this._handleStorageChange);
-    window.addEventListener('storage', this._handleStorageChange);
+    this._unsub = stateManager.subscribe(() => this._render());
     this._render();
   }
 
   unmount() {
-    window.removeEventListener('storage', this._handleStorageChange);
+    this._unsub?.();
     this.container.innerHTML = '';
-  }
-
-  _onStorageChange(e) {
-    if (e.key === STORAGE_KEYS.STATE) {
-      this._render();
-    }
   }
 
   _getFavoriteSupplements() {

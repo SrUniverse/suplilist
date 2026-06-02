@@ -772,19 +772,14 @@ export class StateManager {
     }
 
     let streak = 0;
-    let currentCheckDate = new Date(dates[0]);
-
     for (let i = 0; i < dates.length; i++) {
-      const checkDate = new Date(dates[i]);
-      const diffTime = Math.abs(currentCheckDate - checkDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (i === 0 || diffDays <= 1) {
-        streak++;
-        currentCheckDate = checkDate;
-      } else {
-        break; // gap found, streak broken
-      }
+      if (i === 0) { streak++; continue; }
+      const prev = dates[i - 1];
+      const curr = dates[i];
+      const d = new Date(curr + 'T12:00:00');
+      d.setDate(d.getDate() + 1);
+      const expected = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      if (prev === expected) { streak++; } else { break; }
     }
     return streak;
   }

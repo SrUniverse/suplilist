@@ -9,6 +9,8 @@ import './mobile-keyboard-handler.js';
 import './mobile-utilities.js';
 import './pwa-handler.js';
 import './performance-monitor.js';
+import NotificationService from '../features/notifications/notification-service.js';
+
 
 const routes = [
   { path: '/onboarding', load: () => import('../pages/onboarding-page.js') },
@@ -284,6 +286,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // L3 notifications and streak tracking integration
+  const notifService = new NotificationService();
+  
+  // Initial check on app startup
+  try {
+    notifService.checkAndTriggerDailyReminder(stateManager.state);
+    notifService.checkAndTriggerLowStockAlerts(stateManager.state);
+  } catch (err) {
+    console.error('[App] Initial notifications check failed:', err);
+  }
+
+  // Subscribe to state changes to handle streak milestones and low-stock alerts dynamically
+  stateManager.subscribe((state, action) => {
+    try {
+      notifService.checkAndTriggerStreakMilestones(state);
+      if (action && (action.type?.includes('CHECKIN') || action.type?.includes('STACK') || action.type?.includes('QUANTITY'))) {
+        notifService.checkAndTriggerLowStockAlerts(state);
+      }
+    } catch (err) {
+      console.error('[App] Notification subscriber error:', err);
+    }
+  });
+
   // Flush analytics before page unload
   window.addEventListener('beforeunload', () => {
     if (analyticsEngine.isInitialized()) {
@@ -296,3 +321,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
+

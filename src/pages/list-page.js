@@ -19,6 +19,11 @@ function sanitizeUrl(url) {
   }
 }
 
+// Retorna true quando a URL aponta para um produto específico (não busca genérica)
+function isProductUrl(url) {
+  return /amzn\.to\/|amazon\.com\.br\/dp\/|meli\.la\/|shope\.ee\//.test(url ?? '');
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const CATEGORIES = ['Todos', 'Performance', 'Proteínas', 'Vitaminas', 'Adaptógenos', 'Hormônios', 'Cognição', 'Antioxidantes', 'Sono', 'Saúde Geral'];
@@ -969,7 +974,7 @@ export default class ListPage {
           <div style="display:flex;align-items:center;gap:8px;">
             ${store.saving ? `<span class="lp-price-saving">-R$ ${escapeHtml(String(store.saving))}</span>` : ''}
             <a class="lp-price-link"
-               href="${sanitizeUrl(store.url || affLinks[storeKey])}"
+               href="${sanitizeUrl(isProductUrl(store.url) ? store.url : affLinks[storeKey])}"
                target="_blank"
                rel="noopener noreferrer"
                data-aff-id="${escapeHtml(item.id)}"

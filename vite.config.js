@@ -15,6 +15,7 @@ export default defineConfig({
       srcDir: '.',
       filename: 'service-worker.js',
       registerType: 'autoUpdate',
+      injectRegister: 'script-defer',
       manifestFilename: 'manifest.json',
       injectManifest: {
         globPatterns: [

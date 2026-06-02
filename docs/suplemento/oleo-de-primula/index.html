@@ -126,8 +126,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://plausible.io">
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" as="style">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  </noscript>
 
   <!-- Privacy-friendly analytics by Plausible -->
   <script defer data-domain="suplilist.com" src="https://plausible.io/js/script.manual.js"></script>
@@ -401,7 +405,7 @@
 
   <script type="module" crossorigin src="/assets/js/main-CflUif-F.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/css/main-BrH4S3Do.css">
-<link rel="manifest" href="/manifest.json"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script>
+<link rel="manifest" href="/manifest.json"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js" defer></script>
   <script>
     // Se o JS da SPA inicializar, redireciona o usuário para abrir o catálogo focado neste item
     sessionStorage.setItem('spa-redirect', 'list?id=oleo-de-primula');

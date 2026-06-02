@@ -57,13 +57,19 @@ input,
 select,
 button {
   appearance: none;
-  outline: none;
   border: 1px solid var(--border-light);
   background-color: var(--bg-dark);
   color: var(--t1);
   border-radius: 8px;
   font-family: inherit;
   transition: all 0.2s ease;
+}
+
+/* Suprimir outline apenas para usuários de mouse — não remove para teclado */
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
 }
 
 input:focus,

@@ -8,8 +8,12 @@ export class Router {
     this.currentPage = null;
     // P8: token incrementado a cada navegação; descarta loads de navegações antigas
     this._navigationToken = 0;
+    this._popstateHandler = () => this.handleRoute();
+    window.addEventListener('popstate', this._popstateHandler);
+  }
 
-    window.addEventListener('popstate', () => this.handleRoute());
+  destroy() {
+    window.removeEventListener('popstate', this._popstateHandler);
   }
 
   start() {

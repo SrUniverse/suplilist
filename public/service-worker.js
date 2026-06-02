@@ -16,7 +16,6 @@ const IMAGE_CACHE = `${CACHE_VERSION}-images`;
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/src/css/design-system.css',
   '/offline.html',
   '/icon-192.png',
   '/icon-512.png',

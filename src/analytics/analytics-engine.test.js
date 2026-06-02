@@ -1,8 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { analyticsEngine, AnalyticsEngine } from './analytics-engine.js';
+import { eventBus, EVENTS } from '../core/event-bus.js';
+import { eventPipeline } from './event-pipeline.js';
+import { sessionManager } from './session-tracker.js';
+import { metricsAggregator } from './metrics-aggregator.js';
+import { analyticsStorage } from './storage/analytics-storage.js';
+import { funnelEngine } from './funnel-engine.js';
+import { logger } from '../utils/logger.js';
+import { StorageManager } from '../core/storage-manager.js';
 
-let mockEvents = [];
-let queuedEvents = [];
-
+// Mock all internal subsystems
 vi.mock('../core/event-bus.js', async (importOriginal) => {
   const actual = await importOriginal();
   return {
@@ -17,456 +24,289 @@ vi.mock('../core/event-bus.js', async (importOriginal) => {
 
 vi.mock('../core/storage-manager.js', () => ({
   StorageManager: {
-    init: vi.fn().mockResolvedValue(undefined),
-    getItem: vi.fn().mockReturnValue(''),
-    setItem: vi.fn(),
-    removeItem: vi.fn()
-  }
-}));vi.mock('./storage/analytics-storage.js', () => ({
-  STORES: {
-    EVENTS: 'events',
-    METRICS: 'metrics',
-    SESSIONS: 'sessions',
-    FUNNELS: 'funnels',
-    AFFILIATE_CLICKS: 'affiliate_clicks'
-  },
-  analyticsStorage: {
-    init: vi.fn().mockResolvedValue(undefined),
-    getEvents: vi.fn(async () => mockEvents),
-    getEventsByName: vi.fn(async (name) => mockEvents.filter(e => e.eventName === name)),
-    getEventsBySessionId: vi.fn(async (id) => mockEvents.filter(e => e.sessionId === id)),
-    getEventsBetween: vi.fn(async (start, end) => mockEvents.filter(e => e.timestamp >= start && e.timestamp <= end)),
-    exportAllData: vi.fn(async () => ({ events: mockEvents })),
-    clearAll: vi.fn(async () => { mockEvents = []; }),
-    addEvent: vi.fn(async (event) => { mockEvents.push(event); })
+    getItem: vi.fn().mockReturnValue('state-dummy-v4')
   }
 }));
 
-describe('AnalyticsEngine — User Tracking', () => {
-  let analyticsEngine;
+vi.mock('./storage/analytics-storage.js', () => ({
+  analyticsStorage: {
+    init: vi.fn().mockResolvedValue(undefined),
+    getEvents: vi.fn().mockResolvedValue([]),
+    getEventsByName: vi.fn().mockResolvedValue([]),
+    getEventsBySessionId: vi.fn().mockResolvedValue([]),
+    getEventsBetween: vi.fn().mockResolvedValue([]),
+    exportAllData: vi.fn().mockResolvedValue({}),
+    clearAll: vi.fn().mockResolvedValue(undefined)
+  }
+}));
 
-  beforeEach(async () => {
+vi.mock('./event-pipeline.js', () => ({
+  eventPipeline: {
+    init: vi.fn().mockResolvedValue(undefined),
+    getSessionId: vi.fn().mockReturnValue('session-123-abc'),
+    getStats: vi.fn().mockReturnValue({
+      eventsProcessed: 10,
+      eventsFailed: 0,
+      eventsDeduped: 1,
+      bufferSize: 0
+    }),
+    flush: vi.fn().mockResolvedValue(undefined),
+    reset: vi.fn().mockResolvedValue(undefined)
+  }
+}));
+
+vi.mock('./session-tracker.js', () => ({
+  sessionManager: {
+    getOrStartSession: vi.fn(),
+    recordActivity: vi.fn(),
+    getCurrentSessionData: vi.fn().mockReturnValue({ duration: 150 }),
+    endCurrentSession: vi.fn().mockResolvedValue(undefined),
+    getAllSessionData: vi.fn().mockReturnValue([])
+  }
+}));
+
+vi.mock('./metrics-aggregator.js', () => ({
+  metricsAggregator: {
+    getDAU: vi.fn().mockResolvedValue(5),
+    getWAU: vi.fn().mockResolvedValue(20),
+    getMAU: vi.fn().mockResolvedValue(50),
+    getRetention: vi.fn().mockResolvedValue({}),
+    getRetentionCurve: vi.fn().mockResolvedValue([]),
+    getFunnelConversion: vi.fn().mockResolvedValue({}),
+    getMetricsForDate: vi.fn().mockResolvedValue({}),
+    getTopEvents: vi.fn().mockResolvedValue([]),
+    getAffiliateStats: vi.fn().mockResolvedValue({}),
+    getMarketplaceComparison: vi.fn().mockResolvedValue([]),
+    getTopSupplements: vi.fn().mockResolvedValue([]),
+    estimateLTV: vi.fn().mockResolvedValue({}),
+    getCohortLTV: vi.fn().mockResolvedValue({}),
+    compareSegments: vi.fn().mockResolvedValue([]),
+    clearCache: vi.fn()
+  }
+}));
+
+vi.mock('./funnel-engine.js', () => ({
+  funnelEngine: {
+    analyzeFunnel: vi.fn().mockResolvedValue({}),
+    compareFunnel: vi.fn().mockResolvedValue({}),
+    getFunnels: vi.fn().mockReturnValue([])
+  }
+}));
+
+describe('AnalyticsEngine — Orchestrator Suite', () => {
+  let engine;
+
+  beforeEach(() => {
     vi.clearAllMocks();
-    mockEvents = [];
-    queuedEvents = [];
-    const module = await import('./analytics-engine.js');
-    analyticsEngine = module.analyticsEngine;
-
-    // Stub missing methods for testing
-    let lastEventTime = 0;
-    let lastEventAction = '';
+    engine = new AnalyticsEngine();
     
-    analyticsEngine.trackPageView = (path, title) => {
-      const ev = { path, title, type: 'pageView', sessionId: analyticsEngine.getSessionId(), timestamp: Date.now() };
-      queuedEvents.push(ev);
-    };
-    
-    analyticsEngine.trackEvent = (payload) => {
-      const now = Date.now();
-      if (payload.action === lastEventAction && now - lastEventTime < 50) {
-        return; // deduplicate
-      }
-      lastEventAction = payload.action;
-      lastEventTime = now;
-      const ev = { ...payload, sessionId: analyticsEngine.getSessionId(), timestamp: now };
-      queuedEvents.push(ev);
-    };
-    
-    analyticsEngine.trackCheckin = (payload) => {
-      const ev = { ...payload, type: 'checkin', sessionId: analyticsEngine.getSessionId(), timestamp: Date.now() };
-      queuedEvents.push(ev);
-    };
-    
-    analyticsEngine.trackVital = (payload) => {
-      const ev = { ...payload, type: 'vital', sessionId: analyticsEngine.getSessionId(), timestamp: Date.now() };
-      queuedEvents.push(ev);
-    };
-    
-    analyticsEngine.trackException = (error) => {
-      const ev = { message: error.message, stack: error.stack, type: 'exception', sessionId: analyticsEngine.getSessionId(), timestamp: Date.now() };
-      queuedEvents.push(ev);
-    };
-    
-    analyticsEngine.trackConversion = (payload) => {
-      const ev = { ...payload, type: 'conversion', sessionId: analyticsEngine.getSessionId(), timestamp: Date.now() };
-      queuedEvents.push(ev);
-    };
-    
-    analyticsEngine.trackAffiliateClick = (payload) => {
-      const ev = { ...payload, type: 'affiliate_click', sessionId: analyticsEngine.getSessionId(), timestamp: Date.now() };
-      queuedEvents.push(ev);
-    };
-    
-    analyticsEngine.getEvents = () => {
-      return [...mockEvents, ...queuedEvents];
-    };
-    
-    analyticsEngine.getQueuedEvents = () => {
-      return queuedEvents;
-    };
-    
-    analyticsEngine.flush = async () => {
-      mockEvents.push(...queuedEvents);
-      queuedEvents = [];
-      try {
-        localStorage.setItem('suplilist:analytics', JSON.stringify(mockEvents));
-      } catch (err) {
-        // Safe catch
-      }
-      if (global.fetch) {
-        try {
-          await global.fetch();
-        } catch (err) {
-          setTimeout(async () => {
-            try {
-              await global.fetch();
-            } catch (_) {}
-          }, 1000);
-        }
-      }
-    };
-    
-    analyticsEngine.setPrivacy = (privacy) => {
-      analyticsEngine.privacy = privacy;
-      if (privacy.trackingDisabled) {
-        queuedEvents = [];
-        mockEvents = [];
-        analyticsEngine.trackPageView = () => {};
-        analyticsEngine.trackEvent = () => {};
-      }
-    };
-    
-    analyticsEngine.setConfig = (config) => {
-      analyticsEngine.config = config;
-      if (config.enabled === false) {
-        queuedEvents = [];
-        mockEvents = [];
-        analyticsEngine.trackPageView = () => {};
-        analyticsEngine.trackEvent = () => {};
-      }
-    };
-    
-    analyticsEngine.getDeviceInfo = () => {
-      return { os: 'MacJS', browser: 'ChromeJS', viewport: '1024x768' };
-    };
-
-    analyticsEngine.endSession = async () => {
-      return 150;
-    };
-
-    window.addEventListener('online', () => {
-      analyticsEngine.flush();
-    });
+    // Clear global API leaks
+    if (typeof window !== 'undefined') {
+      delete window.analyticsAPI;
+    }
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('1. init() sets up event listeners and initializes session', async () => {
-    await analyticsEngine.init();
+  it('1. init() registers EventBus handlers and exposes global window API', async () => {
+    expect(engine.isInitialized()).toBe(false);
 
-    expect(analyticsEngine.isInitialized?.()).toBe(true);
-  });
+    await engine.init();
 
-  it('2. Tracks page view with path and title', async () => {
-    await analyticsEngine.init();
+    expect(analyticsStorage.init).toHaveBeenCalled();
+    expect(eventPipeline.init).toHaveBeenCalled();
+    expect(sessionManager.getOrStartSession).toHaveBeenCalledWith('session-123-abc');
+    expect(engine.isInitialized()).toBe(true);
 
-    analyticsEngine.trackPageView?.('/list', 'Supplement List');
+    // Verify EventBus listeners were registered
+    expect(eventBus.on).toHaveBeenCalledWith(EVENTS.PROFILE_UPDATED, expect.any(Function));
+    expect(eventBus.on).toHaveBeenCalledWith(EVENTS.STACK_UPDATED, expect.any(Function));
+    expect(eventBus.on).toHaveBeenCalledWith(EVENTS.CHECKIN_LOGGED, expect.any(Function));
+    expect(eventBus.on).toHaveBeenCalledWith('*', expect.any(Function));
 
-    // Verify event was recorded
-    const events = analyticsEngine.getEvents?.();
-    const pageViewEvent = events?.find(e => e.type === 'pageView');
-
-    expect(pageViewEvent).toBeDefined();
-    expect(pageViewEvent?.path).toBe('/list');
-    expect(pageViewEvent?.title).toBe('Supplement List');
-  });
-
-  it('3. Tracks user action with category and label', async () => {
-    await analyticsEngine.init();
-
-    analyticsEngine.trackEvent?.({
-      category: 'stack',
-      action: 'add_supplement',
-      label: 'Whey Protein'
-    });
-
-    const events = analyticsEngine.getEvents?.();
-    const actionEvent = events?.find(e => e.action === 'add_supplement');
-
-    expect(actionEvent).toBeDefined();
-    expect(actionEvent?.category).toBe('stack');
-    expect(actionEvent?.label).toBe('Whey Protein');
-  });
-
-  it('4. Tracks check-in event with supplement ID', async () => {
-    await analyticsEngine.init();
-
-    analyticsEngine.trackCheckin?.(
-      { supplementId: 'whey-1', dosage: 30, unit: 'g' }
-    );
-
-    const events = analyticsEngine.getEvents?.();
-    const checkinEvent = events?.find(e => e.type === 'checkin');
-
-    expect(checkinEvent).toBeDefined();
-    expect(checkinEvent?.supplementId).toBe('whey-1');
-  });
-
-  it('5. Tracks session duration on endSession()', async () => {
-    await analyticsEngine.init();
-
-    // Simulate some activity
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    const duration = await analyticsEngine.endSession?.();
-
-    expect(duration).toBeGreaterThanOrEqual(100);
-  });
-
-  it('6. Tracks Core Web Vitals (LCP, FID, CLS)', async () => {
-    await analyticsEngine.init();
-
-    analyticsEngine.trackVital?.({
-      name: 'LCP',
-      value: 1500,
-      rating: 'good'
-    });
-
-    analyticsEngine.trackVital?.({
-      name: 'CLS',
-      value: 0.05,
-      rating: 'good'
-    });
-
-    const events = analyticsEngine.getEvents?.();
-    const vitals = events?.filter(e => e.type === 'vital');
-
-    expect(vitals?.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it('7. Tracks exception/error with message and stack', async () => {
-    await analyticsEngine.init();
-
-    try {
-      throw new Error('Test error');
-    } catch (error) {
-      analyticsEngine.trackException?.(error);
+    // Exposes global window API
+    if (typeof window !== 'undefined') {
+      expect(window.analyticsAPI).toBeDefined();
+      expect(window.analyticsAPI.health).toBeDefined();
     }
-
-    const events = analyticsEngine.getEvents?.();
-    const exceptionEvent = events?.find(e => e.type === 'exception');
-
-    expect(exceptionEvent).toBeDefined();
-    expect(exceptionEvent?.message).toContain('Test error');
   });
 
-  it('8. Batches events and sends on flush()', async () => {
-    await analyticsEngine.init();
+  it('2. getSessionId(), getCurrentSessionData(), and getPipelineStats() delegate to sub-systems', async () => {
+    await engine.init();
 
-    // Track multiple events
-    analyticsEngine.trackPageView?.('/home', 'Home');
-    analyticsEngine.trackEvent?.({ category: 'nav', action: 'navigate' });
+    expect(engine.getSessionId()).toBe('session-123-abc');
+    expect(eventPipeline.getSessionId).toHaveBeenCalled();
 
-    // Mock fetch for sending batch
-    global.fetch = vi.fn(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-    );
+    expect(engine.getCurrentSessionData()).toEqual({ duration: 150 });
+    expect(sessionManager.getCurrentSessionData).toHaveBeenCalled();
 
-    await analyticsEngine.flush?.();
-
-    expect(global.fetch).toHaveBeenCalled();
+    expect(engine.getPipelineStats()).toEqual({
+      eventsProcessed: 10,
+      eventsFailed: 0,
+      eventsDeduped: 1,
+      bufferSize: 0
+    });
+    expect(eventPipeline.getStats).toHaveBeenCalled();
   });
 
-  it('9. Respects user privacy: no tracking if opted out', async () => {
-    // Set no-tracking cookie/flag
-    analyticsEngine.setPrivacy?.({ trackingDisabled: true });
+  it('3. Metrics API methods delegate properly to metricsAggregator', async () => {
+    await engine.init();
 
-    await analyticsEngine.init();
+    await engine.getDAU('2026-06-01');
+    expect(metricsAggregator.getDAU).toHaveBeenCalledWith('2026-06-01');
 
-    analyticsEngine.trackPageView?.('/list', 'List');
+    await engine.getWAU(1);
+    expect(metricsAggregator.getWAU).toHaveBeenCalledWith(1);
 
-    const events = analyticsEngine.getEvents?.();
-    expect(events?.length ?? 0).toBe(0);
+    await engine.getMAU(0);
+    expect(metricsAggregator.getMAU).toHaveBeenCalledWith(0);
+
+    await engine.getRetention('2026-06-01', 7);
+    expect(metricsAggregator.getRetention).toHaveBeenCalledWith('2026-06-01', 7);
+
+    await engine.getRetentionCurve('2026-06-01');
+    expect(metricsAggregator.getRetentionCurve).toHaveBeenCalledWith('2026-06-01');
+
+    await engine.getFunnelConversion(['a', 'b'], '2026-06-01', '2026-06-02');
+    expect(metricsAggregator.getFunnelConversion).toHaveBeenCalledWith(['a', 'b'], '2026-06-01', '2026-06-02');
+
+    await engine.getMetricsForDate('2026-06-01');
+    expect(metricsAggregator.getMetricsForDate).toHaveBeenCalledWith('2026-06-01');
+
+    await engine.getTopEvents('2026-06-01', '2026-06-02', 5);
+    expect(metricsAggregator.getTopEvents).toHaveBeenCalledWith('2026-06-01', '2026-06-02', 5);
   });
 
-  it('10. Tracks user session ID and timestamp for all events', async () => {
-    await analyticsEngine.init();
+  it('4. Storage API methods delegate properly to analyticsStorage', async () => {
+    await engine.init();
 
-    const sessionId = analyticsEngine.getSessionId?.();
+    await engine.getEvents({ limit: 5 });
+    expect(analyticsStorage.getEvents).toHaveBeenCalledWith({ limit: 5 });
 
-    analyticsEngine.trackPageView?.('/home', 'Home');
+    await engine.getEventsByName('click');
+    expect(analyticsStorage.getEventsByName).toHaveBeenCalledWith('click');
 
-    const events = analyticsEngine.getEvents?.();
-    const event = events?.[0];
+    await engine.getEventsBySessionId('session-xyz');
+    expect(analyticsStorage.getEventsBySessionId).toHaveBeenCalledWith('session-xyz');
 
-    expect(event?.sessionId).toBe(sessionId);
-    expect(event?.timestamp).toBeDefined();
-    expect(typeof event?.timestamp).toBe('number');
+    await engine.getEventsBetween(100, 200);
+    expect(analyticsStorage.getEventsBetween).toHaveBeenCalledWith(100, 200);
+
+    await engine.exportAllData();
+    expect(analyticsStorage.exportAllData).toHaveBeenCalled();
   });
 
-  it('11. Tracks device info: OS, browser, viewport', async () => {
-    await analyticsEngine.init();
+  it('5. Management and Funnel APIs delegate properly to sub-systems', async () => {
+    await engine.init();
 
-    const deviceInfo = analyticsEngine.getDeviceInfo?.();
+    await engine.flush();
+    expect(eventPipeline.flush).toHaveBeenCalled();
 
-    expect(deviceInfo?.os).toBeDefined();
-    expect(deviceInfo?.browser).toBeDefined();
-    expect(deviceInfo?.viewport).toBeDefined();
+    await engine.endSession();
+    expect(sessionManager.endCurrentSession).toHaveBeenCalled();
+
+    await engine.analyzeFunnel('onboarding', '2026-06-01', '2026-06-02');
+    expect(funnelEngine.analyzeFunnel).toHaveBeenCalledWith('onboarding', '2026-06-01', '2026-06-02');
+
+    await engine.compareFunnels('onboarding', 'a', 'b', 'c', 'd');
+    expect(funnelEngine.compareFunnel).toHaveBeenCalledWith('onboarding', 'a', 'b', 'c', 'd');
+
+    engine.getFunnels();
+    expect(funnelEngine.getFunnels).toHaveBeenCalled();
   });
 
-  it('12. Implements exponential backoff on fetch failure', async () => {
-    await analyticsEngine.init();
+  it('6. Business metrics (Affiliate clicks & LTV) delegate properly', async () => {
+    await engine.init();
 
-    global.fetch = vi.fn()
-      .mockRejectedValueOnce(new Error('Network error'))
-      .mockResolvedValueOnce({ ok: true });
+    await engine.getAffiliateStats('amazon', '2026-06-01', '2026-06-02');
+    expect(metricsAggregator.getAffiliateStats).toHaveBeenCalledWith('amazon', '2026-06-01', '2026-06-02');
 
-    // First flush fails, retry happens automatically
-    analyticsEngine.flush?.();
+    await engine.getMarketplaceComparison('2026-06-01', '2026-06-02');
+    expect(metricsAggregator.getMarketplaceComparison).toHaveBeenCalledWith('2026-06-01', '2026-06-02');
 
-    await new Promise(resolve => setTimeout(resolve, 1100)); // Wait for backoff
+    await engine.getTopAffiliateSupplements(5);
+    expect(metricsAggregator.getTopSupplements).toHaveBeenCalledWith(null, 5);
 
-    // Should retry
-    expect(global.fetch.mock.calls.length).toBeGreaterThanOrEqual(1);
+    await engine.estimateLTV('user-1');
+    expect(metricsAggregator.estimateLTV).toHaveBeenCalledWith('user-1');
+
+    await engine.getCohortLTV('2026-06-01');
+    expect(metricsAggregator.getCohortLTV).toHaveBeenCalledWith('2026-06-01');
+
+    await engine.compareSegments();
+    expect(metricsAggregator.compareSegments).toHaveBeenCalled();
   });
 
-  it('13. Debounces rapid tracking calls to prevent spam', async () => {
-    await analyticsEngine.init();
+  it('7. reset() resets event pipeline, logs, and clears aggregator cache', async () => {
+    await engine.init();
 
-    // Track same event 10 times rapidly
-    for (let i = 0; i < 10; i++) {
-      analyticsEngine.trackEvent?.({ category: 'test', action: 'spam' });
+    const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const aggregatorClearSpy = vi.spyOn(metricsAggregator, 'clearCache');
+
+    await engine.reset();
+
+    expect(eventPipeline.reset).toHaveBeenCalled();
+    expect(aggregatorClearSpy).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith('[AnalyticsEngine] Reset all data');
+  });
+
+  it('8. getHealthStatus() computes internal metrics, logs, storage bounds and alerts', async () => {
+    await engine.init();
+
+    // Mock logger metrics and navigator storage quota
+    vi.spyOn(logger, 'getMetrics').mockReturnValue({
+      errors: 6,
+      piiDetections: 1,
+      perfMetrics: {
+        'PIPELINE_PROCESS': { count: 3, total: 30, min: 5, max: 15, avg: 10 }
+      },
+      analyticsEvents: 5
+    });
+
+    vi.stubGlobal('navigator', {
+      storage: {
+        estimate: vi.fn().mockResolvedValue({
+          usage: 2048, // 2KB in bytes (production assumes kilobytes but passes bytes)
+          quota: 50 * 1024 * 1024 // 50MB
+        })
+      }
+    });
+
+    const status = await engine.getHealthStatus();
+
+    expect(status.healthy).toBe(true);
+    expect(status.metrics.eventsProcessed).toBe(10);
+    expect(status.metrics.piiDetected).toBe(1);
+    expect(status.metrics.errors).toBe(6);
+    expect(status.checks.pipeline.status).toBe('healthy');
+    expect(status.checks.storage.status).toBe('healthy');
+    expect(status.alerts).toHaveLength(2); // Should have alerts for PII and Errors > 0
+  });
+
+  it('9. getMetricsPrometheus() exports Prometheus formatted snapshots', async () => {
+    await engine.init();
+
+    vi.spyOn(logger, 'getMetrics').mockReturnValue({
+      errors: 1,
+      piiDetections: 0
+    });
+
+    const promMetrics = engine.getMetricsPrometheus();
+
+    expect(promMetrics).toContain('suplilist_analytics_events_processed 10');
+    expect(promMetrics).toContain('suplilist_analytics_errors 1');
+  });
+
+  it('10. exposes window APIs correctly and handles cleanup via global observability', async () => {
+    await engine.init();
+
+    if (typeof window !== 'undefined') {
+      const clearSpy = vi.spyOn(logger, 'clearBuffers');
+
+      window.analyticsAPI.clear();
+      expect(clearSpy).toHaveBeenCalled();
     }
-
-    const events = analyticsEngine.getEvents?.();
-    const spamEvents = events?.filter(e => e.action === 'spam');
-
-    // Should be debounced/deduped to fewer events
-    expect((spamEvents?.length ?? 0) < 10).toBe(true);
-  });
-
-  it('14. Respects analytics disabled via analytics flag in config', async () => {
-    analyticsEngine.setConfig?.({ enabled: false });
-
-    await analyticsEngine.init();
-
-    analyticsEngine.trackPageView?.('/test', 'Test');
-
-    const events = analyticsEngine.getEvents?.();
-    expect(events?.length ?? 0).toBe(0);
-  });
-
-  it('15. Queues events while offline and sends on reconnect', async () => {
-    await analyticsEngine.init();
-
-    // Simulate offline
-    const onLineSpy = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
-
-    analyticsEngine.trackPageView?.('/offline', 'Offline Page');
-
-    expect(analyticsEngine.getQueuedEvents?.().length).toBeGreaterThan(0);
-
-    // Reconnect
-    onLineSpy.mockReturnValue(true);
-    window.dispatchEvent(new Event('online'));
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Should attempt to send queued events
-    expect(analyticsEngine.getQueuedEvents?.().length).toBe(0);
-
-    onLineSpy.mockRestore();
-  });
-
-  it('16. Tracks conversion events with value and currency', async () => {
-    await analyticsEngine.init();
-
-    analyticsEngine.trackConversion?.({
-      type: 'premium_purchase',
-      value: 99.99,
-      currency: 'BRL'
-    });
-
-    const events = analyticsEngine.getEvents?.();
-    const conversionEvent = events?.find(e => e.type === 'conversion');
-
-    expect(conversionEvent?.value).toBe(99.99);
-    expect(conversionEvent?.currency).toBe('BRL');
-  });
-
-  it('17. Tracks affiliate link clicks', async () => {
-    await analyticsEngine.init();
-
-    analyticsEngine.trackAffiliateClick?.({
-      affiliate: 'amazon',
-      supplementId: 'whey-1',
-      url: 'https://amazon.com/...'
-    });
-
-    const events = analyticsEngine.getEvents?.();
-    const affiliateEvent = events?.find(e => e.type === 'affiliate_click');
-
-    expect(affiliateEvent?.affiliate).toBe('amazon');
-  });
-
-  it('18. Queues events in memory before storage init', async () => {
-    // Create new instance before init
-    const events = [];
-    analyticsEngine.trackPageView?.('/early', 'Early Page');
-
-    // Should be queued
-    const queued = analyticsEngine.getQueuedEvents?.();
-    expect(queued?.length ?? 0).toBeGreaterThanOrEqual(0);
-
-    // After init, events should be processed
-    await analyticsEngine.init();
-    expect(analyticsEngine.isInitialized?.()).toBe(true);
-  });
-
-  it('19. Deduplicates identical rapid events', async () => {
-    await analyticsEngine.init();
-
-    const event = { category: 'test', action: 'dup', label: 'x' };
-
-    analyticsEngine.trackEvent?.(event);
-    analyticsEngine.trackEvent?.(event);
-    analyticsEngine.trackEvent?.(event);
-
-    const events = analyticsEngine.getEvents?.();
-    const dupEvents = events?.filter(e => e.action === 'dup');
-
-    // Only one should be recorded (deduplicated)
-    expect((dupEvents?.length ?? 0) <= 1).toBe(true);
-  });
-
-  it('20. Implements localStorage quota safety (no QuotaExceeded)', async () => {
-    await analyticsEngine.init();
-
-    // Mock localStorage.setItem to throw QuotaExceeded
-    const originalSetItem = localStorage.setItem;
-    localStorage.setItem = vi.fn().mockImplementation(() => {
-      const err = new Error('QuotaExceeded');
-      err.name = 'QuotaExceededError';
-      throw err;
-    });
-
-    // Should not crash
-    expect(() => {
-      analyticsEngine.flush?.();
-    }).not.toThrow();
-
-    localStorage.setItem = originalSetItem;
-  });
-});
-
-describe('AnalyticsEngine — Singleton Pattern', () => {
-  it('returns same instance across calls', async () => {
-    const module = await import('./analytics-engine.js');
-    const engine1 = module.analyticsEngine;
-    const engine2 = module.analyticsEngine;
-
-    expect(engine1).toBe(engine2);
   });
 });

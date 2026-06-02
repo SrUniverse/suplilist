@@ -350,4 +350,48 @@ describe('StateManager v4.0', () => {
     // Restore original setItem
     localStorage.setItem = originalSetItem;
   });
+
+  // ─── SET_TIER whitelist ────────────────────────────────────────────────────
+
+  describe('SET_TIER action — whitelist validation', () => {
+    it('20. Dispatch with tier "pro" sets user.tier to "pro"', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' });
+      expect(sm.user.tier).toBe('pro');
+    });
+
+    it('21. Dispatch with tier "elite" sets user.tier to "elite"', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'elite' });
+      expect(sm.user.tier).toBe('elite');
+    });
+
+    it('22. Dispatch with tier "free" sets user.tier to "free"', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' }); // set to pro first
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'free' });
+      expect(sm.user.tier).toBe('free');
+    });
+
+    it('23. Dispatch with invalid tier "god" does NOT change tier', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' });
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'god' });
+      expect(sm.user.tier).toBe('pro');
+    });
+
+    it('24. Dispatch with tier undefined does NOT change tier', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'elite' });
+      sm.dispatch(ACTIONS.SET_TIER, { tier: undefined });
+      expect(sm.user.tier).toBe('elite');
+    });
+
+    it('25. Dispatch with payload null does NOT change tier', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' });
+      sm.dispatch(ACTIONS.SET_TIER, null);
+      expect(sm.user.tier).toBe('pro');
+    });
+  });
 });

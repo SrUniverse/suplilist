@@ -235,6 +235,12 @@ export default class ListPage {
     this._scroller = null; // Virtual scroller for list
     this._boundKeydown = this._onKeydown.bind(this);
     this._scrollLockStack = [];  // Stack of scroll lock sources (modal, etc)
+
+    // Advanced Search state
+    this._evidenceFilter = '';
+    this._maxPriceFilter = 300;
+    this._benefitsFilter = new Set();
+    this._advancedPanelOpen = false;
   }
 
   /**
@@ -716,18 +722,68 @@ export default class ListPage {
         <div id="lp-header">
           <div id="lp-header-row">
             <h1 id="lp-title">Catálogo</h1>
-            <div id="lp-search-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-              <input id="lp-search" type="search" placeholder="Buscar suplemento..." autocomplete="off" />
+            <div id="lp-search-container" style="display: flex; gap: 8px; flex: 1; align-items: center; justify-content: flex-end;">
+              <div id="lp-search-wrap" style="flex: 1; max-width: 320px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input id="lp-search" type="search" placeholder="Buscar suplemento..." autocomplete="off" />
+              </div>
+              <button id="lp-adv-filters-btn" class="lp-chip" style="margin: 0; padding: 10px 14px; display: flex; align-items: center; gap: 6px; background: transparent; border: 1.5px solid var(--color-border-strong); height: 40px; border-radius: 12px; cursor: pointer; color: var(--color-text-primary); transition: all 150ms ease; font-size: 13px; font-weight: 600;">
+                <span>⚙️</span> Filtros
+              </button>
             </div>
           </div>
+
+          <!-- Search History Panel -->
+          <div id="lp-history-panel" style="display: none; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+            <span style="font-size: 12px; color: var(--color-text-muted);">Buscas recentes:</span>
+            <div id="lp-history-chips" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            <button id="lp-clear-history-btn" style="background: none; border: none; font-size: 11px; color: var(--color-error); cursor: pointer; text-decoration: underline; margin-left: auto;">Limpar</button>
+          </div>
+
           <div id="lp-trending">
             <span class="lp-trending-label">Trending:</span>
             <button class="lp-trend-chip" data-trend="Ashwagandha">Ashwagandha</button>
             <button class="lp-trend-chip" data-trend="Creatina">Creatina</button>
             <button class="lp-trend-chip" data-trend="Foco">Foco</button>
+          </div>
+
+          <!-- Advanced Filters Panel -->
+          <div id="lp-advanced-panel" style="display: none; background: var(--color-surface-secondary); border: 1px solid var(--color-border); border-radius: 16px; padding: 16px; margin-top: 12px; flex-direction: column; gap: 14px;">
+            <!-- Evidence Level Filters -->
+            <div>
+              <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; color: var(--color-text-muted); display: block; margin-bottom: 8px;">Nível de Evidência Científica</span>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="lp-chip lp-evidence-filter" data-evidence="A">Grau A (Forte)</button>
+                <button class="lp-chip lp-evidence-filter" data-evidence="B">Grau B (Moderado)</button>
+                <button class="lp-chip lp-evidence-filter" data-evidence="C">Grau C (Fraco)</button>
+                <button class="lp-chip lp-evidence-filter" data-evidence="D">Grau D (Anedótico)</button>
+              </div>
+            </div>
+
+            <!-- Price Range Filters -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; color: var(--color-text-muted);">Faixa de Preço Máxima</span>
+                <span id="lp-price-range-val" style="font-size: 12px; font-weight: 600; color: var(--color-brand);">R$ 300 (Qualquer preço)</span>
+              </div>
+              <input type="range" id="lp-price-range" min="20" max="300" step="10" value="300" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <!-- Benefits Filters -->
+            <div>
+              <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; color: var(--color-text-muted); display: block; margin-bottom: 8px;">Benefícios e Objetivos</span>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="lp-benefits-container">
+                <button class="lp-chip lp-benefit-filter" data-benefit="Foco">🧠 Foco</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Sono">🌙 Sono</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Hipertrofia">💪 Hipertrofia</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Imunidade">🛡️ Imunidade</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Longevidade">⏳ Longevidade</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Disposição">⚡ Energia</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Articulações">🦴 Articulações</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -845,20 +901,51 @@ export default class ListPage {
   _applyFilters() {
     let results = this._allItems;
 
+    // 1. Fuzzy Search with Fuse.js
     if (this._query.trim()) {
       results = this._fuse
         ? this._fuse.search(this._query).map(r => r.item)
         : results.filter(s => s.name.toLowerCase().includes(this._query.toLowerCase()));
     }
 
+    // 2. Category Chip Filter
     results = results.filter(s => matchesCategory(s, this._category));
+
+    // 3. Objective Chip Filter
     results = results.filter(s => matchesObjective(s, this._objective));
+
+    // 4. Advanced Filter: Evidence Level
+    if (this._evidenceFilter) {
+      results = results.filter(s => s.evidenceLevel === this._evidenceFilter);
+    }
+
+    // 5. Advanced Filter: Price Range (Estimates cost fallback if prices not loaded)
+    if (this._maxPriceFilter < 300) {
+      results = results.filter(s => {
+        const pInfo = this._prices?.[s.id];
+        const price = pInfo ? parseFloat(pInfo.shopee?.price || pInfo.amazon?.price || pInfo.mercado_livre?.price || 0) : 0;
+        const checkPrice = price > 0 ? price : (s.estimatedMonthlyCost || 0);
+        return checkPrice <= this._maxPriceFilter;
+      });
+    }
+
+    // 6. Advanced Filter: Specific Benefits and Tags
+    if (this._benefitsFilter.size > 0) {
+      results = results.filter(s => {
+        const itemBenefits = (s.benefits || []).map(b => b.toLowerCase());
+        return [...this._benefitsFilter].every(bf => {
+          const lowerBf = bf.toLowerCase();
+          return itemBenefits.some(ib => ib.includes(lowerBf) || lowerBf.includes(ib));
+        });
+      });
+    }
 
     this._filtered = results;
 
     const label = this.container.querySelector('#lp-results-label');
     if (label) {
-      label.textContent = this._query || this._category !== 'Todos' || this._objective
+      const activeAdv = this._evidenceFilter || this._maxPriceFilter < 300 || this._benefitsFilter.size > 0;
+      label.textContent = this._query || this._category !== 'Todos' || this._objective || activeAdv
         ? `${this._filtered.length} resultado(s)`
         : '';
     }
@@ -1341,6 +1428,7 @@ export default class ListPage {
           this._query = e.target.value;
           this._applyFilters();
           this._renderGrid();
+          this._saveSearchHistory(this._query);
         }, DEBOUNCE_SEARCH_MS);
       });
     }
@@ -1356,6 +1444,93 @@ export default class ListPage {
         this._query = chip.dataset.trend;
         this._applyFilters();
         this._renderGrid();
+        this._saveSearchHistory(this._query);
+      });
+    }
+
+    // Collapsible Filters Panel Toggle
+    const advBtn = this.container.querySelector('#lp-adv-filters-btn');
+    const advPanel = this.container.querySelector('#lp-advanced-panel');
+    if (advBtn && advPanel) {
+      advBtn.addEventListener('click', () => {
+        this._advancedPanelOpen = !this._advancedPanelOpen;
+        advPanel.style.display = this._advancedPanelOpen ? 'flex' : 'none';
+        advBtn.classList.toggle('active', this._advancedPanelOpen);
+      });
+    }
+
+    // Price Range Slider
+    const priceSlider = this.container.querySelector('#lp-price-range');
+    const priceVal = this.container.querySelector('#lp-price-range-val');
+    if (priceSlider && priceVal) {
+      priceSlider.addEventListener('input', e => {
+        const val = parseInt(e.target.value, 10);
+        this._maxPriceFilter = val;
+        priceVal.textContent = val >= 300 ? 'R$ 300 (Qualquer preço)' : `R$ ${val}`;
+        this._applyFilters();
+        this._renderGrid();
+      });
+    }
+
+    // Advanced Panel Delegated Filter Clicks (Evidence Levels & Benefits Tags)
+    if (advPanel) {
+      advPanel.addEventListener('click', e => {
+        // 1. Evidence Level chips
+        const evChip = e.target.closest('.lp-evidence-filter');
+        if (evChip) {
+          const evidence = evChip.dataset.evidence;
+          const isActive = evChip.classList.contains('active');
+          advPanel.querySelectorAll('.lp-evidence-filter').forEach(c => c.classList.remove('active'));
+          if (isActive) {
+            this._evidenceFilter = '';
+          } else {
+            evChip.classList.add('active');
+            this._evidenceFilter = evidence;
+          }
+          this._applyFilters();
+          this._renderGrid();
+          return;
+        }
+
+        // 2. Benefits chips
+        const benefitChip = e.target.closest('.lp-benefit-filter');
+        if (benefitChip) {
+          const benefit = benefitChip.dataset.benefit;
+          if (this._benefitsFilter.has(benefit)) {
+            this._benefitsFilter.delete(benefit);
+            benefitChip.classList.remove('active');
+          } else {
+            this._benefitsFilter.add(benefit);
+            benefitChip.classList.add('active');
+          }
+          this._applyFilters();
+          this._renderGrid();
+          return;
+        }
+      });
+    }
+
+    // Search History Panel clicks
+    const historyPanel = this.container.querySelector('#lp-history-panel');
+    if (historyPanel) {
+      historyPanel.addEventListener('click', e => {
+        const chip = e.target.closest('.lp-history-chip');
+        if (chip) {
+          const query = chip.dataset.query;
+          const searchEl2 = this.container.querySelector('#lp-search');
+          if (searchEl2) searchEl2.value = query;
+          this._query = query;
+          this._applyFilters();
+          this._renderGrid();
+          return;
+        }
+
+        const clearBtn = e.target.closest('#lp-clear-history-btn');
+        if (clearBtn) {
+          localStorage.removeItem('suplilist:search-history');
+          this._renderSearchHistory();
+          return;
+        }
       });
     }
 
@@ -1420,5 +1595,42 @@ export default class ListPage {
         }
       });
     }
+  }
+
+  _getSearchHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('suplilist:search-history') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  _saveSearchHistory(query) {
+    if (!query || !query.trim()) return;
+    const cleanQuery = query.trim();
+    let history = this._getSearchHistory();
+    history = history.filter(h => h.toLowerCase() !== cleanQuery.toLowerCase());
+    history.unshift(cleanQuery);
+    localStorage.setItem('suplilist:search-history', JSON.stringify(history.slice(0, 10)));
+    this._renderSearchHistory();
+  }
+
+  _renderSearchHistory() {
+    const historyPanel = this.container.querySelector('#lp-history-panel');
+    const historyChips = this.container.querySelector('#lp-history-chips');
+    if (!historyPanel || !historyChips) return;
+
+    const history = this._getSearchHistory();
+    if (history.length === 0) {
+      historyPanel.style.display = 'none';
+      return;
+    }
+
+    historyPanel.style.display = 'flex';
+    historyChips.innerHTML = history.map(h => `
+      <button class="lp-chip lp-history-chip" data-query="${escapeHtml(h)}" style="margin: 0; padding: 4px 10px; font-size: 11px; background: var(--color-surface-secondary); display: flex; align-items: center; gap: 4px; border-radius: 8px;">
+        <span>🔍</span> ${escapeHtml(h)}
+      </button>
+    `).join('');
   }
 }

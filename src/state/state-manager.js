@@ -43,7 +43,8 @@ export const ACTIONS = Object.freeze({
   REMOVE_FAVORITE: 'REMOVE_FAVORITE',
   SET_FAVORITES: 'SET_FAVORITES',
   SET_THEME: 'SET_THEME',
-  PRUNE_CHECKINS_TEST: 'PRUNE_CHECKINS_TEST'
+  PRUNE_CHECKINS_TEST: 'PRUNE_CHECKINS_TEST',
+  IMPORT_STACK: 'IMPORT_STACK'
 });
 
 // ─── Initial Application State Shape ─────────────────────────────────────────
@@ -170,6 +171,19 @@ function reducer(state, action) {
       return {
         ...state,
         stack: []
+      };
+
+    case ACTIONS.IMPORT_STACK:
+      return {
+        ...state,
+        stack: (action.payload || []).map(item => {
+          const itemId = item.supplementId ?? item.id;
+          return {
+            ...item,
+            supplementId: itemId,
+            id: itemId
+          };
+        })
       };
 
     case ACTIONS.CLEAR_CHECKINS:

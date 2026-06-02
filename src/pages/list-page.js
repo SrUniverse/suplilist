@@ -8,6 +8,7 @@ import affiliateEngine from '../monetization/affiliate-engine.js';
 import { dosageToGrams } from '../utils/dosage-converter.js';
 import { DAYS_PER_MONTH, PAGE_SIZE as CONST_PAGE_SIZE, DEBOUNCE_SEARCH_MS } from '../config/constants.js';
 import { VirtualScroller } from '../core/virtual-scroller.js';
+import { CheckoutModal } from '../features/premium/checkout-modal.js';
 
 /**
  * Sanitize affiliate URLs for security — reject non-HTTP protocols.
@@ -241,6 +242,9 @@ export default class ListPage {
     this._maxPriceFilter = 300;
     this._benefitsFilter = new Set();
     this._advancedPanelOpen = false;
+
+    const state = stateManager.getState();
+    this._currentTier = state.user?.tier ?? 'free';
   }
 
   /**
@@ -283,7 +287,17 @@ export default class ListPage {
     this._renderGrid();
     this._initInfiniteScroll();
     this._attachListeners();
-    this._unsubscribe = stateManager.subscribe(() => this._refreshCardStates());
+    this._unsubscribe = stateManager.subscribe(() => {
+      const state = stateManager.getState();
+      const newTier = state.user?.tier ?? 'free';
+      if (newTier !== this._currentTier) {
+        this._currentTier = newTier;
+        this._applyFilters();
+        this._renderGrid();
+      } else {
+        this._refreshCardStates();
+      }
+    });
     document.addEventListener('keydown', this._boundKeydown);
   }
 
@@ -940,7 +954,15 @@ export default class ListPage {
       });
     }
 
-    this._filtered = results;
+    const state = stateManager.getState();
+    const userTier = state.user?.tier ?? 'free';
+    if (userTier === 'free' && results.length > 3) {
+      const resultsWithAd = [...results];
+      resultsWithAd.splice(3, 0, { id: 'sponsored-ad', isAd: true });
+      this._filtered = resultsWithAd;
+    } else {
+      this._filtered = results;
+    }
 
     const label = this.container.querySelector('#lp-results-label');
     if (label) {
@@ -1003,6 +1025,9 @@ export default class ListPage {
    * Render a single supplement card for virtual scroller
    */
   _renderSupplementCard(item) {
+    if (item.isAd) {
+      return this._renderSponsoredAdCard();
+    }
     const stack = stateManager.stack ?? [];
     const favs = getFavoritesFromState();
     const isFav = favs.has(item.id);
@@ -1058,6 +1083,22 @@ export default class ListPage {
         </div>
       </div>
     `;
+  }
+
+  _renderSponsoredAdCard() {
+    return `
+      <div class="lp-card sponsored-ad-card" style="border: 1.5px dashed var(--color-brand); background: rgba(124, 58, 237, 0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; height: 100%; box-sizing: border-box; position: relative; min-height: 290px;">
+        <span style="position: absolute; top: 12px; right: 12px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(124, 58, 237, 0.12); color: var(--color-brand); padding: 3px 8px; border-radius: 6px;">Patrocinado</span>
+        <div style="font-size: 36px; margin-bottom: 12px; filter: drop-shadow(0 4px 10px rgba(124,58,237,0.3));">🌟</div>
+        <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 15px; margin: 0 0 6px 0; color: var(--color-text-primary);">SupliList PRO</p>
+        <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 18px 0; line-height: 1.45; max-width: 190px;">Remova anúncios e tenha acesso ao Histórico Avançado com gráficos e relatórios Excel.</p>
+        <button class="lp-btn-ver-precos lp-upgrade-btn" style="width: 100%; height: 40px; min-height: 40px; font-size: 12px; background: var(--color-brand); color: #ffffff; border-color: var(--color-brand); font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;" data-action="upgrade-now">Quero Premium</button>
+      </div>
+    `;
+  }
+
+  _openCheckoutModal() {
+    CheckoutModal.show({ tier: 'pro' });
   }
 
   _loadMore() {
@@ -1588,10 +1629,24 @@ export default class ListPage {
           return;
         }
 
+        const upgradeBtn = e.target.closest('[data-action="upgrade-now"]');
+        if (upgradeBtn) {
+          e.stopPropagation();
+          this._openCheckoutModal();
+          return;
+        }
+
         // Open modal on card click
         const card = e.target.closest('.lp-card');
-        if (card && card.dataset.id) {
-          this._openModal(card.dataset.id);
+        if (card) {
+          if (card.dataset.id === 'sponsored-ad') {
+            e.stopPropagation();
+            this._openCheckoutModal();
+            return;
+          }
+          if (card.dataset.id) {
+            this._openModal(card.dataset.id);
+          }
         }
       });
     }

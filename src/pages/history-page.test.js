@@ -251,3 +251,104 @@ describe('HistoryPage — Check-in History', () => {
     }
   });
 });
+
+describe('HistoryPage — premium branch', () => {
+  let container;
+
+  beforeEach(async () => {
+    container = document.createElement('div');
+    container.id = 'history-page';
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    vi.clearAllMocks();
+  });
+
+  it('12. Renders advanced dashboard and NOT lock card when tier is "pro"', async () => {
+    // Arrange
+    const { stateManager } = await import('../state/state-manager.js');
+    sharedState = {
+      user: { tier: 'pro' },
+      stack: [{ id: '1', supplementId: '1', dosage: 30 }],
+      checkins: []
+    };
+    stateManager.subscribe.mockImplementation((cb) => { cb(sharedState); return vi.fn(); });
+
+    // Act
+    const HistoryPage = (await import('./history-page.js')).default;
+    const page = new HistoryPage(container);
+    await page.mount();
+
+    // Assert
+    expect(container.querySelector('.hp-premium-lock-card')).toBeNull();
+    expect(container.querySelector('.hp-advanced-dashboard')).not.toBeNull();
+
+    page.unmount?.();
+  });
+
+  it('13. Renders lock card and NOT advanced dashboard when tier is "free"', async () => {
+    // Arrange
+    const { stateManager } = await import('../state/state-manager.js');
+    sharedState = {
+      user: { tier: 'free' },
+      stack: [{ id: '1', supplementId: '1', dosage: 30 }],
+      checkins: []
+    };
+    stateManager.subscribe.mockImplementation((cb) => { cb(sharedState); return vi.fn(); });
+
+    // Act
+    const HistoryPage = (await import('./history-page.js')).default;
+    const page = new HistoryPage(container);
+    await page.mount();
+
+    // Assert
+    expect(container.querySelector('.hp-premium-lock-card')).not.toBeNull();
+    expect(container.querySelector('.hp-advanced-dashboard')).toBeNull();
+
+    page.unmount?.();
+  });
+
+  it('14. Unlock button exists when tier is "free"', async () => {
+    // Arrange
+    const { stateManager } = await import('../state/state-manager.js');
+    sharedState = {
+      user: { tier: 'free' },
+      stack: [],
+      checkins: []
+    };
+    stateManager.subscribe.mockImplementation((cb) => { cb(sharedState); return vi.fn(); });
+
+    // Act
+    const HistoryPage = (await import('./history-page.js')).default;
+    const page = new HistoryPage(container);
+    await page.mount();
+
+    // Assert
+    expect(container.querySelector('#hp-unlock-premium-btn')).not.toBeNull();
+
+    page.unmount?.();
+  });
+
+  it('15. Excel export button exists when tier is "pro"', async () => {
+    // Arrange
+    const { stateManager } = await import('../state/state-manager.js');
+    sharedState = {
+      user: { tier: 'pro' },
+      stack: [{ id: '1', supplementId: '1', dosage: 30 }],
+      checkins: []
+    };
+    stateManager.subscribe.mockImplementation((cb) => { cb(sharedState); return vi.fn(); });
+
+    // Act
+    const HistoryPage = (await import('./history-page.js')).default;
+    const page = new HistoryPage(container);
+    await page.mount();
+
+    // Assert
+    expect(container.querySelector('#hp-export-excel-btn')).not.toBeNull();
+
+    page.unmount?.();
+  });
+});

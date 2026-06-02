@@ -7,8 +7,17 @@ import { EVIDENCE_COLORS } from '../utils/evidence.js';
 import affiliateEngine from '../monetization/affiliate-engine.js';
 import { dosageToGrams } from '../utils/dosage-converter.js';
 import { DAYS_PER_MONTH, PAGE_SIZE as CONST_PAGE_SIZE, DEBOUNCE_SEARCH_MS } from '../config/constants.js';
+import { VirtualScroller } from '../core/virtual-scroller.js';
 
-// P6: valida URLs de afiliados — rejeita qualquer protocolo não-HTTP para evitar javascript: injection
+/**
+ * Sanitize affiliate URLs for security — reject non-HTTP protocols.
+ *
+ * P6: valida URLs de afiliados — rejeita qualquer protocolo não-HTTP para evitar javascript: injection
+ *
+ * @param {string} url - URL to sanitize
+ * @returns {string} Sanitized URL or '#' if invalid
+ * @private
+ */
 function sanitizeUrl(url) {
   if (!url || typeof url !== 'string') return '#';
   try {
@@ -19,7 +28,15 @@ function sanitizeUrl(url) {
   }
 }
 
-// Retorna true quando a URL aponta para um produto específico (não busca genérica)
+/**
+ * Check if URL points to a product (not a generic search).
+ *
+ * Recognizes patterns for Amazon, Amazon.br, Mercado Livre, Shopee.
+ *
+ * @param {string} url - URL to check
+ * @returns {boolean} True if URL is a product-specific link
+ * @private
+ */
 function isProductUrl(url) {
   return /amzn\.to\/|amazon\.com\.br\/dp\/|meli\.la\/|shope\.ee\//.test(url ?? '');
 }
@@ -39,18 +56,46 @@ const OBJECTIVE_KEY_MAP = {
 
 const PAGE_SIZE = CONST_PAGE_SIZE;
 
-/** Returns effective cost-per-unit for a store entry (pricePerUnit when available, else price). */
+/**
+ * Get effective cost-per-unit for a store entry.
+ *
+ * Prefers pricePerUnit (cost per gram/unit) if available, falls back to price (full cost).
+ *
+ * @param {Object} store - Store entry { price, pricePerUnit, label, ... }
+ * @returns {number} Effective cost-per-unit
+ * @private
+ */
 function getEffectiveCost(store) {
   return store.pricePerUnit ?? store.price;
 }
 
-/** Returns the best-value store entry from prices[item.id] (lowest pricePerUnit), or null. */
+/**
+ * Get the cheapest store entry for a supplement (lowest cost-per-unit).
+ *
+ * Searches prices[item.id] (object of store entries) and returns the one with
+ * the lowest pricePerUnit. Used for price comparison and best-value display.
+ *
+ * @param {Object} item - Supplement item { id, name, ... }
+ * @param {Object} [prices] - Prices object { [itemId]: { [storeId]: { price, label, ... } } }
+ * @returns {Object|null} Cheapest store entry or null if no prices available
+ * @private
+ */
 function getCheapestStore(item, prices) {
   const entries = prices && prices[item.id] ? Object.values(prices[item.id]) : null;
   if (!entries || !entries.length) return null;
   return entries.reduce((a, b) => getEffectiveCost(a) < getEffectiveCost(b) ? a : b);
 }
 
+/**
+ * Get monthly price label for a supplement.
+ *
+ * Returns cheapest store price, or estimates cost from pricePerGram if no live pricing.
+ *
+ * @param {Object} item - Supplement item
+ * @param {Object} [prices] - Live price data from prices.json
+ * @returns {{price: number, label: string|null}} { price: monthly cost, label: store name or null }
+ * @private
+ */
 function getPriceLabel(item, prices) {
   const cheapest = getCheapestStore(item, prices);
   if (cheapest) return { price: cheapest.price, label: cheapest.label };
@@ -61,6 +106,17 @@ function getPriceLabel(item, prices) {
   return { price: doseInGrams * ppg * DAYS_PER_MONTH, label: null };
 }
 
+/**
+ * Get per-dose price string for display in supplement card.
+ *
+ * Calculates cost per maintenance dose. Uses live pricing if available,
+ * falls back to pricePerGram estimates.
+ *
+ * @param {Object} item - Supplement item
+ * @param {Object} [prices] - Live price data
+ * @returns {string} Formatted price (e.g., "R$ 2,50 / dose")
+ * @private
+ */
 function getDosePrice(item, prices) {
   const cheapest = getCheapestStore(item, prices);
   if (cheapest) {
@@ -79,6 +135,14 @@ function getDosePrice(item, prices) {
   return `R$ ${(doseInGrams * ppg).toFixed(2).replace('.', ',')} / dose`;
 }
 
+/**
+ * Get maximum price savings across all stores for a supplement.
+ *
+ * @param {Object} item - Supplement item
+ * @param {Object} [prices] - Price data
+ * @returns {number|null} Savings amount or null if none available
+ * @private
+ */
 function getMaxSaving(item, prices) {
   const key = item.id;
   if (!prices || !prices[key]) return null;
@@ -129,7 +193,31 @@ function formatPrice(val) {
 
 // ─── Main Class ───────────────────────────────────────────────────────────────
 
+/**
+ * ListPage — Supplement catalog with search, filtering, and shopping features
+ *
+ * Full-text fuzzy search (Fuse.js) with category/objective filters.
+ * Virtual scrolling for 300+ supplements. Infinite scroll pagination with sentinel observer.
+ * Supplement detail modal with affiliate purchase links (Amazon, Mercado Livre, Shopee).
+ * Integration with state (stack, favorites, pricing), analytics tracking, and EventBus pub/sub.
+ *
+ * Features:
+ * - Fuzzy search (name, category, benefits) with debounce
+ * - Filter by category (Performance, Proteínas, etc.) and objective (Hipertrofia, Foco, etc.)
+ * - Virtual scrolling + infinite scroll for performance
+ * - Supplement detail modal with evidence level, price/dose info, add-to-stack
+ * - Favorites toggle (heart icon) synced to state
+ * - Price comparison (cheapest store per supplement)
+ * - Stats rings (total, stack count, favorites, high-evidence items)
+ * - Affiliate tracking on purchase links
+ */
 export default class ListPage {
+  /**
+   * Create a new ListPage
+   * @param {HTMLElement} container - DOM element to mount the page
+   * @param {Object} [params={}] - Page parameters
+   * @param {string} [params.objective] - Pre-select objective filter (e.g., 'Hipertrofia')
+   */
   constructor(container, params = {}) {
     this.container = container;
     this._unsubscribe = null;
@@ -144,10 +232,20 @@ export default class ListPage {
     this._modalOpen = null; // supplement id
     this._debounceTimer = null;
     this._observer = null;
+    this._scroller = null; // Virtual scroller for list
     this._boundKeydown = this._onKeydown.bind(this);
     this._scrollLockStack = [];  // Stack of scroll lock sources (modal, etc)
   }
 
+  /**
+   * Mount the page to the DOM and initialize all listeners/subscriptions.
+   *
+   * Loads supplement database, fetches live pricing, initializes virtual scroll,
+   * subscribes to state changes, attaches event listeners for search/filter/modal.
+   * Renders initial grid and stats.
+   *
+   * @returns {void}
+   */
   mount() {
     this._attachStyles();
     this._allItems = SUPPLEMENTS_DB;
@@ -183,10 +281,20 @@ export default class ListPage {
     document.addEventListener('keydown', this._boundKeydown);
   }
 
+  /**
+   * Unmount the page and clean up all resources.
+   *
+   * Cancels pending fetch, unsubscribes from state, disconnects observers,
+   * removes event listeners, closes modal, and restores scroll state.
+   * Safe to call multiple times.
+   *
+   * @returns {void}
+   */
   unmount() {
     this._fetchController?.abort();
     this._unsubscribe?.();
     this._observer?.disconnect();
+    this._scroller?.unmount();
     document.removeEventListener('keydown', this._boundKeydown);
     this._closeModal();
     // Cancel pending debounce search callback
@@ -376,8 +484,8 @@ export default class ListPage {
         transform: translateY(-1px);
       }
       .lp-card-top-badge {
-        padding: 6px 10px;
-        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        padding: 8px 12px;
+        font-size: 12px; font-weight: 700; text-transform: uppercase;
         letter-spacing: 0.06em;
       }
       .lp-card-img-wrap {
@@ -391,18 +499,18 @@ export default class ListPage {
         width: 100%; height: 100%; object-fit: contain;
       }
       .lp-card-ev-badge {
-        position: absolute; top: 6px; right: 6px;
-        font-size: 9px; font-weight: 700; text-transform: uppercase;
-        padding: 2px 7px; border-radius: 5px; letter-spacing: 0.04em;
+        position: absolute; top: 8px; right: 8px;
+        font-size: 11px; font-weight: 700; text-transform: uppercase;
+        padding: 4px 8px; border-radius: 5px; letter-spacing: 0.04em;
       }
-      .lp-card-info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+      .lp-card-info { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
       .lp-card-name {
         font-size: 13px; font-weight: 700; color: var(--color-text-primary);
         margin: 0; line-height: 1.3;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      .lp-card-cat { font-size: 10px; color: var(--color-text-muted); margin: 0; }
+      .lp-card-cat { font-size: 12px; color: var(--color-text-muted); margin: 0; }
       .lp-card-desc {
         font-size: 12px; color: var(--color-text-secondary);
         line-height: 1.4; margin: 4px 0 0; flex: 1;
@@ -410,30 +518,30 @@ export default class ListPage {
         overflow: hidden;
       }
       .lp-card-price-row {
-        display: flex; flex-direction: column; gap: 1px; margin-top: 6px;
+        display: flex; flex-direction: column; gap: 3px; margin-top: 8px;
       }
       .lp-card-price { font-size: 14px; font-weight: 700; color: var(--color-text-primary); }
-      .lp-card-dose { font-size: 10px; color: var(--color-text-muted); }
+      .lp-card-dose { font-size: 12px; color: var(--color-text-muted); }
       .lp-card-actions {
-        display: flex; gap: 6px; align-items: center; margin-top: 8px;
+        display: flex; gap: 10px; align-items: center; margin-top: 10px;
       }
       .lp-btn-fav {
-        width: 28px; height: 28px; flex-shrink: 0;
+        width: 48px; height: 48px; flex-shrink: 0;
         background: rgba(0,0,0,0.4);
         border: 1px solid var(--color-border);
         border-radius: 8px; cursor: pointer;
-        font-size: 13px; display: flex; align-items: center; justify-content: center;
+        font-size: 16px; display: flex; align-items: center; justify-content: center;
         transition: background 0.15s, border-color 0.15s;
       }
       .lp-btn-fav:hover { background: var(--color-surface-hover); }
       .lp-btn-fav.faved { border-color: #EF4444; color: #EF4444; }
       .lp-btn-ver-precos {
-        flex: 1; height: 36px; min-height: 36px;
+        flex: 1; height: 48px; min-height: 48px;
         background: transparent;
         border: 1px solid var(--color-brand);
         color: var(--color-brand);
         border-radius: 8px;
-        font-size: 11px; font-weight: 700;
+        font-size: 12px; font-weight: 700;
         cursor: pointer; font-family: 'Inter', sans-serif;
         transition: background 0.15s, color 0.15s;
         display: flex; align-items: center; justify-content: center;
@@ -764,8 +872,6 @@ export default class ListPage {
 
     const grid = this.container.querySelector('#lp-grid');
     if (!grid) return;
-    this._page = 0;
-    grid.innerHTML = '';
 
     if (!this._filtered.length) {
       grid.innerHTML = `
@@ -774,12 +880,97 @@ export default class ListPage {
           <p style="font-weight:700;margin:0 0 6px;">Nenhum resultado</p>
           <p style="font-size:13px;margin:0;">Tente outra busca ou remova os filtros.</p>
         </div>`;
+      // Cleanup virtual scroller if empty
+      if (this._scroller) {
+        this._scroller.unmount();
+        this._scroller = null;
+      }
       return;
     }
 
-    const frag = this._buildFragment(0, PAGE_SIZE);
-    grid.appendChild(frag);
+    // Cleanup old scroller if exists
+    if (this._scroller) {
+      this._scroller.unmount();
+      this._scroller = null;
+    }
+
+    // Clear grid and prepare for virtual scroller
+    grid.innerHTML = '';
+
+    // Create virtual scroller with filtered items
+    this._scroller = new VirtualScroller(
+      grid,
+      this._filtered,
+      (item) => this._renderSupplementCard(item),
+      {
+        itemHeight: 310, // Approximate height of supplement card
+        bufferSize: 5
+      }
+    );
+
+    this._scroller.mount();
     this._page = 1;
+  }
+
+  /**
+   * Render a single supplement card for virtual scroller
+   */
+  _renderSupplementCard(item) {
+    const stack = stateManager.stack ?? [];
+    const favs = getFavoritesFromState();
+    const isFav = favs.has(item.id);
+    const ev = item.evidenceLevel;
+    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
+    const desc = item.benefits?.[0] ?? '';
+    const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
+
+    const saving = getMaxSaving(item, this._prices);
+    const priceInfo = getPriceLabel(item, this._prices);
+    const doseStr = getDosePrice(item, this._prices);
+
+    let topBadge = '';
+    if (saving) {
+      topBadge = `<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
+        ECONOMIZE R$ ${escapeHtml(String(saving))} NA AMAZON
+      </div>`;
+    } else if (item.category) {
+      topBadge = `<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
+        ${escapeHtml(item.category)}
+      </div>`;
+    }
+
+    return `
+      <div class="lp-card" role="listitem" data-id="${item.id}">
+        ${topBadge}
+        <div class="lp-card-img-wrap">
+          <img class="lp-card-img"
+            src="${escapeHtml(img)}"
+            alt="${escapeHtml(item.name)}"
+            loading="lazy"
+            importance="auto"
+            onerror="this.style.display='none'"
+          />
+          ${ev ? `<span class="lp-card-ev-badge" style="background:${evStyle.bg};color:${evStyle.color};">EV. ${escapeHtml(String(ev))}</span>` : ''}
+        </div>
+        <div class="lp-card-info">
+          <p class="lp-card-name">${escapeHtml(item.name)}</p>
+          <p class="lp-card-cat">${escapeHtml(item.category ?? '')}</p>
+          ${desc ? `<p class="lp-card-desc">${escapeHtml(desc)}</p>` : ''}
+          <div class="lp-card-price-row">
+            <span class="lp-card-price">${formatPrice(priceInfo.price)}</span>
+            <span class="lp-card-dose">${doseStr}</span>
+          </div>
+          <div class="lp-card-actions">
+            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button">
+              ${isFav ? '♥' : '♡'}
+            </button>
+            <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${item.id}" type="button">
+              VER PREÇOS →
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   _loadMore() {

@@ -1,4 +1,5 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
+import { StorageManager } from '../core/storage-manager.js';
 
 export default class SettingsPage {
   constructor(container, params) {
@@ -245,13 +246,13 @@ export default class SettingsPage {
   }
 
   _getThemeState() {
-    const stored = localStorage.getItem(STORAGE_KEYS.THEME);
+    const stored = StorageManager.getItem(STORAGE_KEYS.THEME);
     if (stored) return stored === 'dark';
     return document.documentElement.getAttribute('data-theme') === 'dark';
   }
 
   _getBoolPref(key) {
-    return localStorage.getItem(key) === 'true';
+    return StorageManager.getItem(key) === 'true';
   }
 
   _switchHTML(id, checked, label, icon) {
@@ -304,8 +305,16 @@ export default class SettingsPage {
             🔒 Seus dados ficam 100% no seu dispositivo. Não temos servidores e nunca coletamos informações pessoais. (LGPD)
           </div>
           <div class="sp-action-row">
-            <span class="sp-action-label">Exportar meus dados</span>
+            <span class="sp-action-label">Exportar meus dados (download)</span>
             <button class="sp-btn sp-btn-outline" id="sp-export-btn">Exportar</button>
+          </div>
+          <div class="sp-action-row" id="sp-export-file-row" style="display:none;">
+            <span class="sp-action-label">Salvar backup (no seu PC)</span>
+            <button class="sp-btn sp-btn-outline" id="sp-export-file-btn">Salvar</button>
+          </div>
+          <div class="sp-action-row" id="sp-import-file-row" style="display:none;">
+            <span class="sp-action-label">Restaurar backup (do seu PC)</span>
+            <button class="sp-btn sp-btn-outline" id="sp-import-file-btn">Restaurar</button>
           </div>
           <div class="sp-action-row">
             <span class="sp-action-label">Limpar histórico de check-ins</span>
@@ -355,7 +364,7 @@ export default class SettingsPage {
         const isDark = themeToggle.checked;
         const theme = isDark ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem(STORAGE_KEYS.THEME, theme);
+        StorageManager.setItem(STORAGE_KEYS.THEME, theme);
         const iconEl = this.container.querySelector('#sp-theme-toggle-icon');
         if (iconEl) iconEl.textContent = isDark ? '🌙' : '☀️';
         // Sync nav sidebar and mobile topbar theme icons
@@ -373,7 +382,7 @@ export default class SettingsPage {
     const notifCheckin = this.container.querySelector('#sp-notif-checkin');
     if (notifCheckin) {
       notifCheckin.addEventListener('change', () => {
-        localStorage.setItem('suplilist:notif-checkin', notifCheckin.checked ? 'true' : 'false');
+        StorageManager.setItem('suplilist:notif-checkin', notifCheckin.checked ? 'true' : 'false');
       });
     }
 
@@ -381,22 +390,22 @@ export default class SettingsPage {
     const notifRestock = this.container.querySelector('#sp-notif-restock');
     if (notifRestock) {
       notifRestock.addEventListener('change', () => {
-        localStorage.setItem('suplilist:notif-restock', notifRestock.checked ? 'true' : 'false');
+        StorageManager.setItem('suplilist:notif-restock', notifRestock.checked ? 'true' : 'false');
       });
     }
 
-    // Export data
+    // Export data (download via blob)
     const exportBtn = this.container.querySelector('#sp-export-btn');
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
         const data = {};
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
+        const allKeys = StorageManager.getAllKeys();
+        for (const key of allKeys) {
           if (key && key.startsWith('suplilist')) {
             try {
-              data[key] = JSON.parse(localStorage.getItem(key));
+              data[key] = JSON.parse(StorageManager.getItem(key));
             } catch {
-              data[key] = localStorage.getItem(key);
+              data[key] = StorageManager.getItem(key);
             }
           }
         }
@@ -410,6 +419,49 @@ export default class SettingsPage {
         document.body.removeChild(a);
         // Defer revoke so browser has time to start the download before the URL is invalidated
         setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+    }
+
+    // Export data (save via File System API)
+    const exportFileBtn = this.container.querySelector('#sp-export-file-btn');
+    if (exportFileBtn && StorageManager.isFileSystemAPIAvailable()) {
+      this.container.querySelector('#sp-export-file-row').style.display = 'flex';
+      exportFileBtn.addEventListener('click', async () => {
+        exportFileBtn.disabled = true;
+        exportFileBtn.textContent = 'Salvando...';
+        try {
+          const result = await StorageManager.exportToFile();
+          alert(result.message);
+          if (result.success) {
+            exportFileBtn.textContent = '✓ Salvo';
+            setTimeout(() => { exportFileBtn.textContent = 'Salvar'; }, 2000);
+          }
+        } finally {
+          exportFileBtn.disabled = false;
+        }
+      });
+    }
+
+    // Import data (restore via File System API)
+    const importFileBtn = this.container.querySelector('#sp-import-file-btn');
+    if (importFileBtn && StorageManager.isFileSystemAPIAvailable()) {
+      this.container.querySelector('#sp-import-file-row').style.display = 'flex';
+      importFileBtn.addEventListener('click', async () => {
+        importFileBtn.disabled = true;
+        importFileBtn.textContent = 'Restaurando...';
+        try {
+          const result = await StorageManager.importFromFile();
+          alert(result.message);
+          if (result.success) {
+            importFileBtn.textContent = '✓ Restaurado';
+            setTimeout(() => {
+              importFileBtn.textContent = 'Restaurar';
+              location.reload();
+            }, 2000);
+          }
+        } finally {
+          importFileBtn.disabled = false;
+        }
       });
     }
 
@@ -429,7 +481,7 @@ export default class SettingsPage {
         if (!confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.')) return;
         Object.keys(localStorage)
           .filter(k => k.startsWith('suplilist'))
-          .forEach(k => localStorage.removeItem(k));
+          .forEach(k => StorageManager.removeItem(k));
         location.reload();
       });
     }

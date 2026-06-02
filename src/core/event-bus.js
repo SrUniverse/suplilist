@@ -149,25 +149,59 @@ export const EVENTS = Object.freeze({
   ERROR_PERSISTENCE: 'error:persistence', // emitido quando localStorage.setItem falha
 });
 
+/**
+ * EventBus — Global pub/sub system
+ *
+ * Decouples all inter-module communication. Single-threaded event emission
+ * with automatic listener cleanup via WeakRef. Maintains event history
+ * (capped at 50 events) for debugging and replay.
+ *
+ * Features:
+ * - Named events (EVENTS.STACK_UPDATED) with payload
+ * - Wildcard listeners ('*') receive (eventName, payload)
+ * - Specific listeners receive (payload, eventName)
+ * - Auto-cleanup when DOM elements disconnect
+ * - Once-only subscriptions via once()
+ * - Error isolation — listener exceptions emit 'error:system' instead of crashing
+ * - History tracking for debugging
+ */
 export class EventBus {
+  /** @type {Map<string, Set<{callback: Function, elementRef: WeakRef|null, once: boolean}>>} */
   subscribers = new Map();
+  /** @type {Array<{name: string, eventType: string, payload: *, timestamp: number}>} */
   #history = [];
+  /** @type {boolean} */
   #debug = false;
   // P12: shift() é O(n) — limite reduzido de 100 para 50 para manter footprint baixo.
   // Para alta frequência real, substituir por buffer circular com índice de escrita.
+  /** @type {number} */
   #maxHistorySize = 50;
 
   /**
    * Subscribe to an event.
-   * Supports passing an HTMLElement context for auto-unsubscription when disconnected (memory-safe).
    *
-   * Usage:
-   *   eventBus.on('stack:itemAdded', (payload) => { ... }, myComponent);
-   * 
+   * Supports passing an HTMLElement context for automatic unsubscription when the element
+   * disconnects from the DOM (memory-safe cleanup using WeakRef).
+   *
+   * Specific listeners receive: (payload, eventName)
+   * Wildcard listeners receive: (eventName, payload)
+   *
    * @param {string} eventName - Known event name from EVENTS or '*' for wildcard
-   * @param {Function} callback - Callback function
-   * @param {HTMLElement|Object} [options] - Associated DOM element or options object containing { element }
-   * @returns {Function} Unsubscribe function
+   * @param {Function} callback - Callback function invoked on event
+   * @param {HTMLElement|{element: HTMLElement}} [options] - DOM element for auto-cleanup, or options object
+   * @returns {Function} Unsubscribe function — call to remove the listener
+   *
+   * @example
+   * // Simple usage
+   * const unsub = eventBus.on(EVENTS.STACK_UPDATED, (payload) => {
+   *   console.log('Stack changed:', payload);
+   * });
+   *
+   * // With DOM element (auto-cleanup on disconnect)
+   * eventBus.on(EVENTS.CHECKIN_LOGGED, handleCheckIn, myComponentElement);
+   *
+   * // Unsubscribe explicitly
+   * unsub();
    */
   on(eventName, callback, options = null) {
     this.#validateEvent(eventName);
@@ -205,7 +239,20 @@ export class EventBus {
   }
 
   /**
-   * Subscribe once to an event (auto-unsubscribes on first trigger).
+   * Subscribe once to an event (auto-unsubscribes after first trigger).
+   *
+   * Same signature and behavior as on(), but the callback fires exactly once
+   * and is automatically removed.
+   *
+   * @param {string} eventName - Known event name from EVENTS or '*' for wildcard
+   * @param {Function} callback - Callback function invoked on first event
+   * @param {HTMLElement|{element: HTMLElement}} [options] - DOM element for auto-cleanup
+   * @returns {Function} Unsubscribe function
+   *
+   * @example
+   * eventBus.once(EVENTS.ONBOARDING_COMPLETE, () => {
+   *   console.log('Onboarding finished! This prints only once.');
+   * });
    */
   once(eventName, callback, options = null) {
     this.#validateEvent(eventName);
@@ -243,6 +290,16 @@ export class EventBus {
 
   /**
    * Unsubscribe a specific callback from an event.
+   *
+   * Removes the listener for the given event. Safe to call multiple times
+   * or for listeners that are already removed.
+   *
+   * @param {string} eventName - Event name to unsubscribe from
+   * @param {Function} callback - The exact callback function to remove
+   * @returns {void}
+   *
+   * @example
+   * eventBus.off(EVENTS.STACK_UPDATED, myHandler);
    */
   off(eventName, callback) {
     const listeners = this.subscribers.get(eventName);
@@ -257,10 +314,34 @@ export class EventBus {
   }
 
   /**
-   * Emit an event with payload.
-   * 
-   * Specific listeners receive: (payload, eventName)
-   * Wildcard listeners receive: (eventName, payload)
+   * Emit an event with optional payload.
+   *
+   * Triggers all registered listeners for the event plus any wildcard ('*') listeners.
+   * Each event is timestamped and added to history (max 50 events kept).
+   *
+   * Listener exceptions are caught and re-emitted as 'error:system' events to prevent
+   * crash cascades. Disconnected DOM element listeners are pruned automatically.
+   *
+   * Callback signature differs by listener type:
+   * - Specific listeners: callback(payload, eventName)
+   * - Wildcard listeners: callback(eventName, payload)
+   *
+   * @param {string} eventName - Known event name from EVENTS
+   * @param {*} [payload=null] - Optional event payload (any type)
+   * @returns {void}
+   * @throws {Error} If eventName is not in EVENTS and not a test event
+   *
+   * @example
+   * // Simple event, no payload
+   * eventBus.emit(EVENTS.APP_READY);
+   *
+   * // Event with payload
+   * eventBus.emit(EVENTS.STACK_UPDATED, { itemId: '123', quantity: 5 });
+   *
+   * // Wildcard listener example
+   * eventBus.on('*', (eventName, payload) => {
+   *   console.log(`Event: ${eventName}`, payload);
+   * });
    */
   emit(eventName, payload = null) {
     this.#validateEvent(eventName);
@@ -336,6 +417,17 @@ export class EventBus {
     }
   }
 
+  /**
+   * Prune listeners whose DOM elements have been disconnected.
+   *
+   * Uses WeakRef to check if a listener's associated DOM element still exists
+   * and is connected to the document. Removed disconnected listeners to prevent
+   * memory leaks from circular references.
+   *
+   * @param {string} eventName - Event name to prune listeners for
+   * @returns {void}
+   * @private
+   */
   #pruneListeners(eventName) {
     const listeners = this.subscribers.get(eventName);
     if (!listeners) return;
@@ -352,7 +444,20 @@ export class EventBus {
   }
 
   /**
-   * Get recent event history.
+   * Get recent event history (max 50 most recent events).
+   *
+   * Useful for debugging and understanding what events fired and in what order.
+   * Returns a copy of the history array to prevent external mutation.
+   *
+   * @param {string} [filterName] - Optional event name to filter by
+   * @returns {Array<{name: string, eventType: string, payload: *, timestamp: number}>} Event history
+   *
+   * @example
+   * // Get all recent events
+   * const allEvents = eventBus.getHistory();
+   *
+   * // Get only STACK_UPDATED events
+   * const stackEvents = eventBus.getHistory(EVENTS.STACK_UPDATED);
    */
   getHistory(filterName) {
     if (filterName) {
@@ -362,14 +467,26 @@ export class EventBus {
   }
 
   /**
-   * Clear all history logs.
+   * Clear all event history logs.
+   *
+   * @returns {void}
    */
   clearHistory() {
     this.#history = [];
   }
 
   /**
-   * Enable/disable debug logging.
+   * Enable or disable debug logging for EventBus operations.
+   *
+   * When enabled, logs warnings and debug info to the logger. Useful during
+   * development to catch misconfigured event names or listener issues.
+   *
+   * @param {boolean} enabled - True to enable debug logging, false to disable
+   * @returns {void}
+   *
+   * @example
+   * eventBus.setDebug(true); // Enable during development
+   * eventBus.setDebug(false); // Disable for production
    */
   setDebug(enabled) {
     this.#debug = !!enabled;
@@ -377,6 +494,11 @@ export class EventBus {
 
   /**
    * Validate that the event name is known.
+   * Allows '*' (wildcard), 'test:*', and 'event:*' namespaces for testing.
+   *
+   * @param {string} eventName - Event name to validate
+   * @throws {Error} If eventName is not in EVENTS and not a test event
+   * @private
    */
   #validateEvent(eventName) {
     // Allow wildcards and test namespaces
@@ -392,7 +514,20 @@ export class EventBus {
   }
 
   /**
-   * Remove all listeners (useful for testing/cleanup).
+   * Remove all listeners for an event, or clear the entire bus (testing/cleanup).
+   *
+   * Useful for test isolation and cleanup. When called with no arguments,
+   * clears all listeners and history.
+   *
+   * @param {string} [eventName] - Optional specific event to clear. If omitted, clears all.
+   * @returns {void}
+   *
+   * @example
+   * // Clear all listeners and history for testing
+   * eventBus.clear();
+   *
+   * // Clear only STACK_UPDATED listeners
+   * eventBus.clear(EVENTS.STACK_UPDATED);
    */
   clear(eventName) {
     if (eventName) {
@@ -405,7 +540,17 @@ export class EventBus {
   }
 
   /**
-   * Returns the count of registered listeners for an event.
+   * Get the count of registered listeners for an event.
+   *
+   * Automatically prunes disconnected DOM element listeners before counting.
+   * Used for debugging listener registration and detecting memory leaks.
+   *
+   * @param {string} eventName - Event name (or '*' for wildcard count)
+   * @returns {number} Number of active listeners
+   *
+   * @example
+   * const count = eventBus.listenerCount(EVENTS.STACK_UPDATED);
+   * console.log(`${count} listeners registered for STACK_UPDATED`);
    */
   listenerCount(eventName) {
     if (eventName !== '*') {
@@ -416,5 +561,9 @@ export class EventBus {
   }
 }
 
-// Singleton — imported once, shared everywhere
+/**
+ * EventBus singleton instance.
+ * Imported once and shared globally across the application for all inter-module communication.
+ * @type {EventBus}
+ */
 export const eventBus = new EventBus();

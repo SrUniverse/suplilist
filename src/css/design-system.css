@@ -88,9 +88,11 @@
   --font-size-5xl:  48px;
 
   /* Transitions */
-  --transition-fast:   150ms ease;
-  --transition-normal: 220ms ease;
-  --transition-slow:   350ms ease;
+  --transition-fast:   100ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow:   300ms ease;
+  --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   /* Z-index scale */
   --z-base:    0;
@@ -125,6 +127,15 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.14);
+
+  /* Color scheme hint for browser UI (address bar, etc) */
+  color-scheme: light;
+}
+
+/* Dark mode color scheme hint */
+[data-theme="dark"],
+:root {
+  color-scheme: dark;
 }
 
 /* ---------------------------------------------------------------
@@ -206,6 +217,19 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+
+/* Safe area for header/footer on notched devices */
+@supports (padding-top: max(0px, env(safe-area-inset-top))) {
+  header {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  footer {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
 }
 
 a {
@@ -888,6 +912,54 @@ h3, .h3 {
 .animate-spin     { animation: spin 1s linear infinite; }
 
 /* ---------------------------------------------------------------
+   20b. MOBILE KEYBOARD HANDLER — virtual keyboard on iOS/Android
+--------------------------------------------------------------- */
+body.keyboard-visible {
+  /* Prevent layout shift when keyboard appears */
+  overflow: hidden;
+}
+
+body.keyboard-visible #bottom-nav {
+  /* Hide bottom nav when keyboard visible to save space */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Focus on input should be visible above keyboard */
+input:focus,
+textarea:focus,
+select:focus {
+  scroll-margin-top: 120px; /* Space for keyboard scroll */
+}
+
+/* ---------------------------------------------------------------
+   20c. AUTOFILL STYLING — iOS/Android password managers
+--------------------------------------------------------------- */
+/* Override browser autofill colors to match design system */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-surface-primary) inset;
+  -webkit-text-fill-color: var(--color-text-primary);
+  caret-color: var(--color-brand);
+}
+
+input:-webkit-autofill::first-line {
+  font-size: 16px;
+}
+
+/* Smooth autofill transitions */
+input:-webkit-autofill {
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill:focus {
+  transition: background-color 5000s ease-in-out 0s,
+              border-color 0.2s ease;
+}
+
+/* ---------------------------------------------------------------
    21. FOCUS VISIBLE — keyboard navigation
 --------------------------------------------------------------- */
 :focus-visible {
@@ -897,7 +969,21 @@ h3, .h3 {
 }
 
 /* ---------------------------------------------------------------
-   22. REDUCED MOTION — global
+   22. SMOOTH SCROLLING & SCROLL BEHAVIOR
+--------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fast scroll on mobile (don't use smooth for momentum scrolling) */
+@media (max-width: 768px) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------------------------------------------------------------
+   23. REDUCED MOTION — global
 --------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -906,4 +992,181 @@ h3, .h3 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------------------------------------------------------------
+   24. SCREEN READER HELPERS & ACCESSIBILITY
+--------------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Visible focus indicator for keyboard users */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Better contrast for disabled elements */
+input:disabled,
+button:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-surface-hover);
+}
+
+/* ---------------------------------------------------------------
+   24b. TOUCH TARGET SPACING — minimum 44x44px
+--------------------------------------------------------------- */
+/* All interactive elements should meet WCAG AA touch target size */
+a, button, input[type="checkbox"], input[type="radio"], label {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Extra padding around small elements */
+.icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+}
+
+/* ---------------------------------------------------------------
+   25. FORM VALIDATION UX — error states & success feedback
+--------------------------------------------------------------- */
+input:invalid:not(:placeholder-shown),
+textarea:invalid:not(:placeholder-shown) {
+  border-color: var(--color-error);
+}
+
+input:invalid:not(:placeholder-shown):focus {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* Success state (custom validation) */
+input.is-valid,
+textarea.is-valid {
+  border-color: var(--color-success);
+}
+
+input.is-valid:focus,
+textarea.is-valid:focus {
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+/* Required field indicator */
+label[required]::after {
+  content: " *";
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------
+   26. PERFORMANCE OPTIMIZATIONS
+--------------------------------------------------------------- */
+/* GPU acceleration for smooth animations */
+.btn-primary,
+.btn-outline,
+.feature-card,
+.fav-card {
+  will-change: transform;
+}
+
+/* Smooth shadows on hover */
+.fav-card:hover,
+.feature-card:hover {
+  will-change: box-shadow, transform;
+}
+
+/* Prevent layout shift on scrollbar appearance */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* ---------------------------------------------------------------
+   27. RETINA & HIGH-DPI DISPLAY SUPPORT
+--------------------------------------------------------------- */
+@media (min-resolution: 2dppx) {
+  input,
+  select,
+  button,
+  textarea {
+    border-width: 0.5px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   28. PWA NOTIFICATIONS & OFFLINE UI
+--------------------------------------------------------------- */
+.pwa-notification {
+  position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 8000;
+  animation: slide-up var(--transition-normal) var(--transition-smooth);
+}
+
+.pwa-notification--offline {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.pwa-notification--online {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.pwa-notification__icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.pwa-notification__text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Offline state styling */
+body.is-offline {
+  --color-brand: #ef4444;
+}
+
+body.is-offline input:focus,
+body.is-offline select:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* ---------------------------------------------------------------
+   29. PRINT STYLES
+--------------------------------------------------------------- */
+@media print {
+  body { background: white; }
+  * { box-shadow: none !important; }
+  button, input[type="button"], input[type="submit"] { display: none; }
+  .pwa-notification,
+  .modal-overlay,
+  #bottom-nav,
+  #mobile-topbar { display: none !important; }
 }

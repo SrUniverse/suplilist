@@ -34,17 +34,21 @@ const OBJECTIVE_KEY_MAP = {
 
 const PAGE_SIZE = CONST_PAGE_SIZE;
 
-/** Returns the cheapest store entry from prices[item.id], or null. Single source of truth. */
+/** Returns effective cost-per-unit for a store entry (pricePerUnit when available, else price). */
+function getEffectiveCost(store) {
+  return store.pricePerUnit ?? store.price;
+}
+
+/** Returns the best-value store entry from prices[item.id] (lowest pricePerUnit), or null. */
 function getCheapestStore(item, prices) {
   const entries = prices && prices[item.id] ? Object.values(prices[item.id]) : null;
   if (!entries || !entries.length) return null;
-  return entries.reduce((a, b) => a.price < b.price ? a : b);
+  return entries.reduce((a, b) => getEffectiveCost(a) < getEffectiveCost(b) ? a : b);
 }
 
 function getPriceLabel(item, prices) {
   const cheapest = getCheapestStore(item, prices);
   if (cheapest) return { price: cheapest.price, label: cheapest.label };
-  // fallback: dosage.maintenance (converted to grams) * pricePerGram * DAYS_PER_MONTH
   const dose = item.dosage?.maintenance ?? 5;
   const unit = item.dosage?.unit || 'g';
   const ppg = item.pricePerGram ?? 0.3;
@@ -55,6 +59,12 @@ function getPriceLabel(item, prices) {
 function getDosePrice(item, prices) {
   const cheapest = getCheapestStore(item, prices);
   if (cheapest) {
+    if (cheapest.pricePerUnit && cheapest.unit) {
+      const dose = item.dosage?.maintenance ?? 5;
+      const doseInGrams = dosageToGrams(dose, cheapest.unit);
+      const dosePrice = cheapest.pricePerUnit * doseInGrams;
+      return `R$ ${dosePrice.toFixed(2).replace('.', ',')} / dose`;
+    }
     return `R$ ${(cheapest.price / DAYS_PER_MONTH).toFixed(2).replace('.', ',')} / dose`;
   }
   const dose = item.dosage?.maintenance ?? 5;
@@ -528,8 +538,12 @@ export default class ListPage {
         display: flex; align-items: center; justify-content: space-between; gap: 8px;
       }
       .lp-price-card-left { display: flex; flex-direction: column; gap: 2px; }
+      .lp-price-card--best { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.05); }
       .lp-price-card-store { font-size: 11px; color: var(--color-text-muted); font-weight: 600; }
+      .lp-price-card-store-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .lp-price-best-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(34,197,94,0.15); color: #16a34a; padding: 2px 6px; border-radius: 4px; }
       .lp-price-card-val { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
+      .lp-price-qty { font-size: 11px; color: var(--color-text-muted); margin-top: 1px; }
       .lp-price-saving {
         font-size: 10px; font-weight: 700;
         background: rgba(34,197,94,0.12); color: #22C55E;
@@ -928,28 +942,41 @@ export default class ListPage {
     const inStack = stack.some(s => s.supplementId === item.id);
 
     // Build price cards
-    const affLinks = affiliateEngine.getLinks(item.name);
+    const affLinks = affiliateEngine.getLinks(item.name, item.id);
     let priceCardsHtml = '';
     const priceKey = item.id;
     if (this._prices && this._prices[priceKey]) {
       const stores = this._prices[priceKey];
-      priceCardsHtml = Object.entries(stores).map(([storeKey, store]) => `
-        <div class="lp-price-card">
+      const bestStoreKey = Object.entries(stores).reduce((best, [k, s]) =>
+        getEffectiveCost(s) < getEffectiveCost(stores[best]) ? k : best,
+        Object.keys(stores)[0]
+      );
+      priceCardsHtml = Object.entries(stores).map(([storeKey, store]) => {
+        const isBest = storeKey === bestStoreKey;
+        const qtyLabel = store.qty && store.unit
+          ? `${store.qty}${store.unit} · R$ ${(store.pricePerUnit ?? store.price).toFixed(2).replace('.', ',')}/${store.unit}`
+          : '';
+        return `
+        <div class="lp-price-card${isBest ? ' lp-price-card--best' : ''}">
           <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${escapeHtml(String(store.label ?? ''))}</span>
+            <div class="lp-price-card-store-row">
+              <span class="lp-price-card-store">${escapeHtml(String(store.label ?? ''))}</span>
+              ${isBest ? '<span class="lp-price-best-badge">✓ Melhor custo-benefício</span>' : ''}
+            </div>
             <span class="lp-price-card-val">${formatPrice(store.price)}</span>
+            ${qtyLabel ? `<span class="lp-price-qty">${escapeHtml(qtyLabel)}</span>` : ''}
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             ${store.saving ? `<span class="lp-price-saving">-R$ ${escapeHtml(String(store.saving))}</span>` : ''}
             <a class="lp-price-link"
-               href="${sanitizeUrl(affLinks[storeKey] || store.url)}"
+               href="${sanitizeUrl(store.url || affLinks[storeKey])}"
                target="_blank"
                rel="noopener noreferrer"
                data-aff-id="${escapeHtml(item.id)}"
                data-aff-mp="${escapeHtml(storeKey)}">Ver Oferta →</a>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     } else {
       const priceInfo = getPriceLabel(item, null);
       const MP_LIST = [

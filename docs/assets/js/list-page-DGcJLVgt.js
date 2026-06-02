@@ -1,4 +1,4 @@
-import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recommender-JQlhCcvA.js";import{F as O}from"./vendor-PnIxnNo9.js";import{e as n}from"./escape-Br5wU8qn.js";import{E as y}from"./evidence-D5RtUc7g.js";import{a as C}from"./affiliate-engine-DkRd77Xa.js";function A(o,t){const e=(t||"g").toLowerCase().trim();return e==="g"?o:e==="mg"?o/1e3:e==="mcg"?o/1e6:e==="ui"||e==="caps"||e==="capsules"||e==="pills"?o/1e3:o}const I=30,q=24,M=300;function j(o){if(!o||typeof o!="string")return"#";try{const t=new URL(o);return["https:","http:"].includes(t.protocol)?o:"#"}catch{return"#"}}const P=["Todos","Performance","Proteínas","Vitaminas","Adaptógenos","Hormônios","Cognição","Antioxidantes","Sono","Saúde Geral"],B=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco"],R={Hipertrofia:"bulk","Saúde Geral":"general",Longevidade:"general",Performance:"endurance",Foco:"endurance"},E=q;function F(o,t){const e=t&&t[o.id]?Object.values(t[o.id]):null;return!e||!e.length?null:e.reduce((r,l)=>r.price<l.price?r:l)}function z(o,t){const e=F(o,t);if(e)return{price:e.price,label:e.label};const r=o.dosage?.maintenance??5,l=o.dosage?.unit||"g",a=o.pricePerGram??.3;return{price:A(r,l)*a*I,label:null}}function G(o,t){const e=F(o,t);if(e)return`R$ ${(e.price/I).toFixed(2).replace(".",",")} / dose`;const r=o.dosage?.maintenance??5,l=o.dosage?.unit||"g",a=o.pricePerGram??.3;return`R$ ${(A(r,l)*a).toFixed(2).replace(".",",")} / dose`}function N(o,t){const e=o.id;if(!t||!t[e])return null;const r=Object.values(t[e]),l=Math.max(...r.map(a=>a.saving||0));return l>0?l:null}function H(o,t){if(!t||t==="Todos")return!0;const e=(o.category||"").toLowerCase();return t==="Performance"?e.includes("força")||e.includes("performance")||e.includes("resistência")||e.includes("endurance")||e.includes("queima")||e.includes("gordura")||e.includes("recovery"):t==="Proteínas"?e.startsWith("prote"):t==="Vitaminas"?e.includes("vitam"):t==="Adaptógenos"?e.includes("adapt"):t==="Hormônios"?e.includes("hormon")||e.includes("testoster")||e.includes("libido"):t==="Cognição"?e.includes("cogni")||e.includes("neuro")||e.includes("foco"):t==="Antioxidantes"?e.includes("antioxid")||e.includes("anti-inflamat"):t==="Sono"?e.includes("sono")||e.includes("recuper"):t==="Saúde Geral"?e.includes("saúde")||e.includes("geral")||e.includes("imun")||e.includes("intestin")||e.includes("articular")||e.includes("pele")||e.includes("mineral")||e.includes("miner")||e.includes("omega")||e.includes("ômega"):!0}function D(o,t){if(!t)return!0;const e=R[t];return e?o.targets&&o.targets[e]!=null&&o.targets[e]>0:!0}function k(){return new Set(h.favorites??[])}function V(o){k().has(o)?h.dispatch(w.REMOVE_FAVORITE,{supplementId:o}):h.dispatch(w.ADD_FAVORITE,{supplementId:o})}function $(o){return`R$ ${Number(o).toFixed(2).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".")}`}class W{constructor(t,e={}){this.container=t,this._unsubscribe=null,this._fuse=null,this._allItems=[],this._filtered=[],this._page=0,this._query="",this._category="Todos",this._objective=e.objective||"",this._prices=null,this._modalOpen=null,this._debounceTimer=null,this._observer=null,this._boundKeydown=this._onKeydown.bind(this),this._scrollLockStack=[]}mount(){this._attachStyles(),this._allItems=S,this._fuse=new O(this._allItems,{keys:["name","category","benefits"],threshold:.35,includeScore:!0,ignoreLocation:!0}),this._fetchController=new AbortController,fetch("/data/prices.json",{signal:this._fetchController.signal}).then(t=>t.ok?t.json():Promise.reject(new Error(`HTTP ${t.status}`))).then(t=>{this._prices=t,this._renderGrid()}).catch(t=>{t.name!=="AbortError"&&T.warn("[ListPage] prices.json failed to load, using estimates:",t.message)}),this._render(),this._syncObjectiveChip(),this._applyFilters(),this._renderStats(),this._renderGrid(),this._initInfiniteScroll(),this._attachListeners(),this._unsubscribe=h.subscribe(()=>this._refreshCardStates()),document.addEventListener("keydown",this._boundKeydown)}unmount(){this._fetchController?.abort(),this._unsubscribe?.(),this._observer?.disconnect(),document.removeEventListener("keydown",this._boundKeydown),this._closeModal(),clearTimeout(this._debounceTimer);const t=document.getElementById("router-outlet");t&&(t.style.overflow=""),document.body.style.overflow=""}_attachStyles(){if(document.getElementById("list-page-styles"))return;const t=document.createElement("style");t.id="list-page-styles",t.textContent=`
+import{l as T,s as m,A as S}from"./main-D_HDdtcf.js";import{S as E}from"./stack-recommender-BNs1o0Yg.js";import{F as P}from"./vendor-PnIxnNo9.js";import{e as n}from"./escape-Br5wU8qn.js";import{E as w}from"./evidence-D5RtUc7g.js";import{a as A}from"./affiliate-engine-DO75kjRy.js";function j(r,t){const e=(t||"g").toLowerCase().trim();return e==="g"?r:e==="mg"?r/1e3:e==="mcg"?r/1e6:e==="ui"||e==="caps"||e==="capsules"||e==="pills"?r/1e3:r}const F=30,M=24,R=300;function I(r){if(!r||typeof r!="string")return"#";try{const t=new URL(r);return["https:","http:"].includes(t.protocol)?r:"#"}catch{return"#"}}const B=["Todos","Performance","Proteínas","Vitaminas","Adaptógenos","Hormônios","Cognição","Antioxidantes","Sono","Saúde Geral"],G=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco"],N={Hipertrofia:"bulk","Saúde Geral":"general",Longevidade:"general",Performance:"endurance",Foco:"endurance"},L=M;function $(r){return r.pricePerUnit??r.price}function O(r,t){const e=t&&t[r.id]?Object.values(t[r.id]):null;return!e||!e.length?null:e.reduce((o,l)=>$(o)<$(l)?o:l)}function q(r,t){const e=O(r,t);if(e)return{price:e.price,label:e.label};const o=r.dosage?.maintenance??5,l=r.dosage?.unit||"g",a=r.pricePerGram??.3;return{price:j(o,l)*a*F,label:null}}function H(r,t){const e=O(r,t);if(e){if(e.pricePerUnit&&e.unit){const c=r.dosage?.maintenance??5,d=j(c,e.unit);return`R$ ${(e.pricePerUnit*d).toFixed(2).replace(".",",")} / dose`}return`R$ ${(e.price/F).toFixed(2).replace(".",",")} / dose`}const o=r.dosage?.maintenance??5,l=r.dosage?.unit||"g",a=r.pricePerGram??.3;return`R$ ${(j(o,l)*a).toFixed(2).replace(".",",")} / dose`}function D(r,t){const e=r.id;if(!t||!t[e])return null;const o=Object.values(t[e]),l=Math.max(...o.map(a=>a.saving||0));return l>0?l:null}function V(r,t){if(!t||t==="Todos")return!0;const e=(r.category||"").toLowerCase();return t==="Performance"?e.includes("força")||e.includes("performance")||e.includes("resistência")||e.includes("endurance")||e.includes("queima")||e.includes("gordura")||e.includes("recovery"):t==="Proteínas"?e.startsWith("prote"):t==="Vitaminas"?e.includes("vitam"):t==="Adaptógenos"?e.includes("adapt"):t==="Hormônios"?e.includes("hormon")||e.includes("testoster")||e.includes("libido"):t==="Cognição"?e.includes("cogni")||e.includes("neuro")||e.includes("foco"):t==="Antioxidantes"?e.includes("antioxid")||e.includes("anti-inflamat"):t==="Sono"?e.includes("sono")||e.includes("recuper"):t==="Saúde Geral"?e.includes("saúde")||e.includes("geral")||e.includes("imun")||e.includes("intestin")||e.includes("articular")||e.includes("pele")||e.includes("mineral")||e.includes("miner")||e.includes("omega")||e.includes("ômega"):!0}function U(r,t){if(!t)return!0;const e=N[t];return e?r.targets&&r.targets[e]!=null&&r.targets[e]>0:!0}function _(){return new Set(m.favorites??[])}function K(r){_().has(r)?m.dispatch(S.REMOVE_FAVORITE,{supplementId:r}):m.dispatch(S.ADD_FAVORITE,{supplementId:r})}function C(r){return`R$ ${Number(r).toFixed(2).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,".")}`}class ee{constructor(t,e={}){this.container=t,this._unsubscribe=null,this._fuse=null,this._allItems=[],this._filtered=[],this._page=0,this._query="",this._category="Todos",this._objective=e.objective||"",this._prices=null,this._modalOpen=null,this._debounceTimer=null,this._observer=null,this._boundKeydown=this._onKeydown.bind(this),this._scrollLockStack=[]}mount(){this._attachStyles(),this._allItems=E,this._fuse=new P(this._allItems,{keys:["name","category","benefits"],threshold:.35,includeScore:!0,ignoreLocation:!0}),this._fetchController=new AbortController,fetch("/data/prices.json",{signal:this._fetchController.signal}).then(t=>t.ok?t.json():Promise.reject(new Error(`HTTP ${t.status}`))).then(t=>{this._prices=t,this._renderGrid()}).catch(t=>{t.name!=="AbortError"&&T.warn("[ListPage] prices.json failed to load, using estimates:",t.message)}),this._render(),this._syncObjectiveChip(),this._applyFilters(),this._renderStats(),this._renderGrid(),this._initInfiniteScroll(),this._attachListeners(),this._unsubscribe=m.subscribe(()=>this._refreshCardStates()),document.addEventListener("keydown",this._boundKeydown)}unmount(){this._fetchController?.abort(),this._unsubscribe?.(),this._observer?.disconnect(),document.removeEventListener("keydown",this._boundKeydown),this._closeModal(),clearTimeout(this._debounceTimer);const t=document.getElementById("router-outlet");t&&(t.style.overflow=""),document.body.style.overflow=""}_attachStyles(){if(document.getElementById("list-page-styles"))return;const t=document.createElement("style");t.id="list-page-styles",t.textContent=`
       /* ── Layout ── */
       #lp-root {
         display: flex; flex-direction: column; gap: 0;
@@ -338,8 +338,12 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
         display: flex; align-items: center; justify-content: space-between; gap: 8px;
       }
       .lp-price-card-left { display: flex; flex-direction: column; gap: 2px; }
+      .lp-price-card--best { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.05); }
       .lp-price-card-store { font-size: 11px; color: var(--color-text-muted); font-weight: 600; }
+      .lp-price-card-store-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .lp-price-best-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(34,197,94,0.15); color: #16a34a; padding: 2px 6px; border-radius: 4px; }
       .lp-price-card-val { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
+      .lp-price-qty { font-size: 11px; color: var(--color-text-muted); margin-top: 1px; }
       .lp-price-saving {
         font-size: 10px; font-weight: 700;
         background: rgba(34,197,94,0.12); color: #22C55E;
@@ -466,13 +470,13 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
           <div class="lp-filter-row-wrap">
             <div class="lp-filter-row" id="lp-cat-row">
               <span class="lp-filter-label">Categoria</span>
-              ${P.map(t=>`<button class="lp-chip${t==="Todos"?" active":""}" data-cat="${t}">${t}</button>`).join("")}
+              ${B.map(t=>`<button class="lp-chip${t==="Todos"?" active":""}" data-cat="${t}">${t}</button>`).join("")}
             </div>
           </div>
           <div class="lp-filter-row-wrap">
             <div class="lp-filter-row" id="lp-obj-row">
               <span class="lp-filter-label">Objetivo</span>
-              ${B.map(t=>`<button class="lp-chip" data-obj="${t}">${t}</button>`).join("")}
+              ${G.map(t=>`<button class="lp-chip" data-obj="${t}">${t}</button>`).join("")}
             </div>
           </div>
         </div>
@@ -484,20 +488,20 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
           <div class="lp-loading-more" id="lp-loading-more">Carregando mais...</div>
         </div>
       </div>
-    `}_renderStats(){const t=S.length,e=(h.stack||[]).length,r=k().size,l=S.filter(d=>d.evidenceLevel==="A").length,a=157.1,s=(d,g,v,b,x)=>{const p=this.container.querySelector(d),m=this.container.querySelector(g);if(!p||!m)return;m.textContent=v;const i=b>0?Math.min(1,v/b):0;p.style.stroke=x,p.style.strokeDashoffset=a*(1-i)};s("#lp-ring-total","#lp-stat-total",t,t,"var(--color-brand)"),s("#lp-ring-stack","#lp-stat-stack",e,t,"#8B5CF6"),s("#lp-ring-favs","#lp-stat-favs",r,t,"#EF4444"),s("#lp-ring-eva","#lp-stat-eva",l,t,"#22C55E"),this.container.querySelector("#lp-stat-stack")?.closest(".lp-stat-box")?.classList.toggle("stat--empty",e===0)}_applyFilters(){let t=this._allItems;this._query.trim()&&(t=this._fuse?this._fuse.search(this._query).map(r=>r.item):t.filter(r=>r.name.toLowerCase().includes(this._query.toLowerCase()))),t=t.filter(r=>H(r,this._category)),t=t.filter(r=>D(r,this._objective)),this._filtered=t;const e=this.container.querySelector("#lp-results-label");e&&(e.textContent=this._query||this._category!=="Todos"||this._objective?`${this._filtered.length} resultado(s)`:"")}_renderGrid(){if(this._modalOpen)return;const t=this.container.querySelector("#lp-grid");if(!t)return;if(this._page=0,t.innerHTML="",!this._filtered.length){t.innerHTML=`
+    `}_renderStats(){const t=E.length,e=(m.stack||[]).length,o=_().size,l=E.filter(d=>d.evidenceLevel==="A").length,a=157.1,s=(d,u,x,y,k)=>{const g=this.container.querySelector(d),v=this.container.querySelector(u);if(!g||!v)return;v.textContent=x;const i=y>0?Math.min(1,x/y):0;g.style.stroke=k,g.style.strokeDashoffset=a*(1-i)};s("#lp-ring-total","#lp-stat-total",t,t,"var(--color-brand)"),s("#lp-ring-stack","#lp-stat-stack",e,t,"#8B5CF6"),s("#lp-ring-favs","#lp-stat-favs",o,t,"#EF4444"),s("#lp-ring-eva","#lp-stat-eva",l,t,"#22C55E"),this.container.querySelector("#lp-stat-stack")?.closest(".lp-stat-box")?.classList.toggle("stat--empty",e===0)}_applyFilters(){let t=this._allItems;this._query.trim()&&(t=this._fuse?this._fuse.search(this._query).map(o=>o.item):t.filter(o=>o.name.toLowerCase().includes(this._query.toLowerCase()))),t=t.filter(o=>V(o,this._category)),t=t.filter(o=>U(o,this._objective)),this._filtered=t;const e=this.container.querySelector("#lp-results-label");e&&(e.textContent=this._query||this._category!=="Todos"||this._objective?`${this._filtered.length} resultado(s)`:"")}_renderGrid(){if(this._modalOpen)return;const t=this.container.querySelector("#lp-grid");if(!t)return;if(this._page=0,t.innerHTML="",!this._filtered.length){t.innerHTML=`
         <div class="lp-empty">
           <div class="lp-empty-icon">🔍</div>
           <p style="font-weight:700;margin:0 0 6px;">Nenhum resultado</p>
           <p style="font-size:13px;margin:0;">Tente outra busca ou remova os filtros.</p>
-        </div>`;return}const e=this._buildFragment(0,E);t.appendChild(e),this._page=1}_loadMore(){const t=this._page*E;if(t>=this._filtered.length)return;const e=this.container.querySelector("#lp-grid");if(!e)return;const r=this.container.querySelector("#lp-loading-more");r&&(r.style.display="block"),requestAnimationFrame(()=>{e.appendChild(this._buildFragment(t,t+E)),this._page++,r&&(r.style.display="none")})}_buildFragment(t,e){const r=document.createDocumentFragment();h.stack;const l=k();return this._filtered.slice(t,e).forEach(a=>{const s=l.has(a.id),c=a.evidenceLevel,d=y[c]??y.C,g=a.benefits?.[0]??"",v=a.image||`/assets/${a.id.replace(/-/g,"_")}.png`,b=N(a,this._prices),x=z(a,this._prices),p=G(a,this._prices);let m="";b?m=`<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
-          ECONOMIZE R$ ${n(String(b))} NA AMAZON
-        </div>`:a.category&&(m=`<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
+        </div>`;return}const e=this._buildFragment(0,L);t.appendChild(e),this._page=1}_loadMore(){const t=this._page*L;if(t>=this._filtered.length)return;const e=this.container.querySelector("#lp-grid");if(!e)return;const o=this.container.querySelector("#lp-loading-more");o&&(o.style.display="block"),requestAnimationFrame(()=>{e.appendChild(this._buildFragment(t,t+L)),this._page++,o&&(o.style.display="none")})}_buildFragment(t,e){const o=document.createDocumentFragment();m.stack;const l=_();return this._filtered.slice(t,e).forEach(a=>{const s=l.has(a.id),c=a.evidenceLevel,d=w[c]??w.C,u=a.benefits?.[0]??"",x=a.image||`/assets/${a.id.replace(/-/g,"_")}.png`,y=D(a,this._prices),k=q(a,this._prices),g=H(a,this._prices);let v="";y?v=`<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
+          ECONOMIZE R$ ${n(String(y))} NA AMAZON
+        </div>`:a.category&&(v=`<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
           ${n(a.category)}
         </div>`);const i=document.createElement("div");i.className="lp-card",i.role="listitem",i.dataset.id=a.id,i.innerHTML=`
-        ${m}
+        ${v}
         <div class="lp-card-img-wrap">
           <img class="lp-card-img"
-            src="${n(v)}"
+            src="${n(x)}"
             alt="${n(a.name)}"
             loading="lazy"
             importance="auto"
@@ -508,10 +512,10 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
         <div class="lp-card-info">
           <p class="lp-card-name">${n(a.name)}</p>
           <p class="lp-card-cat">${n(a.category??"")}</p>
-          ${g?`<p class="lp-card-desc">${n(g)}</p>`:""}
+          ${u?`<p class="lp-card-desc">${n(u)}</p>`:""}
           <div class="lp-card-price-row">
-            <span class="lp-card-price">${$(x.price)}</span>
-            <span class="lp-card-dose">${p}</span>
+            <span class="lp-card-price">${C(k.price)}</span>
+            <span class="lp-card-dose">${g}</span>
           </div>
           <div class="lp-card-actions">
             <button class="lp-btn-fav${s?" faved":""}" data-action="toggle-fav" data-id="${a.id}" aria-label="${s?"Remover dos favoritos":"Favoritar"}" type="button">
@@ -522,36 +526,39 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
             </button>
           </div>
         </div>
-      `,r.appendChild(i)}),r}_initInfiniteScroll(){const t=this.container.querySelector("#lp-sentinel");if(!(!t||!("IntersectionObserver"in window)))try{this._observer=new IntersectionObserver(e=>{e[0].isIntersecting&&this._loadMore()},{rootMargin:"300px"}),this._observer.observe(t)}catch{this._observer?.disconnect(),this._observer=null}}_refreshCardStates(){this._renderStats();const t=h.stack??[],e=k();if(this.container.querySelectorAll(".lp-card").forEach(r=>{const l=r.dataset.id,a=e.has(l),s=r.querySelector('[data-action="toggle-fav"]');s&&(s.classList.toggle("faved",a),s.textContent=a?"♥":"♡",s.setAttribute("aria-label",a?"Remover dos favoritos":"Favoritar"))}),this._modalOpen){const r=document.querySelector("#lp-modal-add-btn");if(r){const l=t.some(a=>a.supplementId===this._modalOpen);r.classList.toggle("in-stack",l),r.textContent=l?"✓ Já no Stack":"+ Adicionar ao Stack"}}}_pushScrollLock(t="modal"){this._scrollLockStack.includes(t)||(this._scrollLockStack.push(t),document.body.classList.add("has-modal-open"))}_popScrollLock(t="modal"){const e=this._scrollLockStack.indexOf(t);e!==-1&&(this._scrollLockStack.splice(e,1),this._scrollLockStack.length===0&&document.body.classList.remove("has-modal-open"))}_openModal(t){this._closeModal();const e=this._allItems.find(i=>i.id===t);if(!e)return;this._modalOpen=t;const r=e.evidenceLevel,l=y[r]??y.C,a=e.image||`/assets/${e.id.replace(/-/g,"_")}.png`,c=(h.stack??[]).some(i=>i.supplementId===e.id),d=C.getLinks(e.name);let g="";const v=e.id;if(this._prices&&this._prices[v]){const i=this._prices[v];g=Object.entries(i).map(([u,f])=>`
-        <div class="lp-price-card">
+      `,o.appendChild(i)}),o}_initInfiniteScroll(){const t=this.container.querySelector("#lp-sentinel");if(!(!t||!("IntersectionObserver"in window)))try{this._observer=new IntersectionObserver(e=>{e[0].isIntersecting&&this._loadMore()},{rootMargin:"300px"}),this._observer.observe(t)}catch{this._observer?.disconnect(),this._observer=null}}_refreshCardStates(){this._renderStats();const t=m.stack??[],e=_();if(this.container.querySelectorAll(".lp-card").forEach(o=>{const l=o.dataset.id,a=e.has(l),s=o.querySelector('[data-action="toggle-fav"]');s&&(s.classList.toggle("faved",a),s.textContent=a?"♥":"♡",s.setAttribute("aria-label",a?"Remover dos favoritos":"Favoritar"))}),this._modalOpen){const o=document.querySelector("#lp-modal-add-btn");if(o){const l=t.some(a=>a.supplementId===this._modalOpen);o.classList.toggle("in-stack",l),o.textContent=l?"✓ Já no Stack":"+ Adicionar ao Stack"}}}_pushScrollLock(t="modal"){this._scrollLockStack.includes(t)||(this._scrollLockStack.push(t),document.body.classList.add("has-modal-open"))}_popScrollLock(t="modal"){const e=this._scrollLockStack.indexOf(t);e!==-1&&(this._scrollLockStack.splice(e,1),this._scrollLockStack.length===0&&document.body.classList.remove("has-modal-open"))}_openModal(t){this._closeModal();const e=this._allItems.find(i=>i.id===t);if(!e)return;this._modalOpen=t;const o=e.evidenceLevel,l=w[o]??w.C,a=e.image||`/assets/${e.id.replace(/-/g,"_")}.png`,c=(m.stack??[]).some(i=>i.supplementId===e.id),d=A.getLinks(e.name,e.id);let u="";const x=e.id;if(this._prices&&this._prices[x]){const i=this._prices[x],h=Object.entries(i).reduce((p,[f,b])=>$(b)<$(i[p])?f:p,Object.keys(i)[0]);u=Object.entries(i).map(([p,f])=>{const b=p===h,z=f.qty&&f.unit?`${f.qty}${f.unit} · R$ ${(f.pricePerUnit??f.price).toFixed(2).replace(".",",")}/${f.unit}`:"";return`
+        <div class="lp-price-card${b?" lp-price-card--best":""}">
           <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${n(String(f.label??""))}</span>
-            <span class="lp-price-card-val">${$(f.price)}</span>
+            <div class="lp-price-card-store-row">
+              <span class="lp-price-card-store">${n(String(f.label??""))}</span>
+              ${b?'<span class="lp-price-best-badge">✓ Melhor custo-benefício</span>':""}
+            </div>
+            <span class="lp-price-card-val">${C(f.price)}</span>
+            ${z?`<span class="lp-price-qty">${n(z)}</span>`:""}
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             ${f.saving?`<span class="lp-price-saving">-R$ ${n(String(f.saving))}</span>`:""}
             <a class="lp-price-link"
-               href="${j(d[u]||f.url)}"
+               href="${I(f.url||d[p])}"
                target="_blank"
                rel="noopener noreferrer"
                data-aff-id="${n(e.id)}"
-               data-aff-mp="${n(u)}">Ver Oferta →</a>
+               data-aff-mp="${n(p)}">Ver Oferta →</a>
           </div>
-        </div>
-      `).join("")}else{const i=z(e,null);g=[{key:"amazon",label:"Amazon"},{key:"mercadolivre",label:"Mercado Livre"},{key:"shopee",label:"Shopee"}].map(({key:f,label:L})=>`
+        </div>`}).join("")}else{const i=q(e,null);u=[{key:"amazon",label:"Amazon"},{key:"mercadolivre",label:"Mercado Livre"},{key:"shopee",label:"Shopee"}].map(({key:p,label:f})=>`
         <div class="lp-price-card">
           <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${n(L)}</span>
-            <span class="lp-price-card-val">${$(i.price)}</span>
+            <span class="lp-price-card-store">${n(f)}</span>
+            <span class="lp-price-card-val">${C(i.price)}</span>
           </div>
           <a class="lp-price-link"
-             href="${j(d[f])}"
+             href="${I(d[p])}"
              target="_blank"
              rel="noopener noreferrer"
              data-aff-id="${n(e.id)}"
-             data-aff-mp="${n(f)}">Ver Oferta →</a>
+             data-aff-mp="${n(p)}">Ver Oferta →</a>
         </div>
-      `).join("")}const b=e.warnings?.length?`<ul>${e.warnings.map(i=>`<li>${n(i)}</li>`).join("")}</ul>`:'<p style="color:var(--color-text-muted)">Nenhum aviso registrado.</p>',x=e.sideEffects?.length?`<p style="font-weight:600;color:var(--color-text-secondary);margin:10px 0 4px;">Efeitos Colaterais</p><ul>${e.sideEffects.map(i=>`<li>${n(i)}</li>`).join("")}</ul>`:"",p=document.createElement("div");p.id="lp-modal-overlay",p.innerHTML=`
+      `).join("")}const y=e.warnings?.length?`<ul>${e.warnings.map(i=>`<li>${n(i)}</li>`).join("")}</ul>`:'<p style="color:var(--color-text-muted)">Nenhum aviso registrado.</p>',k=e.sideEffects?.length?`<p style="font-weight:600;color:var(--color-text-secondary);margin:10px 0 4px;">Efeitos Colaterais</p><ul>${e.sideEffects.map(i=>`<li>${n(i)}</li>`).join("")}</ul>`:"",g=document.createElement("div");g.id="lp-modal-overlay",g.innerHTML=`
       <div id="lp-modal-box" role="dialog" aria-modal="true" aria-label="${e.name}">
         <button id="lp-modal-close" aria-label="Fechar">✕</button>
 
@@ -562,14 +569,14 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
             </div>
             <p class="lp-modal-img-col-name">${n(e.name)}</p>
             <p class="lp-modal-img-col-cat">${n(e.category??"")}</p>
-            ${r?`<span style="display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:${l.bg};color:${l.color};">Evidência ${r}</span>`:""}
+            ${o?`<span style="display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:${l.bg};color:${l.color};">Evidência ${o}</span>`:""}
             <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin:4px 0 0;">${n(e.benefits?.join(" · ")??"")}</p>
           </div>
 
           <div class="lp-modal-info-col">
             <div>
               <h3>Comparação de Preços</h3>
-              <div class="lp-price-cards">${g}</div>
+              <div class="lp-price-cards">${u}</div>
             </div>
 
             <div>
@@ -588,8 +595,8 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
                   ${e.benefits?.length?`<ul>${e.benefits.map(i=>`<li>${n(i)}</li>`).join("")}</ul>`:'<p style="color:var(--color-text-muted)">Sem dados.</p>'}
                 </div>
                 <div class="lp-tab-pane" id="lp-tab-safety">
-                  ${b}
-                  ${x}
+                  ${y}
+                  ${k}
                 </div>
               </div>
             </div>
@@ -602,4 +609,4 @@ import{l as T,s as h,A as w}from"./main-BWFwH5mN.js";import{S}from"./stack-recom
           </button>
         </div>
       </div>
-    `,document.body.appendChild(p),this._pushScrollLock("modal"),p.querySelectorAll(".lp-tab").forEach(i=>{i.addEventListener("click",()=>{p.querySelectorAll(".lp-tab").forEach(f=>f.classList.remove("active")),p.querySelectorAll(".lp-tab-pane").forEach(f=>f.classList.remove("active")),i.classList.add("active");const u=p.querySelector(`#lp-tab-${i.dataset.tab}`);u&&u.classList.add("active")})}),p.querySelector("#lp-modal-close").addEventListener("click",()=>this._closeModal()),p.addEventListener("click",i=>{i.target===p&&this._closeModal()}),p.addEventListener("click",i=>{const u=i.target.closest("[data-aff-mp]");u&&C.trackClick(u.dataset.affId,u.dataset.affMp)});const m=p.querySelector("#lp-modal-add-btn");m.addEventListener("click",i=>{i.stopPropagation();const u=m.dataset.id,f=this._allItems.find(_=>_.id===u);if(!f)return;(h.stack??[]).some(_=>_.supplementId===u)?h.dispatch(w.REMOVE_FROM_STACK,{supplementId:u}):h.dispatch(w.ADD_TO_STACK,{supplementId:f.id,name:f.name,dosage:f.dosage?.maintenance??5,unit:f.dosage?.unit??"g",quantity:0}),this._refreshCardStates()})}_closeModal(){const t=document.getElementById("lp-modal-overlay");t&&(t.remove(),this._popScrollLock("modal")),this._modalOpen=null}_onKeydown(t){t.key==="Escape"&&this._modalOpen&&this._closeModal()}_syncObjectiveChip(){if(!this._objective)return;const t=this.container.querySelector("#lp-obj-row");if(!t)return;const e=t.querySelector(`[data-obj="${this._objective}"]`);e&&e.classList.add("active")}_attachListeners(){const t=this.container.querySelector("#lp-search");t&&t.addEventListener("input",s=>{clearTimeout(this._debounceTimer),this._debounceTimer=setTimeout(()=>{this._debounceTimer=null,this._query=s.target.value,this._applyFilters(),this._renderGrid()},M)});const e=this.container.querySelector("#lp-trending");e&&e.addEventListener("click",s=>{const c=s.target.closest("[data-trend]");if(!c)return;const d=this.container.querySelector("#lp-search");d&&(d.value=c.dataset.trend),this._query=c.dataset.trend,this._applyFilters(),this._renderGrid()});const r=this.container.querySelector("#lp-cat-row");r&&r.addEventListener("click",s=>{const c=s.target.closest("[data-cat]");c&&(r.querySelectorAll(".lp-chip").forEach(d=>d.classList.remove("active")),c.classList.add("active"),this._category=c.dataset.cat,this._applyFilters(),this._renderGrid())});const l=this.container.querySelector("#lp-obj-row");l&&l.addEventListener("click",s=>{const c=s.target.closest("[data-obj]");if(!c)return;const d=c.classList.contains("active");l.querySelectorAll(".lp-chip").forEach(g=>g.classList.remove("active")),d?this._objective="":(c.classList.add("active"),this._objective=c.dataset.obj),this._applyFilters(),this._renderGrid()});const a=this.container.querySelector("#lp-grid");a&&a.addEventListener("click",s=>{const c=s.target.closest('[data-action="toggle-fav"]');if(c){s.stopPropagation(),V(c.dataset.id),this._refreshCardStates();return}const d=s.target.closest('[data-action="open-modal"]');if(d){s.stopPropagation(),this._openModal(d.dataset.id);return}const g=s.target.closest(".lp-card");g&&g.dataset.id&&this._openModal(g.dataset.id)})}}export{W as default};
+    `,document.body.appendChild(g),this._pushScrollLock("modal"),g.querySelectorAll(".lp-tab").forEach(i=>{i.addEventListener("click",()=>{g.querySelectorAll(".lp-tab").forEach(p=>p.classList.remove("active")),g.querySelectorAll(".lp-tab-pane").forEach(p=>p.classList.remove("active")),i.classList.add("active");const h=g.querySelector(`#lp-tab-${i.dataset.tab}`);h&&h.classList.add("active")})}),g.querySelector("#lp-modal-close").addEventListener("click",()=>this._closeModal()),g.addEventListener("click",i=>{i.target===g&&this._closeModal()}),g.addEventListener("click",i=>{const h=i.target.closest("[data-aff-mp]");h&&A.trackClick(h.dataset.affId,h.dataset.affMp)});const v=g.querySelector("#lp-modal-add-btn");v.addEventListener("click",i=>{i.stopPropagation();const h=v.dataset.id,p=this._allItems.find(b=>b.id===h);if(!p)return;(m.stack??[]).some(b=>b.supplementId===h)?m.dispatch(S.REMOVE_FROM_STACK,{supplementId:h}):m.dispatch(S.ADD_TO_STACK,{supplementId:p.id,name:p.name,dosage:p.dosage?.maintenance??5,unit:p.dosage?.unit??"g",quantity:0}),this._refreshCardStates()})}_closeModal(){const t=document.getElementById("lp-modal-overlay");t&&(t.remove(),this._popScrollLock("modal")),this._modalOpen=null}_onKeydown(t){t.key==="Escape"&&this._modalOpen&&this._closeModal()}_syncObjectiveChip(){if(!this._objective)return;const t=this.container.querySelector("#lp-obj-row");if(!t)return;const e=t.querySelector(`[data-obj="${this._objective}"]`);e&&e.classList.add("active")}_attachListeners(){const t=this.container.querySelector("#lp-search");t&&t.addEventListener("input",s=>{clearTimeout(this._debounceTimer),this._debounceTimer=setTimeout(()=>{this._debounceTimer=null,this._query=s.target.value,this._applyFilters(),this._renderGrid()},R)});const e=this.container.querySelector("#lp-trending");e&&e.addEventListener("click",s=>{const c=s.target.closest("[data-trend]");if(!c)return;const d=this.container.querySelector("#lp-search");d&&(d.value=c.dataset.trend),this._query=c.dataset.trend,this._applyFilters(),this._renderGrid()});const o=this.container.querySelector("#lp-cat-row");o&&o.addEventListener("click",s=>{const c=s.target.closest("[data-cat]");c&&(o.querySelectorAll(".lp-chip").forEach(d=>d.classList.remove("active")),c.classList.add("active"),this._category=c.dataset.cat,this._applyFilters(),this._renderGrid())});const l=this.container.querySelector("#lp-obj-row");l&&l.addEventListener("click",s=>{const c=s.target.closest("[data-obj]");if(!c)return;const d=c.classList.contains("active");l.querySelectorAll(".lp-chip").forEach(u=>u.classList.remove("active")),d?this._objective="":(c.classList.add("active"),this._objective=c.dataset.obj),this._applyFilters(),this._renderGrid()});const a=this.container.querySelector("#lp-grid");a&&a.addEventListener("click",s=>{const c=s.target.closest('[data-action="toggle-fav"]');if(c){s.stopPropagation(),K(c.dataset.id),this._refreshCardStates();return}const d=s.target.closest('[data-action="open-modal"]');if(d){s.stopPropagation(),this._openModal(d.dataset.id);return}const u=s.target.closest(".lp-card");u&&u.dataset.id&&this._openModal(u.dataset.id)})}}export{ee as default};

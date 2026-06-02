@@ -300,15 +300,23 @@ describe('StateManager v4.0', () => {
   // 17. QuotaExceededError safety (No infinite loop/stack overflow)
   it('17. Gracefully handles QuotaExceededError and prevents infinite recursion loops', () => {
     const sm = createTestSM();
-    
-    // Fill the checkins array so that pruning is attempted
-    for (let i = 0; i < 40; i++) {
+
+    // Add 20 old check-ins (>90 days ago) — should be pruned
+    for (let i = 0; i < 20; i++) {
       sm.dispatch({
         type: ACTIONS.ADD_CHECKIN,
-        payload: { supplementId: `supp-${i}`, date: '2026-05-29' }
+        payload: { supplementId: `supp-old-${i}`, date: '2025-01-01' }
       });
     }
-    
+
+    // Add 15 recent check-ins (within last 90 days) — should be kept
+    for (let i = 0; i < 15; i++) {
+      sm.dispatch({
+        type: ACTIONS.ADD_CHECKIN,
+        payload: { supplementId: `supp-new-${i}`, date: '2026-05-29' }
+      });
+    }
+
     // Mock localStorage.setItem to throw QuotaExceededError every time
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = vi.fn().mockImplementation(() => {
@@ -317,11 +325,11 @@ describe('StateManager v4.0', () => {
       throw err;
     });
 
-    // Call prune directly, which would normally recurse infinitely when _flushPersist throws QuotaExceededError again
+    // Call prune directly — should not throw or recurse infinitely
     expect(() => sm._pruneStorage()).not.toThrow();
 
-    // Verify it pruned the checkins down to 30
-    expect(sm.checkins.length).toBe(30);
+    // Old check-ins (2025-01-01) should be pruned; recent ones (2026-05-29) kept
+    expect(sm.checkins.length).toBe(15);
 
     // Restore original setItem
     localStorage.setItem = originalSetItem;

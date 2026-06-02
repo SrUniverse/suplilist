@@ -575,8 +575,11 @@ export class StateManager {
     if (this._isPruning) return;
     this._isPruning = true;
     try {
-      if (this._state.checkins.length > 30) {
-        const prunedCheckins = this._state.checkins.slice(-30);
+      // Keep last 90 days by date, not by entry count.
+      // Pruning by count breaks streak/history when stack has many supplements.
+      const cutoff = offsetISO(90);
+      const prunedCheckins = this._state.checkins.filter(c => c.date && c.date >= cutoff);
+      if (prunedCheckins.length < this._state.checkins.length) {
         this.dispatch({
           type: ACTIONS.PRUNE_CHECKINS_TEST,
           payload: prunedCheckins

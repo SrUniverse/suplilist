@@ -140,6 +140,9 @@ export const EVENTS = Object.freeze({
   STATE_IMPORTED: 'state:imported',
   STATE_REHYDRATED: 'state:rehydrated',   // emitido pelo listener de storage v3
 
+  // Analytics
+  ANALYTICS_EVENT_TRACKED: 'analytics:eventTracked',
+
   // System
   SYSTEM_ERROR: 'error:system',
   COMPONENT_ERROR: 'component:error',

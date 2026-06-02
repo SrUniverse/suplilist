@@ -392,6 +392,7 @@ export default class CheckinPage {
   }
 
   _doCheckin(supplementId, name, showToast = true) {
+    if (this._getCheckedIds().has(supplementId)) return;
     stateManager.dispatch(ACTIONS.ADD_CHECKIN, { supplementId, date: this._getTodayStr() });
     if (showToast) {
       eventBus.emit('toast:show', { message: `✅ ${name} marcado!`, type: 'success' });

@@ -1,4 +1,4 @@
-import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-Br5wU8qn.js";import"./main-CflUif-F.js";class g{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents()}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const t=a.target.closest("[data-nav]");if(t){a.preventDefault();const r=t.getAttribute("data-nav");r&&r.startsWith("/")&&(window.history.pushState(null,null,r),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");o&&o.getAttribute("data-action")==="scroll-features"&&document.getElementById("lp-features")?.scrollIntoView({behavior:"smooth"})},this.container.addEventListener("click",this._onClick)}_template(){const a=n.length,t=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],r=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=[{name:"Amazon",color:"#FF9900",logo:'<svg width="90" height="28" viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#FF9900">amazon</text></svg>'},{name:"Mercado Livre",color:"#FFE600",logo:'<svg width="110" height="28" viewBox="0 0 110 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#FFE600">Mercado Livre</text></svg>'},{name:"Shopee",color:"#EE4D2D",logo:'<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#EE4D2D">shopee</text></svg>'}];return`
+import{S as n}from"./stack-recommender-JQlhCcvA.js";import{e as i}from"./escape-Br5wU8qn.js";import"./main-BWFwH5mN.js";class g{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents()}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const r=a.target.closest("[data-nav]");if(r){a.preventDefault();const t=r.getAttribute("data-nav");t&&t.startsWith("/")&&(window.history.pushState(null,null,t),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const l=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:l?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=n.length,r=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],t=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=[{name:"Amazon",color:"#FF9900",logo:'<svg width="90" height="28" viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#FF9900">amazon</text></svg>'},{name:"Mercado Livre",color:"#FFE600",logo:'<svg width="110" height="28" viewBox="0 0 110 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#FFE600">Mercado Livre</text></svg>'},{name:"Shopee",color:"#EE4D2D",logo:'<svg width="80" height="28" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><text x="0" y="22" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#EE4D2D">shopee</text></svg>'}];return`
       <div class="lp-root">
 
         <nav class="lp-nav" aria-label="Navegação principal">
@@ -47,7 +47,7 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
           <section class="lp-section" id="lp-features" aria-label="Recursos">
             <h2 class="lp-h2">TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
             <div class="lp-grid lp-grid--3">
-              ${t.map(e=>`
+              ${r.map(e=>`
                 <article class="lp-card">
                   <div class="lp-card__icon" aria-hidden="true">${e.icon}</div>
                   <h3 class="lp-card__title">${e.title}</h3>
@@ -73,7 +73,7 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
           <section class="lp-section" aria-label="Filtro por treino">
             <h2 class="lp-h2">FILTRADO POR COMO VOCÊ TREINA.</h2>
             <div class="lp-chips">
-              ${r.map(e=>`<button class="lp-chip" data-nav="/list?objective=${encodeURIComponent(e)}" type="button">${e}</button>`).join("")}
+              ${t.map(e=>`<button class="lp-chip" data-nav="/list?objective=${encodeURIComponent(e)}" type="button" aria-label="Ver suplementos para ${i(e)}">${i(e)}</button>`).join("")}
             </div>
           </section>
 
@@ -101,7 +101,7 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
               <div class="lp-ig__inner">
                 <div class="lp-ig__left">
                   <div class="lp-ig__icon" aria-hidden="true">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                   </div>
                   <div>
                     <p class="lp-ig__handle">@suplilist</p>
@@ -173,11 +173,11 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
 
       </div>
     `}_heroMockupCards(){return`<div class="lp-mock-stack">
-      ${n.slice(0,3).map(t=>{let o=t.dosage?.maintenance??5;const r=t.dosage?.unit||"g";r==="mg"?o=o/1e3:r==="mcg"?o=o/1e6:r==="UI"&&(o=o*25e-6);const l=(o*(t.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=t.evidenceLevel||"A";return`
+      ${n.slice(0,3).map(r=>{let o=r.dosage?.maintenance??5;const t=r.dosage?.unit||"g";t==="mg"?o=o/1e3:t==="mcg"?o=o/1e6:t==="UI"&&(o=o*25e-6);const l=(o*(r.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=r.evidenceLevel||"A";return`
           <div class="lp-mock-card">
             <div class="lp-mock-card__ev">EV. ${i(String(e))}</div>
-            <div class="lp-mock-card__name">${i(t.name)}</div>
-            <div class="lp-mock-card__cat">${i(t.category||"")}</div>
+            <div class="lp-mock-card__name">${i(r.name)}</div>
+            <div class="lp-mock-card__cat">${i(r.category||"")}</div>
             <div class="lp-mock-card__price">R$ ${i(l)}<span class="lp-mock-card__dose"> / mês</span></div>
           </div>`}).join("")}
     </div>`}_injectStyle(){if(document.querySelector('[data-page="home"]'))return;const a=document.createElement("style");a.setAttribute("data-page","home"),a.textContent=`
@@ -226,10 +226,8 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
         white-space: nowrap; line-height: 1;
       }
       .lp-btn:active { transform: translateY(1px); }
-      .lp-btn--sm { font-size: 14px; padding: 9px 16px; }
+      .lp-btn--sm { font-size: 14px; padding: 9px 16px; min-height: 44px; }
       .lp-btn--lg { font-size: 16px; padding: 15px 26px; }
-      .lp-btn--primary { background: var(--color-brand, #7C3AED); color: #fff; }
-      .lp-btn--primary:hover { background: var(--color-brand-hover, #6D28D9); }
       .lp-btn--outline {
         background: transparent; color: var(--color-text-primary, #F2F2F2);
         border-color: var(--color-border-strong, rgba(255,255,255,0.14));
@@ -240,12 +238,13 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
       .lp-hero {
         position: relative; min-height: 100vh;
         display: flex; align-items: center; justify-content: center;
-        text-align: center; padding: 120px 24px 80px; overflow: hidden;
+        text-align: center; padding: 140px 24px 100px; overflow: hidden;
       }
       .lp-hero__bg {
         position: absolute; inset: 0; z-index: 0; pointer-events: none;
         background:
-          radial-gradient(60% 50% at 50% 0%, var(--color-brand-muted, rgba(124,58,237,0.12)), transparent 70%),
+          radial-gradient(70% 55% at 50% 0%, rgba(124,58,237,0.18), transparent 65%),
+          radial-gradient(40% 30% at 80% 20%, rgba(124,58,237,0.06), transparent 60%),
           var(--color-bg-primary, #080808);
       }
       /* Two-column hero layout */
@@ -253,7 +252,7 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
         position: relative; z-index: 1;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 64px;
+        gap: 72px;
         align-items: center;
         max-width: 1160px;
       }
@@ -262,44 +261,61 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
         text-align: left;
       }
       .lp-pill {
-        display: inline-block; font-size: 13px; font-weight: 500;
-        color: var(--color-text-secondary, #9A9A9A);
-        background: var(--color-surface-secondary, #161616);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        padding: 7px 16px; border-radius: 999px; margin-bottom: 28px;
+        display: inline-flex; align-items: center; gap: 8px;
+        font-size: 13px; font-weight: 700;
+        color: #9F7AEA;
+        background: rgba(124,58,237,0.08);
+        border: 1px solid rgba(124,58,237,0.25);
+        padding: 7px 16px; border-radius: 999px; margin-bottom: 32px;
+        letter-spacing: 0.01em;
       }
       .lp-hero__title {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
-        font-size: clamp(28px, 8vw, 96px); line-height: 1.05;
-        letter-spacing: -0.03em; margin: 0 0 24px;
+        font-size: clamp(36px, 8vw, 112px); line-height: 1.02;
+        letter-spacing: -0.04em; margin: 0 0 28px;
         overflow-wrap: break-word; word-break: break-word;
       }
       .lp-accent { color: var(--color-brand, #7C3AED); }
       .lp-hero__sub {
-        font-size: 18px; line-height: 1.6;
+        font-size: 19px; line-height: 1.65;
         color: var(--color-text-secondary, #9A9A9A);
-        margin: 0 0 36px;
+        margin: 0 0 48px; max-width: 480px;
       }
       .lp-hero__cta {
-        display: flex; gap: 14px;
-        flex-wrap: wrap; margin-bottom: 40px;
+        display: flex; gap: 18px;
+        flex-wrap: wrap; margin-bottom: 56px;
         justify-content: flex-start;
+      }
+      .lp-btn--primary {
+        background: var(--color-brand, #7C3AED); color: #fff;
+        box-shadow: 0 4px 20px rgba(124,58,237,0.30);
+      }
+      .lp-btn--primary:hover {
+        background: var(--color-brand-hover, #6D28D9);
+        box-shadow: 0 6px 28px rgba(124,58,237,0.45);
+        transform: translateY(-1px);
       }
 
       /* Mock product cards */
       .lp-mock-stack {
-        display: flex; flex-direction: column; gap: 12px;
+        display: flex; flex-direction: column; gap: 14px;
       }
       .lp-mock-card {
         background: var(--color-surface-primary, #111111);
         border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-radius: 14px; padding: 20px 22px;
+        border-left: 4px solid var(--color-brand, #7C3AED);
+        border-radius: 14px; padding: 22px 24px;
         display: flex; flex-direction: column; gap: 6px;
-        transition: transform .3s ease, border-color .3s ease;
+        transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
       }
       .lp-mock-card:hover {
-        transform: translateX(-4px);
-        border-color: var(--color-border-strong, rgba(255,255,255,0.14));
+        transform: translateX(-6px);
+        border-top-color: rgba(124,58,237,0.3);
+        border-right-color: rgba(124,58,237,0.3);
+        border-bottom-color: rgba(124,58,237,0.3);
+        border-left-color: var(--color-brand, #7C3AED);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(124,58,237,0.1);
       }
       .lp-mock-card__ev {
         font-size: 10px; font-weight: 700; letter-spacing: .08em;
@@ -309,58 +325,69 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
         width: fit-content;
       }
       .lp-mock-card__name { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
-      .lp-mock-card__cat  { font-size: 12px; color: var(--color-text-muted); }
-      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand); margin-top: 4px; }
-      .lp-mock-card__dose  { font-size: 11px; color: var(--color-text-muted); font-weight: 400; }
+      .lp-mock-card__cat  { font-size: 12px; color: var(--color-text-secondary, #9A9A9A); }
+      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand); margin-top: 6px; }
+      .lp-mock-card__dose  { font-size: 11px; color: var(--color-text-secondary, #9A9A9A); font-weight: 400; }
       .lp-hero__stats {
-        font-size: 14px; color: var(--color-text-muted, #555555);
-        margin: 0; letter-spacing: 0.01em;
+        font-size: 13px; color: var(--color-text-muted, #555555);
+        margin: 0; letter-spacing: 0.02em;
       }
 
       /* ── SEÇÕES ── */
-      .lp-section-wrap { width: 100%; }
-      .lp-section-wrap--alt { background: var(--color-bg-secondary, #0F0F0F); }
-      .lp-section { max-width: 1160px; margin: 0 auto; padding: 80px 24px; }
+      .lp-section-wrap { width: 100%; border-top: 1px solid var(--color-border, rgba(255,255,255,0.07)); }
+      .lp-section-wrap--alt {
+        background: linear-gradient(180deg, rgba(124,58,237,0.03) 0%, var(--color-bg-secondary, #0F0F0F) 40%);
+        border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
+      }
+      .lp-section { max-width: 1160px; margin: 0 auto; padding: 96px 24px; }
       .lp-h2 {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
-        font-size: clamp(28px, 4.5vw, 48px); line-height: 1.1;
-        letter-spacing: -0.02em; text-align: center; margin: 0 0 56px;
+        font-size: clamp(32px, 4.5vw, 56px); line-height: 1.08;
+        letter-spacing: -0.03em; text-align: center; margin: 0 0 64px;
       }
 
-      .lp-grid { display: grid; gap: 20px; }
+      .lp-grid { display: grid; gap: 24px; }
       .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
       .lp-card, .lp-step {
         background: var(--color-surface-primary, #111111);
         border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-radius: 16px; padding: 32px;
-        transition: border-color .2s ease, transform .2s ease;
+        border-left: 4px solid var(--color-brand, #7C3AED);
+        border-radius: 16px; padding: 36px;
+        transition: border-color .2s ease, transform .22s ease, box-shadow .22s ease;
       }
       .lp-card:hover, .lp-step:hover {
-        border-color: var(--color-border-strong, rgba(255,255,255,0.14));
-        transform: translateY(-3px);
+        border-top-color: rgba(124,58,237,0.3);
+        border-right-color: rgba(124,58,237,0.3);
+        border-bottom-color: rgba(124,58,237,0.3);
+        border-left-color: var(--color-brand, #7C3AED);
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.08);
       }
       .lp-card__icon {
-        width: 52px; height: 52px; border-radius: 14px;
+        width: 64px; height: 64px; border-radius: 16px;
         display: flex; align-items: center; justify-content: center;
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
+        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
+        margin-bottom: 24px;
       }
       .lp-card__title {
-        font-size: 19px; font-weight: 700; margin: 0 0 10px;
+        font-size: 20px; font-weight: 700; margin: 0 0 12px; line-height: 1.2;
         color: var(--color-text-primary, #F2F2F2);
       }
       .lp-card__text {
-        font-size: 15px; line-height: 1.6; margin: 0;
+        font-size: 15px; line-height: 1.65; margin: 0;
         color: var(--color-text-secondary, #9A9A9A);
       }
       .lp-step__num {
-        width: 44px; height: 44px; border-radius: 12px;
+        width: 56px; height: 56px; border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 20px;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 24px;
         color: var(--color-brand, #7C3AED);
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
-        margin-bottom: 18px;
+        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
+        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
+        margin-bottom: 22px;
       }
 
       /* ── CHIPS ── */
@@ -382,21 +409,29 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
       .lp-market {
         background: var(--color-surface-primary, #111111);
         border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-radius: 16px; padding: 28px 32px;
+        border-left: 6px solid var(--mk-color, rgba(255,255,255,0.14));
+        border-radius: 16px; padding: 32px 36px;
         display: flex; flex-direction: column;
         align-items: flex-start; gap: 20px;
-        transition: border-color .2s ease, transform .2s ease;
+        transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease;
+        background-image: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
       }
       .lp-market:hover {
-        border-color: var(--mk-color, rgba(255,255,255,0.14));
-        transform: translateY(-2px);
+        border-top-color: rgba(255,255,255,0.12);
+        border-right-color: rgba(255,255,255,0.12);
+        border-bottom-color: rgba(255,255,255,0.12);
+        border-left-color: var(--mk-color, rgba(255,255,255,0.3));
+        transform: translateY(-5px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
       }
       .lp-market__logo { display: flex; align-items: center; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;
         color: var(--color-success, #22C55E);
         background: rgba(34, 197, 94, 0.12);
-        padding: 5px 12px; border-radius: 999px;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        padding: 5px 14px; border-radius: 999px;
+        letter-spacing: 0.02em;
       }
 
       /* ── CTA FINAL ── */
@@ -478,6 +513,7 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
         margin-bottom: 12px; transition: color .15s ease; cursor: pointer;
       }
       .lp-footer__link:hover { color: var(--color-text-primary, #F2F2F2); }
+      .lp-footer__link--ig { color: var(--color-text-secondary, #9A9A9A); display: inline-flex; align-items: center; }
       .lp-disclaimer {
         max-width: 1160px; margin: 56px auto 0; padding-top: 28px;
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
@@ -490,42 +526,92 @@ import{S as n}from"./stack-recommender-L2OG55lm.js";import{e as i}from"./escape-
 
       /* ── ANIMAÇÃO ── */
       @keyframes lp-fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(24px); }
         to   { opacity: 1; transform: translateY(0); }
       }
-      .lp-anim { opacity: 0; animation: lp-fade-in-up .6s ease forwards; animation-delay: var(--d, 0s); }
+      @keyframes lp-fade-in-scale {
+        from { opacity: 0; transform: scale(0.96) translateY(12px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      @keyframes lp-pulse-glow-opacity {
+        0%, 100% { opacity: 0; transform: scale(0.95); }
+        50%       { opacity: 1; transform: scale(1.05); }
+      }
+      .lp-anim {
+        opacity: 0;
+        animation: lp-fade-in-up .65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: var(--d, 0s);
+      }
+      .lp-mock-card {
+        animation: lp-fade-in-scale .5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      .lp-mock-stack .lp-mock-card:nth-child(1) { animation-delay: .28s; }
+      .lp-mock-stack .lp-mock-card:nth-child(2) { animation-delay: .38s; }
+      .lp-mock-stack .lp-mock-card:nth-child(3) { animation-delay: .48s; }
+      .lp-btn--primary { position: relative; overflow: visible; }
+      .lp-btn--primary::after {
+        content: ''; position: absolute; inset: -4px;
+        border-radius: inherit;
+        background: rgba(124,58,237,0.35); filter: blur(12px);
+        opacity: 0; pointer-events: none; z-index: -1;
+        animation: lp-pulse-glow-opacity 3s ease-in-out infinite;
+      }
+      .lp-btn--primary:hover::after { animation: none; opacity: 0; }
 
-      /* Mobile: single column, hide right panel */
+      /* ── 860px: hero single column ── */
       @media (max-width: 860px) {
         .lp-hero__inner {
           grid-template-columns: 1fr;
           text-align: center;
+          gap: 48px;
         }
         .lp-hero__left { align-items: center; }
+        .lp-hero__left .lp-hero__sub { max-width: 520px; }
         .lp-hero__cta  { justify-content: center; }
         .lp-hero__right { display: none; }
+        .lp-pill { align-self: center; }
       }
 
-      /* ── RESPONSIVO ── */
+      /* ── 768px: tablet ── */
       @media (max-width: 768px) {
         .lp-grid--3 { grid-template-columns: 1fr; }
         .lp-footer__grid { grid-template-columns: 1fr 1fr; }
         .lp-footer__brand { grid-column: 1 / -1; }
-        .lp-section { padding: 56px 20px; }
-        .lp-hero { padding: 100px 20px 64px; }
-        .lp-hero__cta .lp-btn { flex: 1 1 auto; }
+        .lp-section { padding: 64px 20px; }
+        .lp-hero { padding: 110px 20px 72px; min-height: auto; }
+        .lp-hero__cta .lp-btn { flex: 1 1 auto; min-height: 52px; }
+        .lp-h2 { margin-bottom: 48px; }
+        .lp-card, .lp-step { border-left-width: 3px; }
+        .lp-market { border-left-width: 4px; padding: 24px 28px; }
+        .lp-ig__inner { flex-direction: column; align-items: flex-start; gap: 20px; }
       }
+
+      /* ── 480px: mobile ── */
       @media (max-width: 480px) {
         .lp-footer__grid { grid-template-columns: 1fr; }
-        .lp-hero__title { font-size: clamp(24px, 9vw, 40px); }
-        .lp-h2 { font-size: clamp(20px, 7vw, 32px); margin-bottom: 36px; }
-        .lp-cta__title { font-size: clamp(24px, 8vw, 40px); }
-        .lp-hero { padding: 90px 16px 56px; }
-        .lp-section { padding: 48px 16px; }
-        .lp-card, .lp-step { padding: 24px 20px; }
+        .lp-hero__title { font-size: clamp(28px, 9vw, 44px); }
+        .lp-hero__sub { font-size: 17px; margin-bottom: 36px; }
+        .lp-h2 { font-size: clamp(24px, 7vw, 36px); margin-bottom: 40px; }
+        .lp-cta__title { font-size: clamp(26px, 8vw, 44px); }
+        .lp-hero { padding: 96px 16px 60px; }
+        .lp-section { padding: 56px 16px; }
+        .lp-card, .lp-step { padding: 26px 20px; }
+        .lp-card__icon { width: 52px; height: 52px; }
+        .lp-step__num { width: 48px; height: 48px; font-size: 20px; }
+        .lp-hero__cta { gap: 12px; }
+        .lp-chips { gap: 10px; }
+        .lp-chip { padding: 10px 18px; font-size: 14px; }
+        .lp-pill { font-size: 12px; padding: 6px 14px; }
       }
+
+      /* ── prefers-reduced-motion ── */
       @media (prefers-reduced-motion: reduce) {
         .lp-anim { animation: none; opacity: 1; }
-        .lp-card:hover, .lp-step:hover { transform: none; }
+        .lp-mock-card { animation: none; opacity: 1; }
+        .lp-card:hover, .lp-step:hover { transform: none; box-shadow: none; }
+        .lp-market:hover { transform: none; box-shadow: none; }
+        .lp-btn--primary { animation: none; }
+        .lp-btn--primary:hover { transform: none; }
+        .lp-mock-card:hover { transform: none; }
       }
     `,document.head.appendChild(a),this._styleEl=a}}export{g as default};

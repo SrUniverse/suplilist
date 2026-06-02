@@ -283,7 +283,7 @@ export default class HistoryPage {
       const totalDays = sortedDates.length;
 
       // Adherence: days with checkin / days since first checkin (or 30, whichever smaller)
-      const daysSinceFirst = firstDate ? Math.max(1, Math.ceil((new Date(today) - new Date(firstDate)) / 86400000) + 1) : 1;
+      const daysSinceFirst = firstDate ? Math.max(1, Math.ceil((new Date(today + 'T12:00:00') - new Date(firstDate + 'T12:00:00')) / 86400000) + 1) : 1;
       const windowDays = Math.min(daysSinceFirst, 30);
       const adPct = Math.round((totalDays / windowDays) * 100);
 

@@ -1,4 +1,4 @@
-import{s as c,A as b,o as E}from"./main-CflUif-F.js";import{S as x}from"./stack-recommender-L2OG55lm.js";import{r as $}from"./evidence-D5RtUc7g.js";import{e as d}from"./escape-Br5wU8qn.js";import{a as k}from"./affiliate-engine-BZYloqLQ.js";function f(i){return i==null?null:i.supplementId??i.id??null}let g=null;async function S(){if(g)return g;try{g=await(await fetch("/data/prices.json")).json()}catch{g={}}return g}function y(i){return"R$ "+i.toFixed(2).replace(".",",")}function w(i){return i.reduce((e,t)=>{const o=x.find(p=>p.id===f(t))?.pricePerGram??0,r=parseFloat(t.dosage)||0,n=(t.unit||"g").toLowerCase();let l;if(n==="g")l=r;else if(n==="mg")l=r/1e3;else if(n==="mcg")l=r/1e6;else return e;return e+l*o*30},0)}function I(i){if(!i.length)return"0%";const e=[];for(let r=0;r<7;r++)e.push(E(r));const t=c.checkins??[],s=new Set(t.map(r=>r.date)),o=e.filter(r=>s.has(r)).length;return Math.round(o/7*100)+"%"}function z(i){const e=x.find(s=>s.id===f(i));return e?.image?e.image:`/assets/${(i.name??"").toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"")}.png`}function C(i){return x.find(t=>t.id===f(i))?.evidenceLevel??"C"}function L(i){const e=parseFloat(i.quantity),t=parseFloat(i.dosage);return!e||!t||t<=0?null:Math.max(0,Math.floor(e/t))}const M=`
+import{s as c,A as b,o as E}from"./main-BWFwH5mN.js";import{S as x}from"./stack-recommender-JQlhCcvA.js";import{r as $}from"./evidence-D5RtUc7g.js";import{e as p}from"./escape-Br5wU8qn.js";import{a as k}from"./affiliate-engine-DkRd77Xa.js";function f(n){return n==null?null:n.supplementId??n.id??null}let g=null;async function I(){if(g)return g;try{g=await(await fetch("/data/prices.json")).json()}catch{g={}}return g}function y(n){return"R$ "+n.toFixed(2).replace(".",",")}function w(n){return n.reduce((e,t)=>{const s=x.find(d=>d.id===f(t))?.pricePerGram??0,i=parseFloat(t.dosage)||0,r=(t.unit||"g").toLowerCase();let l;if(r==="g")l=i;else if(r==="mg")l=i/1e3;else if(r==="mcg")l=i/1e6;else return e;return e+l*s*30},0)}function S(n){if(!n.length)return"0%";const e=c.checkins??[],t=new Set(n.map(s=>s.supplementId??s.id));let o=0;for(let s=0;s<7;s++){const i=E(s),r=new Set(e.filter(d=>d.date===i).map(d=>d.supplementId));[...t].every(d=>r.has(d))&&o++}return Math.round(o/7*100)+"%"}function C(n){const e=x.find(o=>o.id===f(n));return e?.image?e.image:`/assets/${(n.name??"").toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"")}.png`}function z(n){return x.find(t=>t.id===f(n))?.evidenceLevel??"C"}function L(n){const e=parseFloat(n.quantity),t=parseFloat(n.dosage);return!e||!t||t<=0?null:Math.max(0,Math.floor(e/t))}const M=`
   /* Layout */
   .msp-wrap {
     display: flex;
@@ -519,7 +519,7 @@ import{s as c,A as b,o as E}from"./main-CflUif-F.js";import{S as x}from"./stack-
     background: var(--color-border);
     margin: 0;
   }
-`;class R{constructor(e){this.container=e,this._unsub=null,this._editId=null,this._modalOpen=!1,this._prices=null,this._docClickHandler=null}mount(){this._isMounted=!0,this._attachStyles(),this._render(),S().then(e=>{this._isMounted&&(this._prices=e,this._renderReplenishment())}),this._unsub=c.subscribe((e,t)=>{if(!this._isMounted)return;(!t||["ADD_TO_STACK","REMOVE_FROM_STACK","UPDATE_STACK_ITEM","SET_STACK_QUANTITY","ADD_CHECKIN"].includes(t.type))&&this._renderAll()})}unmount(){this._isMounted=!1,this._docClickHandler&&(document.removeEventListener("click",this._docClickHandler),this._docClickHandler=null),this._unsub?.(),this._closeModal()}_attachStyles(){if(document.getElementById("msp2-styles"))return;const e=document.createElement("style");e.id="msp2-styles",e.textContent=M,document.head.appendChild(e)}_render(){this.container.innerHTML=`
+`;class R{constructor(e){this.container=e,this._unsub=null,this._editId=null,this._modalOpen=!1,this._prices=null,this._docClickHandler=null}mount(){this._isMounted=!0,this._attachStyles(),this._render(),I().then(e=>{this._isMounted&&(this._prices=e,this._renderReplenishment())}),this._unsub=c.subscribe((e,t)=>{if(!this._isMounted)return;(!t||["ADD_TO_STACK","REMOVE_FROM_STACK","UPDATE_STACK_ITEM","SET_STACK_QUANTITY","ADD_CHECKIN"].includes(t.type))&&this._renderAll()})}unmount(){this._isMounted=!1,this._docClickHandler&&(document.removeEventListener("click",this._docClickHandler),this._docClickHandler=null),this._unsub?.(),this._closeModal()}_attachStyles(){if(document.getElementById("msp2-styles"))return;const e=document.createElement("style");e.id="msp2-styles",e.textContent=M,document.head.appendChild(e)}_render(){this.container.innerHTML=`
       <div class="msp-wrap">
         <!-- Header -->
         <div>
@@ -554,13 +554,13 @@ import{s as c,A as b,o as E}from"./main-CflUif-F.js";import{S as x}from"./stack-
           </aside>
         </div>
       </div>
-    `,this._renderAll(),this._attachDelegatedListeners(),this.container.querySelector("#msp-open-modal")?.addEventListener("click",()=>this._openModal())}_renderAll(){this._renderSubtitle(),this._renderStats(),this._renderList(),this._prices&&this._renderReplenishment()}_renderSubtitle(){const e=c.stack??[],t=w(e),s=this.container.querySelector("#msp-subtitle");s&&(s.textContent=`${e.length} suplemento${e.length!==1?"s":""} ativo${e.length!==1?"s":""} · ${y(t)}/mês estimado`)}_renderStats(){const e=this.container.querySelector("#msp-stats");if(!e)return;const t=c.stack??[],s=w(t),o=I(t);e.innerHTML=`
+    `,this._renderAll(),this._attachDelegatedListeners(),this.container.querySelector("#msp-open-modal")?.addEventListener("click",()=>this._openModal())}_renderAll(){this._renderSubtitle(),this._renderStats(),this._renderList(),this._prices&&this._renderReplenishment()}_renderSubtitle(){const e=c.stack??[],t=w(e),o=this.container.querySelector("#msp-subtitle");o&&(o.textContent=`${e.length} suplemento${e.length!==1?"s":""} ativo${e.length!==1?"s":""} · ${y(t)}/mês estimado`)}_renderStats(){const e=this.container.querySelector("#msp-stats");if(!e)return;const t=c.stack??[],o=w(t),s=S(t);e.innerHTML=`
       <div class="msp-stat-card">
         <div class="msp-stat-icon">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
         <span class="msp-stat-label">Investimento Mensal</span>
-        <span class="msp-stat-value brand">${y(s)}</span>
+        <span class="msp-stat-value brand">${y(o)}</span>
         <span class="msp-stat-sub">Estimado por stack atual</span>
       </div>
       <div class="msp-stat-card">
@@ -576,7 +576,7 @@ import{s as c,A as b,o as E}from"./main-CflUif-F.js";import{S as x}from"./stack-
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <span class="msp-stat-label">Taxa de Adesão</span>
-        <span class="msp-stat-value">${o}</span>
+        <span class="msp-stat-value">${s}</span>
         <span class="msp-stat-sub">Últimos 7 dias</span>
       </div>
     `}_renderList(){const e=this.container.querySelector("#msp-list");if(!e)return;const t=c.stack??[];if(!t.length){e.innerHTML=`
@@ -586,63 +586,63 @@ import{s as c,A as b,o as E}from"./main-CflUif-F.js";import{S as x}from"./stack-
           <p class="msp-empty-desc">Adicione os suplementos que você está tomando para acompanhar seu protocolo.</p>
           <button class="msp-empty-cta" id="msp-empty-cta">Explorar Catálogo →</button>
         </div>
-      `,this.container.querySelector("#msp-empty-cta")?.addEventListener("click",()=>this._openModal());return}e.innerHTML="",t.forEach(s=>{const o=f(s),r=L(s),n=z(s),l=$(C(s)),p=document.createElement("div");p.className="msp-item",p.dataset.itemId=o;const a=x.find(_=>_.id===o),m=a?.category??"",h=a?.benefits?.[0]??"",v=k.getLinks(s.name);p.innerHTML=`
+      `,this.container.querySelector("#msp-empty-cta")?.addEventListener("click",()=>this._openModal());return}e.innerHTML="",t.forEach(o=>{const s=f(o),i=L(o),r=C(o),l=$(z(o)),d=document.createElement("div");d.className="msp-item",d.dataset.itemId=s;const a=x.find(_=>_.id===s),m=a?.category??"",v=a?.benefits?.[0]??"",h=k.getLinks(o.name);d.innerHTML=`
         <div class="msp-item-top">
           <img class="msp-item-img"
-            src="${n}"
-            alt="${s.name}"
+            src="${r}"
+            alt="${o.name}"
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'72\\' height=\\'72\\'%3E%3Crect width=\\'72\\' height=\\'72\\' rx=\\'12\\' fill=\\'%23161616\\'/%3E%3Ctext x=\\'50%25\\' y=\\'55%25\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'28\\' fill=\\'%23555555\\'%3E💊%3C/text%3E%3C/svg%3E'">
           <div class="msp-item-info">
             ${m?`<p class="msp-item-cat">${m}</p>`:""}
-            <p class="msp-item-name">${d(s.name)}</p>
-            <p class="msp-item-dosage">${s.dosage??"—"} ${d(s.unit??"g")}/dia</p>
-            ${r!==null?`<p class="msp-item-days">~${r} dias restantes</p>`:""}
+            <p class="msp-item-name">${p(o.name)}</p>
+            <p class="msp-item-dosage">${o.dosage??"—"} ${p(o.unit??"g")}/dia</p>
+            ${i!==null?`<p class="msp-item-days">~${i} dias restantes</p>`:""}
           </div>
           <div class="msp-item-right">
             ${l}
             <div class="msp-item-actions">
-              <button class="msp-btn-icon" data-action="edit" data-id="${o}" aria-label="Editar ${d(s.name)}" title="Editar">✏️</button>
-              <button class="msp-btn-icon del" data-action="remove" data-id="${o}" aria-label="Remover ${d(s.name)}" title="Remover">🗑️</button>
+              <button class="msp-btn-icon" data-action="edit" data-id="${s}" aria-label="Editar ${p(o.name)}" title="Editar">✏️</button>
+              <button class="msp-btn-icon del" data-action="remove" data-id="${s}" aria-label="Remover ${p(o.name)}" title="Remover">🗑️</button>
               <a class="msp-btn-reorder"
-                 href="${v.amazon}"
+                 href="${h.amazon}"
                  target="_blank"
                  rel="noopener noreferrer"
-                 data-aff-id="${d(o)}"
+                 data-aff-id="${p(s)}"
                  data-aff-mp="amazon"
                  title="Recomprar na Amazon"
-                 aria-label="Recomprar ${d(s.name)} na Amazon">🛒 Recomprar</a>
+                 aria-label="Recomprar ${p(o.name)} na Amazon">🛒 Recomprar</a>
             </div>
           </div>
         </div>
-        ${h?`<div style="padding:0 16px 8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5;">${h}</div>`:""}
+        ${v?`<div style="padding:0 16px 8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5;">${v}</div>`:""}
         <div class="msp-item-footer">
-          <button class="msp-btn-pause" data-action="edit" data-id="${o}">Editar</button>
-          <button class="msp-btn-finish" data-action="remove" data-id="${o}">Remover</button>
+          <button class="msp-btn-pause" data-action="edit" data-id="${s}">Editar</button>
+          <button class="msp-btn-finish" data-action="remove" data-id="${s}">Remover</button>
         </div>
-      `;const u=document.createElement("div");u.id=`msp-edit-${o}`,u.style.display="none",e.appendChild(p),e.appendChild(u)})}_renderReplenishment(){const e=this.container.querySelector("#msp-replenishment");if(!e)return;const t=c.stack??[],s=this._prices??{},o=t.filter(r=>{const n=f(r),l=s[n];return l&&Object.keys(l).length>0});if(!o.length){e.innerHTML='<p class="msp-replen-empty">Nenhum preço disponível para os itens do seu stack.</p>';return}e.innerHTML=o.map((r,n)=>{const l=f(r),p=s[l]??{},a=Object.values(p),m=a.reduce((v,u)=>v.price<u.price?v:u,a[0]),h=n<o.length-1?'<hr class="msp-replen-divider">':"";return`
+      `;const u=document.createElement("div");u.id=`msp-edit-${s}`,u.style.display="none",e.appendChild(d),e.appendChild(u)})}_renderReplenishment(){const e=this.container.querySelector("#msp-replenishment");if(!e)return;const t=c.stack??[],o=this._prices??{},s=t.filter(i=>{const r=f(i),l=o[r];return l&&Object.keys(l).length>0});if(!s.length){e.innerHTML='<p class="msp-replen-empty">Nenhum preço disponível para os itens do seu stack.</p>';return}e.innerHTML=s.map((i,r)=>{const l=f(i),d=o[l]??{},a=Object.values(d),m=a.reduce((h,u)=>h.price<u.price?h:u,a[0]),v=r<s.length-1?'<hr class="msp-replen-divider">':"";return`
         <div class="msp-replen-item">
-          <span class="msp-replen-name">${d(r.name)}</span>
+          <span class="msp-replen-name">${p(i.name)}</span>
           <span class="msp-replen-price">Melhor: ${y(m.price)}</span>
-          <span class="msp-replen-market">${d(m.label)}</span>
+          <span class="msp-replen-market">${p(m.label)}</span>
         </div>
-        ${h}
-      `}).join("")}_attachDelegatedListeners(){this.container.querySelector("#msp-list")?.addEventListener("click",e=>{const t=e.target.closest("[data-aff-mp]");t&&k.trackClick(t.dataset.affId,t.dataset.affMp);const s=e.target.closest("[data-action]");if(!s)return;const o=s.dataset.id;if(s.dataset.action==="edit"&&this._toggleInlineEdit(o),s.dataset.action==="remove"){const r=(c.stack??[]).find(n=>(n.supplementId??n.id)===o);if(!r||!confirm(`Remover "${r.name}" do stack?`))return;c.dispatch(b.REMOVE_FROM_STACK,{supplementId:o})}s.dataset.action==="save-edit"&&this._saveInlineEdit(o),s.dataset.action==="cancel-edit"&&this._closeInlineEdit(o)})}_toggleInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);if(!t)return;if(t.style.display!=="none"){this._closeInlineEdit(e);return}this.container.querySelectorAll('[id^="msp-edit-"]').forEach(o=>{o.id!==`msp-edit-${e}`&&(o.style.display="none")});const s=(c.stack??[]).find(o=>(o.supplementId??o.id)===e);s&&(t.style.display="block",t.innerHTML=`
+        ${v}
+      `}).join("")}_attachDelegatedListeners(){this.container.querySelector("#msp-list")?.addEventListener("click",e=>{const t=e.target.closest("[data-aff-mp]");t&&k.trackClick(t.dataset.affId,t.dataset.affMp);const o=e.target.closest("[data-action]");if(!o)return;const s=o.dataset.id;if(o.dataset.action==="edit"&&this._toggleInlineEdit(s),o.dataset.action==="remove"){const i=(c.stack??[]).find(r=>(r.supplementId??r.id)===s);if(!i||!confirm(`Remover "${i.name}" do stack?`))return;c.dispatch(b.REMOVE_FROM_STACK,{supplementId:s})}o.dataset.action==="save-edit"&&this._saveInlineEdit(s),o.dataset.action==="cancel-edit"&&this._closeInlineEdit(s)})}_toggleInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);if(!t)return;if(t.style.display!=="none"){this._closeInlineEdit(e);return}this.container.querySelectorAll('[id^="msp-edit-"]').forEach(s=>{s.id!==`msp-edit-${e}`&&(s.style.display="none")});const o=(c.stack??[]).find(s=>(s.supplementId??s.id)===e);o&&(t.style.display="block",t.innerHTML=`
       <div class="msp-inline-edit">
-        <p class="msp-inline-edit-title">Editar — ${d(s.name)}</p>
+        <p class="msp-inline-edit-title">Editar — ${p(o.name)}</p>
         <div class="msp-inline-row">
           <div class="msp-inline-field">
             <label class="msp-inline-label">Dosagem diária</label>
-            <input type="number" class="msp-input" id="msp-ei-dosage-${e}" min="0.1" step="0.1" value="${s.dosage??""}">
+            <input type="number" class="msp-input" id="msp-ei-dosage-${e}" min="0.1" step="0.1" value="${o.dosage??""}">
           </div>
           <div class="msp-inline-field" style="max-width:90px;">
             <label class="msp-inline-label">Unidade</label>
             <select class="msp-select" id="msp-ei-unit-${e}">
-              ${["g","mg","UI","mcg","cápsulas"].map(o=>`<option value="${o}" ${s.unit===o?"selected":""}>${o}</option>`).join("")}
+              ${["g","mg","UI","mcg","cápsulas"].map(s=>`<option value="${s}" ${o.unit===s?"selected":""}>${s}</option>`).join("")}
             </select>
           </div>
           <div class="msp-inline-field">
             <label class="msp-inline-label">Estoque</label>
-            <input type="number" class="msp-input" id="msp-ei-qty-${e}" min="0" value="${s.quantity??""}">
+            <input type="number" class="msp-input" id="msp-ei-qty-${e}" min="0" value="${o.quantity??""}">
           </div>
         </div>
         <div class="msp-inline-btns">
@@ -650,7 +650,7 @@ import{s as c,A as b,o as E}from"./main-CflUif-F.js";import{S as x}from"./stack-
           <button class="msp-btn-save" data-action="save-edit" data-id="${e}">Salvar</button>
         </div>
       </div>
-    `,t.scrollIntoView({behavior:"smooth",block:"nearest"}))}_closeInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);t&&(t.style.display="none")}_saveInlineEdit(e){const t=parseFloat(this.container.querySelector(`#msp-ei-dosage-${e}`)?.value)||0,s=this.container.querySelector(`#msp-ei-unit-${e}`)?.value||"g",o=parseFloat(this.container.querySelector(`#msp-ei-qty-${e}`)?.value)||0;if(t<=0){alert("Informe uma dosagem válida.");return}c.dispatch(b.UPDATE_STACK_ITEM,{supplementId:e,dosage:t,unit:s,quantity:o}),this._closeInlineEdit(e)}_openModal(){if(this._modalOpen)return;this._modalOpen=!0;const e=document.createElement("div");e.className="msp-modal-overlay",e.id="msp-modal-overlay",e.setAttribute("role","dialog"),e.setAttribute("aria-modal","true"),e.setAttribute("aria-label","Adicionar suplemento"),e.innerHTML=`
+    `,t.scrollIntoView({behavior:"smooth",block:"nearest"}))}_closeInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);t&&(t.style.display="none")}_saveInlineEdit(e){const t=parseFloat(this.container.querySelector(`#msp-ei-dosage-${e}`)?.value)||0,o=this.container.querySelector(`#msp-ei-unit-${e}`)?.value||"g",s=parseFloat(this.container.querySelector(`#msp-ei-qty-${e}`)?.value)||0;if(t<=0){alert("Informe uma dosagem válida.");return}c.dispatch(b.UPDATE_STACK_ITEM,{supplementId:e,dosage:t,unit:o,quantity:s}),this._closeInlineEdit(e)}_openModal(){if(this._modalOpen)return;this._modalOpen=!0;const e=document.createElement("div");e.className="msp-modal-overlay",e.id="msp-modal-overlay",e.setAttribute("role","dialog"),e.setAttribute("aria-modal","true"),e.setAttribute("aria-label","Adicionar suplemento"),e.innerHTML=`
       <div class="msp-modal" id="msp-modal">
         <div class="msp-modal-header">
           <h2 class="msp-modal-title">Adicionar Suplemento</h2>
@@ -685,19 +685,19 @@ import{s as c,A as b,o as E}from"./main-CflUif-F.js";import{S as x}from"./stack-
 
         <button class="msp-modal-submit" id="msp-modal-submit">Adicionar ao Stack</button>
       </div>
-    `,document.body.appendChild(e);const t=document.getElementById("router-outlet");t&&(t.style.overflow="hidden"),this._modalSelectedId=null,e.addEventListener("click",n=>{n.target===e&&this._closeModal()}),document.getElementById("msp-modal-close")?.addEventListener("click",()=>this._closeModal());const s=document.getElementById("msp-modal-search"),o=document.getElementById("msp-modal-results");let r;s?.addEventListener("input",n=>{clearTimeout(r),r=setTimeout(()=>{const l=n.target.value.trim().toLowerCase();if(l.length<2){o.style.display="none";return}const p=x.filter(a=>a.name.toLowerCase().includes(l)||(a.category??"").toLowerCase().includes(l)).slice(0,8);if(!p.length){o.style.display="none";return}o.innerHTML=p.map(a=>`
+    `,document.body.appendChild(e);const t=document.getElementById("router-outlet");t&&(t.style.overflow="hidden"),this._modalSelectedId=null,e.addEventListener("click",r=>{r.target===e&&this._closeModal()}),document.getElementById("msp-modal-close")?.addEventListener("click",()=>this._closeModal());const o=document.getElementById("msp-modal-search"),s=document.getElementById("msp-modal-results");let i;o?.addEventListener("input",r=>{clearTimeout(i),i=setTimeout(()=>{const l=r.target.value.trim().toLowerCase();if(l.length<2){s.style.display="none";return}const d=x.filter(a=>a.name.toLowerCase().includes(l)||(a.category??"").toLowerCase().includes(l)).slice(0,8);if(!d.length){s.style.display="none";return}s.innerHTML=d.map(a=>`
           <button class="msp-result-btn"
-            data-id="${d(a.id)}"
-            data-name="${d(a.name)}"
-            data-unit="${d(a.dosage?.unit??"g")}"
+            data-id="${p(a.id)}"
+            data-name="${p(a.name)}"
+            data-unit="${p(a.dosage?.unit??"g")}"
             data-dosage="${a.dosage?.maintenance??5}"
-            data-img="${d(a.image??"")}">
-            <img class="msp-result-img" src="${d(a.image??"")}"
-              alt="${d(a.name)}"
+            data-img="${p(a.image??"")}">
+            <img class="msp-result-img" src="${p(a.image??"")}"
+              alt="${p(a.name)}"
               onerror="this.style.display='none'">
             <div class="msp-result-info">
-              <span class="msp-result-name">${d(a.name)}</span>
-              <span class="msp-result-cat">${d(a.category??"")}</span>
+              <span class="msp-result-name">${p(a.name)}</span>
+              <span class="msp-result-cat">${p(a.category??"")}</span>
             </div>
           </button>
-        `).join(""),o.style.display="block",o.querySelectorAll(".msp-result-btn").forEach(a=>{a.addEventListener("click",m=>{m.preventDefault(),this._modalSelectedId=a.dataset.id,s.value=a.dataset.name,document.getElementById("msp-modal-dosage").value=a.dataset.dosage,document.getElementById("msp-modal-unit").value=a.dataset.unit,o.style.display="none"})})},180)}),this._docClickHandler=n=>{!s?.contains(n.target)&&!o?.contains(n.target)&&(o.style.display="none")},document.addEventListener("click",this._docClickHandler),document.getElementById("msp-modal-submit")?.addEventListener("click",()=>{const n=(document.getElementById("msp-modal-search")?.value??"").trim(),l=parseFloat(document.getElementById("msp-modal-dosage")?.value)||0,p=document.getElementById("msp-modal-unit")?.value||"g",a=parseFloat(document.getElementById("msp-modal-qty")?.value)||0;if(!n){alert("Informe o nome do suplemento.");return}if(l<=0){alert("Informe a dosagem diária.");return}const m=this._modalSelectedId??n.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")+"-"+Date.now();c.dispatch(b.ADD_TO_STACK,{supplementId:m,name:n,dosage:l,unit:p,quantity:a||null}),this._closeModal()}),setTimeout(()=>s?.focus(),100)}_closeModal(){this._docClickHandler&&(document.removeEventListener("click",this._docClickHandler),this._docClickHandler=null),this._modalOpen=!1,this._modalSelectedId=null,document.getElementById("msp-modal-overlay")?.remove();const t=document.getElementById("router-outlet");t&&(t.style.overflow="")}}export{R as MyStackPage,R as default};
+        `).join(""),s.style.display="block",s.querySelectorAll(".msp-result-btn").forEach(a=>{a.addEventListener("click",m=>{m.preventDefault(),this._modalSelectedId=a.dataset.id,o.value=a.dataset.name,document.getElementById("msp-modal-dosage").value=a.dataset.dosage,document.getElementById("msp-modal-unit").value=a.dataset.unit,s.style.display="none"})})},180)}),this._docClickHandler=r=>{!o?.contains(r.target)&&!s?.contains(r.target)&&(s.style.display="none")},document.addEventListener("click",this._docClickHandler),document.getElementById("msp-modal-submit")?.addEventListener("click",()=>{const r=(document.getElementById("msp-modal-search")?.value??"").trim(),l=parseFloat(document.getElementById("msp-modal-dosage")?.value)||0,d=document.getElementById("msp-modal-unit")?.value||"g",a=parseFloat(document.getElementById("msp-modal-qty")?.value)||0;if(!r){alert("Informe o nome do suplemento.");return}if(l<=0){alert("Informe a dosagem diária.");return}const m=this._modalSelectedId??r.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")+"-"+Date.now();c.dispatch(b.ADD_TO_STACK,{supplementId:m,name:r,dosage:l,unit:d,quantity:a||null}),this._closeModal()}),setTimeout(()=>o?.focus(),100)}_closeModal(){this._docClickHandler&&(document.removeEventListener("click",this._docClickHandler),this._docClickHandler=null),this._modalOpen=!1,this._modalSelectedId=null,document.getElementById("msp-modal-overlay")?.remove();const t=document.getElementById("router-outlet");t&&(t.style.overflow="")}}export{R as MyStackPage,R as default};

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import recommender, { SUPPLEMENTS_DB, StackRecommender } from './stack-recommender.js';
-import { eventBus } from '../core/event-bus.js';
+import { eventBus } from '../../core/event-bus.js';
 
 describe('StackRecommender AI Engine', () => {
   beforeEach(() => {

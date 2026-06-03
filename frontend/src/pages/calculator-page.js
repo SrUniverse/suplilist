@@ -5,7 +5,7 @@
 
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { logger } from '../utils/logger.js';
-import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
 import dosageCalculator from '../features/calculator/dosage-calculator.js';
 import { escapeHtml } from '../utils/escape.js';
 import { EVIDENCE_COLORS as EVIDENCE_COLORS_MAP } from '../utils/evidence.js';

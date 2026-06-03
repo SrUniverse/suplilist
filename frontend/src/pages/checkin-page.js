@@ -1,7 +1,7 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 import { todayISO } from '../utils/date.js';
-import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
 import { escapeHtml } from '../utils/escape.js';
 
 /**

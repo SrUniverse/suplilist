@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import DosageCalculator from './dosage-calculator.js';
-import { SUPPLEMENTS_DB } from '../../ai/stack-recommender.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 
 // Helper to get supplement by ID
 function getSupp(id) {

@@ -1,5 +1,5 @@
 import { stateManager, ACTIONS } from '../state/state-manager.js';
-import recommender from '../ai/stack-recommender.js';
+import recommender from '../features/stack/stack-recommender.js';
 import { escapeHtml } from '../utils/escape.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 

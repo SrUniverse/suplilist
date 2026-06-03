@@ -3,7 +3,7 @@
 // Redesign: goal filters, sort, photo cards, Ver Preços
 // ============================================================
 
-import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { EVIDENCE_COLORS } from '../utils/evidence.js';
 import { escapeHtml } from '../utils/escape.js';

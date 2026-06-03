@@ -164,7 +164,7 @@ export default class CalculatorPage {
           data-supp-id="${escapeHtml(s.id)}" title="${escapeHtml(s.name)}">
           <span class="calcp-chip-name">${escapeHtml(s.name)}</span>
           <span class="calcp-chip-cat">${escapeHtml(s.category ?? '')}</span>
-          <span class="calcp-ev-badge" style="background:${evStyle.bg};color:${evStyle.color}">${ev}</span>
+          <span class="calcp-ev-badge calcp-ev-badge--${ev.toLowerCase()}">${ev}</span>
         </button>`;
     }).join('');
   }
@@ -248,10 +248,10 @@ export default class CalculatorPage {
         <div class="calcp-sci-section">
           <p class="calcp-sci-label">Nível de Evidência</p>
           <div class="calcp-progress-row">
-            <span class="calcp-ev-badge" style="background:${evStyle.bg};color:${evStyle.color}">${ev}</span>
+            <span class="calcp-ev-badge calcp-ev-badge--${ev.toLowerCase()}">${ev}</span>
             <div class="calcp-progress-bar" role="progressbar"
               aria-valuenow="${ev === 'A' ? 100 : ev === 'B' ? 65 : 35}" aria-valuemin="0" aria-valuemax="100">
-              <div class="calcp-progress-fill" style="width:${ev === 'A' ? 100 : ev === 'B' ? 65 : 35}%;background:${evStyle.color}"></div>
+              <div class="calcp-progress-fill calcp-progress-fill--ev-${ev.toLowerCase()}" style="width:${ev === 'A' ? 100 : ev === 'B' ? 65 : 35}%"></div>
             </div>
           </div>
         </div>
@@ -259,11 +259,11 @@ export default class CalculatorPage {
         <div class="calcp-sci-section">
           <p class="calcp-sci-label">Segurança</p>
           <div class="calcp-progress-row">
-            <span class="calcp-sci-pct" style="color:${safety >= 90 ? '#22C55E' : safety >= 70 ? '#F59E0B' : '#EF4444'}">${safety}/100</span>
+            <span class="calcp-sci-pct" style="color:${safety >= 90 ? 'var(--ev-a,#34D399)' : safety >= 70 ? 'var(--ev-b,#FBBF24)' : 'var(--color-error,#EF4444)'}">${safety}/100</span>
             <div class="calcp-progress-bar" role="progressbar"
               aria-valuenow="${safety}" aria-valuemin="0" aria-valuemax="100">
               <div class="calcp-progress-fill"
-                style="width:${safety}%;background:${safety >= 90 ? '#22C55E' : safety >= 70 ? '#F59E0B' : '#EF4444'}"></div>
+                style="width:${safety}%;background:${safety >= 90 ? 'var(--ev-a,#34D399)' : safety >= 70 ? 'var(--ev-b,#FBBF24)' : 'var(--color-error,#EF4444)'}"></div>
             </div>
           </div>
         </div>
@@ -520,7 +520,7 @@ export default class CalculatorPage {
       }
       .calcp-input:focus, .calcp-select:focus {
         border-color: var(--color-brand);
-        box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+        box-shadow: 0 0 0 3px var(--color-brand-muted, rgba(139,92,246,.12));
       }
       .calcp-input::placeholder { color: var(--color-text-muted); }
       .calcp-select {
@@ -616,7 +616,14 @@ export default class CalculatorPage {
         padding: 2px 7px;
         border-radius: 5px;
         text-transform: uppercase;
+        border: 1px solid transparent;
       }
+      .calcp-ev-badge--a { color: var(--ev-a, #34D399); background: var(--ev-a-bg, rgba(52,211,153,.12)); border-color: var(--ev-a-border, rgba(52,211,153,.25)); }
+      .calcp-ev-badge--b { color: var(--ev-b, #FBBF24); background: var(--ev-b-bg, rgba(251,191,36,.12)); border-color: var(--ev-b-border, rgba(251,191,36,.25)); }
+      .calcp-ev-badge--c, .calcp-ev-badge--d { color: var(--ev-c, #94A3B8); background: var(--ev-c-bg, rgba(148,163,184,.10)); border-color: var(--ev-c-border, rgba(148,163,184,.20)); }
+      .calcp-progress-fill--ev-a { background: var(--ev-a, #34D399); }
+      .calcp-progress-fill--ev-b { background: var(--ev-b, #FBBF24); }
+      .calcp-progress-fill--ev-c, .calcp-progress-fill--ev-d { background: var(--ev-c, #94A3B8); }
       .calcp-empty-chips {
         font-size: 13px;
         color: var(--color-text-muted);
@@ -727,14 +734,14 @@ export default class CalculatorPage {
         gap: 7px;
         font-size: 12px;
         font-weight: 600;
-        color: var(--color-success);
+        color: var(--ev-a, #34D399);
         margin-bottom: 20px;
       }
       .calcp-validated-dot {
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: var(--color-success);
+        background: var(--ev-a, #34D399);
         flex-shrink: 0;
       }
 
@@ -756,11 +763,11 @@ export default class CalculatorPage {
       .calcp-btn-add:hover { background: var(--color-brand-hover); }
       .calcp-btn-add:active { transform: scale(.98); }
       .calcp-btn-add--in {
-        background: var(--color-success-bg);
-        color: var(--color-success);
-        border: 1px solid rgba(34,197,94,.25);
+        background: var(--ev-a-bg, rgba(52,211,153,.12));
+        color: var(--ev-a, #34D399);
+        border: 1px solid var(--ev-a-border, rgba(52,211,153,.25));
       }
-      .calcp-btn-add--in:hover { background: rgba(34,197,94,.18); }
+      .calcp-btn-add--in:hover { background: rgba(52,211,153,.18); }
 
       /* Separator */
       .calcp-sep {

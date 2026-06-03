@@ -446,13 +446,13 @@ export default class HomePage {
       .lp-hero {
         position: relative; min-height: 100vh;
         display: flex; align-items: center; justify-content: center;
-        text-align: center; padding: 140px 24px 100px; overflow: hidden;
+        text-align: center; padding: 100px 24px 80px; overflow: hidden;
       }
       .lp-hero__bg {
         position: absolute; inset: 0; z-index: 0; pointer-events: none;
         background:
-          radial-gradient(70% 55% at 50% 0%, rgba(139,92,246,0.16), transparent 65%),
-          radial-gradient(40% 30% at 80% 20%, rgba(99,102,241,0.06), transparent 60%),
+          radial-gradient(80% 60% at 50% -10%, rgba(139,92,246,0.22), transparent 65%),
+          radial-gradient(50% 40% at 85% 15%, rgba(99,102,241,0.09), transparent 60%),
           var(--color-bg-primary, #0A0C10);
       }
       /* Two-column hero layout */
@@ -555,7 +555,7 @@ export default class HomePage {
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
         border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
       }
-      .lp-section { max-width: 1160px; margin: 0 auto; padding: 96px 24px; }
+      .lp-section { max-width: 1160px; margin: 0 auto; padding: 80px 24px; }
       .lp-h2 {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: clamp(30px, 4vw, 52px); line-height: 1.08;
@@ -569,23 +569,23 @@ export default class HomePage {
       .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
       .lp-card, .lp-step {
-        background: linear-gradient(145deg, var(--color-surface-primary, #13161C) 0%, rgba(20,24,32,0.95) 100%);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        background: linear-gradient(160deg, rgba(30,35,46,0.9) 0%, rgba(18,22,30,0.95) 100%);
+        border: 1px solid rgba(255,255,255,0.09);
         border-radius: 20px; padding: 36px;
         position: relative; overflow: hidden;
         transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 24px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 0 rgba(255,255,255,0.04) inset, 0 4px 24px rgba(0,0,0,0.3);
       }
       .lp-card::before, .lp-step::before {
         content: '';
         position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.4) 50%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 50%, transparent 100%);
         opacity: 0; transition: opacity .25s ease;
       }
       .lp-card:hover, .lp-step:hover {
-        border-color: var(--color-border-brand, rgba(139,92,246,0.20));
-        transform: translateY(-6px);
-        box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 20px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.20);
+        border-color: rgba(139,92,246,0.25);
+        transform: translateY(-5px);
+        box-shadow: 0 2px 0 rgba(255,255,255,0.05) inset, 0 0 0 1px rgba(139,92,246,0.12), 0 24px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.18);
       }
       .lp-card:hover::before, .lp-step:hover::before { opacity: 1; }
       .lp-card__icon {
@@ -604,13 +604,13 @@ export default class HomePage {
         color: var(--color-text-secondary, #9A9A9A);
       }
       .lp-step__num {
-        width: 56px; height: 56px; border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 24px;
-        color: var(--color-text-muted, #475569);
-        background: var(--color-surface-secondary, #191D25);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
-        margin-bottom: 22px;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 900;
+        font-size: 56px; line-height: 1;
+        letter-spacing: -0.04em;
+        color: transparent;
+        -webkit-text-stroke: 1.5px rgba(139,92,246,0.35);
+        margin-bottom: 16px;
+        display: block;
       }
 
       /* ── CHIPS ── */
@@ -810,8 +810,9 @@ export default class HomePage {
         .lp-hero { padding: 110px 20px 72px; min-height: auto; }
         .lp-hero__cta .lp-btn { flex: 1 1 auto; min-height: 52px; }
         .lp-h2 { margin-bottom: 48px; }
-        .lp-card, .lp-step { border-left-width: 3px; }
-        .lp-market { border-left-width: 4px; padding: 24px 28px; }
+        .lp-card, .lp-step { padding: 28px; }
+        .lp-market { padding: 24px 28px; }
+        .lp-step__num { font-size: 44px; }
         .lp-ig__inner { flex-direction: column; align-items: flex-start; gap: 20px; }
       }
 
@@ -824,9 +825,9 @@ export default class HomePage {
         .lp-cta__title { font-size: clamp(26px, 8vw, 44px); }
         .lp-hero { padding: 96px 16px 60px; }
         .lp-section { padding: 56px 16px; }
-        .lp-card, .lp-step { padding: 26px 20px; }
-        .lp-card__icon { width: 52px; height: 52px; }
-        .lp-step__num { width: 48px; height: 48px; font-size: 20px; }
+        .lp-card, .lp-step { padding: 24px 20px; }
+        .lp-card__icon { width: 40px; height: 40px; }
+        .lp-step__num { font-size: 40px; }
         .lp-hero__cta { gap: 12px; }
         .lp-chips { gap: 10px; }
         .lp-chip { padding: 10px 18px; font-size: 14px; }

@@ -1,4 +1,4 @@
-import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-Br5wU8qn.js";import{S as s}from"./schema-manager-DpTEqGGv.js";import"./main-DVCeGRh0.js";class h{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents();const a=s.createWebApplicationSchema();s.insertSchema(a)}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const r=a.target.closest("[data-nav]");if(r){a.preventDefault();const t=r.getAttribute("data-nav");t&&t.startsWith("/")&&(window.history.pushState(null,null,t),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const l=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:l?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=n.length,r=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],t=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=[{name:"Amazon",color:"#FF9900",logo:`<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
+import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-Br5wU8qn.js";import{S as s}from"./schema-manager-DpTEqGGv.js";import"./main-Bdt6RA77.js";class h{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents();const a=s.createWebApplicationSchema();s.insertSchema(a)}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const t=a.target.closest("[data-nav]");if(t){a.preventDefault();const r=t.getAttribute("data-nav");r&&r.startsWith("/")&&(window.history.pushState(null,null,r),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const n=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:n?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=l.length,t=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],r=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],n=[{name:"Amazon",color:"#FF9900",logo:`<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
           <text x="0" y="26" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#FF9900" letter-spacing="-1">amazon</text>
           <path d="M8 33 C22 40 52 40 66 33" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round"/>
           <path d="M63 30 L67 33 L62 36" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -66,7 +66,7 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
           <section class="lp-section" id="lp-features" aria-label="Recursos">
             <h2 class="lp-h2">TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
             <div class="lp-grid lp-grid--3">
-              ${r.map(e=>`
+              ${t.map(e=>`
                 <article class="lp-card">
                   <div class="lp-card__icon" aria-hidden="true">${e.icon}</div>
                   <h3 class="lp-card__title">${e.title}</h3>
@@ -92,7 +92,7 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
           <section class="lp-section" aria-label="Filtro por treino">
             <h2 class="lp-h2">FILTRADO POR COMO VOCÊ TREINA.</h2>
             <div class="lp-chips">
-              ${t.map(e=>`<button class="lp-chip" data-nav="/list?objective=${encodeURIComponent(e)}" type="button" aria-label="Ver suplementos para ${i(e)}">${i(e)}</button>`).join("")}
+              ${r.map(e=>`<button class="lp-chip" data-nav="/list?objective=${encodeURIComponent(e)}" type="button" aria-label="Ver suplementos para ${i(e)}">${i(e)}</button>`).join("")}
             </div>
           </section>
 
@@ -100,7 +100,7 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
           <section class="lp-section" aria-label="Marketplaces">
             <h2 class="lp-h2">OS MAIORES MARKETPLACES DO BRASIL.</h2>
             <div class="lp-grid lp-grid--3">
-              ${l.map(e=>`
+              ${n.map(e=>`
                 <article class="lp-market" style="--mk-color: ${e.color}">
                   <div class="lp-market__logo">${e.logo}</div>
                   <span class="lp-market__badge">Integrado</span>
@@ -192,12 +192,12 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
 
       </div>
     `}_heroMockupCards(){return`<div class="lp-mock-stack">
-      ${n.slice(0,3).map(r=>{let o=r.dosage?.maintenance??5;const t=r.dosage?.unit||"g";t==="mg"?o=o/1e3:t==="mcg"?o=o/1e6:t==="UI"&&(o=o*25e-6);const l=(o*(r.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=r.evidenceLevel||"A";return`
+      ${l.slice(0,3).map(t=>{let o=t.dosage?.maintenance??5;const r=t.dosage?.unit||"g";r==="mg"?o=o/1e3:r==="mcg"?o=o/1e6:r==="UI"&&(o=o*25e-6);const n=(o*(t.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=t.evidenceLevel||"A";return`
           <div class="lp-mock-card">
             <div class="lp-mock-card__ev lp-mock-card__ev--${String(e).toLowerCase()}">NÍVEL ${i(String(e))}</div>
-            <div class="lp-mock-card__name">${i(r.name)}</div>
-            <div class="lp-mock-card__cat">${i(r.category||"")}</div>
-            <div class="lp-mock-card__price">R$ ${i(l)}<span class="lp-mock-card__dose"> / mês</span></div>
+            <div class="lp-mock-card__name">${i(t.name)}</div>
+            <div class="lp-mock-card__cat">${i(t.category||"")}</div>
+            <div class="lp-mock-card__price">R$ ${i(n)}<span class="lp-mock-card__dose"> / mês</span></div>
           </div>`}).join("")}
     </div>`}_injectStyle(){if(document.querySelector('[data-page="home"]'))return;const a=document.createElement("style");a.setAttribute("data-page","home"),a.textContent=`
       .lp-root {
@@ -257,13 +257,13 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
       .lp-hero {
         position: relative; min-height: 100vh;
         display: flex; align-items: center; justify-content: center;
-        text-align: center; padding: 140px 24px 100px; overflow: hidden;
+        text-align: center; padding: 100px 24px 80px; overflow: hidden;
       }
       .lp-hero__bg {
         position: absolute; inset: 0; z-index: 0; pointer-events: none;
         background:
-          radial-gradient(70% 55% at 50% 0%, rgba(139,92,246,0.16), transparent 65%),
-          radial-gradient(40% 30% at 80% 20%, rgba(99,102,241,0.06), transparent 60%),
+          radial-gradient(80% 60% at 50% -10%, rgba(139,92,246,0.22), transparent 65%),
+          radial-gradient(50% 40% at 85% 15%, rgba(99,102,241,0.09), transparent 60%),
           var(--color-bg-primary, #0A0C10);
       }
       /* Two-column hero layout */
@@ -366,7 +366,7 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
         border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
       }
-      .lp-section { max-width: 1160px; margin: 0 auto; padding: 96px 24px; }
+      .lp-section { max-width: 1160px; margin: 0 auto; padding: 80px 24px; }
       .lp-h2 {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: clamp(30px, 4vw, 52px); line-height: 1.08;
@@ -380,23 +380,23 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
       .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
       .lp-card, .lp-step {
-        background: linear-gradient(145deg, var(--color-surface-primary, #13161C) 0%, rgba(20,24,32,0.95) 100%);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        background: linear-gradient(160deg, rgba(30,35,46,0.9) 0%, rgba(18,22,30,0.95) 100%);
+        border: 1px solid rgba(255,255,255,0.09);
         border-radius: 20px; padding: 36px;
         position: relative; overflow: hidden;
         transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 24px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 0 rgba(255,255,255,0.04) inset, 0 4px 24px rgba(0,0,0,0.3);
       }
       .lp-card::before, .lp-step::before {
         content: '';
         position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.4) 50%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 50%, transparent 100%);
         opacity: 0; transition: opacity .25s ease;
       }
       .lp-card:hover, .lp-step:hover {
-        border-color: var(--color-border-brand, rgba(139,92,246,0.20));
-        transform: translateY(-6px);
-        box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 20px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.20);
+        border-color: rgba(139,92,246,0.25);
+        transform: translateY(-5px);
+        box-shadow: 0 2px 0 rgba(255,255,255,0.05) inset, 0 0 0 1px rgba(139,92,246,0.12), 0 24px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.18);
       }
       .lp-card:hover::before, .lp-step:hover::before { opacity: 1; }
       .lp-card__icon {
@@ -415,13 +415,13 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
         color: var(--color-text-secondary, #9A9A9A);
       }
       .lp-step__num {
-        width: 56px; height: 56px; border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 24px;
-        color: var(--color-text-muted, #475569);
-        background: var(--color-surface-secondary, #191D25);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
-        margin-bottom: 22px;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 900;
+        font-size: 56px; line-height: 1;
+        letter-spacing: -0.04em;
+        color: transparent;
+        -webkit-text-stroke: 1.5px rgba(139,92,246,0.35);
+        margin-bottom: 16px;
+        display: block;
       }
 
       /* ── CHIPS ── */
@@ -621,8 +621,9 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
         .lp-hero { padding: 110px 20px 72px; min-height: auto; }
         .lp-hero__cta .lp-btn { flex: 1 1 auto; min-height: 52px; }
         .lp-h2 { margin-bottom: 48px; }
-        .lp-card, .lp-step { border-left-width: 3px; }
-        .lp-market { border-left-width: 4px; padding: 24px 28px; }
+        .lp-card, .lp-step { padding: 28px; }
+        .lp-market { padding: 24px 28px; }
+        .lp-step__num { font-size: 44px; }
         .lp-ig__inner { flex-direction: column; align-items: flex-start; gap: 20px; }
       }
 
@@ -635,9 +636,9 @@ import{S as n}from"./stack-recommender-BQtm35GB.js";import{e as i}from"./escape-
         .lp-cta__title { font-size: clamp(26px, 8vw, 44px); }
         .lp-hero { padding: 96px 16px 60px; }
         .lp-section { padding: 56px 16px; }
-        .lp-card, .lp-step { padding: 26px 20px; }
-        .lp-card__icon { width: 52px; height: 52px; }
-        .lp-step__num { width: 48px; height: 48px; font-size: 20px; }
+        .lp-card, .lp-step { padding: 24px 20px; }
+        .lp-card__icon { width: 40px; height: 40px; }
+        .lp-step__num { font-size: 40px; }
         .lp-hero__cta { gap: 12px; }
         .lp-chips { gap: 10px; }
         .lp-chip { padding: 10px 18px; font-size: 14px; }

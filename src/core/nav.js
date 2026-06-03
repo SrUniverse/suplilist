@@ -477,9 +477,17 @@ export class Nav {
         align-items: center;
         justify-content: space-around;
         box-shadow: 0 -30px 40px -10px rgba(0,0,0,0.7);
-        transition: transform 0.25s ease;
+        transition: transform 0.25s ease, visibility 0.25s ease;
       }
-      #bottom-nav.bn--hidden { transform: translateY(100%); }
+      /* Desktop: esconder bottom nav completamente */
+      @media (min-width: 768px) {
+        #bottom-nav { display: none !important; }
+      }
+      /* Quando escondido no scroll: translateY + visibility para eliminar artefato do blur */
+      #bottom-nav.bn--hidden {
+        transform: translateY(100%);
+        visibility: hidden;
+      }
       .bn-item {
         display: flex; flex-direction: column; align-items: center;
         justify-content: center; gap: 3px; flex: 1;

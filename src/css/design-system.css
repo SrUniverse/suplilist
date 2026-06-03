@@ -220,7 +220,7 @@
   --brand-light:   var(--color-brand-muted);
   --brand-green:   var(--color-success);
   --brand-glow:    var(--shadow-brand);
-  --brand-glow-strong: 0 4px 40px rgba(124, 58, 237, 0.5);
+  --brand-glow-strong: 0 4px 40px rgba(139, 92, 246, 0.5);
 
   /* Shadows */
   --shadow-glow:       var(--shadow-brand);

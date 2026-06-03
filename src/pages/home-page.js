@@ -390,8 +390,8 @@ export default class HomePage {
     style.setAttribute('data-page', 'home');
     style.textContent = `
       .lp-root {
-        background: var(--color-bg-primary, #080808);
-        color: var(--color-text-primary, #F2F2F2);
+        background: var(--color-bg-primary, #0A0C10);
+        color: var(--color-text-primary, #F1F5F9);
         font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
         min-height: 100vh;
@@ -626,9 +626,9 @@ export default class HomePage {
 
       /* ── MARKETPLACES ── */
       .lp-market {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 6px solid var(--mk-color, rgba(255,255,255,0.14));
+        background: var(--color-surface-primary, #13161C);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-left: 4px solid var(--mk-color, rgba(255,255,255,0.14));
         border-radius: 16px; padding: 32px 36px;
         display: flex; flex-direction: column;
         align-items: flex-start; gap: 20px;

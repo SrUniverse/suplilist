@@ -1,24 +1,15 @@
-export type AvatarStatus = 'none' | 'pending_moderation' | 'approved' | 'rejected';
+import type { AvatarStatus, PublicProfileDTO, PrivateProfileDTO } from '@suplilist/shared';
+
+// Os DTOs de wire vêm do pacote compartilhado (fonte única da verdade do contrato
+// frontend↔backend). A entidade de domínio abaixo permanece local — usa `Date` e
+// nunca cruza a fronteira HTTP.
+export type { AvatarStatus, PublicProfileDTO, PrivateProfileDTO };
 
 export interface UserProfile {
   userId: string;
   displayName: string;
   avatarUrl: string | null;
   avatarStatus: AvatarStatus;
-  firstName: string | null;
-  lastName: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface PublicProfileDTO {
-  userId: string;
-  displayName: string;
-  avatarUrl: string | null;
-  avatarStatus: AvatarStatus;
-}
-
-export interface PrivateProfileDTO extends PublicProfileDTO {
   firstName: string | null;
   lastName: string | null;
   createdAt: Date;
@@ -43,8 +34,9 @@ export class ProfileMapper {
       avatarStatus: profile.avatarStatus,
       firstName: profile.firstName,
       lastName: profile.lastName,
-      createdAt: profile.createdAt,
-      updatedAt: profile.updatedAt,
+      // Serializa Date → string ISO (formato de wire do contrato compartilhado)
+      createdAt: profile.createdAt.toISOString(),
+      updatedAt: profile.updatedAt.toISOString(),
     };
   }
 }

@@ -22,9 +22,10 @@ const LANDSCAPE_VIEWPORT = {
 test.describe('Mobile UX - Responsiveness @mobile', () => {
   Object.entries(VIEWPORT_SIZES).forEach(([device, viewport]) => {
     test(`Should render correctly on ${device}`, async ({ browser }) => {
+      const isFirefox = browser.browserType().name() === 'firefox';
       const context = await browser.newContext({
         viewport: viewport as any,
-        isMobile: true,
+        isMobile: !isFirefox,
         hasTouch: true,
       });
       const page = await context.newPage();
@@ -48,9 +49,10 @@ test.describe('Mobile UX - Responsiveness @mobile', () => {
   });
 
   test('Should handle landscape orientation', async ({ browser }) => {
+    const isFirefox = browser.browserType().name() === 'firefox';
     const context = await browser.newContext({
       viewport: LANDSCAPE_VIEWPORT.iPhone as any,
-      isMobile: true,
+      isMobile: !isFirefox,
       hasTouch: true,
     });
     const page = await context.newPage();
@@ -100,7 +102,7 @@ test.describe('Mobile UX - Touch Feedback @mobile', () => {
 
   test('Should not have 300ms tap delay', async ({ page }) => {
     // Only run on touch-enabled devices/contexts
-    const hasTouch = await page.evaluate(() => 'ontouchstart' in window);
+    const hasTouch = !!test.info().project.use?.hasTouch;
     if (!hasTouch) {
       test.skip(true, 'Only touch-enabled devices support tap tests');
       return;

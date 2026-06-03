@@ -44,7 +44,10 @@ export const ACTIONS = Object.freeze({
   SET_FAVORITES: 'SET_FAVORITES',
   SET_THEME: 'SET_THEME',
   PRUNE_CHECKINS_TEST: 'PRUNE_CHECKINS_TEST',
-  IMPORT_STACK: 'IMPORT_STACK'
+  IMPORT_STACK: 'IMPORT_STACK',
+  // Identity — populated by identity-service after successful API login/logout
+  AUTH_LOGIN: 'AUTH_LOGIN',
+  AUTH_LOGOUT: 'AUTH_LOGOUT',
 });
 
 // ─── Initial Application State Shape ─────────────────────────────────────────
@@ -65,7 +68,13 @@ export const DEFAULT_STATE = Object.freeze({
     budget: null,         // R$ per month
     tier: 'free',         // 'free' | 'pro' | 'elite'
     createdAt: null,
-    onboardingComplete: false
+    onboardingComplete: false,
+    // Identity fields — set by AUTH_LOGIN, cleared by AUTH_LOGOUT.
+    // The raw accessToken is NEVER stored here (lives in api-client closure only).
+    isAuthenticated: false,
+    role: null,           // 'user' | 'admin' — from UserIdentityDTO
+    isMfaEnabled: false,
+    emailVerified: false,
   },
 
   // User's personal stack
@@ -354,6 +363,38 @@ function reducer(state, action) {
         )
       };
     }
+
+    // ── Identity ─────────────────────────────────────────────────────────────
+    // Payload shape matches UserIdentityDTO from @suplilist/shared.
+    // accessToken is intentionally absent — it lives in api-client's closure.
+    case ACTIONS.AUTH_LOGIN: {
+      const { id, email, role, isMfaEnabled, emailVerified } = action.payload;
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          id: id ?? state.user.id,
+          email: email ?? state.user.email,
+          role: role ?? state.user.role,
+          isMfaEnabled: isMfaEnabled ?? false,
+          emailVerified: emailVerified ?? false,
+          isAuthenticated: true,
+        },
+      };
+    }
+
+    case ACTIONS.AUTH_LOGOUT:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          isAuthenticated: false,
+          role: null,
+          isMfaEnabled: false,
+          emailVerified: false,
+          // Keep local profile data (name, weight, etc.) — user can log back in
+        },
+      };
 
     default:
       return state;

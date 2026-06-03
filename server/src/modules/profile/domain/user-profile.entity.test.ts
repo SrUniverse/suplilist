@@ -51,7 +51,7 @@ describe('ProfileMapper.toPublic', () => {
   });
 
   it('does not expose private fields (firstName, lastName, createdAt, updatedAt)', () => {
-    const dto = ProfileMapper.toPublic(base) as Record<string, unknown>;
+    const dto = ProfileMapper.toPublic(base) as unknown as Record<string, unknown>;
     expect(dto['firstName']).toBeUndefined();
     expect(dto['lastName']).toBeUndefined();
     expect(dto['createdAt']).toBeUndefined();

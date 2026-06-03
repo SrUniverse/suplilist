@@ -5,6 +5,7 @@ import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.u
 import { LogoutUseCase } from '../../application/use-cases/logout.use-case.js';
 import { DeleteAccountUseCase } from '../../application/use-cases/delete-account.use-case.js';
 import { CancelDeletionUseCase } from '../../application/use-cases/cancel-deletion.use-case.js';
+import { AuthMapper } from '../../application/mappers/auth.mapper.js';
 
 export class AuthController {
   constructor(
@@ -23,7 +24,7 @@ export class AuthController {
       
       return res.status(201).json({
         success: true,
-        data: result,
+        data: AuthMapper.toRegisterResponse(result.userId, result.email),
       });
     } catch (error: any) {
       if (error.message === 'user_already_exists') {
@@ -69,7 +70,7 @@ export class AuthController {
 
       return res.status(200).json({
         success: true,
-        accessToken: result.accessToken,
+        data: AuthMapper.toAuthResponse(result.accessToken),
       });
     } catch (error: any) {
       if (error.message === 'invalid_credentials' || error.message === 'oauth_account_only') {
@@ -129,7 +130,7 @@ export class AuthController {
 
       return res.status(200).json({
         success: true,
-        accessToken: result.accessToken,
+        data: AuthMapper.toAuthResponse(result.accessToken),
       });
     } catch (error: any) {
       if (error.message === 'invalid_refresh_token' || error.message === 'refresh_token_expired' || error.message === 'user_inactive') {

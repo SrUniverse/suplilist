@@ -91,7 +91,8 @@ async function loginUser(email: string, password: string) {
   return {
     status: res.status,
     body: res.body,
-    accessToken: res.body.accessToken as string | undefined,
+    // AuthMapper wraps accessToken in data: { accessToken }
+    accessToken: (res.body.data?.accessToken ?? res.body.accessToken) as string | undefined,
     refreshTokenCookie,
   };
 }
@@ -305,8 +306,9 @@ describe('POST /api/auth/refresh', () => {
 
     expect(refreshRes.status).toBe(200);
     expect(refreshRes.body.success).toBe(true);
-    // New access token must differ from the old one
-    expect(refreshRes.body.accessToken).not.toBe(originalAccessToken);
+    // AuthMapper wraps accessToken in data: { accessToken }
+    const newAccessToken = refreshRes.body.data?.accessToken ?? refreshRes.body.accessToken;
+    expect(newAccessToken).not.toBe(originalAccessToken);
 
     // Old refresh token must be revoked (theft detection if reused)
     const replayRes = await request(app)

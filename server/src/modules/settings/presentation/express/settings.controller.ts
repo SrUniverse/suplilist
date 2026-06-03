@@ -6,6 +6,7 @@ import { UpdateLocaleUseCase } from '../../application/use-cases/update-locale.u
 import { GrantConsentUseCase } from '../../application/use-cases/grant-consent.use-case.js';
 import { RevokeConsentUseCase } from '../../application/use-cases/revoke-consent.use-case.js';
 import { GetConsentHistoryUseCase } from '../../application/use-cases/get-consent-history.use-case.js';
+import { ConsentMapper } from '../../application/mappers/consent.mapper.js';
 
 const consentPayloadSchema = z.object({
   consentType: z.enum(['privacy_policy', 'terms_of_service', 'marketing_emails']),
@@ -66,9 +67,11 @@ export class SettingsController {
     try {
       const userId = req.user!.id;
       const history = await this.getConsentHistoryUseCase.execute(userId);
+      // ConsentMapper.toDTOList renames timestamp → consentedAt (ISO 8601 string)
+      // and enforces explicit toISOString() for LGPD audit trail compliance.
       return res.status(200).json({
         success: true,
-        data: history,
+        data: ConsentMapper.toDTOList(history),
       });
     } catch (error) {
       next(error);

@@ -600,7 +600,7 @@ describe('GET /api/settings/consents', () => {
     expect(res.body.data.length).toBe(0);
   });
 
-  it('returns history entries with type, action, version, documentHash, and timestamp', async () => {
+  it('returns history entries with type, action, version, documentHash, and consentedAt (ISO 8601)', async () => {
     if (!mongoReady()) return;
     await seedSettings(USER_ID);
 
@@ -623,7 +623,11 @@ describe('GET /api/settings/consents', () => {
     expect(entry['action']).toBe('granted');
     expect(entry['version']).toBe('1.0.0');
     expect(entry['documentHash']).toBe(OFFICIAL_HASHES.terms_of_service['1.0.0']);
-    expect(entry['timestamp']).toBeDefined();
+    // ConsentMapper renames timestamp → consentedAt (ISO 8601 string)
+    expect(entry['consentedAt']).toBeDefined();
+    expect(typeof entry['consentedAt']).toBe('string');
+    expect(entry['consentedAt']).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    expect(entry['timestamp']).toBeUndefined(); // raw domain field must NOT appear
   });
 });
 

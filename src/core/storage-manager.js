@@ -74,7 +74,7 @@ export class StorageManager {
     try {
       JSON.stringify(value);
     } catch (e) {
-      throw new Error(`value is not serializable: ${e.message}`);
+      throw new Error(`value is not serializable: ${e.message}`, { cause: e });
     }
 
     // Tentar IndexedDB primeiro

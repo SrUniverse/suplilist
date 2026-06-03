@@ -28,6 +28,7 @@ export default [
         navigator: 'readonly',
         WeakRef: 'readonly',
         URL: 'readonly',
+        URLSearchParams: 'readonly',
         fetch: 'readonly',
         IntersectionObserver: 'readonly',
         MutationObserver: 'readonly',

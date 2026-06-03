@@ -33,7 +33,9 @@ export const logger = {
           window.__analyticsLog = window.__analyticsLog || [];
           window.__analyticsLog.push({ event, data, ts: Date.now() });
           if (window.__analyticsLog.length > 100) window.__analyticsLog.shift();
-        } catch (_) {}
+        } catch {
+          // Silently ignore storage errors
+        }
       }
     },
 
@@ -47,7 +49,9 @@ export const logger = {
         window.__piiDetections = window.__piiDetections || [];
         window.__piiDetections.push({ field, truncated: value.substring(0, 10), ts: Date.now() });
         if (window.__piiDetections.length > 50) window.__piiDetections.shift();
-      } catch (_) {}
+      } catch {
+        // Silently ignore storage errors
+      }
     },
 
     /**
@@ -66,7 +70,9 @@ export const logger = {
         stat.min = Math.min(stat.min, duration);
         stat.max = Math.max(stat.max, duration);
         stat.avg = stat.total / stat.count;
-      } catch (_) {}
+      } catch {
+        // Silently ignore storage errors
+      }
     },
   },
 

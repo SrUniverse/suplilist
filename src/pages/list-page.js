@@ -287,6 +287,13 @@ export default class ListPage {
     this._renderGrid();
     this._initInfiniteScroll();
     this._attachListeners();
+
+    // Rebuild grid on resize so column count stays correct
+    this._resizeHandler = () => {
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(() => this._renderGrid(), 150);
+    };
+    window.addEventListener('resize', this._resizeHandler, { passive: true });
     this._unsubscribe = stateManager.subscribe(() => {
       const state = stateManager.getState();
       const newTier = state.user?.tier ?? 'free';
@@ -316,6 +323,8 @@ export default class ListPage {
     this._observer?.disconnect();
     this._scroller?.unmount();
     document.removeEventListener('keydown', this._boundKeydown);
+    if (this._resizeHandler) window.removeEventListener('resize', this._resizeHandler);
+    clearTimeout(this._resizeTimer);
     this._closeModal();
     // Cancel pending debounce search callback
     clearTimeout(this._debounceTimer);
@@ -491,12 +500,13 @@ export default class ListPage {
         margin: 0 0 12px; font-weight: 500;
       }
       #lp-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        display: block;
         gap: 12px;
       }
-      @media (min-width: 640px) { #lp-grid { grid-template-columns: repeat(3, 1fr); } }
-      @media (min-width: 1024px) { #lp-grid { grid-template-columns: repeat(4, 1fr); } }
+      /* VirtualScroller handles columns — .virtual-item usa display:flex internamente */
+      .virtual-scroller-list { position: relative; width: 100%; }
+      .virtual-item { box-sizing: border-box; }
+      .virtual-col { min-width: 0; }
 
       /* ── Supplement Card — Dark Luxury Laboratorial ── */
       .lp-card {
@@ -1124,14 +1134,21 @@ export default class ListPage {
     // Clear grid and prepare for virtual scroller
     grid.innerHTML = '';
 
+    // Columns responsive: 2 mobile, 3 tablet, 4 desktop
+    const vw = window.innerWidth;
+    const cols = vw >= 1024 ? 4 : vw >= 640 ? 3 : 2;
+    const cardHeight = vw >= 640 ? 340 : 310;
+
     // Create virtual scroller with filtered items
     this._scroller = new VirtualScroller(
       grid,
       this._filtered,
       (item) => this._renderSupplementCard(item),
       {
-        itemHeight: 310, // Approximate height of supplement card
-        bufferSize: 5
+        itemHeight: cardHeight,
+        bufferSize: 4,
+        columns: cols,
+        gap: 12,
       }
     );
 

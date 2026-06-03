@@ -1,6 +1,6 @@
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus } from '../../core/event-bus.js';
-import { StorageManager } from '../../core/storage-manager.js';
+import { StorageManager } from '../../platform/storage-manager.js';
 
 export class CheckoutModal {
   static _activeOverlay = null;

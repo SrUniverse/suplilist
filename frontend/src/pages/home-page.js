@@ -5,7 +5,7 @@
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { escapeHtml } from '../utils/escape.js';
-import { SchemaManager } from '../core/schema-manager.js';
+import { SchemaManager } from '../platform/schema-manager.js';
 
 export default class HomePage {
   /**

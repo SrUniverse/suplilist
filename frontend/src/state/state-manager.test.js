@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { StateManager, ACTIONS, STORAGE_KEY } from './state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 
-vi.mock('../core/storage-manager.js', () => ({
+vi.mock('../platform/storage-manager.js', () => ({
   StorageManager: {
     init: vi.fn(),
     setItem: vi.fn((key, val) => {

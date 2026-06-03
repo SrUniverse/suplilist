@@ -7,7 +7,7 @@ import { metricsAggregator } from './metrics-aggregator.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
 import { funnelEngine } from './funnel-engine.js';
 import { logger } from '../utils/logger.js';
-import { StorageManager } from '../core/storage-manager.js';
+import { StorageManager } from '../platform/storage-manager.js';
 
 // Mock all internal subsystems
 vi.mock('../core/event-bus.js', async (importOriginal) => {
@@ -22,7 +22,7 @@ vi.mock('../core/event-bus.js', async (importOriginal) => {
   };
 });
 
-vi.mock('../core/storage-manager.js', () => ({
+vi.mock('../platform/storage-manager.js', () => ({
   StorageManager: {
     getItem: vi.fn().mockReturnValue('state-dummy-v4')
   }

@@ -4,7 +4,7 @@
 // ============================================================
 
 import { logger } from '../../utils/logger.js';
-import { StorageManager } from '../../core/storage-manager.js';
+import { StorageManager } from '../../platform/storage-manager.js';
 
 /**
  * Generate an anonymous session ID based on device fingerprint

@@ -1,7 +1,7 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
 import { eventBus } from '../core/event-bus.js';
 import { escapeHtml } from '../utils/escape.js';
-import { StorageManager } from '../core/storage-manager.js';
+import { StorageManager } from '../platform/storage-manager.js';
 
 const OBJECTIVES = [
   { value: 'bulk',      label: 'Bulk',       desc: 'Ganho de Massa' },

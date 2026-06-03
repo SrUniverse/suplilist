@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 
-vi.mock('../state/state-manager.js', () => ({
+vi.mock('../../state/state-manager.js', () => ({
   stateManager: {
     user: { onboardingComplete: false, name: null, objective: null },
     stack: [],
@@ -15,7 +15,7 @@ vi.mock('../state/state-manager.js', () => ({
   },
 }));
 
-vi.mock('../features/stack/stack-recommender.js', () => ({
+vi.mock('../stack/stack-recommender.js', () => ({
   default: {
     recommend: vi.fn(() => [
       { id: 'creatina-monohidratada', name: 'Creatina Monohidratada', category: 'Força & Performance',
@@ -26,7 +26,7 @@ vi.mock('../features/stack/stack-recommender.js', () => ({
   },
 }));
 
-vi.mock('../core/event-bus.js', () => ({
+vi.mock('../../core/event-bus.js', () => ({
   eventBus: { on: vi.fn(), off: vi.fn(), emit: vi.fn() },
   EVENTS: { ROUTER_NAVIGATE: 'router:navigate' }
 }));
@@ -167,7 +167,7 @@ describe('OnboardingPage', () => {
   });
 
   it('Step 3: submit dispatches SET_USER_PROFILE with name and objective', async () => {
-    const { stateManager, ACTIONS } = await import('../state/state-manager.js');
+    const { stateManager, ACTIONS } = await import('../../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;
@@ -185,7 +185,7 @@ describe('OnboardingPage', () => {
   });
 
   it('Step 3: submit dispatches ADD_TO_STACK for each selected supplement', async () => {
-    const { stateManager, ACTIONS } = await import('../state/state-manager.js');
+    const { stateManager, ACTIONS } = await import('../../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;
@@ -207,7 +207,7 @@ describe('OnboardingPage', () => {
   });
 
   it('Step 3: submit dispatches COMPLETE_ONBOARDING', async () => {
-    const { stateManager, ACTIONS } = await import('../state/state-manager.js');
+    const { stateManager, ACTIONS } = await import('../../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;
@@ -219,7 +219,7 @@ describe('OnboardingPage', () => {
   });
 
   it('Step 3: submit navigates to /my-stack', async () => {
-    const { eventBus } = await import('../core/event-bus.js');
+    const { eventBus } = await import('../../core/event-bus.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;
@@ -231,9 +231,9 @@ describe('OnboardingPage', () => {
   });
 
   it('Step 3: empty recommender shows empty state, submit still works', async () => {
-    const recommenderMock = await import('../features/stack/stack-recommender.js');
+    const recommenderMock = await import('../stack/stack-recommender.js');
     recommenderMock.default.recommend.mockReturnValueOnce([]);
-    const { eventBus } = await import('../core/event-bus.js');
+    const { eventBus } = await import('../../core/event-bus.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;

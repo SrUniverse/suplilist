@@ -99,7 +99,7 @@ describe('ListPage Advanced Search & History', () => {
     container.id = 'list-page-container';
     document.body.appendChild(container);
 
-    const ListPage = (await import('../../pages/list-page.js')).default;
+    const ListPage = (await import('./list-page.js')).default;
     listPage = new ListPage(container, {});
     listPage.mount();
   });

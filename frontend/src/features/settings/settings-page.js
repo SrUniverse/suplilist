@@ -1,7 +1,7 @@
-import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
-import { StorageManager } from '../platform/storage-manager.js';
-import NotificationService from '../features/notifications/notification-service.js';
-import { CheckoutModal } from '../features/premium/checkout-modal.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../../state/state-manager.js';
+import { StorageManager } from '../../platform/storage-manager.js';
+import NotificationService from '../notifications/notification-service.js';
+import { CheckoutModal } from '../premium/checkout-modal.js';
 
 export default class SettingsPage {
   constructor(container, params) {

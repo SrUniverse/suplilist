@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../features/stack/stack-recommender.js', () => ({
+vi.mock('../stack/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
     { id: '1', name: 'Whey', category: 'Proteínas', dosage: { maintenance: 30, unit: 'g' }, pricePerGram: 0.20 },
     { id: '2', name: 'Creatine', category: 'Força & Performance', dosage: { maintenance: 5, unit: 'g' }, pricePerGram: 0.05 },
@@ -21,7 +21,7 @@ let sharedState = {
   ]
 };
 
-vi.mock('../state/state-manager.js', () => ({
+vi.mock('../../state/state-manager.js', () => ({
   stateManager: {
     subscribe: vi.fn((callback) => {
       callback(sharedState);
@@ -39,7 +39,7 @@ vi.mock('../state/state-manager.js', () => ({
   }
 }));
 
-vi.mock('../utils/date.js', () => ({
+vi.mock('../../utils/date.js', () => ({
   todayISO: () => '2026-06-02',
   offsetISO: (days) => {
     const d = new Date('2026-06-02T12:00:00');
@@ -48,7 +48,7 @@ vi.mock('../utils/date.js', () => ({
   }
 }));
 
-vi.mock('../monetization/affiliate-engine.js', () => ({
+vi.mock('../../monetization/affiliate-engine.js', () => ({
   default: {
     getLinks: vi.fn(() => ({
       amazon: 'https://amazon.com/example',
@@ -95,7 +95,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('1. Calculates and displays monthly investment with unit conversion', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       stack: [
         { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 }
@@ -113,7 +113,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('2. Calculates adherence rate based on checkins', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       stack: [
         { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 }
@@ -136,7 +136,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('3. Modal search filters supplements and ADD_TO_STACK dispatches', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     await myStackPage.mount();
 
     const addBtn = container.querySelector('#msp-open-modal');
@@ -174,7 +174,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('4. Inline edit form saves with validation and dispatches UPDATE_STACK_ITEM', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     await myStackPage.mount();
 
     const editBtn = container.querySelector('[data-action="edit"][data-id="1"]');
@@ -203,7 +203,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('5. REMOVE_FROM_STACK dispatches on delete action', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     vi.stubGlobal('confirm', () => true);
     await myStackPage.mount();
 
@@ -245,7 +245,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('7. Empty stack shows CTA button and hides metrics', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       stack: [],
       checkins: []

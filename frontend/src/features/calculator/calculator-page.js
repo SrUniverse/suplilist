@@ -3,13 +3,13 @@
  * Calculadora de dosagem com layout split: dados biométricos | resultado
  */
 
-import { stateManager, ACTIONS } from '../state/state-manager.js';
-import { logger } from '../utils/logger.js';
-import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
-import dosageCalculator from '../features/calculator/dosage-calculator.js';
-import { escapeHtml } from '../utils/escape.js';
-import { EVIDENCE_COLORS as EVIDENCE_COLORS_MAP } from '../utils/evidence.js';
-import { eventBus } from '../core/event-bus.js';
+import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { logger } from '../../utils/logger.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
+import dosageCalculator from '../calculator/dosage-calculator.js';
+import { escapeHtml } from '../../utils/escape.js';
+import { EVIDENCE_COLORS as EVIDENCE_COLORS_MAP } from '../../utils/evidence.js';
+import { eventBus } from '../../core/event-bus.js';
 
 const ACTIVITY_LEVELS = [
   { value: 'sedentary',  label: 'Sedentário' },

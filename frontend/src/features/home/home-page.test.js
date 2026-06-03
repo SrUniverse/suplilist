@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../features/stack/stack-recommender.js', () => ({
+vi.mock('../stack/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: Array.from({ length: 50 }, (_, i) => ({
     id: String(i + 1),
     name: `Supplement ${i + 1}`,
@@ -11,7 +11,7 @@ vi.mock('../features/stack/stack-recommender.js', () => ({
   }))
 }));
 
-vi.mock('../utils/escape.js', () => ({
+vi.mock('../../utils/escape.js', () => ({
   escapeHtml: (str) => str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -20,7 +20,7 @@ vi.mock('../utils/escape.js', () => ({
     .replace(/'/g, '&#039;')
 }));
 
-vi.mock('../platform/schema-manager.js', () => ({
+vi.mock('../../platform/schema-manager.js', () => ({
   SchemaManager: {
     createWebApplicationSchema: vi.fn(() => ({
       '@context': 'https://schema.org',
@@ -31,7 +31,7 @@ vi.mock('../platform/schema-manager.js', () => ({
   }
 }));
 
-vi.mock('../utils/date-utils.js', () => ({
+vi.mock('../../utils/date-utils.js', () => ({
   todayISO: () => '2026-06-02'
 }));
 
@@ -141,21 +141,21 @@ describe('HomePage — Landing Page', () => {
   });
 
   it('7. SchemaManager.createWebApplicationSchema is called on mount', async () => {
-    const { SchemaManager } = await import('../platform/schema-manager.js');
+    const { SchemaManager } = await import('../../platform/schema-manager.js');
     await homePage.mount();
 
     expect(SchemaManager.createWebApplicationSchema).toHaveBeenCalled();
   });
 
   it('8. Schema is inserted to DOM head', async () => {
-    const { SchemaManager } = await import('../platform/schema-manager.js');
+    const { SchemaManager } = await import('../../platform/schema-manager.js');
     await homePage.mount();
 
     expect(SchemaManager.insertSchema).toHaveBeenCalled();
   });
 
   it('9. HTML escaping prevents XSS in supplement names', async () => {
-    const { escapeHtml } = await import('../utils/escape.js');
+    const { escapeHtml } = await import('../../utils/escape.js');
 
     const maliciousName = '<img src=x onerror="alert(1)">';
     const escaped = escapeHtml(maliciousName);

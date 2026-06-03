@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../features/stack/stack-recommender.js', () => ({
+vi.mock('../stack/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
     { id: '1', name: 'Whey', category: 'Proteínas', dosage: { maintenance: 30, unit: 'g' }, pricePerGram: 0.20 },
     { id: '2', name: 'Creatine', category: 'Força & Performance', dosage: { maintenance: 5, unit: 'g' }, pricePerGram: 0.05 },
@@ -21,7 +21,7 @@ let sharedState = {
   }))
 };
 
-vi.mock('../state/state-manager.js', () => {
+vi.mock('../../state/state-manager.js', () => {
   return {
     stateManager: {
       subscribe: vi.fn((callback) => {
@@ -38,7 +38,7 @@ vi.mock('../state/state-manager.js', () => {
   };
 });
 
-vi.mock('../utils/date.js', () => ({
+vi.mock('../../utils/date.js', () => ({
   todayISO: () => '2026-06-02',
   offsetISO: (days) => {
     const d = new Date('2026-06-02T12:00:00');
@@ -227,7 +227,7 @@ describe('HistoryPage — Check-in History', () => {
   });
 
   it('10. Calculates per-supplement adherence with edge case handling', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       stack: [{ id: '1', supplementId: '999', dosage: 10 }],
       checkins: []
@@ -270,7 +270,7 @@ describe('HistoryPage — premium branch', () => {
 
   it('12. Renders advanced dashboard and NOT lock card when tier is "pro"', async () => {
     // Arrange
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       user: { tier: 'pro' },
       stack: [{ id: '1', supplementId: '1', dosage: 30 }],
@@ -292,7 +292,7 @@ describe('HistoryPage — premium branch', () => {
 
   it('13. Renders lock card and NOT advanced dashboard when tier is "free"', async () => {
     // Arrange
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       user: { tier: 'free' },
       stack: [{ id: '1', supplementId: '1', dosage: 30 }],
@@ -314,7 +314,7 @@ describe('HistoryPage — premium branch', () => {
 
   it('14. Unlock button exists when tier is "free"', async () => {
     // Arrange
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       user: { tier: 'free' },
       stack: [],
@@ -335,7 +335,7 @@ describe('HistoryPage — premium branch', () => {
 
   it('15. Excel export button exists when tier is "pro"', async () => {
     // Arrange
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       user: { tier: 'pro' },
       stack: [{ id: '1', supplementId: '1', dosage: 30 }],

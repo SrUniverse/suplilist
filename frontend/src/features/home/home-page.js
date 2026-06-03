@@ -3,9 +3,9 @@
 // Estilo Linear / Vercel / Raycast. Sem sidebar/topbar.
 // ============================================================
 
-import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
-import { escapeHtml } from '../utils/escape.js';
-import { SchemaManager } from '../platform/schema-manager.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
+import { escapeHtml } from '../../utils/escape.js';
+import { SchemaManager } from '../../platform/schema-manager.js';
 
 export default class HomePage {
   /**

@@ -1,14 +1,14 @@
-import { stateManager, ACTIONS } from '../state/state-manager.js';
-import { logger } from '../utils/logger.js';
-import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
+import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { logger } from '../../utils/logger.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import Fuse from 'fuse.js';
-import { escapeHtml } from '../utils/escape.js';
-import { EVIDENCE_COLORS } from '../utils/evidence.js';
-import affiliateEngine from '../monetization/affiliate-engine.js';
-import { dosageToGrams } from '../utils/dosage-converter.js';
-import { DAYS_PER_MONTH, PAGE_SIZE as CONST_PAGE_SIZE, DEBOUNCE_SEARCH_MS } from '../config/constants.js';
-import { VirtualScroller } from '../core/virtual-scroller.js';
-import { CheckoutModal } from '../features/premium/checkout-modal.js';
+import { escapeHtml } from '../../utils/escape.js';
+import { EVIDENCE_COLORS } from '../../utils/evidence.js';
+import affiliateEngine from '../../monetization/affiliate-engine.js';
+import { dosageToGrams } from '../../utils/dosage-converter.js';
+import { DAYS_PER_MONTH, PAGE_SIZE as CONST_PAGE_SIZE, DEBOUNCE_SEARCH_MS } from '../../config/constants.js';
+import { VirtualScroller } from '../../core/virtual-scroller.js';
+import { CheckoutModal } from '../premium/checkout-modal.js';
 
 /**
  * Sanitize affiliate URLs for security — reject non-HTTP protocols.

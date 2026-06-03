@@ -3,10 +3,10 @@
 // Redesign: goal filters, sort, photo cards, Ver Preços
 // ============================================================
 
-import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
-import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
-import { EVIDENCE_COLORS } from '../utils/evidence.js';
-import { escapeHtml } from '../utils/escape.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../../state/state-manager.js';
+import { EVIDENCE_COLORS } from '../../utils/evidence.js';
+import { escapeHtml } from '../../utils/escape.js';
 
 // ─── Helpers ────────────────────────────────────────────────
 // Single source of truth: stateManager.favorites (persisted in suplilist-state-v4).

@@ -1301,6 +1301,8 @@ export default class ListPage {
    * @private
    */
   _loadMore() {
+    // VirtualScroller handles all pagination when active — legacy append disabled
+    if (this._scroller) return;
     const start = this._page * PAGE_SIZE;
     if (start >= this._filtered.length) return;
     const grid = this.container.querySelector('#lp-grid');

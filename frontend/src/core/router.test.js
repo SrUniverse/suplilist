@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Router } from './router.js';
 
 // Mock MetaManager
-vi.mock('./meta-manager.js', () => ({
+vi.mock('../platform/meta-manager.js', () => ({
   MetaManager: {
     updateMeta: vi.fn()
   }

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { generateSessionId, generateEventId, generateUUID, redactUserAgent, detectDeviceType } from './crypto-utils.js';
-import { StorageManager } from '../../core/storage-manager.js';
+import { StorageManager } from '../../platform/storage-manager.js';
 
 describe('crypto-utils — Analytics Cryptography & UA Parsing', () => {
   beforeEach(() => {

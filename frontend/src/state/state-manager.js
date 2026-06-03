@@ -8,7 +8,7 @@
 import { eventBus } from '../core/event-bus.js';
 import { todayISO, offsetISO } from '../utils/date.js';
 import { logger } from '../utils/logger.js';
-import { StorageManager } from '../core/storage-manager.js';
+import { StorageManager } from '../platform/storage-manager.js';
 
 export const STATE_VERSION = '4.0.0';
 export const STORAGE_KEY = 'suplilist-state-v4';

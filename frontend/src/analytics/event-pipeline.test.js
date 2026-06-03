@@ -3,7 +3,7 @@ import { eventPipeline, EventPipeline } from './event-pipeline.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 import { stateManager } from '../state/state-manager.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
-import { StorageManager } from '../core/storage-manager.js';
+import { StorageManager } from '../platform/storage-manager.js';
 
 let mockStoredEvents = [];
 

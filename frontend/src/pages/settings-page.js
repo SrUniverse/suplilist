@@ -1,5 +1,5 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
-import { StorageManager } from '../core/storage-manager.js';
+import { StorageManager } from '../platform/storage-manager.js';
 import NotificationService from '../features/notifications/notification-service.js';
 import { CheckoutModal } from '../features/premium/checkout-modal.js';
 

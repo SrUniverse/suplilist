@@ -55,7 +55,7 @@ vi.mock('../analytics/analytics-engine.js', () => ({
   }
 }));
 
-vi.mock('./storage-manager.js', () => ({
+vi.mock('../platform/storage-manager.js', () => ({
   StorageManager: {
     init: vi.fn().mockResolvedValue(undefined),
     getItem: vi.fn().mockReturnValue(null),
@@ -64,10 +64,10 @@ vi.mock('./storage-manager.js', () => ({
   }
 }));
 
-vi.mock('./mobile-keyboard-handler.js', () => ({}));
-vi.mock('./mobile-utilities.js', () => ({}));
-vi.mock('./pwa-handler.js', () => ({}));
-vi.mock('./performance-monitor.js', () => ({}));
+vi.mock('../platform/mobile-keyboard-handler.js', () => ({}));
+vi.mock('../platform/mobile-utilities.js', () => ({}));
+vi.mock('../platform/pwa-handler.js', () => ({}));
+vi.mock('../platform/performance-monitor.js', () => ({}));
 
 import './app.js';
 
@@ -157,7 +157,7 @@ describe('App Initialization', () => {
   });
 
   it('1. StorageManager.init() is called on DOMContentLoaded', async () => {
-    const { StorageManager } = await import('./storage-manager.js');
+    const { StorageManager } = await import('../platform/storage-manager.js');
 
     // Simulate DOMContentLoaded
     document.dispatchEvent(mockDOMContentLoaded);
@@ -243,7 +243,7 @@ describe('App Initialization', () => {
   });
 
   it('9. Theme is restored from StorageManager on init', async () => {
-    const { StorageManager } = await import('./storage-manager.js');
+    const { StorageManager } = await import('../platform/storage-manager.js');
     StorageManager.getItem.mockReturnValue('light');
 
     document.dispatchEvent(mockDOMContentLoaded);
@@ -254,7 +254,7 @@ describe('App Initialization', () => {
   });
 
   it('10. Theme toggle updates document and storage', async () => {
-    const { StorageManager } = await import('./storage-manager.js');
+    const { StorageManager } = await import('../platform/storage-manager.js');
     StorageManager.getItem.mockReturnValue('dark');
 
     document.dispatchEvent(mockDOMContentLoaded);
@@ -369,7 +369,7 @@ describe('App — Error Handling', () => {
   });
 
   it('17. StorageManager init errors are caught (IndexedDB fallback)', async () => {
-    const { StorageManager } = await import('./storage-manager.js');
+    const { StorageManager } = await import('../platform/storage-manager.js');
     StorageManager.init.mockRejectedValue(new Error('IndexedDB not available'));
 
     const mockDOMContentLoaded = new Event('DOMContentLoaded');

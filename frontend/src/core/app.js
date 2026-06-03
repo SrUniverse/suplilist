@@ -4,11 +4,11 @@ import { eventBus, EVENTS } from './event-bus.js';
 import { Router } from './router.js';
 import { Nav } from './nav.js';
 import { analyticsEngine } from '../analytics/analytics-engine.js';
-import { StorageManager } from './storage-manager.js';
-import './mobile-keyboard-handler.js';
-import './mobile-utilities.js';
-import './pwa-handler.js';
-import './performance-monitor.js';
+import { StorageManager } from '../platform/storage-manager.js';
+import '../platform/mobile-keyboard-handler.js';
+import '../platform/mobile-utilities.js';
+import '../platform/pwa-handler.js';
+import '../platform/performance-monitor.js';
 import NotificationService from '../features/notifications/notification-service.js';
 
 

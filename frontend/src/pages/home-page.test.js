@@ -20,7 +20,7 @@ vi.mock('../utils/escape.js', () => ({
     .replace(/'/g, '&#039;')
 }));
 
-vi.mock('../core/schema-manager.js', () => ({
+vi.mock('../platform/schema-manager.js', () => ({
   SchemaManager: {
     createWebApplicationSchema: vi.fn(() => ({
       '@context': 'https://schema.org',
@@ -141,14 +141,14 @@ describe('HomePage — Landing Page', () => {
   });
 
   it('7. SchemaManager.createWebApplicationSchema is called on mount', async () => {
-    const { SchemaManager } = await import('../core/schema-manager.js');
+    const { SchemaManager } = await import('../platform/schema-manager.js');
     await homePage.mount();
 
     expect(SchemaManager.createWebApplicationSchema).toHaveBeenCalled();
   });
 
   it('8. Schema is inserted to DOM head', async () => {
-    const { SchemaManager } = await import('../core/schema-manager.js');
+    const { SchemaManager } = await import('../platform/schema-manager.js');
     await homePage.mount();
 
     expect(SchemaManager.insertSchema).toHaveBeenCalled();

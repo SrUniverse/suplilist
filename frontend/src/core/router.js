@@ -1,6 +1,6 @@
 import { Nav } from './nav.js';
 import { logger } from '../utils/logger.js';
-import { MetaManager } from './meta-manager.js';
+import { MetaManager } from '../platform/meta-manager.js';
 
 /**
  * Router — Client-side route handler

@@ -1,4 +1,4 @@
-import { SchemaManager } from '../core/schema-manager.js';
+import { SchemaManager } from '../platform/schema-manager.js';
 
 const FAQ_DATA = [
   {

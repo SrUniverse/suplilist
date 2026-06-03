@@ -35,12 +35,12 @@ jobs:
       run: npm run build
 
     - name: Start development server
-      run: npm run dev &
+      run: npm run dev -- --host 127.0.0.1 &
       env:
         NODE_ENV: test
 
     - name: Wait for server
-      run: npx wait-on http://localhost:3000 --timeout 60000
+      run: npx wait-on http://127.0.0.1:3000 --timeout 60000
 
     - name: Run E2E tests (${{ matrix.browser }} - ${{ matrix.device }})
       run: npx playwright test --project=${{ matrix.browser }}

@@ -1,24 +1,25 @@
-import 'dotenv/config'; // Make sure env is loaded first
-import 'express-async-errors';
-import express, { Request, Response, NextFunction } from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import rateLimit from 'express-rate-limit';
-import mongoose from 'mongoose';
+/**
+ * Server entry point — bootstrap only.
+ *
+ * Responsibilities:
+ *  1. Load .env (must be first import so process.env is populated before anything else)
+ *  2. Validate required environment variables via Zod (fail-fast on misconfiguration)
+ *  3. Connect to MongoDB
+ *  4. Create the Express app and start listening
+ *  5. Schedule background jobs
+ *  6. Register graceful shutdown handlers
+ *
+ * Do NOT import this file from tests. Import app.ts and call createApp() instead.
+ */
+import 'dotenv/config';
 import { z } from 'zod';
-import { initializeIdentityModule } from './modules/identity/identity.module.js';
-import { initializeProfileModule } from './modules/profile/profile.module.js';
-import { initializeSettingsModule } from './modules/settings/settings.module.js';
-import { initializeAuditModule } from './modules/audit/audit.module.js';
-import { csrfGuard } from './shared/middleware/csrf-guard.js';
-
-// Import workers/jobs
+import mongoose from 'mongoose';
+import { createApp } from './app.js';
 import { OutboxProcessorJob } from './shared/infrastructure/jobs/outbox-processor.job.js';
 import { AuditFlushJob } from './shared/infrastructure/jobs/audit-flush.job.js';
 import { PurgeAccountsJob } from './shared/infrastructure/jobs/purge-accounts.job.js';
 
-// 1. Fail-fast: Rigorous environment variable validation via Zod
+// ── 1. Environment validation (fail-fast) ─────────────────────────────────────
 const envSchema = z.object({
   PORT: z.string().default('5000'),
   MONGO_URI: z.string().url('MONGO_URI must be a valid URL'),
@@ -35,91 +36,18 @@ if (!envResult.success) {
 }
 
 const env = envResult.data;
-const app = express();
 
-// 2. Global security and parsing middlewares
-app.use(helmet());
-
-// CORS configuration (OWASP & W3C compliant)
-// When credentials are enabled (credentials: true), the Access-Control-Allow-Origin header
-// cannot use a wildcard '*'. It must match the client's origin explicitly.
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Vite default development server
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-SupliList-Client'],
-  credentials: true,
-}));
-
-// Parsers
-app.use(express.json({ limit: '10kb' })); // Mitigate payload size DDoS
-app.use(cookieParser());
-
-// CSRF Defense (OWASP compliant)
-// Blocks cross-site request forgery attacks targeting HTTP cookies
-app.use(csrfGuard);
-
-// Global Rate Limiter to prevent brute-force and DDoS
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    error: 'too_many_requests',
-    message: 'Too many requests from this IP, please try again in 15 minutes.'
-  }
-});
-app.use(globalLimiter);
-
-// Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date(),
-    uptime: process.uptime(),
-  });
-});
-
-// 3. Mount Modular Monolith routers
-app.use('/api/auth', initializeIdentityModule());
-app.use('/api/profile', initializeProfileModule());
-app.use('/api/settings', initializeSettingsModule());
-app.use('/api/audit', initializeAuditModule());
-
-// Global 404 Route handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    error: 'not_found',
-    message: `Resource not found: ${req.method} ${req.path}`
-  });
-});
-
-// Global Error handling middleware (OWASP compliant - no leaked details)
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Unhandled server error:', err);
-  
-  const status = err.status || err.statusCode || 500;
-  
-  res.status(status).json({
-    success: false,
-    error: err.code || 'internal_server_error',
-    message: process.env.NODE_ENV === 'production' 
-      ? 'An unexpected error occurred. Please contact support.' 
-      : err.message || 'Internal Server Error'
-  });
-});
-
-// 4. Database Connection & Server Startup
+// ── 2. Connect to MongoDB and start the server ─────────────────────────────────
 mongoose.connect(env.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB connected successfully');
+
+    const app = createApp();
     const server = app.listen(env.PORT, () => {
       console.log(`🚀 SupliList backend server running on port ${env.PORT}`);
     });
 
-    // Initialize job workers intervals
+    // ── 3. Background job workers ──────────────────────────────────────────────
     const outboxInterval = setInterval(async () => {
       try {
         await OutboxProcessorJob.execute();
@@ -153,11 +81,10 @@ mongoose.connect(env.MONGO_URI)
       }
     }, 10 * 1000);
 
-    // Graceful Shutdown
+    // ── 4. Graceful shutdown ───────────────────────────────────────────────────
     const shutdown = (signal: string) => {
       console.log(`Received ${signal}. Starting graceful shutdown...`);
-      
-      // Clear intervals immediately
+
       clearInterval(outboxInterval);
       clearInterval(auditInterval);
       clearInterval(purgeInterval);

@@ -336,9 +336,10 @@ describe('StorageManager — Multi-layer Storage', () => {
     StorageManager._dbReady = true;
 
     const backupData = {
+      version: '4.0.0', // Required by new validation
       sources: {
         indexeddb: {
-          'restored-state': 'restored-value'
+          'suplilist-state-v4': 'restored-value' // Must match allowlist prefix
         }
       }
     };
@@ -359,7 +360,7 @@ describe('StorageManager — Multi-layer Storage', () => {
     expect(res.success).toBe(true);
     expect(mockOpenFilePicker).toHaveBeenCalled();
     expect(mockHandle.getFile).toHaveBeenCalled();
-    expect(mockStore.put).toHaveBeenCalledWith('restored-value', 'restored-state');
+    expect(mockStore.put).toHaveBeenCalledWith('restored-value', 'suplilist-state-v4');
   });
 
   // 14. File system export error fallback

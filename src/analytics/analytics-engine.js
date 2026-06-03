@@ -10,6 +10,14 @@ import { metricsAggregator } from './metrics-aggregator.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
 import { funnelEngine } from './funnel-engine.js';
 import { logger } from '../utils/logger.js';
+import {
+  validateDateISO,
+  validateFunnelSteps,
+  validatePositiveInteger,
+  validateUTMSource,
+  validateDateRange,
+  validateUserId
+} from './utils/analytics-validators.js';
 
 /**
  * Analytics Engine — main coordinator
@@ -40,27 +48,47 @@ export class AnalyticsEngine {
       sessionManager.getOrStartSession(sessionId);
       logger.debug('[AnalyticsEngine] Session manager initialized');
 
-      // Step 4: Listen to key events for context
+      // PATCH 1: Step 4: Listen to key events with error handling
       eventBus.on(EVENTS.PROFILE_UPDATED, (payload) => {
-        sessionManager.recordActivity('user:profileUpdated');
+        try {
+          sessionManager.recordActivity('user:profileUpdated');
+        } catch (err) {
+          logger.error('[AnalyticsEngine] Failed to record profile activity:', err);
+        }
       });
 
       eventBus.on(EVENTS.STACK_UPDATED, (payload) => {
-        sessionManager.recordActivity('stack:updated');
+        try {
+          sessionManager.recordActivity('stack:updated');
+        } catch (err) {
+          logger.error('[AnalyticsEngine] Failed to record stack activity:', err);
+        }
       });
 
       eventBus.on(EVENTS.CHECKIN_LOGGED, (payload) => {
-        sessionManager.recordActivity('checkin:logged');
+        try {
+          sessionManager.recordActivity('checkin:logged');
+        } catch (err) {
+          logger.error('[AnalyticsEngine] Failed to record checkin activity:', err);
+        }
       });
 
       eventBus.on(EVENTS.PREMIUM_UNLOCKED, (payload) => {
-        sessionManager.recordActivity('premium:unlocked');
+        try {
+          sessionManager.recordActivity('premium:unlocked');
+        } catch (err) {
+          logger.error('[AnalyticsEngine] Failed to record premium activity:', err);
+        }
       });
 
       eventBus.on('*', (eventName, payload) => {
-        // Track user activity for idle detection
-        if (!eventName.startsWith('analytics:') && !eventName.startsWith('ui:')) {
-          sessionManager.recordActivity(eventName);
+        try {
+          // Track user activity for idle detection
+          if (!eventName.startsWith('analytics:') && !eventName.startsWith('ui:')) {
+            sessionManager.recordActivity(eventName);
+          }
+        } catch (err) {
+          logger.error('[AnalyticsEngine] Failed to record wildcard activity:', err);
         }
       });
 
@@ -111,8 +139,10 @@ export class AnalyticsEngine {
    * Get DAU for date
    * @param {string} dateISO - YYYY-MM-DD
    * @returns {Promise<number>}
+   * @throws {TypeError|Error} If dateISO is invalid
    */
   async getDAU(dateISO) {
+    validateDateISO(dateISO, 'dateISO');
     return metricsAggregator.getDAU(dateISO);
   }
 
@@ -120,8 +150,10 @@ export class AnalyticsEngine {
    * Get WAU
    * @param {number} weekOffset - 0 = current week
    * @returns {Promise<number>}
+   * @throws {TypeError|RangeError} If weekOffset is invalid
    */
   async getWAU(weekOffset = 0) {
+    validatePositiveInteger(weekOffset, 'weekOffset', { min: 0, max: 52 });
     return metricsAggregator.getWAU(weekOffset);
   }
 
@@ -129,8 +161,10 @@ export class AnalyticsEngine {
    * Get MAU
    * @param {number} monthOffset - 0 = current month
    * @returns {Promise<number>}
+   * @throws {TypeError|RangeError} If monthOffset is invalid
    */
   async getMAU(monthOffset = 0) {
+    validatePositiveInteger(monthOffset, 'monthOffset', { min: 0, max: 24 });
     return metricsAggregator.getMAU(monthOffset);
   }
 
@@ -139,8 +173,11 @@ export class AnalyticsEngine {
    * @param {string} cohortDateISO - YYYY-MM-DD
    * @param {number} dayN - Day to measure (1, 7, 14, 30, 60, 90)
    * @returns {Promise<Object>}
+   * @throws {TypeError|Error|RangeError} If parameters are invalid
    */
   async getRetention(cohortDateISO, dayN) {
+    validateDateISO(cohortDateISO, 'cohortDateISO');
+    validatePositiveInteger(dayN, 'dayN', { min: 1, max: 365 });
     return metricsAggregator.getRetention(cohortDateISO, dayN);
   }
 
@@ -159,8 +196,11 @@ export class AnalyticsEngine {
    * @param {string} startDateISO - Cohort start
    * @param {string} endDateISO - Analysis end
    * @returns {Promise<Object>}
+   * @throws {TypeError|Error} If parameters are invalid
    */
   async getFunnelConversion(steps, startDateISO, endDateISO) {
+    validateFunnelSteps(steps);
+    validateDateRange(startDateISO, endDateISO);
     return metricsAggregator.getFunnelConversion(steps, startDateISO, endDateISO);
   }
 
@@ -289,8 +329,11 @@ export class AnalyticsEngine {
    * @param {string} startDateISO - YYYY-MM-DD
    * @param {string} endDateISO - YYYY-MM-DD
    * @returns {Promise<Object>}
+   * @throws {TypeError|Error} If parameters are invalid
    */
   async getAffiliateStats(utmSource, startDateISO, endDateISO) {
+    validateUTMSource(utmSource);
+    validateDateRange(startDateISO, endDateISO);
     return metricsAggregator.getAffiliateStats(utmSource, startDateISO, endDateISO);
   }
 
@@ -319,8 +362,10 @@ export class AnalyticsEngine {
    * Estimate LTV for a user
    * @param {string} userId
    * @returns {Promise<Object>}
+   * @throws {TypeError|Error} If userId is invalid
    */
   async estimateLTV(userId) {
+    validateUserId(userId);
     return metricsAggregator.estimateLTV(userId);
   }
 
@@ -359,7 +404,7 @@ export class AnalyticsEngine {
   getStatus() {
     return {
       initialized: this.#initialized,
-      sessionId: this.getSessionId()?.substring(0, 8) + '...',
+      sessionId: (this.getSessionId()?.substring(0, 8) ?? 'not-initialized') + '...',
       pipeline: eventPipeline.getStats(),
       currentSession: sessionManager.getCurrentSessionData()
     };
@@ -580,16 +625,44 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
   /**
    * Expose observability endpoint (GET /analytics/health)
    * Accessible via global window.analyticsAPI
+   * PATCH 2: Add simple token-based authentication
    */
   exposeObservabilityAPI() {
     if (typeof window !== 'undefined') {
+      // Generate secret token for this session
+      const SECRET_TOKEN = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `tok_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+
       window.analyticsAPI = {
-        health: () => this.getHealthStatus(),
-        metrics: () => this.getMetricsPrometheus(),
-        logs: () => logger.getMetrics(),
-        clear: () => logger.clearBuffers(),
+        health: (token) => {
+          if (token !== SECRET_TOKEN) {
+            throw new Error('Unauthorized: invalid token');
+          }
+          return this.getHealthStatus();
+        },
+        metrics: (token) => {
+          if (token !== SECRET_TOKEN) {
+            throw new Error('Unauthorized: invalid token');
+          }
+          return this.getMetricsPrometheus();
+        },
+        logs: (token) => {
+          if (token !== SECRET_TOKEN) {
+            throw new Error('Unauthorized: invalid token');
+          }
+          return logger.getMetrics();
+        },
+        clear: (token) => {
+          if (token !== SECRET_TOKEN) {
+            throw new Error('Unauthorized: invalid token');
+          }
+          return logger.clearBuffers();
+        },
       };
+
       logger.info('[AnalyticsEngine] Observability API exposed at window.analyticsAPI');
+      logger.info(`[AnalyticsEngine] API Token: ${SECRET_TOKEN}`);
     }
   }
 }
@@ -597,7 +670,13 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
 // Export singleton
 export const analyticsEngine = new AnalyticsEngine();
 
-// Auto-initialize on import (optional, can be called manually)
+// PATCH 3: Auto-init removed to prevent race conditions and side effects
+// Call analyticsEngine.init() explicitly in your app.js:
+//
+//   import { analyticsEngine } from './analytics/analytics-engine.js';
+//   await analyticsEngine.init();
+//
+// Legacy auto-init (DEPRECATED - kept for backwards compatibility, will be removed in v5.0)
 if (typeof window !== 'undefined' && document.readyState !== 'loading') {
   // DOM ready, init now
   analyticsEngine.init().catch(err => {

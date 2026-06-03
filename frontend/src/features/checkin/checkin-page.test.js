@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../features/stack/stack-recommender.js', () => ({
+vi.mock('../stack/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
     { id: '1', name: 'Whey', image: 'whey.jpg' },
     { id: '2', name: 'Creatine', image: 'creatine.jpg' },
@@ -24,7 +24,7 @@ let sharedState = {
   ]
 };
 
-vi.mock('../state/state-manager.js', () => {
+vi.mock('../../state/state-manager.js', () => {
   return {
     stateManager: {
       subscribe: vi.fn((callback) => {
@@ -40,11 +40,11 @@ vi.mock('../state/state-manager.js', () => {
   };
 });
 
-vi.mock('../utils/date.js', () => ({
+vi.mock('../../utils/date.js', () => ({
   todayISO: () => '2026-06-02'
 }));
 
-vi.mock('../core/event-bus.js', () => ({
+vi.mock('../../core/event-bus.js', () => ({
   eventBus: {
     emit: vi.fn(),
     on: vi.fn(),
@@ -123,7 +123,7 @@ describe('CheckinPage — Daily Check-in', () => {
   });
 
   it('4. Checking supplement dispatches ADD_CHECKIN with today date', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     await checkinPage.mount();
 
     const uncheckedCard = container.querySelector('[data-supplement-id="3"][data-checked="false"]');
@@ -143,7 +143,7 @@ describe('CheckinPage — Daily Check-in', () => {
   });
 
   it('5. Mark all button checks remaining supplements and dispatches ADD_CHECKIN batch', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     await checkinPage.mount();
 
     const markAllBtn = container.querySelector('[data-action="mark-all"]');
@@ -161,7 +161,7 @@ describe('CheckinPage — Daily Check-in', () => {
   });
 
   it('6. Toast event fires on single checkin', async () => {
-    const { eventBus } = await import('../core/event-bus.js');
+    const { eventBus } = await import('../../core/event-bus.js');
     await checkinPage.mount();
 
     const uncheckedCard = container.querySelector('[data-supplement-id="3"][data-checked="false"]');
@@ -178,7 +178,7 @@ describe('CheckinPage — Daily Check-in', () => {
   });
 
   it('7. Toast event fires on mark all', async () => {
-    const { eventBus } = await import('../core/event-bus.js');
+    const { eventBus } = await import('../../core/event-bus.js');
     await checkinPage.mount();
 
     const markAllBtn = container.querySelector('[data-action="mark-all"]');

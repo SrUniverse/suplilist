@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus } from '../../core/event-bus.js';
 import { CheckoutModal } from './checkout-modal.js';
-import ListPage from '../../pages/list-page.js';
-import HistoryPage from '../../pages/history-page.js';
-import SettingsPage from '../../pages/settings-page.js';
+import ListPage from '../supplements/list-page.js';
+import HistoryPage from '../history/history-page.js';
+import SettingsPage from '../settings/settings-page.js';
 import ExcelJS from 'exceljs';
 
 // Mock VirtualScroller to safely test ListPage rendering under JSDOM

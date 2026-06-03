@@ -13,19 +13,19 @@ import NotificationService from '../features/notifications/notification-service.
 
 
 const routes = [
-  { path: '/onboarding', load: () => import('../pages/onboarding-page.js') },
-  { path: '/',          load: () => import('../pages/home-page.js') },
-  { path: '/home',      load: () => import('../pages/home-page.js') },
-  { path: '/list',      load: () => import('../pages/list-page.js') },
-  { path: '/my-stack',  load: () => import('../pages/my-stack-page.js') },
-  { path: '/checkin',   load: () => import('../pages/checkin-page.js') },
-  { path: '/history',   load: () => import('../pages/history-page.js') },
-  { path: '/favorites', load: () => import('../pages/favorites-page.js') },
-  { path: '/dosage',    load: () => import('../pages/calculator-page.js') },
-  { path: '/profile',   load: () => import('../pages/profile-page.js') },
-  { path: '/settings',  load: () => import('../pages/settings-page.js') },
-  { path: '/faq',       load: () => import('../pages/faq-page.js') },
-  { path: '/legal',     load: () => import('../pages/legal-page.js') },
+  { path: '/onboarding', load: () => import('../features/onboarding/onboarding-page.js') },
+  { path: '/',           load: () => import('../features/home/home-page.js') },
+  { path: '/home',       load: () => import('../features/home/home-page.js') },
+  { path: '/list',       load: () => import('../features/supplements/list-page.js') },
+  { path: '/my-stack',   load: () => import('../features/stack/my-stack-page.js') },
+  { path: '/checkin',    load: () => import('../features/checkin/checkin-page.js') },
+  { path: '/history',    load: () => import('../features/history/history-page.js') },
+  { path: '/favorites',  load: () => import('../features/favorites/favorites-page.js') },
+  { path: '/dosage',     load: () => import('../features/calculator/calculator-page.js') },
+  { path: '/profile',    load: () => import('../features/profile/profile-page.js') },
+  { path: '/settings',   load: () => import('../features/settings/settings-page.js') },
+  { path: '/faq',        load: () => import('../features/legal/faq-page.js') },
+  { path: '/legal',      load: () => import('../features/legal/legal-page.js') },
 ];
 
 const PAGE_METADATA = {

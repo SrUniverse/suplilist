@@ -3,15 +3,15 @@
  * My Stack: full visual rebuild with metrics, list, add modal, replenishment sidebar
  */
 
-import { stateManager, ACTIONS } from '../state/state-manager.js';
-import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
-import { todayISO, offsetISO } from '../utils/date.js';
-import { renderEvidenceBadge } from '../utils/evidence.js';
-import { getSupplementId } from '../utils/stack.js';
-import { escapeHtml } from '../utils/escape.js';
-import affiliateEngine from '../monetization/affiliate-engine.js';
-import ShareService from '../features/sharing/share-service.js';
-import QRGenerator from '../features/sharing/qr-generator.js';
+import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
+import { todayISO, offsetISO } from '../../utils/date.js';
+import { renderEvidenceBadge } from '../../utils/evidence.js';
+import { getSupplementId } from '../../utils/stack.js';
+import { escapeHtml } from '../../utils/escape.js';
+import affiliateEngine from '../../monetization/affiliate-engine.js';
+import ShareService from '../sharing/share-service.js';
+import QRGenerator from '../sharing/qr-generator.js';
 
 
 // Prices loaded lazily from /data/prices.json

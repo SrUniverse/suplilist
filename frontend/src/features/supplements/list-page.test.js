@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../features/stack/stack-recommender.js', () => ({
+vi.mock('../stack/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
     { id: '1', name: 'Whey Protein', category: 'Proteínas', objectives: ['muscle'], ppg: 0.20, price: 150 },
     { id: '2', name: 'Creatina', category: 'Performance', objectives: ['strength'], ppg: 0.05, price: 80 },
@@ -9,7 +9,7 @@ vi.mock('../features/stack/stack-recommender.js', () => ({
   ]
 }));
 
-vi.mock('../state/state-manager.js', () => ({
+vi.mock('../../state/state-manager.js', () => ({
   stateManager: {
     subscribe: vi.fn(() => vi.fn()),
     dispatch: vi.fn(),
@@ -41,7 +41,7 @@ vi.mock('fuse.js', () => ({
   }
 }));
 
-vi.mock('../core/virtual-scroller.js', () => ({
+vi.mock('../../core/virtual-scroller.js', () => ({
   VirtualScroller: class {
     constructor(container, items, renderFn) {
       this.container = container;
@@ -70,7 +70,7 @@ vi.mock('../core/virtual-scroller.js', () => ({
   }
 }));
 
-vi.mock('../monetization/affiliate-engine.js', () => ({
+vi.mock('../../monetization/affiliate-engine.js', () => ({
   default: {
     getLinks: vi.fn(() => ({
       amazon: 'https://amazon.com/example',
@@ -191,7 +191,7 @@ describe('ListPage — Supplement Catalog', () => {
   });
 
   it('6. Favorite toggle dispatches ADD_FAVORITE/REMOVE_FAVORITE', async () => {
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     await listPage.mount();
 
     const favoriteBtn = container.querySelector('[data-action="toggle-fav"]');
@@ -257,7 +257,7 @@ describe('ListPage — tier reactivity', () => {
 
   it('9. Free tier: 4th item in filtered list has isAd === true when DB has >3 items', async () => {
     // Arrange
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     stateManager.getState.mockReturnValue({
       user: { tier: 'free' },
       stack: [],
@@ -283,7 +283,7 @@ describe('ListPage — tier reactivity', () => {
 
   it('10. Pro tier: no item with isAd === true in filtered list', async () => {
     // Arrange
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     stateManager.getState.mockReturnValue({
       user: { tier: 'pro' },
       stack: [],
@@ -305,7 +305,7 @@ describe('ListPage — tier reactivity', () => {
 
   it('11. Subscriber re-render: switching from free to pro removes ad items', async () => {
     // Arrange — start as free
-    const { stateManager } = await import('../state/state-manager.js');
+    const { stateManager } = await import('../../state/state-manager.js');
     let subscriberCallback = null;
     stateManager.subscribe.mockImplementation((cb) => {
       subscriberCallback = cb;

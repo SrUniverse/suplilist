@@ -165,13 +165,23 @@ export class VirtualScroller {
   /**
    * Calculate which rows are in viewport + buffer.
    * Works in row units when columns > 1.
+   * Accounts for the container's offset from the top of the page.
    */
   _updateVisibleRange() {
+    let pageScrollTop;
     if (this.scrollElement === window) {
-      this.scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      pageScrollTop = window.pageYOffset || document.documentElement.scrollTop;
     } else {
-      this.scrollTop = this.scrollElement.scrollTop;
+      pageScrollTop = this.scrollElement.scrollTop;
     }
+
+    // Offset of the virtual list from the top of the scrollable area
+    const containerOffset = this.listElement
+      ? (this.listElement.getBoundingClientRect().top + pageScrollTop)
+      : 0;
+
+    // How far into the list the viewport currently shows
+    const scrollIntoList = Math.max(0, pageScrollTop - containerOffset);
 
     const cols = this.columns;
     const rowHeight = this.itemHeight + this.gap;
@@ -179,11 +189,11 @@ export class VirtualScroller {
 
     const startRow = Math.max(
       0,
-      Math.floor(this.scrollTop / rowHeight) - this.bufferSize
+      Math.floor(scrollIntoList / rowHeight) - this.bufferSize
     );
     const endRow = Math.min(
       totalRows - 1,
-      Math.ceil((this.scrollTop + this.containerHeight) / rowHeight) + this.bufferSize
+      Math.ceil((scrollIntoList + this.containerHeight) / rowHeight) + this.bufferSize
     );
 
     this.visibleStartIndex = startRow;

@@ -1146,7 +1146,7 @@ export default class ListPage {
       (item) => this._renderSupplementCard(item),
       {
         itemHeight: cardHeight,
-        bufferSize: 4,
+        bufferSize: 8,
         columns: cols,
         gap: 12,
       }

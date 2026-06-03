@@ -121,7 +121,7 @@ export class VirtualScroller {
     const rowHeight = this.itemHeight + gap;
 
     // Total height (virtual)
-    const totalHeight = totalRows * rowHeight - gap;
+    const totalHeight = totalRows === 0 ? 0 : totalRows * rowHeight - gap;
     this.listElement.style.height = totalHeight + 'px';
 
     // Render visible rows

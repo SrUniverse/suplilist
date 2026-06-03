@@ -100,27 +100,12 @@ describe('Premium Features & Checkout Suite', () => {
       expect(proCard.classList.contains('active')).toBe(false);
       expect(eliteCard.classList.contains('active')).toBe(true);
 
-      // Fill in details
-      overlay.querySelector('#checkout-name').value = 'Mestre dos Mocks';
-      
-      const cardInput = overlay.querySelector('#checkout-card-number');
-      cardInput.value = '4532111122223333';
-      cardInput.dispatchEvent(new Event('input')); // Formats card
-      expect(cardInput.value).toBe('4532 1111 2222 3333');
+      // Click the demo activate button
+      const submitBtn = overlay.querySelector('#checkout-submit-btn');
+      submitBtn.click();
 
-      const expInput = overlay.querySelector('#checkout-expiry');
-      expInput.value = '1229';
-      expInput.dispatchEvent(new Event('input')); // Formats exp
-      expect(expInput.value).toBe('12/29');
-
-      overlay.querySelector('#checkout-cvv').value = '123';
-
-      // Submit form
-      const form = overlay.querySelector('#checkout-form');
-      form.dispatchEvent(new Event('submit'));
-
-      // Wait for mock processing timers (validation, transaction, activation)
-      await new Promise(r => setTimeout(r, 1300));
+      // Wait for simulated processing timer (1000ms) plus buffer
+      await new Promise(r => setTimeout(r, 1200));
 
       // Assert user upgraded to elite
       expect(stateManager.state.user.tier).toBe('elite');
@@ -160,7 +145,7 @@ describe('Premium Features & Checkout Suite', () => {
       // Verify that sponsored-ad is rendered in DOM
       const card = container.querySelector('.sponsored-ad-card');
       expect(card).not.toBeNull();
-      expect(card.textContent).toContain('SupliList PRO');
+      expect(card.textContent).toContain('Ativar PRO');
 
       page.unmount();
     });

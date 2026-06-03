@@ -30,6 +30,8 @@ vi.mock('../state/state-manager.js', () => {
       }),
       dispatch: vi.fn(),
       getState: vi.fn(() => sharedState),
+      get state() { return this.getState(); },
+      get user() { return this.getState()?.user || { tier: 'free' }; },
       get stack() { return sharedState.stack; },
       get checkins() { return sharedState.checkins; }
     }

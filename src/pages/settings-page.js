@@ -12,12 +12,12 @@ export default class SettingsPage {
 
   mount() {
     this._injectStyles();
-    const state = stateManager.getState();
+    const state = stateManager.state;
     this._lastTier = state.user?.tier ?? 'free';
     this.container.innerHTML = this._render();
     this._bindEvents();
     this._unsubscribe = stateManager.subscribe(() => {
-      const newState = stateManager.getState();
+      const newState = stateManager.state;
       const newTier = newState.user?.tier ?? 'free';
       if (newTier === this._lastTier) return;
       this._lastTier = newTier;
@@ -351,7 +351,7 @@ export default class SettingsPage {
     const isDark = this._getThemeState();
     const notifCheckin = this._getBoolPref('suplilist:notif-checkin');
     const notifRestock = this._getBoolPref('suplilist:notif-restock');
-    const state = stateManager.getState();
+    const state = stateManager.state;
     const tier = state.user?.tier ?? 'free';
 
     return `

@@ -14,10 +14,13 @@ vi.mock('../state/state-manager.js', () => ({
     subscribe: vi.fn(() => vi.fn()),
     dispatch: vi.fn(),
     getState: vi.fn(() => ({
+      user: { tier: 'free' },
       stack: [],
       favorites: [],
       checkins: []
-    }))
+    })),
+    get state() { return this.getState(); },
+    get user() { return this.getState()?.user; }
   },
   ACTIONS: {
     ADD_FAVORITE: 'ADD_FAVORITE',

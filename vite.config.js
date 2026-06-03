@@ -5,9 +5,11 @@ import { visualizer } from 'rollup-plugin-visualizer'
 export default defineConfig({
   root: '.',
   server: {
-    port: 5173,
-    // strictPort removido: Vite auto-incrementa a porta se 5173 estiver ocupada
-    open: '/',
+    port: 3000,
+    historyApiFallback: true
+  },
+  preview: {
+    port: 3000,
     historyApiFallback: true
   },
   plugins: [

@@ -122,6 +122,9 @@
   --z-overlay: 100;
   --z-modal:   200;
   --z-toast:   300;
+
+  /* Dark mode color scheme hint */
+  color-scheme: dark;
 }
 
 /* ---------------------------------------------------------------
@@ -173,11 +176,6 @@
   color-scheme: light;
 }
 
-/* Dark mode color scheme hint */
-[data-theme="dark"],
-:root {
-  color-scheme: dark;
-}
 
 /* ---------------------------------------------------------------
    COMPAT ALIASES — legacy tokens used in main.css
@@ -249,6 +247,7 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -1014,9 +1013,7 @@ input:-webkit-autofill:focus {
 /* ---------------------------------------------------------------
    22. SMOOTH SCROLLING & SCROLL BEHAVIOR
 --------------------------------------------------------------- */
-html {
-  scroll-behavior: smooth;
-}
+
 
 /* Fast scroll on mobile (don't use smooth for momentum scrolling) */
 @media (max-width: 768px) {
@@ -1133,9 +1130,7 @@ label[required]::after {
 }
 
 /* Prevent layout shift on scrollbar appearance */
-html {
-  scrollbar-gutter: stable;
-}
+
 
 /* ---------------------------------------------------------------
    27. RETINA & HIGH-DPI DISPLAY SUPPORT

@@ -327,6 +327,16 @@ export default class ListPage {
 
   // ─── Styles ───────────────────────────────────────────────────────────────
 
+  /**
+   * Inject CSS styles for ListPage layout into <head> (idempotent).
+   *
+   * Creates <style id="list-page-styles"> with all component styles:
+   * sticky header, search bar, filter chips, stats rings, supplement cards,
+   * modal overlays, and responsive grid layout. Skips injection if already attached.
+   *
+   * @returns {void}
+   * @private
+   */
   _attachStyles() {
     if (document.getElementById('list-page-styles')) return;
     const style = document.createElement('style');
@@ -488,88 +498,128 @@ export default class ListPage {
       @media (min-width: 640px) { #lp-grid { grid-template-columns: repeat(3, 1fr); } }
       @media (min-width: 1024px) { #lp-grid { grid-template-columns: repeat(4, 1fr); } }
 
-      /* ── Supplement Card ── */
+      /* ── Supplement Card — Dark Luxury Laboratorial ── */
       .lp-card {
         background: var(--color-surface-primary);
         border: 1px solid var(--color-border);
-        border-radius: 16px;
+        border-radius: var(--radius-lg);
         display: flex; flex-direction: column;
         overflow: hidden;
         cursor: pointer;
-        transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+        transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
       }
-      .lp-card:hover {
-        border-color: var(--color-brand);
-        box-shadow: 0 4px 24px rgba(124,58,237,0.12);
-        transform: translateY(-1px);
+      @media (hover: hover) {
+        .lp-card:hover {
+          border-color: var(--color-border-brand);
+          box-shadow: var(--shadow-brand);
+          transform: translateY(-3px);
+        }
+        .lp-card:hover .lp-card-img { transform: scale(1.04); }
       }
-      .lp-card-top-badge {
-        padding: 8px 12px;
-        font-size: 12px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 0.06em;
-      }
+      /* Image area */
       .lp-card-img-wrap {
-        aspect-ratio: 1/1;
-        background: #1A1A1A;
-        display: flex; align-items: center; justify-content: center;
+        aspect-ratio: 4/3;
+        background: var(--color-surface-secondary);
         overflow: hidden; position: relative;
-        border-radius: 0;
       }
       .lp-card-img {
-        width: 100%; height: 100%; object-fit: contain;
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.35s ease;
+        display: block;
       }
+      /* Savings badge — overlay no topo da imagem */
+      .lp-card-savings {
+        position: absolute; top: 10px; left: 10px;
+        background: var(--color-savings-bg);
+        color: var(--color-savings);
+        border: 1px solid rgba(34,197,94,0.25);
+        font-size: 9px; font-weight: 800;
+        padding: 3px 8px; border-radius: 5px;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+      /* Ev badge — overlay no canto superior direito */
       .lp-card-ev-badge {
-        position: absolute; top: 8px; right: 8px;
-        font-size: 11px; font-weight: 700; text-transform: uppercase;
-        padding: 4px 8px; border-radius: 5px; letter-spacing: 0.04em;
+        position: absolute; top: 10px; right: 10px;
+        font-size: 10px; font-weight: 800; text-transform: uppercase;
+        padding: 3px 8px; border-radius: 5px; letter-spacing: 0.05em;
+        border: 1px solid transparent;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
       }
-      .lp-card-info { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+      .lp-card-ev-badge--a { background: var(--ev-a-bg); color: var(--ev-a); border-color: var(--ev-a-border); }
+      .lp-card-ev-badge--b { background: var(--ev-b-bg); color: var(--ev-b); border-color: var(--ev-b-border); }
+      .lp-card-ev-badge--c { background: var(--ev-c-bg); color: var(--ev-c); border-color: var(--ev-c-border); }
+      /* Body */
+      .lp-card-info {
+        padding: 12px 14px 14px;
+        display: flex; flex-direction: column; gap: 5px; flex: 1;
+      }
+      .lp-card-badges {
+        display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+      }
+      .lp-card-cat-pill {
+        font-size: 10px; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.07em; color: var(--color-text-muted);
+        padding: 2px 7px; border-radius: 5px;
+        background: var(--color-surface-hover);
+      }
       .lp-card-name {
-        font-size: 13px; font-weight: 700; color: var(--color-text-primary);
+        font-size: 14px; font-weight: 700; color: var(--color-text-primary);
         margin: 0; line-height: 1.3;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      .lp-card-cat { font-size: 12px; color: var(--color-text-muted); margin: 0; }
       .lp-card-desc {
         font-size: 12px; color: var(--color-text-secondary);
-        line-height: 1.4; margin: 4px 0 0; flex: 1;
+        line-height: 1.45; flex: 1;
         display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      .lp-card-price-row {
-        display: flex; flex-direction: column; gap: 3px; margin-top: 8px;
+      /* Preço */
+      .lp-card-price-row { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; }
+      .lp-card-price {
+        font-size: 20px; font-weight: 800; color: var(--color-text-primary);
+        font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.1;
       }
-      .lp-card-price { font-size: 14px; font-weight: 700; color: var(--color-text-primary); }
-      .lp-card-dose { font-size: 12px; color: var(--color-text-muted); }
+      .lp-card-price-cents {
+        font-size: 12px; font-weight: 500; color: var(--color-text-secondary);
+        vertical-align: baseline;
+      }
+      .lp-card-dose { font-size: 11px; color: var(--color-text-muted); }
+      /* Actions */
       .lp-card-actions {
-        display: flex; gap: 10px; align-items: center; margin-top: 10px;
+        display: flex; gap: 8px; align-items: center; margin-top: 10px;
       }
       .lp-btn-fav {
-        width: 48px; height: 48px; flex-shrink: 0;
-        background: rgba(0,0,0,0.4);
+        width: 44px; height: 44px; flex-shrink: 0;
+        background: var(--color-surface-secondary);
         border: 1px solid var(--color-border);
-        border-radius: 8px; cursor: pointer;
-        font-size: 16px; display: flex; align-items: center; justify-content: center;
+        border-radius: var(--radius-sm); cursor: pointer;
+        font-size: 15px; display: flex; align-items: center; justify-content: center;
         transition: background 0.15s, border-color 0.15s;
+        color: var(--color-text-muted);
       }
-      .lp-btn-fav:hover { background: var(--color-surface-hover); }
-      .lp-btn-fav.faved { border-color: #EF4444; color: #EF4444; }
+      .lp-btn-fav:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
+      .lp-btn-fav.faved { border-color: #EF4444; color: #EF4444; background: rgba(239,68,68,0.08); }
       .lp-btn-ver-precos {
-        flex: 1; height: 48px; min-height: 48px;
-        background: transparent;
-        border: 1px solid var(--color-brand);
+        flex: 1; height: 44px; min-height: 44px;
+        background: var(--color-brand-muted);
+        border: 1px solid var(--color-border-brand);
         color: var(--color-brand);
-        border-radius: 8px;
+        border-radius: var(--radius-sm);
         font-size: 12px; font-weight: 700;
         cursor: pointer; font-family: 'Inter', sans-serif;
-        transition: background 0.15s, color 0.15s;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
         display: flex; align-items: center; justify-content: center;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.04em; text-transform: uppercase;
       }
       .lp-btn-ver-precos:hover {
         background: var(--color-brand);
         color: #fff;
+        border-color: var(--color-brand);
       }
 
       /* ── Empty / Loading ── */
@@ -730,6 +780,27 @@ export default class ListPage {
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
+  /**
+   * Render the complete ListPage DOM structure into the container.
+   *
+   * Builds HTML scaffold with:
+   * - Sticky header (title, search bar, adv. filters button)
+   * - Search history panel (recent queries, clear button)
+   * - Trending chips section (Ashwagandha, Creatina, Foco)
+   * - Advanced filters panel (evidence, price range, benefits) — initially hidden
+   * - Stats row (4 metric cards: total, stack count, favorites, high-evidence)
+   * - Category filter row (Todos, Performance, Proteínas, etc.)
+   * - Objective filter row (Hipertrofia, Foco, Saúde, etc.)
+   * - Grid container (#lp-grid) for supplement cards
+   * - Sentinel element for infinite scroll detection
+   * - Modal overlay and detail panel (initially hidden)
+   *
+   * All event listener attachment deferred to _attachListeners(). CSS injected
+   * by _attachStyles(). No data rendering in this method — DOM structure only.
+   *
+   * @returns {void}
+   * @private
+   */
   _render() {
     this.container.innerHTML = `
       <div id="lp-root">
@@ -883,6 +954,17 @@ export default class ListPage {
 
   // ─── Stats ────────────────────────────────────────────────────────────────
 
+  /**
+   * Render the 4 stats rings (total supplements, stack count, favorites, high-evidence).
+   *
+   * Queries DOM for 4 SVG circles (#lp-ring-*) and value text elements (#lp-stat-*).
+   * Calculates stroke-dashoffset for each ring based on ratio (count/max).
+   * Colors: purple (brand), violet (stack), red (favorites), green (evidence-A).
+   * Adds 'stat--empty' class to stack ring if count === 0 (visual feedback).
+   *
+   * @returns {void}
+   * @private
+   */
   _renderStats() {
     const total = SUPPLEMENTS_DB.length;
     const stackCount = (stateManager.stack || []).length;
@@ -912,6 +994,25 @@ export default class ListPage {
 
   // ─── Filtering ────────────────────────────────────────────────────────────
 
+  /**
+   * Apply all active filters and update this._filtered with results.
+   *
+   * Filtering pipeline (6 stages):
+   * 1. Fuzzy search (Fuse.js on name/category/benefits) if query present
+   * 2. Category chip filter (Performance, Proteínas, etc.) — 'Todos' matches all
+   * 3. Objective filter (Hipertrofia, Foco, etc.) — checks item.targets[key]
+   * 4. Advanced: Evidence level (Grau A/B/C/D) if _evidenceFilter set
+   * 5. Advanced: Max price filter (only if < 300) — uses live pricing with fallback
+   * 6. Advanced: Benefits multi-select — all selected benefits must match
+   *
+   * **Free-tier ad injection:** If user is free and results > 3, injects
+   * { id: 'sponsored-ad', isAd: true } at position 3 for monetization UX.
+   *
+   * Updates #lp-results-label with count if any filter is active, else clears it.
+   *
+   * @returns {void}
+   * @private
+   */
   _applyFilters() {
     let results = this._allItems;
 
@@ -975,6 +1076,22 @@ export default class ListPage {
 
   // ─── Grid ─────────────────────────────────────────────────────────────────
 
+  /**
+   * Render filtered supplement cards into the grid using VirtualScroller.
+   *
+   * If modal is open, guards against rendering (prevents listener orphaning).
+   * If no results, displays empty state (🔍 icon + helpful text).
+   * Otherwise creates VirtualScroller with:
+   * - Items: this._filtered (post-filter array)
+   * - Renderer: _renderSupplementCard() for each item
+   * - Item height: 310px (card dimensions)
+   * - Buffer: 5 items before/after viewport
+   *
+   * Resets pagination (this._page = 1) and unmounts old scroller if it exists.
+   *
+   * @returns {void}
+   * @private
+   */
   _renderGrid() {
     // Guard: don't render if modal is open (prevents listeners orphaning)
     if (this._modalOpen) return;
@@ -1022,7 +1139,25 @@ export default class ListPage {
   }
 
   /**
-   * Render a single supplement card for virtual scroller
+   * Render a single supplement card HTML for virtual scroller.
+   *
+   * Returns HTML string with:
+   * - Top badge: savings amount (if available) or category tag
+   * - Image with lazy loading + fallback on 404
+   * - Evidence level badge (EV. A/B/C/D with color coding)
+   * - Name, category, first benefit (description)
+   * - Price row: monthly cost + per-dose price estimate
+   * - Heart icon (favorite toggle) with animation
+   * - "Add to Stack" button (state changes if already in stack)
+   *
+   * Affiliate pricing: Uses live prices from this._prices (live fetch from prices.json).
+   * If not loaded, falls back to pricePerGram estimates from database.
+   *
+   * Special case: If item.isAd=true, delegates to _renderSponsoredAdCard().
+   *
+   * @param {Object} item - Supplement item { id, name, category, benefits, evidenceLevel, image, ... }
+   * @returns {string} HTML string for the card (safe to insert with innerHTML)
+   * @private
    */
   _renderSupplementCard(item) {
     if (item.isAd) {
@@ -1032,7 +1167,6 @@ export default class ListPage {
     const favs = getFavoritesFromState();
     const isFav = favs.has(item.id);
     const ev = item.evidenceLevel;
-    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
     const desc = item.benefits?.[0] ?? '';
     const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
 
@@ -1040,33 +1174,34 @@ export default class ListPage {
     const priceInfo = getPriceLabel(item, this._prices);
     const doseStr = getDosePrice(item, this._prices);
 
-    let topBadge = '';
-    if (saving) {
-      topBadge = `<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
-        ECONOMIZE R$ ${escapeHtml(String(saving))} NA AMAZON
-      </div>`;
-    } else if (item.category) {
-      topBadge = `<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
-        ${escapeHtml(item.category)}
-      </div>`;
-    }
+    const evClass = ev ? `lp-card-ev-badge--${String(ev).toLowerCase()}` : '';
+    const evLabel = ev ? `NÍVEL ${escapeHtml(String(ev))}` : '';
+
+    const savingsBadge = saving
+      ? `<span class="lp-card-savings">ECONOMIZE R$ ${escapeHtml(String(saving))}</span>`
+      : '';
+
+    const evBadge = ev
+      ? `<span class="lp-card-ev-badge ${evClass}">${evLabel}</span>`
+      : '';
 
     return `
       <div class="lp-card" role="listitem" data-id="${item.id}">
-        ${topBadge}
         <div class="lp-card-img-wrap">
           <img class="lp-card-img"
             src="${escapeHtml(img)}"
             alt="${escapeHtml(item.name)}"
             loading="lazy"
-            importance="auto"
-            onerror="this.style.display='none'"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22/%3E'"
           />
-          ${ev ? `<span class="lp-card-ev-badge" style="background:${evStyle.bg};color:${evStyle.color};">EV. ${escapeHtml(String(ev))}</span>` : ''}
+          ${savingsBadge}
+          ${evBadge}
         </div>
         <div class="lp-card-info">
+          <div class="lp-card-badges">
+            ${item.category ? `<span class="lp-card-cat-pill">${escapeHtml(item.category)}</span>` : ''}
+          </div>
           <p class="lp-card-name">${escapeHtml(item.name)}</p>
-          <p class="lp-card-cat">${escapeHtml(item.category ?? '')}</p>
           ${desc ? `<p class="lp-card-desc">${escapeHtml(desc)}</p>` : ''}
           <div class="lp-card-price-row">
             <span class="lp-card-price">${formatPrice(priceInfo.price)}</span>
@@ -1085,6 +1220,21 @@ export default class ListPage {
     `;
   }
 
+  /**
+   * Render a sponsored ad card for free-tier users.
+   *
+   * Shows premium upsell with:
+   * - "Patrocinado" label
+   * - 🌟 emoji with drop shadow
+   * - "SupliList PRO" heading
+   * - Copy: remove ads, advanced history, Excel reports
+   * - "Quero Premium" button → triggers upgrade-now action
+   *
+   * Styled with dashed border, special background, centered layout.
+   *
+   * @returns {string} HTML string for ad card
+   * @private
+   */
   _renderSponsoredAdCard() {
     return `
       <div class="lp-card sponsored-ad-card" style="border: 1.5px dashed var(--color-brand); background: rgba(124, 58, 237, 0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; height: 100%; box-sizing: border-box; position: relative; min-height: 290px;">
@@ -1097,10 +1247,32 @@ export default class ListPage {
     `;
   }
 
+  /**
+   * Open the checkout modal for premium tier upgrade.
+   *
+   * Delegates to CheckoutModal.show() with tier='pro' to display
+   * payment form and pricing details.
+   *
+   * @returns {void}
+   * @private
+   */
   _openCheckoutModal() {
     CheckoutModal.show({ tier: 'pro' });
   }
 
+  /**
+   * Load next page of filtered results into the grid (infinite scroll).
+   *
+   * Fetches items from index (this._page × PAGE_SIZE) to (next × PAGE_SIZE).
+   * If no more items, returns early. Shows #lp-loading-more during append.
+   * Appends fragment via _buildFragment() using requestAnimationFrame.
+   * Increments this._page counter.
+   *
+   * Note: This is legacy pagination code. VirtualScroller handles most scrolling now.
+   *
+   * @returns {void}
+   * @private
+   */
   _loadMore() {
     const start = this._page * PAGE_SIZE;
     if (start >= this._filtered.length) return;
@@ -1115,6 +1287,19 @@ export default class ListPage {
     });
   }
 
+  /**
+   * Build a DocumentFragment with supplement cards for infinite scroll pagination.
+   *
+   * Slices this._filtered[from:to], renders each card HTML, appends to fragment.
+   * Returns a fragment ready to append to #lp-grid via appendChild().
+   * Mirrors rendering logic from _renderSupplementCard() but uses DOM APIs
+   * instead of innerHTML string (for potential performance optimization).
+   *
+   * @param {number} from - Start index in this._filtered
+   * @param {number} to - End index (exclusive)
+   * @returns {DocumentFragment} Fragment with 0+ supplement cards
+   * @private
+   */
   _buildFragment(from, to) {
     const frag = document.createDocumentFragment();
     const stack = stateManager.stack ?? [];
@@ -1185,6 +1370,19 @@ export default class ListPage {
 
   // ─── Infinite Scroll ──────────────────────────────────────────────────────
 
+  /**
+   * Initialize IntersectionObserver for infinite scroll pagination.
+   *
+   * Attaches observer to #lp-sentinel element with 300px rootMargin.
+   * When sentinel enters viewport, triggers _loadMore() to fetch next page.
+   * Gracefully skips if IntersectionObserver not supported (IE11 fallback).
+   *
+   * Note: VirtualScroller (used in _renderGrid) handles most scrolling now.
+   * This is legacy pagination code kept for compatibility.
+   *
+   * @returns {void}
+   * @private
+   */
   _initInfiniteScroll() {
     const sentinel = this.container.querySelector('#lp-sentinel');
     if (!sentinel || !('IntersectionObserver' in window)) return;
@@ -1201,6 +1399,21 @@ export default class ListPage {
 
   // ─── Refresh Card States ──────────────────────────────────────────────────
 
+  /**
+   * Refresh all visible card UI elements after state mutations.
+   *
+   * Called by mount() state subscription when state changes (e.g., favorite added).
+   * Updates:
+   * - Stats rings (re-renders ring fill percentages)
+   * - Favorite buttons on all cards (.lp-card) — toggled 'faved' class + icon/aria
+   * - Modal "Add to Stack" button (if modal is open) — class 'in-stack' + copy
+   *
+   * Re-renders stats because counts may have changed (e.g., new favorite).
+   * Skips rendering if tier hasn't changed; only updates visual states.
+   *
+   * @returns {void}
+   * @private
+   */
   _refreshCardStates() {
     this._renderStats();
     const stack = stateManager.stack ?? [];
@@ -1233,6 +1446,18 @@ export default class ListPage {
 
   // ─── Scroll Lock Stack ────────────────────────────────────────────────────────────────
 
+  /**
+   * Push scroll lock source onto stack and disable document scroll.
+   *
+   * When modal/dialog opens, adds source (e.g., 'modal') to _scrollLockStack
+   * and adds 'has-modal-open' class to <body> CSS class list.
+   * Multiple sources can be locked simultaneously (nested modals).
+   * Lock is released only when the last source is popped via _popScrollLock().
+   *
+   * @param {string} [source='modal'] - Identifier for the scroll lock source
+   * @returns {void}
+   * @private
+   */
   _pushScrollLock(source = 'modal') {
     if (!this._scrollLockStack.includes(source)) {
       this._scrollLockStack.push(source);
@@ -1241,6 +1466,17 @@ export default class ListPage {
     }
   }
 
+  /**
+   * Pop scroll lock source from stack and re-enable scroll if stack empty.
+   *
+   * Removes source from _scrollLockStack. If no sources remain,
+   * removes 'has-modal-open' class from <body> to restore document scroll.
+   * Safe to call multiple times or with non-existent source (no-op).
+   *
+   * @param {string} [source='modal'] - Identifier for the scroll lock source
+   * @returns {void}
+   * @private
+   */
   _popScrollLock(source = 'modal') {
     const idx = this._scrollLockStack.indexOf(source);
     if (idx !== -1) {
@@ -1253,6 +1489,25 @@ export default class ListPage {
 
   // ─── Modal ────────────────────────────────────────────────────────────────
 
+  /**
+   * Open supplement detail modal with pricing, dosage, benefits, safety info.
+   *
+   * Creates and injects #lp-modal-overlay + #lp-modal-box with:
+   * - Header: supplement image, name, category, evidence level
+   * - Pricing section: live price cards from this._prices with best-price badge
+   *   Falls back to estimated monthly cost if prices not loaded
+   * - Tabs: Dose Clínica, Benefícios, Segurança (warnings + side effects)
+   * - "Adicionar ao Stack" button (changes state if already in stack)
+   * - Affiliate links to Amazon, Mercado Livre, Shopee
+   *
+   * Closing: ESC key, click overlay, click close button all trigger _closeModal().
+   * Scroll lock: disables body scroll via _pushScrollLock('modal').
+   * Events: "add-to-stack" dispatches ACTION to stateManager.
+   *
+   * @param {string} supplementId - ID of supplement to display (e.g., 'creatina')
+   * @returns {void}
+   * @private
+   */
   _openModal(supplementId) {
     this._closeModal();
     const item = this._allItems.find(s => s.id === supplementId);
@@ -1433,6 +1688,15 @@ export default class ListPage {
     });
   }
 
+  /**
+   * Close the supplement detail modal.
+   *
+   * Removes #lp-modal-overlay from DOM, pops scroll lock, and clears this._modalOpen.
+   * Safe to call multiple times (no-op if modal not open).
+   *
+   * @returns {void}
+   * @private
+   */
   _closeModal() {
     const existing = document.getElementById('lp-modal-overlay');
     if (existing) {
@@ -1442,12 +1706,32 @@ export default class ListPage {
     this._modalOpen = null;
   }
 
+  /**
+   * Handle keyboard events (ESC to close modal).
+   *
+   * Bound to 'keydown' on document during mount(), unbound on unmount().
+   * Closes modal if ESC pressed and modal is currently open.
+   *
+   * @param {KeyboardEvent} e - Keyboard event
+   * @returns {void}
+   * @private
+   */
   _onKeydown(e) {
     if (e.key === 'Escape' && this._modalOpen) this._closeModal();
   }
 
   // ─── Sync initial filter UI from params ──────────────────────────────────
 
+  /**
+   * Synchronize objective filter chip UI from constructor params.
+   *
+   * If this._objective was set in constructor (e.g., from router params),
+   * finds matching objective button in #lp-obj-row and adds 'active' class.
+   * Called during mount() to pre-select the filter.
+   *
+   * @returns {void}
+   * @private
+   */
   _syncObjectiveChip() {
     if (!this._objective) return;
     const objRow = this.container.querySelector('#lp-obj-row');
@@ -1458,6 +1742,28 @@ export default class ListPage {
 
   // ─── Event Listeners ──────────────────────────────────────────────────────
 
+  /**
+   * Attach all event listeners to ListPage elements (search, filters, grid, etc).
+   *
+   * Sets up delegated listeners for:
+   * - **Search:** debounced input on #lp-search (300ms delay)
+   * - **Trending chips:** click to set query + search
+   * - **Advanced filters toggle:** collapse/expand #lp-advanced-panel
+   * - **Price range slider:** updates _maxPriceFilter and re-renders
+   * - **Evidence level chips:** single-select (mutually exclusive)
+   * - **Benefits chips:** multi-select (checkboxes)
+   * - **Search history:** click to restore past query, clear button
+   * - **Category row:** single-select mutually exclusive chip buttons
+   * - **Objective row:** toggleable chip (can deselect)
+   * - **Grid card actions:** favorite toggle + open modal for card
+   * - **Modal actions:** upgrade button triggers CheckoutModal
+   *
+   * All listeners use event delegation on parent containers for efficiency.
+   * Listeners are removed via unmount() which clears the entire page.
+   *
+   * @returns {void}
+   * @private
+   */
   _attachListeners() {
     // Search
     const searchEl = this.container.querySelector('#lp-search');
@@ -1652,6 +1958,15 @@ export default class ListPage {
     }
   }
 
+  /**
+   * Retrieve search history from localStorage as an array.
+   *
+   * Reads 'suplilist:search-history' (JSON array of strings, up to 10 entries).
+   * Returns empty array if key missing, invalid JSON, or error occurs.
+   *
+   * @returns {string[]} Array of past search queries in reverse chronological order
+   * @private
+   */
   _getSearchHistory() {
     try {
       return JSON.parse(localStorage.getItem('suplilist:search-history') || '[]');
@@ -1660,6 +1975,17 @@ export default class ListPage {
     }
   }
 
+  /**
+   * Save a search query to history and re-render the history panel.
+   *
+   * Trims query, deduplicates (case-insensitive), adds to front, keeps max 10.
+   * Updates localStorage['suplilist:search-history'], then re-renders chips.
+   * Skips if query is empty after trim.
+   *
+   * @param {string} query - Search query to save
+   * @returns {void}
+   * @private
+   */
   _saveSearchHistory(query) {
     if (!query || !query.trim()) return;
     const cleanQuery = query.trim();
@@ -1670,6 +1996,18 @@ export default class ListPage {
     this._renderSearchHistory();
   }
 
+  /**
+   * Render recent search history as clickable chips in #lp-history-panel.
+   *
+   * Fetches history via _getSearchHistory() and builds chip buttons with
+   * data-query attribute. Shows panel if history has entries, hides if empty.
+   * Each chip click restores query and re-filters grid.
+   *
+   * Chips include 🔍 emoji, escaped query text, and special styling.
+   *
+   * @returns {void}
+   * @private
+   */
   _renderSearchHistory() {
     const historyPanel = this.container.querySelector('#lp-history-panel');
     const historyChips = this.container.querySelector('#lp-history-chips');

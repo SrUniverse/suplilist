@@ -8,28 +8,31 @@
 --------------------------------------------------------------- */
 :root,
 [data-theme="dark"] {
-  /* Backgrounds */
-  --color-bg-primary:        #080808;
-  --color-bg-secondary:      #0F0F0F;
+  /* Backgrounds — tom frio "laboratório" */
+  --color-bg-primary:        #0A0C10;
+  --color-bg-secondary:      #0D0F14;
 
   /* Surfaces */
-  --color-surface-primary:   #111111;
-  --color-surface-secondary: #161616;
-  --color-surface-hover:     #1C1C1C;
+  --color-surface-primary:   #13161C;
+  --color-surface-secondary: #191D25;
+  --color-surface-hover:     #1E222C;
+  --color-surface-elevated:  #242932;
 
   /* Borders */
-  --color-border:            rgba(255, 255, 255, 0.07);
-  --color-border-strong:     rgba(255, 255, 255, 0.14);
+  --color-border:            rgba(255, 255, 255, 0.06);
+  --color-border-strong:     rgba(255, 255, 255, 0.12);
+  --color-border-brand:      rgba(139, 92, 246, 0.30);
 
   /* Text */
-  --color-text-primary:      #F2F2F2;
-  --color-text-secondary:    #9A9A9A;
-  --color-text-muted:        #555555;
+  --color-text-primary:      #F1F5F9;
+  --color-text-secondary:    #94A3B8;
+  --color-text-muted:        #475569;
+  --color-text-brand:        #A78BFA;
 
-  /* Brand */
-  --color-brand:             #7C3AED;
-  --color-brand-hover:       #6D28D9;
-  --color-brand-muted:       rgba(124, 58, 237, 0.12);
+  /* Brand — luminância elevada para leitura em superfícies escuras */
+  --color-brand:             #8B5CF6;
+  --color-brand-hover:       #7C3AED;
+  --color-brand-muted:       rgba(139, 92, 246, 0.12);
 
   /* Semantic */
   --color-success:           #22C55E;
@@ -58,6 +61,8 @@
   --radius-md:   12px;
   --radius-lg:   16px;
   --radius-xl:   24px;
+  --radius-2xl:  28px;
+  --radius-3xl:  36px;
   --radius-full: 9999px;
 
   /* Letter-spacing (heading style — Linear/Vercel pattern) */
@@ -70,10 +75,27 @@
   --tracking-widest:  0.12em;
 
   /* Shadows */
-  --shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.5);
-  --shadow-lg:    0 8px 32px rgba(0, 0, 0, 0.6);
-  --shadow-brand: 0 4px 24px rgba(124, 58, 237, 0.25);
+  --shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md:       0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg:       0 8px 32px rgba(0, 0, 0, 0.7);
+  --shadow-card:     0 2px 12px rgba(0, 0, 0, 0.45);
+  --shadow-elevated: 0 16px 48px -12px rgba(0, 0, 0, 0.80);
+  --shadow-brand:    0 0 0 1px rgba(139, 92, 246, 0.20), 0 8px 32px -8px rgba(139, 92, 246, 0.40);
+
+  /* Sistema de evidência — fonte única de verdade */
+  --ev-a:        #34D399;
+  --ev-a-bg:     rgba(52, 211, 153, 0.12);
+  --ev-a-border: rgba(52, 211, 153, 0.25);
+  --ev-b:        #FBBF24;
+  --ev-b-bg:     rgba(251, 191, 36, 0.12);
+  --ev-b-border: rgba(251, 191, 36, 0.25);
+  --ev-c:        #94A3B8;
+  --ev-c-bg:     rgba(148, 163, 184, 0.10);
+  --ev-c-border: rgba(148, 163, 184, 0.20);
+
+  /* Economia / destaque de preço */
+  --color-savings:    #22C55E;
+  --color-savings-bg: rgba(34, 197, 94, 0.12);
 
   /* Font sizes */
   --font-size-xs:   10px;
@@ -106,27 +128,46 @@
    2. LIGHT THEME OVERRIDES
 --------------------------------------------------------------- */
 [data-theme="light"] {
-  --color-bg-primary:        #FAFAFA;
-  --color-bg-secondary:      #F0F0F0;
+  --color-bg-primary:        #F8FAFC;
+  --color-bg-secondary:      #F1F5F9;
 
   --color-surface-primary:   #FFFFFF;
-  --color-surface-secondary: #F4F4F4;
-  --color-surface-hover:     #EEEEEE;
+  --color-surface-secondary: #F4F6FA;
+  --color-surface-hover:     #EEF2F7;
+  --color-surface-elevated:  #FFFFFF;
 
   --color-border:            rgba(0, 0, 0, 0.08);
   --color-border-strong:     rgba(0, 0, 0, 0.16);
+  --color-border-brand:      rgba(124, 58, 237, 0.25);
 
-  --color-text-primary:      #0A0A0A;
-  --color-text-secondary:    #525252;
-  --color-text-muted:        #9A9A9A;
+  --color-text-primary:      #0F172A;
+  --color-text-secondary:    #475569;
+  --color-text-muted:        #94A3B8;
+  --color-text-brand:        #7C3AED;
 
   --color-brand:             #7C3AED;
   --color-brand-hover:       #6D28D9;
   --color-brand-muted:       rgba(124, 58, 237, 0.10);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.14);
+  --shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:       0 4px 16px rgba(0, 0, 0, 0.10);
+  --shadow-lg:       0 8px 32px rgba(0, 0, 0, 0.14);
+  --shadow-card:     0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-elevated: 0 16px 48px -12px rgba(0, 0, 0, 0.18);
+  --shadow-brand:    0 0 0 1px rgba(124, 58, 237, 0.20), 0 8px 24px -8px rgba(124, 58, 237, 0.25);
+
+  --ev-a:        #16A34A;
+  --ev-a-bg:     rgba(22, 163, 74, 0.10);
+  --ev-a-border: rgba(22, 163, 74, 0.25);
+  --ev-b:        #D97706;
+  --ev-b-bg:     rgba(217, 119, 6, 0.10);
+  --ev-b-border: rgba(217, 119, 6, 0.25);
+  --ev-c:        #64748B;
+  --ev-c-bg:     rgba(100, 116, 139, 0.10);
+  --ev-c-border: rgba(100, 116, 139, 0.20);
+
+  --color-savings:    #16A34A;
+  --color-savings-bg: rgba(22, 163, 74, 0.10);
 
   /* Color scheme hint for browser UI (address bar, etc) */
   color-scheme: light;
@@ -640,20 +681,23 @@ ol {
   white-space: nowrap;
 }
 
-/* Evidence levels */
+/* Evidence levels — usando tokens --ev-* */
 .badge--a {
-  background: rgba(34, 197, 94, 0.12);
-  color: #22C55E;
+  background: var(--ev-a-bg);
+  color: var(--ev-a);
+  border: 1px solid var(--ev-a-border);
 }
 
 .badge--b {
-  background: rgba(245, 158, 11, 0.12);
-  color: #F59E0B;
+  background: var(--ev-b-bg);
+  color: var(--ev-b);
+  border: 1px solid var(--ev-b-border);
 }
 
 .badge--c {
-  background: rgba(163, 163, 163, 0.12);
-  color: #9A9A9A;
+  background: var(--ev-c-bg);
+  color: var(--ev-c);
+  border: 1px solid var(--ev-c-border);
 }
 
 /* Semantic */
@@ -1169,4 +1213,219 @@ body.is-offline select:focus {
   .modal-overlay,
   #bottom-nav,
   #mobile-topbar { display: none !important; }
+}
+
+/* ---------------------------------------------------------------
+   30. REDESIGN — Dark Luxury Laboratorial
+   Novos utilitários e componentes (2026-06-02)
+--------------------------------------------------------------- */
+
+/* --- Tipografia de dado --- */
+/* Números tabulares — dose, preço, percentual */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Número hero: 5.0 g/dia, 92%, R$3.450 */
+.metric-hero {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.metric-unit {
+  font-size: 0.45em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-text-secondary);
+  vertical-align: baseline;
+}
+
+/* --- Badges de evidência (nova fonte única — substitui inline JS) --- */
+.ev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+.ev-badge--a {
+  color: var(--ev-a);
+  background: var(--ev-a-bg);
+  border-color: var(--ev-a-border);
+}
+
+.ev-badge--b {
+  color: var(--ev-b);
+  background: var(--ev-b-bg);
+  border-color: var(--ev-b-border);
+}
+
+.ev-badge--c {
+  color: var(--ev-c);
+  background: var(--ev-c-bg);
+  border-color: var(--ev-c-border);
+}
+
+/* --- Card elevado — para hero/bento/destaque --- */
+.card--elevated {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-elevated);
+}
+
+.card--elevated:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* --- Badge de economia (overlay nos cards de produto) --- */
+.savings-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-savings-bg);
+  color: var(--color-savings);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  white-space: nowrap;
+}
+
+[data-theme="light"] .savings-badge {
+  border-color: rgba(22, 163, 74, 0.25);
+}
+
+/* --- Barra de indicador científico (calculadora / detalhe) --- */
+.indicator-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.indicator-bar__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.indicator-bar__label { font-weight: 500; }
+
+.indicator-bar__value {
+  font-weight: 700;
+  color: var(--ev-a);
+}
+
+.indicator-bar__value--b { color: var(--ev-b); }
+.indicator-bar__value--c { color: var(--ev-c); }
+
+.indicator-bar__track {
+  height: 4px;
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.indicator-bar__fill {
+  height: 100%;
+  background: var(--ev-a);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.indicator-bar__fill--b { background: var(--ev-b); }
+.indicator-bar__fill--c { background: var(--ev-c); }
+
+/* --- Painel de arbitragem de preços --- */
+.price-arbitrage {
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.price-arbitrage__header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.price-arbitrage__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--transition-fast);
+}
+
+.price-arbitrage__row:last-child { border-bottom: none; }
+
+.price-arbitrage__row:hover {
+  background: var(--color-surface-hover);
+}
+
+.price-arbitrage__row--best {
+  background: var(--ev-a-bg);
+  border-color: var(--ev-a-border);
+}
+
+.price-arbitrage__marketplace {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.price-arbitrage__price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-arbitrage__best-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ev-a);
+  background: var(--ev-a-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* --- Sidebar subtitle --- */
+.sb-subtitle {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }

@@ -518,6 +518,7 @@ export default class ListPage {
         cursor: pointer;
         transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
+        flex: 1; min-height: 0; /* fill virtual-col height */
       }
       @media (hover: hover) {
         .lp-card:hover {
@@ -529,7 +530,8 @@ export default class ListPage {
       }
       /* Image area */
       .lp-card-img-wrap {
-        aspect-ratio: 4/3;
+        height: 185px;
+        flex-shrink: 0;
         background: var(--color-surface-secondary);
         overflow: hidden; position: relative;
       }
@@ -1137,7 +1139,7 @@ export default class ListPage {
     // Columns responsive: 2 mobile, 3 tablet, 4 desktop
     const vw = window.innerWidth;
     const cols = vw >= 1024 ? 4 : vw >= 640 ? 3 : 2;
-    const cardHeight = vw >= 640 ? 340 : 310;
+    const cardHeight = 405; // image 185px (fixed) + info ~220px
 
     // Create virtual scroller with filtered items
     this._scroller = new VirtualScroller(

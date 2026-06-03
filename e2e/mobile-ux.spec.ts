@@ -29,7 +29,7 @@ test.describe('Mobile UX - Responsiveness @mobile', () => {
       });
       const page = await context.newPage();
 
-      await page.goto('http://localhost:3000');
+      await page.goto('http://127.0.0.1:3000');
 
       // Check for horizontal scroll (should be none)
       const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -55,7 +55,7 @@ test.describe('Mobile UX - Responsiveness @mobile', () => {
     });
     const page = await context.newPage();
 
-    await page.goto('http://localhost:3000/dosage');
+    await page.goto('http://127.0.0.1:3000/dosage');
 
     // In landscape, content should still be visible
     const viewport = page.viewportSize();
@@ -75,7 +75,7 @@ test.describe('Mobile UX - Responsiveness @mobile', () => {
 test.describe('Mobile UX - Touch Feedback @mobile', () => {
   test('Should show active state on button press', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     const button = page.locator('button.lp-btn').first();
 
@@ -107,7 +107,7 @@ test.describe('Mobile UX - Touch Feedback @mobile', () => {
     }
 
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     const button = page.locator('button.lp-btn').first();
 
@@ -122,7 +122,7 @@ test.describe('Mobile UX - Touch Feedback @mobile', () => {
 
   test('Touch targets should be minimum 44x44px', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     // Check all buttons
     const buttons = page.locator('button');
@@ -141,7 +141,7 @@ test.describe('Mobile UX - Touch Feedback @mobile', () => {
 test.describe('Mobile UX - Keyboard Handling @mobile', () => {
   test('Should scroll input into view above keyboard', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 300 });
-    await page.goto('http://localhost:3000/dosage');
+    await page.goto('http://127.0.0.1:3000/dosage');
 
     // Force keyboard handler initialization for desktop browser test runner
     await page.evaluate(async () => {
@@ -177,7 +177,7 @@ test.describe('Mobile UX - Keyboard Handling @mobile', () => {
 
   test('Should prevent iOS input zoom', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000/dosage');
+    await page.goto('http://127.0.0.1:3000/dosage');
 
     const input = page.locator('#inp-weight');
     const fontSize = await input.evaluate(el =>
@@ -190,7 +190,7 @@ test.describe('Mobile UX - Keyboard Handling @mobile', () => {
 
   test('Should show keyboard-visible class when keyboard appears', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000/dosage');
+    await page.goto('http://127.0.0.1:3000/dosage');
 
     const input = page.locator('#inp-weight');
 
@@ -212,7 +212,7 @@ test.describe('Mobile UX - Keyboard Handling @mobile', () => {
 test.describe('Mobile UX - Form Validation @accessibility', () => {
   test.skip('Should show validation errors (Skipped: app has no standard client-side validated form with role=alert)', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000/dosage');
+    await page.goto('http://127.0.0.1:3000/dosage');
 
     // Find form and submit it empty
     const form = page.locator('form:first-child');
@@ -228,7 +228,7 @@ test.describe('Mobile UX - Form Validation @accessibility', () => {
 
   test.skip('Should focus on first invalid input (Skipped: app has no standard client-side validated form)', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000/dosage');
+    await page.goto('http://127.0.0.1:3000/dosage');
 
     const form = page.locator('form:first-child');
     const submitButton = form.locator('button[type="submit"]');
@@ -247,7 +247,7 @@ test.describe('Mobile UX - Form Validation @accessibility', () => {
 test.describe('Mobile UX - Accessibility @accessibility', () => {
   test('Should be keyboard navigable', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     // Tab through elements
     let activeElement = await page.evaluate(() => document.activeElement?.tagName);
@@ -261,7 +261,7 @@ test.describe('Mobile UX - Accessibility @accessibility', () => {
 
   test('Should have visible focus indicators', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     const button = page.locator('button.lp-btn').first();
 
@@ -279,7 +279,7 @@ test.describe('Mobile UX - Accessibility @accessibility', () => {
 
   test('Should have proper color contrast', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     // This is a simplified check - real contrast checking is more complex
     const body = page.locator('body');
@@ -309,7 +309,7 @@ test.describe('Mobile UX - Performance @mobile', () => {
 
   test('Should have smooth scrolling (no jank)', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     // Measure scroll performance
     const performanceMetrics = await page.evaluate(() => {
@@ -326,7 +326,7 @@ test.describe('Mobile UX - Performance @mobile', () => {
 test.describe('Mobile UX - Dark Mode @mobile', () => {
   test('Should render correctly in dark mode', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     // Set dark mode preference
     await page.evaluate(() => {
@@ -347,7 +347,7 @@ test.describe('Mobile UX - Dark Mode @mobile', () => {
 
     // Emulate dark color scheme
     await page.emulateMedia({ colorScheme: 'dark' });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     // Should load dark theme
     const theme = await page.evaluate(() =>
@@ -361,7 +361,7 @@ test.describe('Mobile UX - Dark Mode @mobile', () => {
 test.describe('Mobile UX - Offline Support @mobile', () => {
   test('Should indicate offline status', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('http://localhost:3000');
+    await page.goto('http://127.0.0.1:3000');
 
     // Simulate offline
     await page.context().setOffline(true);

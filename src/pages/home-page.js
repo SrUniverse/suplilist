@@ -8,12 +8,21 @@ import { escapeHtml } from '../utils/escape.js';
 import { SchemaManager } from '../core/schema-manager.js';
 
 export default class HomePage {
+  /**
+   * Initialize the HomePage component.
+   * @param {HTMLElement} container - The DOM container element where the landing page will render.
+   */
   constructor(container) {
     this.container = container;
     this._styleEl = null;
     this._onClick = null;
   }
 
+  /**
+   * Mount the landing page component. Injects styles, renders the template, binds event listeners,
+   * and inserts WebApplication schema for SEO.
+   * @returns {void}
+   */
   mount() {
     this._injectStyle();
     this.container.innerHTML = this._template();
@@ -24,6 +33,10 @@ export default class HomePage {
     SchemaManager.insertSchema(appSchema);
   }
 
+  /**
+   * Unmount the landing page component. Removes event listeners and clears DOM content.
+   * @returns {void}
+   */
   unmount() {
     if (this._onClick) {
       this.container.removeEventListener('click', this._onClick);
@@ -32,9 +45,12 @@ export default class HomePage {
     this.container.innerHTML = '';
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Eventos — delegação para qualquer [data-nav]
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Bind click event listeners to the container. Delegates navigation clicks on [data-nav]
+   * elements to perform client-side routing, and handles custom actions like scroll-features.
+   * @private
+   * @returns {void}
+   */
   _bindEvents() {
     this._onClick = (e) => {
       const navTarget = e.target.closest('[data-nav]');
@@ -59,9 +75,13 @@ export default class HomePage {
     this.container.addEventListener('click', this._onClick);
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Template
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Generate the complete landing page HTML template. Includes hero section with mockup cards,
+   * feature cards, step-by-step guide, goal filter chips, marketplace integration cards, CTA sections,
+   * Instagram promotion, and footer with navigation links.
+   * @private
+   * @returns {string} The complete HTML template string.
+   */
   _template() {
     const count = SUPPLEMENTS_DB.length;
 
@@ -321,9 +341,13 @@ export default class HomePage {
     `;
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Hero mock product cards
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Generate hero section mockup product cards showing the first 3 supplements from SUPPLEMENTS_DB.
+   * Displays supplement name, category, evidence level badge, and calculated monthly cost based on
+   * dosage and price per gram.
+   * @private
+   * @returns {string} HTML string containing the mock product cards.
+   */
   _heroMockupCards() {
     const items = SUPPLEMENTS_DB.slice(0, 3);
     return `<div class="lp-mock-stack">
@@ -340,9 +364,10 @@ export default class HomePage {
         const monthPrice = (dailyGrams * (item.pricePerGram ?? 0.3) * 30)
           .toFixed(2).replace('.', ',');
         const ev = item.evidenceLevel || 'A';
+        const evLower = String(ev).toLowerCase();
         return `
           <div class="lp-mock-card">
-            <div class="lp-mock-card__ev">EV. ${escapeHtml(String(ev))}</div>
+            <div class="lp-mock-card__ev lp-mock-card__ev--${evLower}">NÍVEL ${escapeHtml(String(ev))}</div>
             <div class="lp-mock-card__name">${escapeHtml(item.name)}</div>
             <div class="lp-mock-card__cat">${escapeHtml(item.category || '')}</div>
             <div class="lp-mock-card__price">R$ ${escapeHtml(monthPrice)}<span class="lp-mock-card__dose"> / mês</span></div>
@@ -351,9 +376,14 @@ export default class HomePage {
     </div>`;
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Estilos
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Inject landing page CSS styles into the document. Creates a <style> tag with comprehensive
+   * styling for the entire page including navigation, hero, sections, cards, buttons, forms, animations,
+   * and responsive breakpoints (860px, 768px, 480px). Respects prefers-reduced-motion media query.
+   * Prevents duplicate style injection.
+   * @private
+   * @returns {void}
+   */
   _injectStyle() {
     if (document.querySelector('[data-page="home"]')) return;
     const style = document.createElement('style');
@@ -372,9 +402,9 @@ export default class HomePage {
       /* ── NAV ── */
       .lp-nav {
         position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-        background: rgba(8, 8, 8, 0.8);
-        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        background: color-mix(in srgb, var(--color-bg-primary, #0A0C10) 80%, transparent);
+        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.06));
       }
       .lp-nav__inner {
         max-width: 1160px; margin: 0 auto; padding: 14px 24px;
@@ -393,7 +423,7 @@ export default class HomePage {
       .lp-logo {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: 22px; letter-spacing: -0.02em;
-        color: var(--color-brand, #7C3AED); text-decoration: none;
+        color: var(--color-brand, #8B5CF6); text-decoration: none;
       }
 
       /* ── BOTÕES ── */
@@ -421,9 +451,9 @@ export default class HomePage {
       .lp-hero__bg {
         position: absolute; inset: 0; z-index: 0; pointer-events: none;
         background:
-          radial-gradient(70% 55% at 50% 0%, rgba(124,58,237,0.18), transparent 65%),
-          radial-gradient(40% 30% at 80% 20%, rgba(124,58,237,0.06), transparent 60%),
-          var(--color-bg-primary, #080808);
+          radial-gradient(70% 55% at 50% 0%, rgba(139,92,246,0.16), transparent 65%),
+          radial-gradient(40% 30% at 80% 20%, rgba(99,102,241,0.06), transparent 60%),
+          var(--color-bg-primary, #0A0C10);
       }
       /* Two-column hero layout */
       .lp-hero__inner {
@@ -441,9 +471,9 @@ export default class HomePage {
       .lp-pill {
         display: inline-flex; align-items: center; gap: 8px;
         font-size: 13px; font-weight: 700;
-        color: #9F7AEA;
-        background: rgba(124,58,237,0.08);
-        border: 1px solid rgba(124,58,237,0.25);
+        color: var(--color-text-brand, #A78BFA);
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
+        border: 1px solid var(--color-border-brand, rgba(139,92,246,0.30));
         padding: 7px 16px; border-radius: 999px; margin-bottom: 32px;
         letter-spacing: 0.01em;
       }
@@ -453,7 +483,7 @@ export default class HomePage {
         letter-spacing: -0.04em; margin: 0 0 28px;
         overflow-wrap: break-word;
       }
-      .lp-accent { color: var(--color-brand, #7C3AED); }
+      .lp-accent { color: var(--color-brand, #8B5CF6); }
       .lp-hero__sub {
         font-size: 19px; line-height: 1.65;
         color: var(--color-text-secondary, #9A9A9A);
@@ -465,12 +495,12 @@ export default class HomePage {
         justify-content: flex-start;
       }
       .lp-btn--primary {
-        background: var(--color-brand, #7C3AED); color: #fff;
-        box-shadow: 0 4px 20px rgba(124,58,237,0.30);
+        background: var(--color-brand, #8B5CF6); color: #fff;
+        box-shadow: 0 4px 20px rgba(139,92,246,0.30);
       }
       .lp-btn--primary:hover {
-        background: var(--color-brand-hover, #6D28D9);
-        box-shadow: 0 6px 28px rgba(124,58,237,0.45);
+        background: var(--color-brand-hover, #7C3AED);
+        box-shadow: 0 6px 28px rgba(139,92,246,0.45);
         transform: translateY(-1px);
       }
 
@@ -479,42 +509,53 @@ export default class HomePage {
         display: flex; flex-direction: column; gap: 14px;
       }
       .lp-mock-card {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 4px solid var(--color-brand, #7C3AED);
+        background: var(--color-surface-primary, #13161C);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-left: 3px solid var(--color-brand, #8B5CF6);
         border-radius: 14px; padding: 22px 24px;
         display: flex; flex-direction: column; gap: 6px;
         transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        box-shadow: var(--shadow-card, 0 2px 12px rgba(0,0,0,0.40));
       }
       .lp-mock-card:hover {
-        transform: translateX(-6px);
-        border-top-color: rgba(124,58,237,0.3);
-        border-right-color: rgba(124,58,237,0.3);
-        border-bottom-color: rgba(124,58,237,0.3);
-        border-left-color: var(--color-brand, #7C3AED);
-        box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(124,58,237,0.1);
+        transform: translateX(-5px);
+        border-top-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-right-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-bottom-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-left-color: var(--color-brand, #8B5CF6);
+        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
       }
       .lp-mock-card__ev {
         font-size: 10px; font-weight: 700; letter-spacing: .08em;
-        color: var(--color-success, #22C55E);
-        background: rgba(34,197,94,0.12);
-        padding: 2px 8px; border-radius: 999px;
+        color: var(--ev-a, #34D399);
+        background: var(--ev-a-bg, rgba(52,211,153,0.12));
+        border: 1px solid var(--ev-a-border, rgba(52,211,153,0.25));
+        padding: 2px 8px; border-radius: 6px;
         width: fit-content;
+      }
+      .lp-mock-card__ev--b {
+        color: var(--ev-b, #FBBF24);
+        background: var(--ev-b-bg, rgba(251,191,36,0.12));
+        border-color: var(--ev-b-border, rgba(251,191,36,0.25));
+      }
+      .lp-mock-card__ev--c {
+        color: var(--ev-c, #94A3B8);
+        background: var(--ev-c-bg, rgba(148,163,184,0.10));
+        border-color: var(--ev-c-border, rgba(148,163,184,0.20));
       }
       .lp-mock-card__name { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
       .lp-mock-card__cat  { font-size: 12px; color: var(--color-text-secondary, #9A9A9A); }
-      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand); margin-top: 6px; }
+      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand, #8B5CF6); margin-top: 6px; font-variant-numeric: tabular-nums; }
       .lp-mock-card__dose  { font-size: 11px; color: var(--color-text-secondary, #9A9A9A); font-weight: 400; }
       .lp-hero__stats {
-        font-size: 13px; color: var(--color-text-muted, #555555);
+        font-size: 13px; color: var(--color-text-muted, #475569);
         margin: 0; letter-spacing: 0.02em;
       }
 
       /* ── SEÇÕES ── */
       .lp-section-wrap { width: 100%; border-top: 1px solid var(--color-border, rgba(255,255,255,0.07)); }
       .lp-section-wrap--alt {
-        background: linear-gradient(180deg, rgba(124,58,237,0.03) 0%, var(--color-bg-secondary, #0F0F0F) 40%);
+        background: linear-gradient(180deg, rgba(139,92,246,0.04) 0%, var(--color-bg-secondary, #0D0F14) 40%);
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
         border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
       }
@@ -529,25 +570,25 @@ export default class HomePage {
       .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
       .lp-card, .lp-step {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 4px solid var(--color-brand, #7C3AED);
+        background: var(--color-surface-primary, #13161C);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-left: 3px solid var(--color-brand, #8B5CF6);
         border-radius: 16px; padding: 36px;
         transition: border-color .2s ease, transform .22s ease, box-shadow .22s ease;
       }
       .lp-card:hover, .lp-step:hover {
-        border-top-color: rgba(124,58,237,0.3);
-        border-right-color: rgba(124,58,237,0.3);
-        border-bottom-color: rgba(124,58,237,0.3);
-        border-left-color: var(--color-brand, #7C3AED);
-        transform: translateY(-6px);
-        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.08);
+        border-top-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-right-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-bottom-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-left-color: var(--color-brand, #8B5CF6);
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
       }
       .lp-card__icon {
         width: 64px; height: 64px; border-radius: 16px;
         display: flex; align-items: center; justify-content: center;
-        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
-        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
+        background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.08));
+        box-shadow: 0 4px 16px rgba(139,92,246,0.15);
         margin-bottom: 24px;
       }
       .lp-card__title {
@@ -562,9 +603,9 @@ export default class HomePage {
         width: 56px; height: 56px; border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 24px;
-        color: var(--color-brand, #7C3AED);
-        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
-        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
+        color: var(--color-brand, #8B5CF6);
+        background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.08));
+        box-shadow: 0 4px 16px rgba(139,92,246,0.15);
         margin-bottom: 22px;
       }
 
@@ -579,8 +620,8 @@ export default class HomePage {
         transition: border-color .18s ease, background .18s ease, color .18s ease;
       }
       .lp-chip:hover {
-        border-color: var(--color-brand, #7C3AED);
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+        border-color: var(--color-brand, #8B5CF6);
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
       }
 
       /* ── MARKETPLACES ── */
@@ -605,9 +646,9 @@ export default class HomePage {
       .lp-market__logo { display: flex; align-items: center; min-height: 40px; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;
-        color: var(--color-success, #22C55E);
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.2);
+        color: var(--color-savings, #22C55E);
+        background: var(--color-savings-bg, rgba(34,197,94,0.12));
+        border: 1px solid rgba(34,197,94,0.25);
         padding: 5px 14px; border-radius: 999px;
         letter-spacing: 0.02em;
       }
@@ -629,7 +670,7 @@ export default class HomePage {
         background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
       }
       .lp-ig__inner {
-        background: var(--color-bg-primary, #0A0A0A);
+        background: var(--color-bg-primary, #0A0C10);
         border-radius: 18px; padding: 28px 32px;
         display: flex; align-items: center; justify-content: space-between;
         gap: 24px; flex-wrap: wrap;
@@ -671,7 +712,7 @@ export default class HomePage {
       /* ── FOOTER ── */
       .lp-footer {
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        background: var(--color-surface-primary, #111111);
+        background: var(--color-surface-primary, #13161C);
         padding: 64px 24px 40px;
       }
       .lp-footer__grid {
@@ -730,7 +771,7 @@ export default class HomePage {
       .lp-btn--primary::after {
         content: ''; position: absolute; inset: -4px;
         border-radius: inherit;
-        background: rgba(124,58,237,0.35); filter: blur(12px);
+        background: rgba(139,92,246,0.35); filter: blur(12px);
         opacity: 0; pointer-events: none; z-index: -1;
         animation: lp-pulse-glow-opacity 3s ease-in-out infinite;
       }

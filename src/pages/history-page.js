@@ -46,7 +46,23 @@ const estimateDailyCost = (stack, supMap) => {
   return total;
 };
 
+/**
+ * HistoryPage — Check-in history with calendar, analytics, and filters
+ *
+ * Shows:
+ * - Stats: total check-ins, days streaked, average daily cost
+ * - 7-day calendar with completion dots (filled/empty/today)
+ * - Supplement breakdown: search + category filter + expand/collapse cards
+ * - Premium lock: advanced analytics behind tier check
+ * - Advanced dashboard (premium): daily adherence trends, supplement heatmap
+ *
+ * Integrates with StateManager (checkins, stack), SUPPLEMENTS_DB for details.
+ */
 export default class HistoryPage {
+  /**
+   * Create a new HistoryPage
+   * @param {HTMLElement} container - DOM element to mount the page
+   */
   constructor(container) {
     this.container = container;
     this._unsubscribe = null;
@@ -55,17 +71,44 @@ export default class HistoryPage {
     this._expandedCards = new Set();
   }
 
+  /**
+   * Mount the page to the DOM and initialize subscriptions.
+   *
+   * Injects CSS, renders main scaffold, subscribes to state changes
+   * for live updates when checkins/stack change.
+   *
+   * @returns {void}
+   */
   mount() {
     this._injectStyles();
     this._render();
     this._unsubscribe = stateManager.subscribe(() => this._render());
   }
 
+  /**
+   * Unmount the page and clean up all resources.
+   *
+   * Unsubscribes from state manager.
+   * Safe to call multiple times.
+   *
+   * @returns {void}
+   */
   unmount() {
     this._unsubscribe?.();
   }
 
   // ─── Styles ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Inject CSS styles for HistoryPage into <head> (idempotent).
+   *
+   * Creates <style id="history-page-styles-v2"> with all component styles:
+   * stats cards, calendar grid, search input, category chips, supplement breakdown,
+   * premium lock card, and advanced analytics dashboard.
+   *
+   * @returns {void}
+   * @private
+   */
   _injectStyles() {
     if (document.getElementById('history-page-styles-v2')) return;
     const style = document.createElement('style');
@@ -91,19 +134,22 @@ export default class HistoryPage {
         flex-shrink: 0;
         margin-bottom: 2px;
       }
+      .hp-stat-icon--ev { background: var(--ev-a-bg, rgba(52,211,153,0.12)); color: var(--ev-a, #34D399); }
+      .hp-stat-icon--invest { background: var(--ev-b-bg, rgba(251,191,36,0.12)); color: var(--ev-b, #FBBF24); }
+      .hp-stat-value--invest { font-size: clamp(20px, 3.5vw, 28px) !important; letter-spacing: -0.02em; }
       .hp-stat-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-      .hp-stat-value { font-size: 26px; font-weight: 800; color: var(--color-text-primary); line-height: 1.1; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+      .hp-stat-value { font-size: clamp(28px, 5vw, 40px); font-weight: 800; color: var(--color-text-primary); line-height: 1.05; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
       .hp-stat-sub { font-size: 11px; color: var(--color-text-muted); }
-      .hp-stat-sub.positive { color: var(--color-success); font-weight: 600; }
+      .hp-stat-sub.positive { color: var(--color-savings, #22C55E); font-weight: 600; }
       .hp-progress-bar {
-        height: 4px; border-radius: 2px;
+        height: 6px; border-radius: 3px;
         background: var(--color-border);
-        overflow: hidden; margin-top: 4px;
+        overflow: hidden; margin-top: 8px;
       }
       .hp-progress-fill {
-        height: 100%; border-radius: 2px;
-        background: var(--color-brand);
-        transition: width 0.6s ease;
+        height: 100%; border-radius: 3px;
+        background: linear-gradient(90deg, var(--color-brand, #8B5CF6), rgba(139,92,246,0.7));
+        transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       /* Calendar row */
@@ -125,7 +171,7 @@ export default class HistoryPage {
         transition: transform 0.15s;
       }
       .hp-day-dot.filled { background: var(--color-brand); color: #fff; }
-      .hp-day-dot.today-filled { background: var(--color-brand); color: #fff; box-shadow: 0 0 0 2px rgba(124,58,237,0.4); }
+      .hp-day-dot.today-filled { background: var(--color-brand); color: #fff; box-shadow: 0 0 0 2px var(--color-border-brand, rgba(139,92,246,0.40)); }
       .hp-day-dot.empty { background: var(--color-bg-primary); border: 2px solid var(--color-border); color: var(--color-text-muted); }
       .hp-day-dot.today-empty { border-color: var(--color-brand); color: var(--color-brand); }
 
@@ -230,20 +276,20 @@ export default class HistoryPage {
       /* ── Premium lock card ───────────────────────────────────────────────────── */
       .hp-premium-lock {
         margin-top: 24px; margin-bottom: 20px;
-        background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(124,58,237,0.02) 100%);
-        border: 1.5px dashed rgba(124,58,237,0.35);
+        background: linear-gradient(135deg, var(--color-brand-muted, rgba(139,92,246,0.10)) 0%, rgba(139,92,246,0.02) 100%);
+        border: 1.5px dashed var(--color-border-brand, rgba(139,92,246,0.35));
         border-radius: 20px; padding: 36px 24px;
         text-align: center;
         display: flex; flex-direction: column; align-items: center; gap: 16px;
         box-shadow: 0 12px 32px rgba(0,0,0,0.15);
       }
-      .hp-premium-lock__icon { font-size: 40px; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.4)); }
+      .hp-premium-lock__icon { font-size: 40px; filter: drop-shadow(0 4px 12px rgba(139,92,246,0.4)); }
       .hp-premium-lock__title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; margin: 0; color: var(--color-text-primary); }
       .hp-premium-lock__desc { font-size: 13px; color: var(--color-text-secondary); max-width: 320px; line-height: 1.5; margin: 0; }
       .hp-premium-lock__btn {
         background: var(--color-brand); color: #fff; border: none;
         font-weight: 700; padding: 12px 28px; border-radius: 12px;
-        font-size: 13.5px; box-shadow: 0 4px 14px rgba(124,58,237,0.3);
+        font-size: 13.5px; box-shadow: 0 4px 14px rgba(139,92,246,0.3);
         cursor: pointer; font-family: 'Inter', sans-serif;
       }
 
@@ -263,8 +309,8 @@ export default class HistoryPage {
       .hp-analytics-header__title { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--color-text-primary); }
       .hp-analytics-header__sub { margin: 3px 0 0 0; font-size: 11.5px; color: var(--color-text-muted); }
       .hp-analytics-support-btn {
-        background: rgba(124,58,237,0.08); color: var(--color-brand);
-        border: 1px solid rgba(124,58,237,0.25);
+        background: var(--color-brand-muted, rgba(139,92,246,0.10)); color: var(--color-brand);
+        border: 1px solid var(--color-border-brand, rgba(139,92,246,0.25));
         padding: 8px 14px; border-radius: 10px;
         font-size: 11.5px; font-weight: 700; cursor: pointer;
         transition: all 150ms ease;
@@ -287,12 +333,12 @@ export default class HistoryPage {
       }
       .hp-analytics-trend-label { margin-bottom: 12px; }
       .hp-analytics-offline {
-        background: rgba(34,197,94,0.04); border: 1px solid rgba(34,197,94,0.2);
+        background: var(--color-savings-bg, rgba(34,197,94,0.08)); border: 1px solid rgba(34,197,94,0.20);
         border-radius: 12px; padding: 12px;
         display: flex; align-items: center; gap: 10px;
       }
       .hp-analytics-offline__icon { font-size: 20px; }
-      .hp-analytics-offline__status { font-size: 12px; font-weight: 700; color: #22c55e; }
+      .hp-analytics-offline__status { font-size: 12px; font-weight: 700; color: var(--color-savings, #22C55E); }
       .hp-analytics-offline__detail { font-size: 11px; color: var(--color-text-muted); margin-top: 1px; }
       .hp-analytics-export-btn {
         background: #107c41; color: #ffffff; border: none;
@@ -311,7 +357,7 @@ export default class HistoryPage {
         font-family: 'Inter', sans-serif;
       }
       .hp-support-dialog {
-        background: #111115; border: 1px solid rgba(124,58,237,0.3);
+        background: var(--color-surface-primary, #13161C); border: 1px solid var(--color-border-brand, rgba(139,92,246,0.30));
         border-radius: 20px; width: 100%; max-width: 440px;
         padding: 24px; color: #fff;
         box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative;
@@ -348,13 +394,32 @@ export default class HistoryPage {
         background: var(--color-brand); color: #fff; border: none;
         border-radius: 10px; padding: 10px; font-weight: 700; font-size: 13px;
         cursor: pointer; font-family: 'Inter', sans-serif; height: 40px;
-        box-shadow: 0 4px 12px rgba(124,58,237,0.25);
+        box-shadow: 0 4px 12px rgba(139,92,246,0.25);
       }
     `;
     document.head.appendChild(style);
   }
 
   // ─── Main render ─────────────────────────────────────────────────────────────
+  /**
+   * Render the complete HistoryPage with stats, calendar, and supplement breakdown.
+   *
+   * Builds:
+   * - Stats cards: adherence %, streak days, total investment
+   * - 7-day calendar: completion dots with today highlight
+   * - Search input + category filter chips (Todos, Força, Proteínas, etc.)
+   * - Supplement breakdown: searchable/filterable cards with:
+   *   - Name, category, image
+   *   - Dates checked (sorted newest first)
+   *   - Adherence % over time window
+   *   - Toggle expand/collapse per card
+   *
+   * Applies active filters (search query, category) to entries before rendering.
+   * Guards against premium features (premium lock card if user tier = free).
+   *
+   * @returns {void}
+   * @private
+   */
   _render() {
     const state = stateManager.getState();
     const checkins = state.checkins || [];
@@ -464,7 +529,7 @@ export default class HistoryPage {
           </div>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-icon" style="background:rgba(34,197,94,0.12);color:#22C55E;">
+          <div class="hp-stat-icon hp-stat-icon--ev">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
           <span class="hp-stat-label">Total de Ciclos</span>
@@ -474,11 +539,11 @@ export default class HistoryPage {
           </span>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-icon" style="background:rgba(234,179,8,0.12);color:#EAB308;">
+          <div class="hp-stat-icon hp-stat-icon--invest">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
           <span class="hp-stat-label">Investimento Total Est.</span>
-          <span class="hp-stat-value" style="font-size:20px;">R$ ${investTotal}</span>
+          <span class="hp-stat-value hp-stat-value--invest">R$ ${investTotal}</span>
           <span class="hp-stat-sub">Calculado com base nos logs</span>
         </div>
       </div>
@@ -611,6 +676,21 @@ export default class HistoryPage {
   }
 
   // ─── Event listeners ─────────────────────────────────────────────────────────
+  /**
+   * Attach event listeners for search, filters, expand/collapse, and premium actions.
+   *
+   * Handles:
+   * - Search input: re-renders on input with debounce
+   * - Category chips: toggles active category and re-renders
+   * - Toggle buttons: expand/collapse supplement cards
+   * - CTA button: navigates to /checkin page
+   * - Premium unlock button: shows CheckoutModal
+   * - Excel export button: triggers export (premium feature)
+   * - Priority support button: opens support dialog
+   *
+   * @returns {void}
+   * @private
+   */
   _attachListeners() {
     // Search input — restore focus if user was typing (innerHTML re-render loses focus)
     const searchEl = this.container.querySelector('#hp-search');
@@ -681,6 +761,19 @@ export default class HistoryPage {
     }
   }
 
+  /**
+   * Render premium lock card with upsell messaging.
+   *
+   * Shows:
+   * - Icon + "Desbloqueie o Painel Analítico Premium" headline
+   * - Benefits copy: interactive graphs, 30-day heatmap, category breakdown, priority support, Excel export
+   * - "Ativar Premium" CTA button with pricing
+   *
+   * Button triggers CheckoutModal with tier='pro'.
+   *
+   * @returns {string} HTML string for premium lock card
+   * @private
+   */
   _renderPremiumLockCard() {
     return `
       <div class="hp-premium-lock">
@@ -692,6 +785,25 @@ export default class HistoryPage {
     `;
   }
 
+  /**
+   * Render advanced analytics dashboard (premium feature) with heatmap and trends.
+   *
+   * Shows:
+   * - Header: "Painel Premium" + Priority Support button
+   * - 30-day heatmap: grid of colored cells (checked/unchecked per day)
+   * - Weekly trend sparkline: line chart showing adherence % per week
+   * - Stats: total days checked, data size in KB
+   * - Excel export button (premium-only)
+   *
+   * Heatmap cells show tooltip with date and check-in status on hover.
+   * Sparkline renders as SVG path with area fill.
+   *
+   * @param {Object[]} checkins - All check-ins from stateManager
+   * @param {Object[]} stack - Current supplement stack
+   * @param {Object} supMap - Supplement database map (ID → details)
+   * @returns {string} HTML string for advanced analytics dashboard
+   * @private
+   */
   _renderAdvancedAnalyticsDashboard(checkins, stack, supMap) {
     const daysSet = new Set(checkins.map(c => c.date).filter(Boolean));
     
@@ -947,6 +1059,27 @@ export default class HistoryPage {
     }
   }
 
+  /**
+   * Open priority support dialog (premium feature) with chat-like interface.
+   *
+   * Shows:
+   * - Heading: "Suporte Prioritário Premium" + ⚡ icon
+   * - Description: high-priority queue messaging
+   * - Chat area (initially hidden): displays user + support messages
+   * - Message textarea + send button
+   *
+   * On submit:
+   * - Hides form, shows chat area
+   * - Displays user message with right-aligned blue bubble
+   * - Sends message to backend (premium support endpoint)
+   * - Displays support response in left-aligned gray bubble
+   * - Shows success/error toast via eventBus
+   *
+   * Closes on close button click or overlay click.
+   *
+   * @returns {void}
+   * @private
+   */
   _openPrioritySupportDialog() {
     const overlay = document.createElement('div');
     overlay.id = 'priority-support-overlay';

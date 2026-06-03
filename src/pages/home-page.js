@@ -470,12 +470,11 @@ export default class HomePage {
       }
       .lp-pill {
         display: inline-flex; align-items: center; gap: 8px;
-        font-size: 13px; font-weight: 700;
+        font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
         color: var(--color-text-brand, #A78BFA);
-        background: var(--color-brand-muted, rgba(139,92,246,0.12));
-        border: 1px solid var(--color-border-brand, rgba(139,92,246,0.30));
-        padding: 7px 16px; border-radius: 999px; margin-bottom: 32px;
-        letter-spacing: 0.01em;
+        background: transparent;
+        border: 1px solid rgba(139,92,246,0.25);
+        padding: 6px 14px; border-radius: 999px; margin-bottom: 28px;
       }
       .lp-hero__title {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
@@ -509,21 +508,18 @@ export default class HomePage {
         display: flex; flex-direction: column; gap: 14px;
       }
       .lp-mock-card {
-        background: var(--color-surface-primary, #13161C);
+        background: linear-gradient(145deg, var(--color-surface-primary, #13161C), rgba(18,22,30,0.98));
         border: 1px solid var(--color-border, rgba(255,255,255,0.06));
-        border-left: 3px solid var(--color-brand, #8B5CF6);
-        border-radius: 14px; padding: 22px 24px;
+        border-radius: 16px; padding: 20px 22px;
         display: flex; flex-direction: column; gap: 6px;
+        position: relative; overflow: hidden;
         transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
-        box-shadow: var(--shadow-card, 0 2px 12px rgba(0,0,0,0.40));
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset;
       }
       .lp-mock-card:hover {
-        transform: translateX(-5px);
-        border-top-color: var(--color-border-brand, rgba(139,92,246,0.30));
-        border-right-color: var(--color-border-brand, rgba(139,92,246,0.30));
-        border-bottom-color: var(--color-border-brand, rgba(139,92,246,0.30));
-        border-left-color: var(--color-brand, #8B5CF6);
-        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
+        transform: translateX(-4px) translateY(-2px);
+        border-color: rgba(139,92,246,0.22);
+        box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 16px -4px rgba(139,92,246,0.18);
       }
       .lp-mock-card__ev {
         font-size: 10px; font-weight: 700; letter-spacing: .08em;
@@ -562,34 +558,42 @@ export default class HomePage {
       .lp-section { max-width: 1160px; margin: 0 auto; padding: 96px 24px; }
       .lp-h2 {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
-        font-size: clamp(32px, 4.5vw, 56px); line-height: 1.08;
+        font-size: clamp(30px, 4vw, 52px); line-height: 1.08;
         letter-spacing: -0.03em; text-align: center; margin: 0 0 64px;
+        background: linear-gradient(135deg, var(--color-text-primary, #F1F5F9) 60%, rgba(139,92,246,0.7) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .lp-grid { display: grid; gap: 24px; }
       .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
       .lp-card, .lp-step {
-        background: var(--color-surface-primary, #13161C);
+        background: linear-gradient(145deg, var(--color-surface-primary, #13161C) 0%, rgba(20,24,32,0.95) 100%);
         border: 1px solid var(--color-border, rgba(255,255,255,0.06));
-        border-left: 3px solid var(--color-brand, #8B5CF6);
-        border-radius: 16px; padding: 36px;
-        transition: border-color .2s ease, transform .22s ease, box-shadow .22s ease;
+        border-radius: 20px; padding: 36px;
+        position: relative; overflow: hidden;
+        transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 24px rgba(0,0,0,0.2);
+      }
+      .lp-card::before, .lp-step::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.4) 50%, transparent 100%);
+        opacity: 0; transition: opacity .25s ease;
       }
       .lp-card:hover, .lp-step:hover {
-        border-top-color: var(--color-border-brand, rgba(139,92,246,0.30));
-        border-right-color: var(--color-border-brand, rgba(139,92,246,0.30));
-        border-bottom-color: var(--color-border-brand, rgba(139,92,246,0.30));
-        border-left-color: var(--color-brand, #8B5CF6);
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
+        border-color: var(--color-border-brand, rgba(139,92,246,0.20));
+        transform: translateY(-6px);
+        box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 20px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.20);
       }
+      .lp-card:hover::before, .lp-step:hover::before { opacity: 1; }
       .lp-card__icon {
-        width: 64px; height: 64px; border-radius: 16px;
+        width: 48px; height: 48px;
         display: flex; align-items: center; justify-content: center;
-        background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.08));
-        box-shadow: 0 4px 16px rgba(139,92,246,0.15);
-        margin-bottom: 24px;
+        color: var(--color-brand, #8B5CF6);
+        margin-bottom: 20px;
+        opacity: 0.9;
       }
       .lp-card__title {
         font-size: 20px; font-weight: 700; margin: 0 0 12px; line-height: 1.2;
@@ -603,9 +607,9 @@ export default class HomePage {
         width: 56px; height: 56px; border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 24px;
-        color: var(--color-brand, #8B5CF6);
-        background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.08));
-        box-shadow: 0 4px 16px rgba(139,92,246,0.15);
+        color: var(--color-text-muted, #475569);
+        background: var(--color-surface-secondary, #191D25);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
         margin-bottom: 22px;
       }
 
@@ -626,23 +630,29 @@ export default class HomePage {
 
       /* ── MARKETPLACES ── */
       .lp-market {
-        background: var(--color-surface-primary, #13161C);
+        background: linear-gradient(145deg, var(--color-surface-primary, #13161C), rgba(18,22,30,0.95));
         border: 1px solid var(--color-border, rgba(255,255,255,0.06));
-        border-left: 4px solid var(--mk-color, rgba(255,255,255,0.14));
-        border-radius: 16px; padding: 32px 36px;
+        border-radius: 20px; padding: 32px 36px;
         display: flex; flex-direction: column;
         align-items: flex-start; gap: 20px;
+        position: relative; overflow: hidden;
         transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease;
-        background-image: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+      }
+      .lp-market::after {
+        content: ''; position: absolute;
+        top: -60px; right: -60px;
+        width: 140px; height: 140px;
+        background: radial-gradient(circle, var(--mk-color, rgba(255,255,255,0.1)) 0%, transparent 70%);
+        opacity: 0.15; pointer-events: none;
+        transition: opacity .3s ease;
       }
       .lp-market:hover {
-        border-top-color: rgba(255,255,255,0.12);
-        border-right-color: rgba(255,255,255,0.12);
-        border-bottom-color: rgba(255,255,255,0.12);
-        border-left-color: var(--mk-color, rgba(255,255,255,0.3));
+        border-color: rgba(255,255,255,0.10);
         transform: translateY(-5px);
-        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+        box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
       }
+      .lp-market:hover::after { opacity: 0.35; }
       .lp-market__logo { display: flex; align-items: center; min-height: 40px; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;

@@ -805,9 +805,9 @@ export default class CalculatorPage {
         color: var(--color-text-secondary);
         margin: 0;
         padding: 8px 12px;
-        background: var(--color-bg-primary);
+        background: var(--color-brand-muted, rgba(139,92,246,0.08));
         border-radius: 8px;
-        border-left: 3px solid var(--color-brand);
+        border: 1px solid var(--color-border-brand, rgba(139,92,246,0.20));
       }
 
       /* Progress bars */

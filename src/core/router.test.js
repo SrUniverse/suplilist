@@ -112,6 +112,10 @@ describe('Router — Basic Navigation', () => {
     const result = router.matchRoute('/');
     expect(result).not.toBeNull();
     expect(result.route.path).toBe('/');
+
+    const listResult = router.matchRoute('/list/');
+    expect(listResult).not.toBeNull();
+    expect(listResult.route.path).toBe('/list');
   });
 
   it('7. matchRoute() decodes URL-encoded parameters', () => {

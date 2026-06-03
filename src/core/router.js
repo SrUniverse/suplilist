@@ -61,7 +61,10 @@ export class Router {
   matchRoute(pathname) {
     // Strip query string and normalize
     const [path, query] = pathname.split('?');
-    const normalizedPath = path || '/';
+    let normalizedPath = path || '/';
+    if (normalizedPath !== '/' && normalizedPath.endsWith('/')) {
+      normalizedPath = normalizedPath.slice(0, -1);
+    }
     const queryParams = {};
     if (query) {
       query.split('&').forEach(pair => {

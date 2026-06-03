@@ -1,11 +1,11 @@
-import{e as E,s as c,A as b,o as _}from"./main-CYS-UJeT.js";import{S as h}from"./stack-recommender-BGeZSZCS.js";import{r as C}from"./evidence-D5RtUc7g.js";import{e as p}from"./escape-Br5wU8qn.js";import{a as k}from"./affiliate-engine-C4GbNtkb.js";import{b as $}from"./vendor-Vk1E4gpc.js";function g(i){return i==null?null:i.supplementId??i.id??null}class I{generateShareUrl(e){if(!e||!e.length)return"";const t=e.map(s=>({name:s.name,supplementId:s.supplementId||s.id,quantity:s.quantity,dosage:s.dosage,frequency:s.frequency,timeOfDay:s.timeOfDay,notes:s.notes||""})),r=JSON.stringify(t),a=btoa(unescape(encodeURIComponent(r)));return`${window.location.origin}/my-stack?stack=${a}`}formatStackText(e){if(!e||!e.length)return"Meu stack de suplementação está vazio.";let t=`💊 Meu Stack de Suplementação no SupliList:
+import{e as E,s as c,A as b,o as _}from"./main-5Kzhlj7v.js";import{S as h}from"./stack-recommender-BKcNh00X.js";import{r as C}from"./evidence-D5RtUc7g.js";import{e as p}from"./escape-Br5wU8qn.js";import{a as k}from"./affiliate-engine-C_3h8zok.js";import{b as $}from"./vendor-Vk1E4gpc.js";function g(i){return i==null?null:i.supplementId??i.id??null}class I{generateShareUrl(e){if(!e||!e.length)return"";const t=e.map(s=>({name:s.name,supplementId:s.supplementId||s.id,quantity:s.quantity,dosage:s.dosage,frequency:s.frequency,timeOfDay:s.timeOfDay,notes:s.notes||""})),r=JSON.stringify(t),a=btoa(unescape(encodeURIComponent(r)));return`${window.location.origin}/my-stack?stack=${a}`}formatStackText(e){if(!e||!e.length)return"Meu stack de suplementação está vazio.";let t=`💊 Meu Stack de Suplementação no SupliList:
 
 `;return e.forEach(r=>{t+=`• ${r.name} — Dose: ${r.dosage} (Tomar: ${r.timeOfDay||"qualquer horário"})
 `}),t+=`
 Acompanhe e calcule suas doses em suplilist.com`,t}async shareStack(e){if(!e||!e.length)return!1;const t=this.generateShareUrl(e);if(this.formatStackText(e),navigator.share)try{return await navigator.share({title:"Meu Stack | SupliList",text:"Confira meu protocolo personalizado de suplementos!",url:t}),!0}catch(r){r.name!=="AbortError"&&console.error("[ShareService] Native share failed:",r)}return this.copyToClipboard(t,"Link do stack copiado para a área de transferência!")}async shareStreak(e){if(!e)return!1;const t=`🔥 Minha constância está em dia! Alcancei um streak de ${e} dias seguidos registrando meu consumo no SupliList. 💊`,r=window.location.origin;if(navigator.share)try{return await navigator.share({title:"Minha Constância | SupliList",text:t,url:r}),!0}catch(a){a.name!=="AbortError"&&console.error("[ShareService] Native streak share failed:",a)}return this.copyToClipboard(`${t} Acesse: ${r}`,"Mensagem de streak copiada com sucesso!")}async copyToClipboard(e,t="Copiado para a área de transferência!"){try{return await navigator.clipboard.writeText(e),E.emit("toast:show",{message:t,type:"success"}),!0}catch(r){return console.error("[ShareService] Clipboard copy failed:",r),window.prompt("Copie o link de compartilhamento:",e),!0}}getWhatsAppLink(e,t){const r=`${e}
 
 Link do Stack:
-${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTelegramLink(e,t){return`https://t.me/share/url?url=${encodeURIComponent(t)}&text=${encodeURIComponent(e)}`}}class L{async renderQRCode(e,t){if(!e||!t)return;const r=document.documentElement.getAttribute("data-theme")==="dark",o={width:200,margin:2,errorCorrectionLevel:"H",color:{dark:r?"#10B981":"#047857",light:r?"#1e1e1e":"#FFFFFF"}};try{await $.toCanvas(e,t,o)}catch(l){console.error("[QRGenerator] QR code rendering failed:",l)}}}let f=null;async function z(){if(f)return f;try{f=await(await fetch("/data/prices.json")).json()}catch{f={}}return f}function y(i){return"R$ "+i.toFixed(2).replace(".",",")}function w(i){return i.reduce((e,t)=>{const a=h.find(d=>d.id===g(t))?.pricePerGram??0,s=parseFloat(t.dosage)||0,o=(t.unit||"g").toLowerCase();let l;if(o==="g")l=s;else if(o==="mg")l=s/1e3;else if(o==="mcg")l=s/1e6;else return e;return e+l*a*30},0)}function M(i){if(!i.length)return"0%";const e=c.checkins??[],t=new Set(i.map(a=>a.supplementId??a.id));let r=0;for(let a=0;a<7;a++){const s=_(a),o=new Set(e.filter(d=>d.date===s).map(d=>d.supplementId));[...t].every(d=>o.has(d))&&r++}return Math.round(r/7*100)+"%"}function A(i){const e=h.find(r=>r.id===g(i));return e?.image?e.image:`/assets/${(i.name??"").toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"")}.png`}function T(i){return h.find(t=>t.id===g(i))?.evidenceLevel??"C"}function q(i){const e=parseFloat(i.quantity),t=parseFloat(i.dosage);return!e||!t||t<=0?null:Math.max(0,Math.floor(e/t))}const R=`
+${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTelegramLink(e,t){return`https://t.me/share/url?url=${encodeURIComponent(t)}&text=${encodeURIComponent(e)}`}}class L{async renderQRCode(e,t){if(!e||!t)return;const r=document.documentElement.getAttribute("data-theme")==="dark",o={width:200,margin:2,errorCorrectionLevel:"H",color:{dark:r?"#10B981":"#047857",light:r?"#1e1e1e":"#FFFFFF"}};try{await $.toCanvas(e,t,o)}catch(l){console.error("[QRGenerator] QR code rendering failed:",l)}}}let f=null;async function z(){if(f)return f;try{f=await(await fetch("/data/prices.json")).json()}catch{f={}}return f}function y(i){return"R$ "+i.toFixed(2).replace(".",",")}function w(i){return i.reduce((e,t)=>{const a=h.find(d=>d.id===g(t))?.pricePerGram??0,s=parseFloat(t.dosage)||0,o=(t.unit||"g").toLowerCase();let l;if(o==="g")l=s;else if(o==="mg")l=s/1e3;else if(o==="mcg")l=s/1e6;else return e;return e+l*a*30},0)}function M(i){if(!i.length)return"0%";const e=c.checkins??[],t=new Set(i.map(a=>a.supplementId??a.id));let r=0;for(let a=0;a<7;a++){const s=_(a),o=new Set(e.filter(d=>d.date===s).map(d=>d.supplementId));[...t].every(d=>o.has(d))&&r++}return Math.round(r/7*100)+"%"}function T(i){const e=h.find(r=>r.id===g(i));return e?.image?e.image:`/assets/${(i.name??"").toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"")}.png`}function A(i){return h.find(t=>t.id===g(i))?.evidenceLevel??"C"}function q(i){const e=parseFloat(i.quantity),t=parseFloat(i.dosage);return!e||!t||t<=0?null:Math.max(0,Math.floor(e/t))}const R=`
   /* Layout */
   .msp-wrap {
     display: flex;
@@ -69,12 +69,16 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
     color: var(--color-text-muted);
   }
   .msp-stat-value {
-    font-size: 22px;
+    font-size: clamp(24px, 4vw, 36px);
     font-weight: 800;
     color: var(--color-text-primary);
-    line-height: 1.1;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
   }
   .msp-stat-value.brand { color: var(--color-brand); }
+  .msp-stat-icon--ev { background: var(--ev-a-bg, rgba(52,211,153,0.12)); color: var(--ev-a, #34D399); }
+  .msp-stat-icon--adherence { background: var(--ev-b-bg, rgba(251,191,36,0.12)); color: var(--ev-b, #FBBF24); }
 
   /* Desktop: two-column layout for list + sidebar */
   .msp-body {
@@ -193,7 +197,7 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
     height: 72px;
     border-radius: 12px;
     object-fit: contain;
-    background: #111;
+    background: var(--color-surface-secondary, #191D25);
     flex-shrink: 0;
     padding: 4px;
   }
@@ -530,8 +534,9 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
   }
   .msp-replen-price {
     font-size: 12px;
-    color: var(--color-success);
+    color: var(--color-savings, #22C55E);
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
   .msp-replen-market {
     font-size: 11px;
@@ -598,7 +603,7 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
         <span class="msp-stat-sub">Estimado por stack atual</span>
       </div>
       <div class="msp-stat-card">
-        <div class="msp-stat-icon" style="background:rgba(34,197,94,0.12);color:#22C55E;">
+        <div class="msp-stat-icon msp-stat-icon--ev">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
         </div>
         <span class="msp-stat-label">Ciclos Ativos</span>
@@ -606,7 +611,7 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
         <span class="msp-stat-sub">${t.length>0?t.length+" suplemento"+(t.length!==1?"s":"")+" no protocolo":"Nenhum ativo"}</span>
       </div>
       <div class="msp-stat-card">
-        <div class="msp-stat-icon" style="background:rgba(234,179,8,0.12);color:#EAB308;">
+        <div class="msp-stat-icon msp-stat-icon--adherence">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <span class="msp-stat-label">Taxa de Adesão</span>
@@ -620,7 +625,7 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
           <p class="msp-empty-desc">Adicione os suplementos que você está tomando para acompanhar seu protocolo.</p>
           <button class="msp-empty-cta" id="msp-empty-cta">Explorar Catálogo →</button>
         </div>
-      `,this.container.querySelector("#msp-empty-cta")?.addEventListener("click",()=>this._openModal());return}e.innerHTML="",t.forEach(r=>{const a=g(r),s=q(r),o=A(r),l=C(T(r)),d=document.createElement("div");d.className="msp-item",d.dataset.itemId=a;const n=h.find(S=>S.id===a),m=n?.category??"",x=n?.benefits?.[0]??"",v=k.getLinks(r.name);d.innerHTML=`
+      `,this.container.querySelector("#msp-empty-cta")?.addEventListener("click",()=>this._openModal());return}e.innerHTML="",t.forEach(r=>{const a=g(r),s=q(r),o=T(r),l=C(A(r)),d=document.createElement("div");d.className="msp-item",d.dataset.itemId=a;const n=h.find(S=>S.id===a),m=n?.category??"",v=n?.benefits?.[0]??"",x=k.getLinks(r.name);d.innerHTML=`
         <div class="msp-item-top">
           <img class="msp-item-img"
             src="${o}"
@@ -638,7 +643,7 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
               <button class="msp-btn-icon" data-action="edit" data-id="${a}" aria-label="Editar ${p(r.name)}" title="Editar">✏️</button>
               <button class="msp-btn-icon del" data-action="remove" data-id="${a}" aria-label="Remover ${p(r.name)}" title="Remover">🗑️</button>
               <a class="msp-btn-reorder"
-                 href="${v.amazon}"
+                 href="${x.amazon}"
                  target="_blank"
                  rel="noopener noreferrer"
                  data-aff-id="${p(a)}"
@@ -648,18 +653,18 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
             </div>
           </div>
         </div>
-        ${x?`<div style="padding:0 16px 8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5;">${x}</div>`:""}
+        ${v?`<div style="padding:0 16px 8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5;">${v}</div>`:""}
         <div class="msp-item-footer">
           <button class="msp-btn-pause" data-action="edit" data-id="${a}">Editar</button>
           <button class="msp-btn-finish" data-action="remove" data-id="${a}">Remover</button>
         </div>
-      `;const u=document.createElement("div");u.id=`msp-edit-${a}`,u.style.display="none",e.appendChild(d),e.appendChild(u)})}_renderReplenishment(){const e=this.container.querySelector("#msp-replenishment");if(!e)return;const t=c.stack??[],r=this._prices??{},a=t.filter(s=>{const o=g(s),l=r[o];return l&&Object.keys(l).length>0});if(!a.length){e.innerHTML='<p class="msp-replen-empty">Nenhum preço disponível para os itens do seu stack.</p>';return}e.innerHTML=a.map((s,o)=>{const l=g(s),d=r[l]??{},n=Object.values(d),m=n.reduce((v,u)=>v.price<u.price?v:u,n[0]),x=o<a.length-1?'<hr class="msp-replen-divider">':"";return`
+      `;const u=document.createElement("div");u.id=`msp-edit-${a}`,u.style.display="none",e.appendChild(d),e.appendChild(u)})}_renderReplenishment(){const e=this.container.querySelector("#msp-replenishment");if(!e)return;const t=c.stack??[],r=this._prices??{},a=t.filter(s=>{const o=g(s),l=r[o];return l&&Object.keys(l).length>0});if(!a.length){e.innerHTML='<p class="msp-replen-empty">Nenhum preço disponível para os itens do seu stack.</p>';return}e.innerHTML=a.map((s,o)=>{const l=g(s),d=r[l]??{},n=Object.values(d),m=n.reduce((x,u)=>x.price<u.price?x:u,n[0]),v=o<a.length-1?'<hr class="msp-replen-divider">':"";return`
         <div class="msp-replen-item">
           <span class="msp-replen-name">${p(s.name)}</span>
           <span class="msp-replen-price">Melhor: ${y(m.price)}</span>
           <span class="msp-replen-market">${p(m.label)}</span>
         </div>
-        ${x}
+        ${v}
       `}).join("")}_attachDelegatedListeners(){this.container.querySelector("#msp-list")?.addEventListener("click",e=>{const t=e.target.closest("[data-aff-mp]");t&&k.trackClick(t.dataset.affId,t.dataset.affMp);const r=e.target.closest("[data-action]");if(!r)return;const a=r.dataset.id;if(r.dataset.action==="edit"&&this._toggleInlineEdit(a),r.dataset.action==="remove"){const s=(c.stack??[]).find(o=>(o.supplementId??o.id)===a);if(!s||!confirm(`Remover "${s.name}" do stack?`))return;c.dispatch(b.REMOVE_FROM_STACK,{supplementId:a})}r.dataset.action==="save-edit"&&this._saveInlineEdit(a),r.dataset.action==="cancel-edit"&&this._closeInlineEdit(a)})}_toggleInlineEdit(e){const t=this.container.querySelector(`#msp-edit-${e}`);if(!t)return;if(t.style.display!=="none"){this._closeInlineEdit(e);return}this.container.querySelectorAll('[id^="msp-edit-"]').forEach(a=>{a.id!==`msp-edit-${e}`&&(a.style.display="none")});const r=(c.stack??[]).find(a=>(a.supplementId??a.id)===e);r&&(t.style.display="block",t.innerHTML=`
       <div class="msp-inline-edit">
         <p class="msp-inline-edit-title">Editar — ${p(r.name)}</p>

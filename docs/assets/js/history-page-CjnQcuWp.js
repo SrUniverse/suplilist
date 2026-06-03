@@ -1,5 +1,5 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/js/exceljs-B9ffDZkJ.js","assets/js/vendor-Vk1E4gpc.js"])))=>i.map(i=>d[i]);
-import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import{S as U}from"./stack-recommender-BGeZSZCS.js";import{e as m}from"./escape-Br5wU8qn.js";import{C as G}from"./checkout-modal-tznE4Np-.js";const Q=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],T=b=>{if(!b)return"";const[t,c]=b.split("-");return`${Q[parseInt(c,10)-1]} ${t}`},V=["Todos","Força & Performance","Proteínas","Vitaminas & Minerais","Adaptógenos & Foco","Cognição & Neuroproteção","Saúde Hormonal","Antioxidantes & Anti-inflamatórios","Sono & Recuperação","Saúde Geral"],M=()=>{const b={};for(const t of U)b[t.id]=t;return b},W=(b,t)=>{let c=0;for(const x of b){const d=x.supplementId??x.id,p=t[d];if(p&&p.dosage&&p.pricePerGram){const s=p.dosage.maintenance||5,i=(p.dosage.unit||"g").toLowerCase();let l;if(i==="g")l=s;else if(i==="mg")l=s/1e3;else if(i==="mcg")l=s/1e6;else continue;c+=l*p.pricePerGram}}return c};class oe{constructor(t){this.container=t,this._unsubscribe=null,this._searchQuery="",this._activeCategory="Todos",this._expandedCards=new Set}mount(){this._injectStyles(),this._render(),this._unsubscribe=F.subscribe(()=>this._render())}unmount(){this._unsubscribe?.()}_injectStyles(){if(document.getElementById("history-page-styles-v2"))return;const t=document.createElement("style");t.id="history-page-styles-v2",t.textContent=`
+import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-5Kzhlj7v.js";import{S as U}from"./stack-recommender-BKcNh00X.js";import{e as m}from"./escape-Br5wU8qn.js";import{C as G}from"./checkout-modal-BfEP-pK-.js";const Q=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],T=b=>{if(!b)return"";const[t,c]=b.split("-");return`${Q[parseInt(c,10)-1]} ${t}`},V=["Todos","Força & Performance","Proteínas","Vitaminas & Minerais","Adaptógenos & Foco","Cognição & Neuroproteção","Saúde Hormonal","Antioxidantes & Anti-inflamatórios","Sono & Recuperação","Saúde Geral"],M=()=>{const b={};for(const t of U)b[t.id]=t;return b},W=(b,t)=>{let c=0;for(const g of b){const d=g.supplementId??g.id,p=t[d];if(p&&p.dosage&&p.pricePerGram){const s=p.dosage.maintenance||5,i=(p.dosage.unit||"g").toLowerCase();let l;if(i==="g")l=s;else if(i==="mg")l=s/1e3;else if(i==="mcg")l=s/1e6;else continue;c+=l*p.pricePerGram}}return c};class oe{constructor(t){this.container=t,this._unsubscribe=null,this._searchQuery="",this._activeCategory="Todos",this._expandedCards=new Set}mount(){this._injectStyles(),this._render(),this._unsubscribe=F.subscribe(()=>this._render())}unmount(){this._unsubscribe?.()}_injectStyles(){if(document.getElementById("history-page-styles-v2"))return;const t=document.createElement("style");t.id="history-page-styles-v2",t.textContent=`
       .hp-root { padding: 20px 16px 100px; display: flex; flex-direction: column; gap: 20px; font-family: 'Inter', sans-serif; }
 
       /* Stats grid */
@@ -20,19 +20,22 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
         flex-shrink: 0;
         margin-bottom: 2px;
       }
+      .hp-stat-icon--ev { background: var(--ev-a-bg, rgba(52,211,153,0.12)); color: var(--ev-a, #34D399); }
+      .hp-stat-icon--invest { background: var(--ev-b-bg, rgba(251,191,36,0.12)); color: var(--ev-b, #FBBF24); }
+      .hp-stat-value--invest { font-size: clamp(20px, 3.5vw, 28px) !important; letter-spacing: -0.02em; }
       .hp-stat-label { font-size: 11px; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-      .hp-stat-value { font-size: 26px; font-weight: 800; color: var(--color-text-primary); line-height: 1.1; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+      .hp-stat-value { font-size: clamp(28px, 5vw, 40px); font-weight: 800; color: var(--color-text-primary); line-height: 1.05; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
       .hp-stat-sub { font-size: 11px; color: var(--color-text-muted); }
-      .hp-stat-sub.positive { color: var(--color-success); font-weight: 600; }
+      .hp-stat-sub.positive { color: var(--color-savings, #22C55E); font-weight: 600; }
       .hp-progress-bar {
-        height: 4px; border-radius: 2px;
+        height: 6px; border-radius: 3px;
         background: var(--color-border);
-        overflow: hidden; margin-top: 4px;
+        overflow: hidden; margin-top: 8px;
       }
       .hp-progress-fill {
-        height: 100%; border-radius: 2px;
-        background: var(--color-brand);
-        transition: width 0.6s ease;
+        height: 100%; border-radius: 3px;
+        background: linear-gradient(90deg, var(--color-brand, #8B5CF6), rgba(139,92,246,0.7));
+        transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       /* Calendar row */
@@ -54,7 +57,7 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
         transition: transform 0.15s;
       }
       .hp-day-dot.filled { background: var(--color-brand); color: #fff; }
-      .hp-day-dot.today-filled { background: var(--color-brand); color: #fff; box-shadow: 0 0 0 2px rgba(124,58,237,0.4); }
+      .hp-day-dot.today-filled { background: var(--color-brand); color: #fff; box-shadow: 0 0 0 2px var(--color-border-brand, rgba(139,92,246,0.40)); }
       .hp-day-dot.empty { background: var(--color-bg-primary); border: 2px solid var(--color-border); color: var(--color-text-muted); }
       .hp-day-dot.today-empty { border-color: var(--color-brand); color: var(--color-brand); }
 
@@ -159,20 +162,20 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
       /* ── Premium lock card ───────────────────────────────────────────────────── */
       .hp-premium-lock {
         margin-top: 24px; margin-bottom: 20px;
-        background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(124,58,237,0.02) 100%);
-        border: 1.5px dashed rgba(124,58,237,0.35);
+        background: linear-gradient(135deg, var(--color-brand-muted, rgba(139,92,246,0.10)) 0%, rgba(139,92,246,0.02) 100%);
+        border: 1.5px dashed var(--color-border-brand, rgba(139,92,246,0.35));
         border-radius: 20px; padding: 36px 24px;
         text-align: center;
         display: flex; flex-direction: column; align-items: center; gap: 16px;
         box-shadow: 0 12px 32px rgba(0,0,0,0.15);
       }
-      .hp-premium-lock__icon { font-size: 40px; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.4)); }
+      .hp-premium-lock__icon { font-size: 40px; filter: drop-shadow(0 4px 12px rgba(139,92,246,0.4)); }
       .hp-premium-lock__title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; margin: 0; color: var(--color-text-primary); }
       .hp-premium-lock__desc { font-size: 13px; color: var(--color-text-secondary); max-width: 320px; line-height: 1.5; margin: 0; }
       .hp-premium-lock__btn {
         background: var(--color-brand); color: #fff; border: none;
         font-weight: 700; padding: 12px 28px; border-radius: 12px;
-        font-size: 13.5px; box-shadow: 0 4px 14px rgba(124,58,237,0.3);
+        font-size: 13.5px; box-shadow: 0 4px 14px rgba(139,92,246,0.3);
         cursor: pointer; font-family: 'Inter', sans-serif;
       }
 
@@ -192,8 +195,8 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
       .hp-analytics-header__title { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; color: var(--color-text-primary); }
       .hp-analytics-header__sub { margin: 3px 0 0 0; font-size: 11.5px; color: var(--color-text-muted); }
       .hp-analytics-support-btn {
-        background: rgba(124,58,237,0.08); color: var(--color-brand);
-        border: 1px solid rgba(124,58,237,0.25);
+        background: var(--color-brand-muted, rgba(139,92,246,0.10)); color: var(--color-brand);
+        border: 1px solid var(--color-border-brand, rgba(139,92,246,0.25));
         padding: 8px 14px; border-radius: 10px;
         font-size: 11.5px; font-weight: 700; cursor: pointer;
         transition: all 150ms ease;
@@ -216,12 +219,12 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
       }
       .hp-analytics-trend-label { margin-bottom: 12px; }
       .hp-analytics-offline {
-        background: rgba(34,197,94,0.04); border: 1px solid rgba(34,197,94,0.2);
+        background: var(--color-savings-bg, rgba(34,197,94,0.08)); border: 1px solid rgba(34,197,94,0.20);
         border-radius: 12px; padding: 12px;
         display: flex; align-items: center; gap: 10px;
       }
       .hp-analytics-offline__icon { font-size: 20px; }
-      .hp-analytics-offline__status { font-size: 12px; font-weight: 700; color: #22c55e; }
+      .hp-analytics-offline__status { font-size: 12px; font-weight: 700; color: var(--color-savings, #22C55E); }
       .hp-analytics-offline__detail { font-size: 11px; color: var(--color-text-muted); margin-top: 1px; }
       .hp-analytics-export-btn {
         background: #107c41; color: #ffffff; border: none;
@@ -240,7 +243,7 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
         font-family: 'Inter', sans-serif;
       }
       .hp-support-dialog {
-        background: #111115; border: 1px solid rgba(124,58,237,0.3);
+        background: var(--color-surface-primary, #13161C); border: 1px solid var(--color-border-brand, rgba(139,92,246,0.30));
         border-radius: 20px; width: 100%; max-width: 440px;
         padding: 24px; color: #fff;
         box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative;
@@ -277,22 +280,22 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
         background: var(--color-brand); color: #fff; border: none;
         border-radius: 10px; padding: 10px; font-weight: 700; font-size: 13px;
         cursor: pointer; font-family: 'Inter', sans-serif; height: 40px;
-        box-shadow: 0 4px 12px rgba(124,58,237,0.25);
+        box-shadow: 0 4px 12px rgba(139,92,246,0.25);
       }
-    `,document.head.appendChild(t)}_render(){const t=F.getState(),c=t.checkins||[],x=t.stack||[],d=M(),p=O(),s=30,i=new Set(c.map(r=>r.date).filter(Boolean)),l=i.size;let g=0;for(let r=0;r<s;r++)i.has(E(r))&&g++;const y=Math.round(g/s*100),k=(W(x,d)*l).toFixed(2).replace(".",","),n=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],h=[];for(let r=6;r>=0;r--){const o=E(r),f=new Date(o+"T12:00:00");h.push({iso:o,label:n[f.getDay()],isToday:r===0,hasCk:i.has(o),dayNum:f.getDate()})}const e={};for(const r of c){const o=r.supplementId||"unknown";e[o]||(e[o]=[]),e[o].push(r.date||"")}let a=Object.entries(e).map(([r,o])=>{const f=d[r],v=[...new Set(o)].filter(Boolean).sort(),w=v[0]||"",S=v[v.length-1]||"",z=v.length,L=w?Math.max(1,Math.ceil((new Date(p+"T12:00:00")-new Date(w+"T12:00:00"))/864e5)+1):1,C=Math.min(L,30),P=Math.round(z/C*100);return{sid:r,name:f?.name||r,category:f?.category||"",image:f?.image||null,firstDate:w,lastDate:S,totalDays:z,totalPossible:C,adPct:P,dates:v.reverse(),lastCheckin:S}});a.sort((r,o)=>o.lastCheckin.localeCompare(r.lastCheckin));const u=this._searchQuery.toLowerCase().trim();if(u&&(a=a.filter(r=>r.name.toLowerCase().includes(u)||r.category.toLowerCase().includes(u))),this._activeCategory!=="Todos"){const r=this._activeCategory.toLowerCase();a=a.filter(o=>{const f=(o.category||"").toLowerCase();return f===r?!0:r==="saúde geral"?["saúde cardiovascular","saúde articular & pele","saúde intestinal","queima de gordura & recovery"].includes(f):r==="cognição & neuroproteção"?f==="energéticos & foco":!1})}const D=`
+    `,document.head.appendChild(t)}_render(){const t=F.getState(),c=t.checkins||[],g=t.stack||[],d=M(),p=O(),s=30,i=new Set(c.map(r=>r.date).filter(Boolean)),l=i.size;let f=0;for(let r=0;r<s;r++)i.has(E(r))&&f++;const v=Math.round(f/s*100),k=(W(g,d)*l).toFixed(2).replace(".",","),n=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],h=[];for(let r=6;r>=0;r--){const o=E(r),x=new Date(o+"T12:00:00");h.push({iso:o,label:n[x.getDay()],isToday:r===0,hasCk:i.has(o),dayNum:x.getDate()})}const e={};for(const r of c){const o=r.supplementId||"unknown";e[o]||(e[o]=[]),e[o].push(r.date||"")}let a=Object.entries(e).map(([r,o])=>{const x=d[r],y=[...new Set(o)].filter(Boolean).sort(),w=y[0]||"",S=y[y.length-1]||"",C=y.length,L=w?Math.max(1,Math.ceil((new Date(p+"T12:00:00")-new Date(w+"T12:00:00"))/864e5)+1):1,z=Math.min(L,30),P=Math.round(C/z*100);return{sid:r,name:x?.name||r,category:x?.category||"",image:x?.image||null,firstDate:w,lastDate:S,totalDays:C,totalPossible:z,adPct:P,dates:y.reverse(),lastCheckin:S}});a.sort((r,o)=>o.lastCheckin.localeCompare(r.lastCheckin));const u=this._searchQuery.toLowerCase().trim();if(u&&(a=a.filter(r=>r.name.toLowerCase().includes(u)||r.category.toLowerCase().includes(u))),this._activeCategory!=="Todos"){const r=this._activeCategory.toLowerCase();a=a.filter(o=>{const x=(o.category||"").toLowerCase();return x===r?!0:r==="saúde geral"?["saúde cardiovascular","saúde articular & pele","saúde intestinal","queima de gordura & recovery"].includes(x):r==="cognição & neuroproteção"?x==="energéticos & foco":!1})}const D=`
       <div class="hp-stats">
         <div class="hp-stat-card">
           <div class="hp-stat-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <span class="hp-stat-label">Média de Adesão</span>
-          <span class="hp-stat-value">${y}<span style="font-size:16px;font-weight:600;color:var(--color-text-muted)">%</span></span>
+          <span class="hp-stat-value">${v}<span style="font-size:16px;font-weight:600;color:var(--color-text-muted)">%</span></span>
           <div class="hp-progress-bar">
-            <div class="hp-progress-fill" style="width:${y}%"></div>
+            <div class="hp-progress-fill" style="width:${v}%"></div>
           </div>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-icon" style="background:rgba(34,197,94,0.12);color:#22C55E;">
+          <div class="hp-stat-icon hp-stat-icon--ev">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
           <span class="hp-stat-label">Total de Ciclos</span>
@@ -302,11 +305,11 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
           </span>
         </div>
         <div class="hp-stat-card">
-          <div class="hp-stat-icon" style="background:rgba(234,179,8,0.12);color:#EAB308;">
+          <div class="hp-stat-icon hp-stat-icon--invest">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
           <span class="hp-stat-label">Investimento Total Est.</span>
-          <span class="hp-stat-value" style="font-size:20px;">R$ ${k}</span>
+          <span class="hp-stat-value hp-stat-value--invest">R$ ${k}</span>
           <span class="hp-stat-sub">Calculado com base nos logs</span>
         </div>
       </div>
@@ -350,10 +353,10 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
           <div class="hp-empty-title">Nenhum resultado</div>
           <div class="hp-empty-sub">Tente outro nome ou categoria.</div>
         </div>
-      `;else{const r=a.map(o=>{const f=this._expandedCards.has(o.sid),v=o.adPct>=80?"green":o.adPct>=60?"yellow":"red",w=o.firstDate?T(o.firstDate):"—",S=o.lastDate===p?"Presente":o.lastDate?T(o.lastDate):"—",z=o.image?`<img class="hp-sup-img" src="${o.image}" alt="${m(o.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:"",L=`<div class="hp-sup-img-placeholder" ${o.image?'style="display:none"':""}>💊</div>`,C=o.dates.map(P=>{const[R,q,H]=P.split("-");return`<div class="hp-log-date">${new Date(parseInt(R),parseInt(q)-1,parseInt(H)).toLocaleDateString("pt-BR",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}</div>`}).join("");return`
+      `;else{const r=a.map(o=>{const x=this._expandedCards.has(o.sid),y=o.adPct>=80?"green":o.adPct>=60?"yellow":"red",w=o.firstDate?T(o.firstDate):"—",S=o.lastDate===p?"Presente":o.lastDate?T(o.lastDate):"—",C=o.image?`<img class="hp-sup-img" src="${o.image}" alt="${m(o.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:"",L=`<div class="hp-sup-img-placeholder" ${o.image?'style="display:none"':""}>💊</div>`,z=o.dates.map(P=>{const[R,q,H]=P.split("-");return`<div class="hp-log-date">${new Date(parseInt(R),parseInt(q)-1,parseInt(H)).toLocaleDateString("pt-BR",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}</div>`}).join("");return`
           <div class="hp-sup-card" data-sid="${m(o.sid)}">
             <div class="hp-sup-header" data-toggle="${m(o.sid)}">
-              ${z}${L}
+              ${C}${L}
               <div class="hp-sup-info">
                 <div class="hp-sup-name">${m(o.name)}</div>
                 <div class="hp-sup-meta">
@@ -361,15 +364,15 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
                   <span class="hp-sup-range">${w} → ${S}</span>
                 </div>
                 <div style="margin-top:4px;">
-                  <span class="hp-adherence ${v}">${o.adPct}% adesão</span>
+                  <span class="hp-adherence ${y}">${o.adPct}% adesão</span>
                   <span style="font-size:12px;color:var(--color-text-muted);"> (${o.totalDays}/${o.totalPossible} dias)</span>
                 </div>
               </div>
-              <button class="hp-expand-btn" data-toggle="${m(o.sid)}">${f?"Fechar ▲":"Ver Logs ▼"}</button>
+              <button class="hp-expand-btn" data-toggle="${m(o.sid)}">${x?"Fechar ▲":"Ver Logs ▼"}</button>
             </div>
-            <div class="hp-logs-panel ${f?"open":""}" id="hp-logs-${m(o.sid)}">
+            <div class="hp-logs-panel ${x?"open":""}" id="hp-logs-${m(o.sid)}">
               <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:2px;">${o.totalDays} check-in${o.totalDays!==1?"s":""} registrado${o.totalDays!==1?"s":""}</div>
-              ${C}
+              ${z}
             </div>
           </div>
         `}).join("");$=`
@@ -385,25 +388,25 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
         </header>
         ${D}
         ${j}
-        ${I?"":this._renderAdvancedAnalyticsDashboard(c,x,d)}
+        ${I?"":this._renderAdvancedAnalyticsDashboard(c,g,d)}
         ${B}
         ${$}
         ${I?this._renderPremiumLockCard():""}
       </div>
-    `,this._attachListeners()}_attachListeners(){const t=this.container.querySelector("#hp-search");if(t){if(this._searchQuery){t.focus();const s=t.value.length;t.setSelectionRange(s,s)}t.addEventListener("input",s=>{this._searchQuery=s.target.value,this._render()})}this.container.querySelectorAll(".hp-chip").forEach(s=>{s.addEventListener("click",()=>{this._activeCategory=s.dataset.cat,this._render()})}),this.container.querySelectorAll("[data-toggle]").forEach(s=>{s.addEventListener("click",i=>{i.stopPropagation();const l=s.dataset.toggle;l&&(this._expandedCards.has(l)?this._expandedCards.delete(l):this._expandedCards.add(l),this._render())})});const c=this.container.querySelector("#hp-cta-checkin");c&&c.addEventListener("click",()=>{window.history.pushState(null,null,"/checkin"),window.dispatchEvent(new PopStateEvent("popstate"))});const x=this.container.querySelector("#hp-unlock-premium-btn");x&&x.addEventListener("click",()=>{G.show({tier:"pro"})});const d=this.container.querySelector("#hp-export-excel-btn");d&&d.addEventListener("click",()=>{this._exportToExcel()});const p=this.container.querySelector("#hp-priority-support-btn");p&&p.addEventListener("click",()=>{this._openPrioritySupportDialog()})}_renderPremiumLockCard(){return`
+    `,this._attachListeners()}_attachListeners(){const t=this.container.querySelector("#hp-search");if(t){if(this._searchQuery){t.focus();const s=t.value.length;t.setSelectionRange(s,s)}t.addEventListener("input",s=>{this._searchQuery=s.target.value,this._render()})}this.container.querySelectorAll(".hp-chip").forEach(s=>{s.addEventListener("click",()=>{this._activeCategory=s.dataset.cat,this._render()})}),this.container.querySelectorAll("[data-toggle]").forEach(s=>{s.addEventListener("click",i=>{i.stopPropagation();const l=s.dataset.toggle;l&&(this._expandedCards.has(l)?this._expandedCards.delete(l):this._expandedCards.add(l),this._render())})});const c=this.container.querySelector("#hp-cta-checkin");c&&c.addEventListener("click",()=>{window.history.pushState(null,null,"/checkin"),window.dispatchEvent(new PopStateEvent("popstate"))});const g=this.container.querySelector("#hp-unlock-premium-btn");g&&g.addEventListener("click",()=>{G.show({tier:"pro"})});const d=this.container.querySelector("#hp-export-excel-btn");d&&d.addEventListener("click",()=>{this._exportToExcel()});const p=this.container.querySelector("#hp-priority-support-btn");p&&p.addEventListener("click",()=>{this._openPrioritySupportDialog()})}_renderPremiumLockCard(){return`
       <div class="hp-premium-lock">
         <div class="hp-premium-lock__icon">📊</div>
         <h3 class="hp-premium-lock__title">Desbloqueie o Painel Analítico Premium</h3>
         <p class="hp-premium-lock__desc">Tenha acesso a gráficos interativos de constância, mapa de calor de 30 dias, detalhamento por categoria, suporte prioritário e exportação completa em Excel.</p>
         <button class="hp-premium-lock__btn" id="hp-unlock-premium-btn">Ativar Premium — R$ 14,90/mês</button>
       </div>
-    `}_renderAdvancedAnalyticsDashboard(t,c,x){const d=new Set(t.map(n=>n.date).filter(Boolean)),p=[];for(let n=29;n>=0;n--){const h=E(n),e=d.has(h),a=h.split("-")[2];p.push(`
+    `}_renderAdvancedAnalyticsDashboard(t,c,g){const d=new Set(t.map(n=>n.date).filter(Boolean)),p=[];for(let n=29;n>=0;n--){const h=E(n),e=d.has(h),a=h.split("-")[2];p.push(`
         <div class="hp-heatmap-cell ${e?"active":""}" 
              title="${h}: ${e?"Check-in concluído":"Sem check-in"}"
              style="width: 26px; height: 26px; border-radius: 6px; background: ${e?"var(--color-brand)":"var(--color-surface-secondary)"}; border: 1px solid ${e?"var(--color-brand)":"var(--color-border)"}; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: ${e?"#fff":"var(--color-text-muted)"}; cursor: pointer; transition: transform 0.15s ease;">
           ${a}
         </div>
-      `)}const s=[];for(let n=3;n>=0;n--){let h=0;for(let a=0;a<7;a++){const u=E(n*7+a);d.has(u)&&h++}const e=Math.round(h/7*100);s.push(e)}const i=s.map((n,h)=>{const e=40+h*110,a=65-n/100*50;return{x:e,y:a,pct:n}}),l=`M ${i[0].x} ${i[0].y} L ${i[1].x} ${i[1].y} L ${i[2].x} ${i[2].y} L ${i[3].x} ${i[3].y}`,g=`${l} L ${i[3].x} 70 L ${i[0].x} 70 Z`,y=JSON.stringify(t).length,_=JSON.stringify(c).length,k=((y+_)/1024).toFixed(2);return`
+      `)}const s=[];for(let n=3;n>=0;n--){let h=0;for(let a=0;a<7;a++){const u=E(n*7+a);d.has(u)&&h++}const e=Math.round(h/7*100);s.push(e)}const i=s.map((n,h)=>{const e=40+h*110,a=65-n/100*50;return{x:e,y:a,pct:n}}),l=`M ${i[0].x} ${i[0].y} L ${i[1].x} ${i[1].y} L ${i[2].x} ${i[2].y} L ${i[3].x} ${i[3].y}`,f=`${l} L ${i[3].x} 70 L ${i[0].x} 70 Z`,v=JSON.stringify(t).length,_=JSON.stringify(c).length,k=((v+_)/1024).toFixed(2);return`
       <!-- Premium Advanced Dashboard -->
       <div class="hp-analytics-dashboard">
 
@@ -441,7 +444,7 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
               <line x1="40" y1="40" x2="370" y2="40" stroke="var(--color-border)" stroke-dasharray="4" />
               <line x1="40" y1="65" x2="370" y2="65" stroke="var(--color-border)" stroke-dasharray="4" />
               <!-- Area fill -->
-              <path d="${g}" fill="url(#chart-grad)" />
+              <path d="${f}" fill="url(#chart-grad)" />
               <!-- Trend Line -->
               <path d="${l}" stroke="var(--color-brand)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
               <!-- Dots and Labels -->
@@ -469,7 +472,7 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
         </button>
 
       </div>
-    `}async _exportToExcel(){try{const{default:t}=await N(async()=>{const{default:e}=await import("./exceljs-B9ffDZkJ.js").then(a=>a.e);return{default:e}},__vite__mapDeps([0,1])),c=F.getState(),x=c.checkins||[],d=c.stack||[],p=M(),s=new t.Workbook;s.creator="SupliList",s.created=new Date;const i=s.addWorksheet("Histórico de Check-ins");i.columns=[{header:"Data",key:"date",width:15},{header:"Suplemento",key:"name",width:25},{header:"Categoria",key:"category",width:20},{header:"Nota / Observação",key:"note",width:40}],x.forEach(e=>{const a=p[e.supplementId];i.addRow({date:e.date||"",name:a?.name||e.supplementId||"Desconhecido",category:a?.category||"Outros",note:e.note||""})});const l=i.getRow(1);l.height=24,l.eachCell(e=>{e.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF7C3AED"}},e.font={name:"Segoe UI",color:{argb:"FFFFFFFF"},bold:!0,size:11},e.alignment={vertical:"middle",horizontal:"center"}}),i.eachRow((e,a)=>{a!==1&&(e.height=20,e.eachCell(u=>{u.font={name:"Segoe UI",size:10},u.alignment={vertical:"middle"},a%2===0&&(u.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF9FAFB"}})}))});const g=s.addWorksheet("Meu Stack");g.columns=[{header:"Nome",key:"name",width:25},{header:"Categoria",key:"category",width:20},{header:"Dosagem Ativa",key:"dosage",width:18},{header:"Estoque Restante",key:"qty",width:18}],d.forEach(e=>{const a=p[e.supplementId??e.id],u=e.dosage?.value??a?.dosage?.maintenance??"",D=e.dosage?.unit??a?.dosage?.unit??"";g.addRow({name:a?.name||e.supplementId||"Desconhecido",category:a?.category||"Outros",dosage:u?`${u} ${D}`:"—",qty:e.quantity!=null?`${e.quantity} ${e.unit||"g"}`:"—"})});const y=g.getRow(1);y.height=24,y.eachCell(e=>{e.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF7C3AED"}},e.font={name:"Segoe UI",color:{argb:"FFFFFFFF"},bold:!0,size:11},e.alignment={vertical:"middle",horizontal:"center"}}),g.eachRow((e,a)=>{a!==1&&(e.height=20,e.eachCell(u=>{u.font={name:"Segoe UI",size:10},u.alignment={vertical:"middle"},a%2===0&&(u.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF9FAFB"}})}))});const _=await s.xlsx.writeBuffer(),k=new Blob([_],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),n=URL.createObjectURL(k),h=document.createElement("a");h.href=n,h.download=`suplilist_relatorio_premium_${new Date().toISOString().slice(0,10)}.xlsx`,document.body.appendChild(h),h.click(),document.body.removeChild(h),setTimeout(()=>URL.revokeObjectURL(n),1e3),A.emit("toast:show",{message:"Relatório Premium Excel gerado com sucesso! 📥",type:"success"})}catch(t){J.error("Excel export failed",t),A.emit("toast:show",{message:"Erro ao gerar relatório Excel.",type:"error"})}}_openPrioritySupportDialog(){const t=document.createElement("div");t.id="priority-support-overlay",t.className="hp-support-overlay",t.innerHTML=`
+    `}async _exportToExcel(){try{const{default:t}=await N(async()=>{const{default:e}=await import("./exceljs-B9ffDZkJ.js").then(a=>a.e);return{default:e}},__vite__mapDeps([0,1])),c=F.getState(),g=c.checkins||[],d=c.stack||[],p=M(),s=new t.Workbook;s.creator="SupliList",s.created=new Date;const i=s.addWorksheet("Histórico de Check-ins");i.columns=[{header:"Data",key:"date",width:15},{header:"Suplemento",key:"name",width:25},{header:"Categoria",key:"category",width:20},{header:"Nota / Observação",key:"note",width:40}],g.forEach(e=>{const a=p[e.supplementId];i.addRow({date:e.date||"",name:a?.name||e.supplementId||"Desconhecido",category:a?.category||"Outros",note:e.note||""})});const l=i.getRow(1);l.height=24,l.eachCell(e=>{e.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF7C3AED"}},e.font={name:"Segoe UI",color:{argb:"FFFFFFFF"},bold:!0,size:11},e.alignment={vertical:"middle",horizontal:"center"}}),i.eachRow((e,a)=>{a!==1&&(e.height=20,e.eachCell(u=>{u.font={name:"Segoe UI",size:10},u.alignment={vertical:"middle"},a%2===0&&(u.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF9FAFB"}})}))});const f=s.addWorksheet("Meu Stack");f.columns=[{header:"Nome",key:"name",width:25},{header:"Categoria",key:"category",width:20},{header:"Dosagem Ativa",key:"dosage",width:18},{header:"Estoque Restante",key:"qty",width:18}],d.forEach(e=>{const a=p[e.supplementId??e.id],u=e.dosage?.value??a?.dosage?.maintenance??"",D=e.dosage?.unit??a?.dosage?.unit??"";f.addRow({name:a?.name||e.supplementId||"Desconhecido",category:a?.category||"Outros",dosage:u?`${u} ${D}`:"—",qty:e.quantity!=null?`${e.quantity} ${e.unit||"g"}`:"—"})});const v=f.getRow(1);v.height=24,v.eachCell(e=>{e.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF7C3AED"}},e.font={name:"Segoe UI",color:{argb:"FFFFFFFF"},bold:!0,size:11},e.alignment={vertical:"middle",horizontal:"center"}}),f.eachRow((e,a)=>{a!==1&&(e.height=20,e.eachCell(u=>{u.font={name:"Segoe UI",size:10},u.alignment={vertical:"middle"},a%2===0&&(u.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF9FAFB"}})}))});const _=await s.xlsx.writeBuffer(),k=new Blob([_],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),n=URL.createObjectURL(k),h=document.createElement("a");h.href=n,h.download=`suplilist_relatorio_premium_${new Date().toISOString().slice(0,10)}.xlsx`,document.body.appendChild(h),h.click(),document.body.removeChild(h),setTimeout(()=>URL.revokeObjectURL(n),1e3),A.emit("toast:show",{message:"Relatório Premium Excel gerado com sucesso! 📥",type:"success"})}catch(t){J.error("Excel export failed",t),A.emit("toast:show",{message:"Erro ao gerar relatório Excel.",type:"error"})}}_openPrioritySupportDialog(){const t=document.createElement("div");t.id="priority-support-overlay",t.className="hp-support-overlay",t.innerHTML=`
       <div class="hp-support-dialog">
         <button id="ps-close-btn" class="hp-support-close">✕</button>
         <div class="hp-support-heading">
@@ -485,7 +488,7 @@ import{s as F,t as O,o as E,_ as N,e as A,l as J}from"./main-CYS-UJeT.js";import
           <button type="submit" class="hp-support-submit">Enviar Mensagem</button>
         </form>
       </div>
-    `,document.body.appendChild(t),t.querySelector("#ps-close-btn").addEventListener("click",()=>t.remove()),t.addEventListener("click",p=>{p.target===t&&t.remove()});const c=t.querySelector("#ps-form"),x=t.querySelector("#ps-message"),d=t.querySelector("#ps-chat-area");c.addEventListener("submit",async p=>{p.preventDefault();const s=x.value.trim();if(!s)return;c.style.display="none",d.style.display="flex",d.innerHTML=`
+    `,document.body.appendChild(t),t.querySelector("#ps-close-btn").addEventListener("click",()=>t.remove()),t.addEventListener("click",p=>{p.target===t&&t.remove()});const c=t.querySelector("#ps-form"),g=t.querySelector("#ps-message"),d=t.querySelector("#ps-chat-area");c.addEventListener("submit",async p=>{p.preventDefault();const s=g.value.trim();if(!s)return;c.style.display="none",d.style.display="flex",d.innerHTML=`
         <div style="align-self: flex-end; background: var(--color-brand); color: #fff; border-radius: 10px 10px 0 10px; padding: 8px 12px; font-size: 12px; max-width: 80%; line-height: 1.45; box-sizing: border-box;">
           ${m(s)}
         </div>

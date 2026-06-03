@@ -1,4 +1,4 @@
-import{N as k,s as d,S as r,a as x,A as m}from"./main-CYS-UJeT.js";import{C as y}from"./checkout-modal-tznE4Np-.js";class A{constructor(e,o){this.container=e,this.params=o,this.notifService=new k}mount(){this._injectStyles();const e=d.getState();this._lastTier=e.user?.tier??"free",this.container.innerHTML=this._render(),this._bindEvents(),this._unsubscribe=d.subscribe(()=>{const s=d.getState().user?.tier??"free";if(s===this._lastTier)return;this._lastTier=s;const n=this.container.querySelector(".sp-subscription-section");n&&(n.outerHTML=`<div class="sp-subscription-section">${this._renderSubscriptionSection(s)}</div>`,this._bindSubscriptionEvents())})}unmount(){this._unsubscribe?.(),this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const e=document.createElement("style");e.id="settings-page-styles",e.textContent=`
+import{N as k,s as d,S as r,a as x,A as m}from"./main-5Kzhlj7v.js";import{C as y}from"./checkout-modal-BfEP-pK-.js";class A{constructor(e,o){this.container=e,this.params=o,this.notifService=new k}mount(){this._injectStyles();const e=d.getState();this._lastTier=e.user?.tier??"free",this.container.innerHTML=this._render(),this._bindEvents(),this._unsubscribe=d.subscribe(()=>{const s=d.getState().user?.tier??"free";if(s===this._lastTier)return;this._lastTier=s;const n=this.container.querySelector(".sp-subscription-section");n&&(n.outerHTML=`<div class="sp-subscription-section">${this._renderSubscriptionSection(s)}</div>`,this._bindSubscriptionEvents())})}unmount(){this._unsubscribe?.(),this.container.innerHTML=""}_injectStyles(){if(document.getElementById("settings-page-styles"))return;const e=document.createElement("style");e.id="settings-page-styles",e.textContent=`
       .sp-page {
         padding: 24px;
         max-width: 700px;
@@ -237,7 +237,7 @@ import{N as k,s as d,S as r,a as x,A as m}from"./main-CYS-UJeT.js";import{C as y
               <div style="font-size: 15px; font-weight: 700; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px;">Plano Atual: Gratuito 🟢</div>
               <p style="font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0 0; max-width: 340px; line-height: 1.45;">Desbloqueie consistência avançada, remova anúncios e baixe relatórios em Excel.</p>
             </div>
-            <button class="sp-btn" id="sp-upgrade-btn" style="background: var(--color-brand); color: #fff; border: none; font-weight: 700; height: 38px; border-radius: 8px; box-shadow: 0 4px 12px rgba(124,58,237,0.25); cursor: pointer; padding: 0 20px;">Quero Premium</button>
+            <button class="sp-btn" id="sp-upgrade-btn" style="background: var(--color-brand); color: #fff; border: none; font-weight: 700; height: 38px; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.25); cursor: pointer; padding: 0 20px;">Quero Premium</button>
           </div>
         </div>
       `:`

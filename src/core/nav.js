@@ -357,7 +357,7 @@ export class Nav {
         font-weight: 800;
         font-size: 17px;
         letter-spacing: -0.03em;
-        color: var(--color-brand, #7C3AED);
+        color: var(--color-brand, #8B5CF6);
         margin-bottom: 3px;
         text-decoration: none;
       }
@@ -414,7 +414,7 @@ export class Nav {
         color: var(--color-text-primary, #F2F2F2);
       }
       .sb-item.is-active {
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
         color: var(--color-text-primary, #F2F2F2);
         font-weight: 600;
       }
@@ -424,7 +424,7 @@ export class Nav {
         left: 0; top: 6px; bottom: 6px;
         width: 2px;
         border-radius: 0 2px 2px 0;
-        background: var(--color-brand, #7C3AED);
+        background: var(--color-brand, #8B5CF6);
       }
       .sb-item__icon {
         width: 20px; height: 20px;
@@ -435,7 +435,7 @@ export class Nav {
       .sb-badge {
         width: 7px; height: 7px;
         border-radius: 50%;
-        background: var(--color-brand, #7C3AED);
+        background: var(--color-brand, #8B5CF6);
         flex-shrink: 0;
       }
       .sb-footer {
@@ -460,7 +460,7 @@ export class Nav {
       .sb-fab {
         display: flex; align-items: center; justify-content: center; gap: 8px;
         width: 100%; padding: 11px 16px; border-radius: 10px; border: none;
-        background: var(--color-brand, #7C3AED); color: #fff;
+        background: var(--color-brand, #8B5CF6); color: #fff;
         font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
         cursor: pointer; transition: background 0.15s ease, transform 0.12s ease;
       }
@@ -490,7 +490,7 @@ export class Nav {
         -webkit-tap-highlight-color: transparent;
       }
       .bn-item:hover { color: var(--color-text-secondary, #9A9A9A); }
-      .bn-item.is-active { color: var(--color-brand, #7C3AED); }
+      .bn-item.is-active { color: var(--color-brand, #8B5CF6); }
       .bn-item--featured { flex: 0 0 68px; }
       .bn-item--featured .bn-icon {
         width: 48px; height: 48px; border-radius: 50%;
@@ -531,7 +531,7 @@ export class Nav {
         font-weight: 800;
         font-size: 17px;
         letter-spacing: -0.03em;
-        color: var(--color-brand, #7C3AED);
+        color: var(--color-brand, #8B5CF6);
       }
       .mt-actions { display: flex; align-items: center; gap: 4px; }
       .mt-icon-btn {
@@ -546,9 +546,9 @@ export class Nav {
       .mt-icon-btn:hover { background: var(--color-surface-hover, rgba(255,255,255,0.04)); }
       .mt-avatar {
         width: 30px; height: 30px; border-radius: 50%;
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
-        border: 1.5px solid var(--color-brand, #7C3AED);
-        color: var(--color-brand, #7C3AED);
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
+        border: 1.5px solid var(--color-brand, #8B5CF6);
+        color: var(--color-brand, #8B5CF6);
         font-size: 12px; font-weight: 700;
         display: flex; align-items: center; justify-content: center;
       }

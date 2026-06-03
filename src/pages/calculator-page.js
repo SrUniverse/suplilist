@@ -512,7 +512,7 @@ export default class CalculatorPage {
         border: 1px solid var(--color-border);
         border-radius: 10px;
         color: var(--color-text-primary);
-        font-size: 14px;
+        font-size: 16px;
         font-family: 'Inter', sans-serif;
         outline: none;
         transition: border-color 150ms;

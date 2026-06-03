@@ -243,7 +243,7 @@ export default class ListPage {
     this._benefitsFilter = new Set();
     this._advancedPanelOpen = false;
 
-    const state = stateManager.getState();
+    const state = stateManager.state;
     this._currentTier = state.user?.tier ?? 'free';
   }
 
@@ -295,7 +295,7 @@ export default class ListPage {
     };
     window.addEventListener('resize', this._resizeHandler, { passive: true });
     this._unsubscribe = stateManager.subscribe(() => {
-      const state = stateManager.getState();
+      const state = stateManager.state;
       const newTier = state.user?.tier ?? 'free';
       if (newTier !== this._currentTier) {
         this._currentTier = newTier;
@@ -1068,7 +1068,7 @@ export default class ListPage {
       });
     }
 
-    const state = stateManager.getState();
+    const state = stateManager.state;
     const userTier = state.user?.tier ?? 'free';
     if (userTier === 'free' && results.length > 3) {
       const resultsWithAd = [...results];

@@ -230,10 +230,12 @@ function reducer(state, action) {
       };
 
     case ACTIONS.SET_TIER: {
+      if (action.payload == null) return state;
       const VALID_TIERS = ['free', 'pro', 'elite'];
       const tier = VALID_TIERS.includes(action.payload?.tier)
         ? action.payload.tier
         : state.user.tier;
+      if (tier === state.user.tier) return state;
       return { ...state, user: { ...state.user, tier } };
     }
 

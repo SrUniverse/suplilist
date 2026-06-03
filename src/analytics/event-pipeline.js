@@ -114,7 +114,7 @@ export class EventPipeline {
       const sanitized = sanitizeEventPayload(eventName, payload);
 
       // Step 4: Generate event ID
-      const state = stateManager.getState();
+      const state = stateManager.state;
       const userId = state?.user?.id || null;
       const eventId = await generateEventId(eventName, Date.now(), userId);
 

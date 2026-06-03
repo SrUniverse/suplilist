@@ -24,7 +24,8 @@ vi.mock('./storage/analytics-storage.js', () => ({
 
 vi.mock('../state/state-manager.js', () => ({
   stateManager: {
-    getState: vi.fn()
+    getState: vi.fn(),
+    get state() { return this.getState(); }
   }
 }));
 

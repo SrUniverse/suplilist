@@ -55,7 +55,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
     scroller.mount();
 
     const listElement = container.querySelector('.virtual-scroller-list');
-    const expectedHeight = items.length * 50; // 100 items * 50px height
+    const expectedHeight = items.length * (50 + 12) - 12; // 100 items, itemHeight=50, gap=12
     expect(parseInt(listElement.style.height)).toBe(expectedHeight);
   });
 
@@ -78,7 +78,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
     scroller.updateItems(newItems);
 
     const listElement = container.querySelector('.virtual-scroller-list');
-    const expectedHeight = 50 * 50; // 50 items * 50px
+    const expectedHeight = 50 * (50 + 12) - 12; // 50 items, itemHeight=50, gap=12
     expect(parseInt(listElement.style.height)).toBe(expectedHeight);
   });
 
@@ -98,7 +98,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   it('7. Items have correct positioning', () => {
     scroller.mount();
 
-    const firstItem = container.querySelector('[data-index="0"]');
+    const firstItem = container.querySelector('[data-row="0"]');
     expect(firstItem).toBeTruthy();
     const style = window.getComputedStyle(firstItem);
     expect(style.position).toBe('absolute');
@@ -183,7 +183,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
     tallScroller.mount();
 
     const listElement = container.querySelector('.virtual-scroller-list');
-    const expectedHeight = items.length * 100; // 100 items * 100px
+    const expectedHeight = items.length * (100 + 12) - 12; // 100 items, itemHeight=100, gap=12
     expect(parseInt(listElement.style.height)).toBe(expectedHeight);
 
     tallScroller.unmount();

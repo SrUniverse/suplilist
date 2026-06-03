@@ -421,7 +421,7 @@ export default class HistoryPage {
    * @private
    */
   _render() {
-    const state = stateManager.getState();
+    const state = stateManager.state;
     const checkins = state.checkins || [];
     const stack = state.stack || [];
     const supMap = buildSupMap();
@@ -776,7 +776,7 @@ export default class HistoryPage {
    */
   _renderPremiumLockCard() {
     return `
-      <div class="hp-premium-lock">
+      <div class="hp-premium-lock hp-premium-lock-card">
         <div class="hp-premium-lock__icon">📊</div>
         <h3 class="hp-premium-lock__title">Desbloqueie o Painel Analítico Premium</h3>
         <p class="hp-premium-lock__desc">Tenha acesso a gráficos interativos de constância, mapa de calor de 30 dias, detalhamento por categoria, suporte prioritário e exportação completa em Excel.</p>
@@ -848,7 +848,7 @@ export default class HistoryPage {
 
     return `
       <!-- Premium Advanced Dashboard -->
-      <div class="hp-analytics-dashboard">
+      <div class="hp-analytics-dashboard hp-advanced-dashboard">
 
         <div class="hp-analytics-header">
           <div>
@@ -918,7 +918,7 @@ export default class HistoryPage {
   async _exportToExcel() {
     try {
       const { default: ExcelJS } = await import('exceljs');
-      const state = stateManager.getState();
+      const state = stateManager.state;
       const checkins = state.checkins || [];
       const stack = state.stack || [];
       const supMap = buildSupMap();

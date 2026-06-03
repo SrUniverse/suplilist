@@ -157,7 +157,7 @@ describe('StateManager v4.0', () => {
       type: ACTIONS.ADD_CHECKIN,
       payload: {
         supplementId: 'creatina',
-        date: new Date().toISOString().split('T')[0]
+        date: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })()
       }
     });
 
@@ -168,7 +168,7 @@ describe('StateManager v4.0', () => {
       type: ACTIONS.ADD_CHECKIN,
       payload: {
         supplementId: 'whey',
-        date: yesterday.toISOString().split('T')[0]
+        date: `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
       }
     });
 
@@ -257,10 +257,11 @@ describe('StateManager v4.0', () => {
     const dayBefore = new Date();
     dayBefore.setDate(dayBefore.getDate() - 2);
 
+    const toLocalISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const checkins = [
-      { date: today.toISOString().split('T')[0] },
-      { date: yesterday.toISOString().split('T')[0] },
-      { date: dayBefore.toISOString().split('T')[0] }
+      { date: toLocalISO(today) },
+      { date: toLocalISO(yesterday) },
+      { date: toLocalISO(dayBefore) }
     ];
 
     expect(sm.calculateStreak(checkins)).toBe(3);

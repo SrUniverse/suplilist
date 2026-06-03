@@ -356,6 +356,7 @@ export default class ListPage {
         display: flex; flex-direction: column; gap: 0;
         padding-bottom: 80px;
         min-height: 100%;
+        overflow-x: hidden;
       }
 
       /* ── Sticky Header ── */
@@ -421,6 +422,11 @@ export default class ListPage {
       }
       @media (max-width: 480px) {
         #lp-stats-row { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 360px) {
+        #lp-stats-row { gap: 6px; padding: 8px 12px 0; }
+        .lp-stat-ring-wrap { width: 52px; height: 52px; }
+        .lp-stat-val { font-size: 16px; }
       }
       .lp-stat-box {
         background: var(--color-surface-primary);
@@ -494,14 +500,13 @@ export default class ListPage {
       }
 
       /* ── Grid ── */
-      #lp-body { padding: 16px 16px 0; }
+      #lp-body { padding: 16px 16px 0; overflow-x: hidden; }
       #lp-results-label {
         font-size: 12px; color: var(--color-text-muted);
         margin: 0 0 12px; font-weight: 500;
       }
       #lp-grid {
         display: block;
-        gap: 12px;
       }
       /* VirtualScroller handles columns — .virtual-item usa display:flex internamente */
       .virtual-scroller-list { position: relative; width: 100%; }

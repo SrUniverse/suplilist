@@ -110,10 +110,11 @@ const STYLES = `
   .msp-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 10px;
   }
-  @media (max-width: 360px) {
-    .msp-stats { grid-template-columns: 1fr; }
+  @media (max-width: 540px) {
+    .msp-stats { grid-template-columns: 1fr 1fr; }
+    .msp-stats .msp-stat-card:first-child { grid-column: 1 / -1; }
   }
   .msp-stat-card {
     background: var(--color-surface-primary);
@@ -749,7 +750,7 @@ export class MyStackPage {
       <div class="msp-wrap">
         <!-- Header -->
         <div>
-          <h1 class="msp-header-title">📦 Meu Stack</h1>
+          <h1 class="msp-header-title">Meu Stack</h1>
           <p class="msp-header-sub" id="msp-subtitle">Carregando...</p>
         </div>
 
@@ -1397,7 +1398,7 @@ export class MyStackPage {
     modalDiv.innerHTML = `
       <div class="msp-modal" style="max-width: 440px; padding: 24px; text-align: center;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 class="msp-modal-title" style="margin: 0; font-size: 18px;">🔗 Compartilhar Meu Stack</h3>
+          <h3 class="msp-modal-title" style="margin: 0; font-size: 18px;">Compartilhar Stack</h3>
           <button class="msp-btn-icon" id="msp-close-share" style="font-size: 20px;">✕</button>
         </div>
 

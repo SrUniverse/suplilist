@@ -385,9 +385,10 @@ export default class HomePage {
    * @returns {void}
    */
   _injectStyle() {
-    if (document.querySelector('[data-page="home"]')) return;
+    if (document.querySelector('[data-page="home-v2"]')) return;
+    document.querySelector('[data-page="home"]')?.remove();
     const style = document.createElement('style');
-    style.setAttribute('data-page', 'home');
+    style.setAttribute('data-page', 'home-v2');
     style.textContent = `
       .lp-root {
         background: var(--color-bg-primary, #0A0C10);
@@ -579,15 +580,17 @@ export default class HomePage {
       .lp-card::before, .lp-step::before {
         content: '';
         position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 50%, transparent 100%);
-        opacity: 0; transition: opacity .25s ease;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+        opacity: 1; transition: opacity .25s ease;
       }
       .lp-card:hover, .lp-step:hover {
         border-color: rgba(139,92,246,0.25);
         transform: translateY(-5px);
         box-shadow: 0 2px 0 rgba(255,255,255,0.05) inset, 0 0 0 1px rgba(139,92,246,0.12), 0 24px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.18);
       }
-      .lp-card:hover::before, .lp-step:hover::before { opacity: 1; }
+      .lp-card:hover::before, .lp-step:hover::before {
+        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.6) 50%, transparent 100%);
+      }
       .lp-card__icon {
         width: 48px; height: 48px;
         display: flex; align-items: center; justify-content: center;
@@ -605,11 +608,10 @@ export default class HomePage {
       }
       .lp-step__num {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 900;
-        font-size: 56px; line-height: 1;
-        letter-spacing: -0.04em;
-        color: transparent;
-        -webkit-text-stroke: 1.5px rgba(139,92,246,0.35);
-        margin-bottom: 16px;
+        font-size: 64px; line-height: 1;
+        letter-spacing: -0.05em;
+        color: rgba(139,92,246,0.18);
+        margin-bottom: 12px;
         display: block;
       }
 
@@ -812,7 +814,7 @@ export default class HomePage {
         .lp-h2 { margin-bottom: 48px; }
         .lp-card, .lp-step { padding: 28px; }
         .lp-market { padding: 24px 28px; }
-        .lp-step__num { font-size: 44px; }
+        .lp-step__num { font-size: 52px; }
         .lp-ig__inner { flex-direction: column; align-items: flex-start; gap: 20px; }
       }
 
@@ -827,7 +829,7 @@ export default class HomePage {
         .lp-section { padding: 56px 16px; }
         .lp-card, .lp-step { padding: 24px 20px; }
         .lp-card__icon { width: 40px; height: 40px; }
-        .lp-step__num { font-size: 40px; }
+        .lp-step__num { font-size: 48px; }
         .lp-hero__cta { gap: 12px; }
         .lp-chips { gap: 10px; }
         .lp-chip { padding: 10px 18px; font-size: 14px; }

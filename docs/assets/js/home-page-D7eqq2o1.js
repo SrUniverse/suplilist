@@ -1,4 +1,4 @@
-import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-Br5wU8qn.js";import{S as s}from"./schema-manager-DpTEqGGv.js";import"./main-Bdt6RA77.js";class h{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents();const a=s.createWebApplicationSchema();s.insertSchema(a)}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const t=a.target.closest("[data-nav]");if(t){a.preventDefault();const r=t.getAttribute("data-nav");r&&r.startsWith("/")&&(window.history.pushState(null,null,r),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const n=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:n?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=l.length,t=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],r=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],n=[{name:"Amazon",color:"#FF9900",logo:`<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
+import{S as l}from"./stack-recommender-CA-Jl89Y.js";import{e as i}from"./escape-Br5wU8qn.js";import{S as s}from"./schema-manager-DpTEqGGv.js";import"./main-DJiTQW8V.js";class h{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents();const a=s.createWebApplicationSchema();s.insertSchema(a)}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const r=a.target.closest("[data-nav]");if(r){a.preventDefault();const t=r.getAttribute("data-nav");t&&t.startsWith("/")&&(window.history.pushState(null,null,t),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const n=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:n?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=l.length,r=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],t=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],n=[{name:"Amazon",color:"#FF9900",logo:`<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
           <text x="0" y="26" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#FF9900" letter-spacing="-1">amazon</text>
           <path d="M8 33 C22 40 52 40 66 33" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round"/>
           <path d="M63 30 L67 33 L62 36" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -66,7 +66,7 @@ import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-
           <section class="lp-section" id="lp-features" aria-label="Recursos">
             <h2 class="lp-h2">TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
             <div class="lp-grid lp-grid--3">
-              ${t.map(e=>`
+              ${r.map(e=>`
                 <article class="lp-card">
                   <div class="lp-card__icon" aria-hidden="true">${e.icon}</div>
                   <h3 class="lp-card__title">${e.title}</h3>
@@ -92,7 +92,7 @@ import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-
           <section class="lp-section" aria-label="Filtro por treino">
             <h2 class="lp-h2">FILTRADO POR COMO VOCÊ TREINA.</h2>
             <div class="lp-chips">
-              ${r.map(e=>`<button class="lp-chip" data-nav="/list?objective=${encodeURIComponent(e)}" type="button" aria-label="Ver suplementos para ${i(e)}">${i(e)}</button>`).join("")}
+              ${t.map(e=>`<button class="lp-chip" data-nav="/list?objective=${encodeURIComponent(e)}" type="button" aria-label="Ver suplementos para ${i(e)}">${i(e)}</button>`).join("")}
             </div>
           </section>
 
@@ -192,14 +192,14 @@ import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-
 
       </div>
     `}_heroMockupCards(){return`<div class="lp-mock-stack">
-      ${l.slice(0,3).map(t=>{let o=t.dosage?.maintenance??5;const r=t.dosage?.unit||"g";r==="mg"?o=o/1e3:r==="mcg"?o=o/1e6:r==="UI"&&(o=o*25e-6);const n=(o*(t.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=t.evidenceLevel||"A";return`
+      ${l.slice(0,3).map(r=>{let o=r.dosage?.maintenance??5;const t=r.dosage?.unit||"g";t==="mg"?o=o/1e3:t==="mcg"?o=o/1e6:t==="UI"&&(o=o*25e-6);const n=(o*(r.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=r.evidenceLevel||"A";return`
           <div class="lp-mock-card">
             <div class="lp-mock-card__ev lp-mock-card__ev--${String(e).toLowerCase()}">NÍVEL ${i(String(e))}</div>
-            <div class="lp-mock-card__name">${i(t.name)}</div>
-            <div class="lp-mock-card__cat">${i(t.category||"")}</div>
+            <div class="lp-mock-card__name">${i(r.name)}</div>
+            <div class="lp-mock-card__cat">${i(r.category||"")}</div>
             <div class="lp-mock-card__price">R$ ${i(n)}<span class="lp-mock-card__dose"> / mês</span></div>
           </div>`}).join("")}
-    </div>`}_injectStyle(){if(document.querySelector('[data-page="home"]'))return;const a=document.createElement("style");a.setAttribute("data-page","home"),a.textContent=`
+    </div>`}_injectStyle(){if(document.querySelector('[data-page="home-v2"]'))return;document.querySelector('[data-page="home"]')?.remove();const a=document.createElement("style");a.setAttribute("data-page","home-v2"),a.textContent=`
       .lp-root {
         background: var(--color-bg-primary, #0A0C10);
         color: var(--color-text-primary, #F1F5F9);
@@ -390,15 +390,17 @@ import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-
       .lp-card::before, .lp-step::before {
         content: '';
         position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.5) 50%, transparent 100%);
-        opacity: 0; transition: opacity .25s ease;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+        opacity: 1; transition: opacity .25s ease;
       }
       .lp-card:hover, .lp-step:hover {
         border-color: rgba(139,92,246,0.25);
         transform: translateY(-5px);
         box-shadow: 0 2px 0 rgba(255,255,255,0.05) inset, 0 0 0 1px rgba(139,92,246,0.12), 0 24px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.18);
       }
-      .lp-card:hover::before, .lp-step:hover::before { opacity: 1; }
+      .lp-card:hover::before, .lp-step:hover::before {
+        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.6) 50%, transparent 100%);
+      }
       .lp-card__icon {
         width: 48px; height: 48px;
         display: flex; align-items: center; justify-content: center;
@@ -416,11 +418,10 @@ import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-
       }
       .lp-step__num {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 900;
-        font-size: 56px; line-height: 1;
-        letter-spacing: -0.04em;
-        color: transparent;
-        -webkit-text-stroke: 1.5px rgba(139,92,246,0.35);
-        margin-bottom: 16px;
+        font-size: 64px; line-height: 1;
+        letter-spacing: -0.05em;
+        color: rgba(139,92,246,0.18);
+        margin-bottom: 12px;
         display: block;
       }
 
@@ -623,7 +624,7 @@ import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-
         .lp-h2 { margin-bottom: 48px; }
         .lp-card, .lp-step { padding: 28px; }
         .lp-market { padding: 24px 28px; }
-        .lp-step__num { font-size: 44px; }
+        .lp-step__num { font-size: 52px; }
         .lp-ig__inner { flex-direction: column; align-items: flex-start; gap: 20px; }
       }
 
@@ -638,7 +639,7 @@ import{S as l}from"./stack-recommender-BKRPnN7v.js";import{e as i}from"./escape-
         .lp-section { padding: 56px 16px; }
         .lp-card, .lp-step { padding: 24px 20px; }
         .lp-card__icon { width: 40px; height: 40px; }
-        .lp-step__num { font-size: 40px; }
+        .lp-step__num { font-size: 48px; }
         .lp-hero__cta { gap: 12px; }
         .lp-chips { gap: 10px; }
         .lp-chip { padding: 10px 18px; font-size: 14px; }

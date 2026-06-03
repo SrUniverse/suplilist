@@ -1,18 +1,36 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../state/state-manager.js';
+import { StorageManager } from '../core/storage-manager.js';
+import NotificationService from '../features/notifications/notification-service.js';
+import { CheckoutModal } from '../features/premium/checkout-modal.js';
 
 export default class SettingsPage {
   constructor(container, params) {
     this.container = container;
     this.params = params;
+    this.notifService = new NotificationService();
   }
 
   mount() {
     this._injectStyles();
+    const state = stateManager.state;
+    this._lastTier = state.user?.tier ?? 'free';
     this.container.innerHTML = this._render();
     this._bindEvents();
+    this._unsubscribe = stateManager.subscribe(() => {
+      const newState = stateManager.state;
+      const newTier = newState.user?.tier ?? 'free';
+      if (newTier === this._lastTier) return;
+      this._lastTier = newTier;
+      const subSection = this.container.querySelector('.sp-subscription-section');
+      if (subSection) {
+        subSection.outerHTML = `<div class="sp-subscription-section">${this._renderSubscriptionSection(newTier)}</div>`;
+        this._bindSubscriptionEvents();
+      }
+    });
   }
 
   unmount() {
+    this._unsubscribe?.();
     this.container.innerHTML = '';
   }
 
@@ -245,13 +263,13 @@ export default class SettingsPage {
   }
 
   _getThemeState() {
-    const stored = localStorage.getItem(STORAGE_KEYS.THEME);
+    const stored = StorageManager.getItem(STORAGE_KEYS.THEME);
     if (stored) return stored === 'dark';
     return document.documentElement.getAttribute('data-theme') === 'dark';
   }
 
   _getBoolPref(key) {
-    return localStorage.getItem(key) === 'true';
+    return StorageManager.getItem(key) === 'true';
   }
 
   _switchHTML(id, checked, label, icon) {
@@ -269,10 +287,72 @@ export default class SettingsPage {
     `;
   }
 
+  _renderSubscriptionSection(tier) {
+    if (tier === 'free') {
+      return `
+        <div class="sp-card" style="border: 1px dashed rgba(124, 58, 237, 0.4); background: rgba(124, 58, 237, 0.02);">
+          <h2 class="sp-section-label" style="color: var(--color-brand); margin-bottom: 12px;">Assinatura Premium</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px;">Plano Atual: Gratuito 🟢</div>
+              <p style="font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0 0; max-width: 340px; line-height: 1.45;">Desbloqueie consistência avançada, remova anúncios e baixe relatórios em Excel.</p>
+            </div>
+            <button class="sp-btn" id="sp-upgrade-btn" style="background: var(--color-brand); color: #fff; border: none; font-weight: 700; height: 38px; border-radius: 8px; box-shadow: 0 4px 12px rgba(139,92,246,0.25); cursor: pointer; padding: 0 20px;">Quero Premium</button>
+          </div>
+        </div>
+      `;
+    }
+    const planName = tier === 'elite' ? 'ELITE 🏆' : 'PRO ⭐';
+    return `
+      <div class="sp-card" style="border: 1px solid rgba(34, 197, 94, 0.4); background: rgba(34, 197, 94, 0.02);">
+        <h2 class="sp-section-label" style="color: #22c55e; margin-bottom: 12px;">Minha Assinatura</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--color-text-primary);">Plano Ativo: SupliList ${planName}</div>
+            <p style="font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0 0; max-width: 320px; line-height: 1.45;">Seu acesso premium está ativo. Obrigado por apoiar o SupliList!</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="sp-btn sp-btn-outline" id="sp-manage-plan-btn" style="height: 38px; padding: 0 16px;">Alterar</button>
+            <button class="sp-btn" id="sp-cancel-plan-btn" style="border: 1.5px solid var(--color-error); color: var(--color-error); background: transparent; font-weight: 600; height: 38px; border-radius: 8px; cursor: pointer; padding: 0 16px;">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  _bindSubscriptionEvents() {
+    const upgradeBtn = this.container.querySelector('#sp-upgrade-btn');
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', () => {
+        CheckoutModal.show({ tier: 'pro' });
+      });
+    }
+
+    const manageBtn = this.container.querySelector('#sp-manage-plan-btn');
+    if (manageBtn) {
+      manageBtn.addEventListener('click', () => {
+        CheckoutModal.show({ tier: 'elite' });
+      });
+    }
+
+    const cancelBtn = this.container.querySelector('#sp-cancel-plan-btn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        if (confirm('Deseja realmente cancelar sua assinatura Premium? Você perderá acesso aos anúncios removidos e análises de gráficos.')) {
+          stateManager.dispatch(ACTIONS.SET_TIER, { tier: 'free' });
+          StorageManager.setItem('suplilist:tier', 'free');
+          alert('Sua assinatura foi cancelada e sua conta retornou ao plano gratuito.');
+        }
+      });
+    }
+  }
+
   _render() {
     const isDark = this._getThemeState();
     const notifCheckin = this._getBoolPref('suplilist:notif-checkin');
     const notifRestock = this._getBoolPref('suplilist:notif-restock');
+    const state = stateManager.state;
+    const tier = state.user?.tier ?? 'free';
 
     return `
       <div class="sp-page">
@@ -282,6 +362,9 @@ export default class SettingsPage {
           <h1>Configurações</h1>
           <p>Preferências do app, dados e privacidade</p>
         </div>
+
+        <!-- Assinatura -->
+        <div class="sp-subscription-section">${this._renderSubscriptionSection(tier)}</div>
 
         <!-- Aparência -->
         <div class="sp-card">
@@ -304,8 +387,16 @@ export default class SettingsPage {
             🔒 Seus dados ficam 100% no seu dispositivo. Não temos servidores e nunca coletamos informações pessoais. (LGPD)
           </div>
           <div class="sp-action-row">
-            <span class="sp-action-label">Exportar meus dados</span>
+            <span class="sp-action-label">Exportar meus dados (download)</span>
             <button class="sp-btn sp-btn-outline" id="sp-export-btn">Exportar</button>
+          </div>
+          <div class="sp-action-row" id="sp-export-file-row" style="display:none;">
+            <span class="sp-action-label">Salvar backup (no seu PC)</span>
+            <button class="sp-btn sp-btn-outline" id="sp-export-file-btn">Salvar</button>
+          </div>
+          <div class="sp-action-row" id="sp-import-file-row" style="display:none;">
+            <span class="sp-action-label">Restaurar backup (do seu PC)</span>
+            <button class="sp-btn sp-btn-outline" id="sp-import-file-btn">Restaurar</button>
           </div>
           <div class="sp-action-row">
             <span class="sp-action-label">Limpar histórico de check-ins</span>
@@ -348,6 +439,8 @@ export default class SettingsPage {
   }
 
   _bindEvents() {
+    this._bindSubscriptionEvents();
+
     // Theme toggle
     const themeToggle = this.container.querySelector('#sp-theme-toggle');
     if (themeToggle) {
@@ -355,7 +448,7 @@ export default class SettingsPage {
         const isDark = themeToggle.checked;
         const theme = isDark ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem(STORAGE_KEYS.THEME, theme);
+        StorageManager.setItem(STORAGE_KEYS.THEME, theme);
         const iconEl = this.container.querySelector('#sp-theme-toggle-icon');
         if (iconEl) iconEl.textContent = isDark ? '🌙' : '☀️';
         // Sync nav sidebar and mobile topbar theme icons
@@ -372,31 +465,57 @@ export default class SettingsPage {
     // Notif: check-in
     const notifCheckin = this.container.querySelector('#sp-notif-checkin');
     if (notifCheckin) {
-      notifCheckin.addEventListener('change', () => {
-        localStorage.setItem('suplilist:notif-checkin', notifCheckin.checked ? 'true' : 'false');
+      notifCheckin.addEventListener('change', async () => {
+        if (notifCheckin.checked) {
+          const granted = await this.notifService.requestPermission();
+          if (!granted) {
+            alert('Permissão de notificações negada. Por favor, ative as notificações nas configurações do seu navegador para receber lembretes.');
+            notifCheckin.checked = false;
+            return;
+          }
+          // Envia notificação de boas-vindas
+          this.notifService.sendLocalNotification('Lembretes Ativados! 💊', {
+            body: 'Agora você receberá lembretes diários para não esquecer seus suplementos.',
+            data: { url: '/settings' }
+          });
+        }
+        StorageManager.setItem('suplilist:notif-checkin', notifCheckin.checked ? 'true' : 'false');
       });
     }
 
     // Notif: restock
     const notifRestock = this.container.querySelector('#sp-notif-restock');
     if (notifRestock) {
-      notifRestock.addEventListener('change', () => {
-        localStorage.setItem('suplilist:notif-restock', notifRestock.checked ? 'true' : 'false');
+      notifRestock.addEventListener('change', async () => {
+        if (notifRestock.checked) {
+          const granted = await this.notifService.requestPermission();
+          if (!granted) {
+            alert('Permissão de notificações negada. Por favor, ative as notificações nas configurações do seu navegador para receber alertas de estoque.');
+            notifRestock.checked = false;
+            return;
+          }
+          // Envia notificação de boas-vindas
+          this.notifService.sendLocalNotification('Alertas de Estoque Ativados! 📦', {
+            body: 'Você receberá avisos quando seus suplementos estiverem acabando.',
+            data: { url: '/settings' }
+          });
+        }
+        StorageManager.setItem('suplilist:notif-restock', notifRestock.checked ? 'true' : 'false');
       });
     }
 
-    // Export data
+    // Export data (download via blob)
     const exportBtn = this.container.querySelector('#sp-export-btn');
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
         const data = {};
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
+        const allKeys = StorageManager.getAllKeys();
+        for (const key of allKeys) {
           if (key && key.startsWith('suplilist')) {
             try {
-              data[key] = JSON.parse(localStorage.getItem(key));
+              data[key] = JSON.parse(StorageManager.getItem(key));
             } catch {
-              data[key] = localStorage.getItem(key);
+              data[key] = StorageManager.getItem(key);
             }
           }
         }
@@ -410,6 +529,49 @@ export default class SettingsPage {
         document.body.removeChild(a);
         // Defer revoke so browser has time to start the download before the URL is invalidated
         setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+    }
+
+    // Export data (save via File System API)
+    const exportFileBtn = this.container.querySelector('#sp-export-file-btn');
+    if (exportFileBtn && StorageManager.isFileSystemAPIAvailable()) {
+      this.container.querySelector('#sp-export-file-row').style.display = 'flex';
+      exportFileBtn.addEventListener('click', async () => {
+        exportFileBtn.disabled = true;
+        exportFileBtn.textContent = 'Salvando...';
+        try {
+          const result = await StorageManager.exportToFile();
+          alert(result.message);
+          if (result.success) {
+            exportFileBtn.textContent = '✓ Salvo';
+            setTimeout(() => { exportFileBtn.textContent = 'Salvar'; }, 2000);
+          }
+        } finally {
+          exportFileBtn.disabled = false;
+        }
+      });
+    }
+
+    // Import data (restore via File System API)
+    const importFileBtn = this.container.querySelector('#sp-import-file-btn');
+    if (importFileBtn && StorageManager.isFileSystemAPIAvailable()) {
+      this.container.querySelector('#sp-import-file-row').style.display = 'flex';
+      importFileBtn.addEventListener('click', async () => {
+        importFileBtn.disabled = true;
+        importFileBtn.textContent = 'Restaurando...';
+        try {
+          const result = await StorageManager.importFromFile();
+          alert(result.message);
+          if (result.success) {
+            importFileBtn.textContent = '✓ Restaurado';
+            setTimeout(() => {
+              importFileBtn.textContent = 'Restaurar';
+              location.reload();
+            }, 2000);
+          }
+        } finally {
+          importFileBtn.disabled = false;
+        }
       });
     }
 
@@ -429,7 +591,7 @@ export default class SettingsPage {
         if (!confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.')) return;
         Object.keys(localStorage)
           .filter(k => k.startsWith('suplilist'))
-          .forEach(k => localStorage.removeItem(k));
+          .forEach(k => StorageManager.removeItem(k));
         location.reload();
       });
     }

@@ -1,6 +1,18 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { StateManager, ACTIONS, STORAGE_KEY } from './state-manager.js';
 import { eventBus } from '../core/event-bus.js';
+
+vi.mock('../core/storage-manager.js', () => ({
+  StorageManager: {
+    init: vi.fn(),
+    setItem: vi.fn((key, val) => {
+      localStorage.setItem(key, val);
+      return true;
+    }),
+    getItem: vi.fn((key) => localStorage.getItem(key)),
+    removeItem: vi.fn((key) => localStorage.removeItem(key))
+  }
+}));
 
 function createTestSM() {
   localStorage.clear();
@@ -141,7 +153,7 @@ describe('StateManager v4.0', () => {
       type: ACTIONS.ADD_CHECKIN,
       payload: {
         supplementId: 'creatina',
-        date: new Date().toISOString().split('T')[0]
+        date: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })()
       }
     });
 
@@ -152,7 +164,7 @@ describe('StateManager v4.0', () => {
       type: ACTIONS.ADD_CHECKIN,
       payload: {
         supplementId: 'whey',
-        date: yesterday.toISOString().split('T')[0]
+        date: `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
       }
     });
 
@@ -241,10 +253,11 @@ describe('StateManager v4.0', () => {
     const dayBefore = new Date();
     dayBefore.setDate(dayBefore.getDate() - 2);
 
+    const toLocalISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const checkins = [
-      { date: today.toISOString().split('T')[0] },
-      { date: yesterday.toISOString().split('T')[0] },
-      { date: dayBefore.toISOString().split('T')[0] }
+      { date: toLocalISO(today) },
+      { date: toLocalISO(yesterday) },
+      { date: toLocalISO(dayBefore) }
     ];
 
     expect(sm.calculateStreak(checkins)).toBe(3);
@@ -333,5 +346,49 @@ describe('StateManager v4.0', () => {
 
     // Restore original setItem
     localStorage.setItem = originalSetItem;
+  });
+
+  // ─── SET_TIER whitelist ────────────────────────────────────────────────────
+
+  describe('SET_TIER action — whitelist validation', () => {
+    it('20. Dispatch with tier "pro" sets user.tier to "pro"', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' });
+      expect(sm.user.tier).toBe('pro');
+    });
+
+    it('21. Dispatch with tier "elite" sets user.tier to "elite"', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'elite' });
+      expect(sm.user.tier).toBe('elite');
+    });
+
+    it('22. Dispatch with tier "free" sets user.tier to "free"', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' }); // set to pro first
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'free' });
+      expect(sm.user.tier).toBe('free');
+    });
+
+    it('23. Dispatch with invalid tier "god" does NOT change tier', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' });
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'god' });
+      expect(sm.user.tier).toBe('pro');
+    });
+
+    it('24. Dispatch with tier undefined does NOT change tier', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'elite' });
+      sm.dispatch(ACTIONS.SET_TIER, { tier: undefined });
+      expect(sm.user.tier).toBe('elite');
+    });
+
+    it('25. Dispatch with payload null does NOT change tier', () => {
+      const sm = createTestSM();
+      sm.dispatch(ACTIONS.SET_TIER, { tier: 'pro' });
+      sm.dispatch(ACTIONS.SET_TIER, null);
+      expect(sm.user.tier).toBe('pro');
+    });
   });
 });

@@ -124,6 +124,8 @@ export class Nav {
     const currentPath = pathname.split('?')[0] || '/';
     const normalized = currentPath === '/home' ? '/' : currentPath;
 
+    Nav.updateSubtitle(normalized);
+
     document.querySelectorAll('.sb-item').forEach(el => {
       const itemPath = el.dataset.navPath;
       const isActive = itemPath === normalized || (normalized === '/' && itemPath === '/');
@@ -287,20 +289,26 @@ export class Nav {
     outlet.addEventListener('scroll', Nav._scrollHandler, { passive: true });
   }
 
-  static _getSidebarSubtitle() {
-    try {
-      const objective = stateManager.user?.objective;
-      const map = {
-        bulk:      'Foco em Hipertrofia',
-        cut:       'Foco em Emagrecimento',
-        strength:  'Foco em Força',
-        endurance: 'Foco em Performance',
-        general:   'Saúde & Longevidade',
-      };
-      return map[objective] || 'Suplementação Inteligente';
-    } catch {
-      return 'Suplementação Inteligente';
-    }
+  static _getSidebarSubtitle(path) {
+    const routeMap = {
+      '/list':      'Supplement Catalog',
+      '/my-stack':  'Precision Management',
+      '/history':   'Vitals Optimized',
+      '/dosage':    'Clinical Access',
+      '/checkin':   'Daily Protocol',
+      '/favorites': 'Curated Selection',
+      '/profile':   'Biometric Profile',
+      '/settings':  'Preferences',
+      '/faq':       'Knowledge Base',
+      '/':          'Science-Based Nutrition',
+    };
+    const currentPath = (path || window.location.pathname || '/').split('?')[0];
+    return routeMap[currentPath] || 'Science-Based Nutrition';
+  }
+
+  static updateSubtitle(path) {
+    const el = document.querySelector('#sidebar-nav .sb-subtitle');
+    if (el) el.textContent = Nav._getSidebarSubtitle(path);
   }
 
   static _hasCheckinToday() {
@@ -349,7 +357,7 @@ export class Nav {
         font-weight: 800;
         font-size: 17px;
         letter-spacing: -0.03em;
-        color: var(--color-brand, #7C3AED);
+        color: var(--color-brand, #8B5CF6);
         margin-bottom: 3px;
         text-decoration: none;
       }
@@ -406,7 +414,7 @@ export class Nav {
         color: var(--color-text-primary, #F2F2F2);
       }
       .sb-item.is-active {
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
         color: var(--color-text-primary, #F2F2F2);
         font-weight: 600;
       }
@@ -416,7 +424,7 @@ export class Nav {
         left: 0; top: 6px; bottom: 6px;
         width: 2px;
         border-radius: 0 2px 2px 0;
-        background: var(--color-brand, #7C3AED);
+        background: var(--color-brand, #8B5CF6);
       }
       .sb-item__icon {
         width: 20px; height: 20px;
@@ -427,7 +435,7 @@ export class Nav {
       .sb-badge {
         width: 7px; height: 7px;
         border-radius: 50%;
-        background: var(--color-brand, #7C3AED);
+        background: var(--color-brand, #8B5CF6);
         flex-shrink: 0;
       }
       .sb-footer {
@@ -452,7 +460,7 @@ export class Nav {
       .sb-fab {
         display: flex; align-items: center; justify-content: center; gap: 8px;
         width: 100%; padding: 11px 16px; border-radius: 10px; border: none;
-        background: var(--color-brand, #7C3AED); color: #fff;
+        background: var(--color-brand, #8B5CF6); color: #fff;
         font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
         cursor: pointer; transition: background 0.15s ease, transform 0.12s ease;
       }
@@ -461,17 +469,25 @@ export class Nav {
 
       /* ── BOTTOM NAV ── */
       #bottom-nav {
-        background: rgba(8, 8, 8, 0.88);
+        background: color-mix(in srgb, var(--color-bg-primary, #0A0C10) 88%, transparent);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        border-top: 1px solid var(--color-border, rgba(255,255,255,0.06));
         display: flex;
         align-items: center;
         justify-content: space-around;
-        box-shadow: 0 -30px 40px -10px rgba(8,8,8,0.6);
-        transition: transform 0.25s ease;
+        box-shadow: 0 -30px 40px -10px rgba(0,0,0,0.7);
+        transition: transform 0.25s ease, visibility 0.25s ease;
       }
-      #bottom-nav.bn--hidden { transform: translateY(100%); }
+      /* Desktop: esconder bottom nav completamente */
+      @media (min-width: 768px) {
+        #bottom-nav { display: none !important; }
+      }
+      /* Quando escondido no scroll: translateY + visibility para eliminar artefato do blur */
+      #bottom-nav.bn--hidden {
+        transform: translateY(100%);
+        visibility: hidden;
+      }
       .bn-item {
         display: flex; flex-direction: column; align-items: center;
         justify-content: center; gap: 3px; flex: 1;
@@ -482,19 +498,19 @@ export class Nav {
         -webkit-tap-highlight-color: transparent;
       }
       .bn-item:hover { color: var(--color-text-secondary, #9A9A9A); }
-      .bn-item.is-active { color: var(--color-brand, #7C3AED); }
+      .bn-item.is-active { color: var(--color-brand, #8B5CF6); }
       .bn-item--featured { flex: 0 0 68px; }
       .bn-item--featured .bn-icon {
         width: 48px; height: 48px; border-radius: 50%;
-        background: var(--color-brand, #7C3AED);
+        background: var(--color-brand, #8B5CF6);
         display: flex; align-items: center; justify-content: center;
         color: #fff;
-        box-shadow: 0 4px 14px rgba(124,58,237,0.45);
+        box-shadow: var(--shadow-brand, 0 4px 14px rgba(139,92,246,0.45));
         transform: translateY(-8px);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
       }
       .bn-item--featured:active .bn-icon { transform: translateY(-5px) scale(0.95); }
-      .bn-item--featured.is-active .bn-icon { box-shadow: 0 4px 20px rgba(124,58,237,0.65); }
+      .bn-item--featured.is-active .bn-icon { box-shadow: 0 0 0 1px rgba(139,92,246,0.3), 0 6px 24px rgba(139,92,246,0.6); }
       .bn-icon {
         width: 22px; height: 22px;
         display: flex; align-items: center; justify-content: center;
@@ -503,13 +519,13 @@ export class Nav {
       .bn-badge {
         position: absolute; top: 8px; right: calc(50% - 16px);
         width: 7px; height: 7px; border-radius: 50%;
-        background: var(--color-brand, #7C3AED);
-        border: 2px solid var(--color-bg-primary, #080808);
+        background: var(--color-brand, #8B5CF6);
+        border: 2px solid var(--color-bg-primary, #0A0C10);
       }
 
       /* ── MOBILE TOPBAR ── */
       #mobile-topbar {
-        background: rgba(8,8,8,0.92);
+        background: color-mix(in srgb, var(--color-bg-primary, #0A0C10) 92%, transparent);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
@@ -523,7 +539,7 @@ export class Nav {
         font-weight: 800;
         font-size: 17px;
         letter-spacing: -0.03em;
-        color: var(--color-brand, #7C3AED);
+        color: var(--color-brand, #8B5CF6);
       }
       .mt-actions { display: flex; align-items: center; gap: 4px; }
       .mt-icon-btn {
@@ -538,9 +554,9 @@ export class Nav {
       .mt-icon-btn:hover { background: var(--color-surface-hover, rgba(255,255,255,0.04)); }
       .mt-avatar {
         width: 30px; height: 30px; border-radius: 50%;
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
-        border: 1.5px solid var(--color-brand, #7C3AED);
-        color: var(--color-brand, #7C3AED);
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
+        border: 1.5px solid var(--color-brand, #8B5CF6);
+        color: var(--color-brand, #8B5CF6);
         font-size: 12px; font-weight: 700;
         display: flex; align-items: center; justify-content: center;
       }

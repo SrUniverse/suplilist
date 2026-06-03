@@ -1,10 +1,12 @@
 // ============================================================
-// StackRecommender AI Engine v4.0 — SupliList
+// StackRecommender AI Engine v4.1 — SupliList
 // Clinical-grade personalized scoring and recommendation engine.
 // Executes 100% locally on the device (Edge AI).
 // ============================================================
 
 import { eventBus } from '../core/event-bus.js';
+import { convertToGrams } from './dosage-converter.js';
+import { validateUserProfile, sanitizeUserProfile } from './profile-validator.js';
 
 // ─── Supplements Clinical Database ──────────────────────────────────────────
 export const SUPPLEMENTS_DB = [
@@ -896,25 +898,50 @@ export const SUPPLEMENTS_DB = [
 export class StackRecommender {
   /**
    * Generates a personalized supplement recommendation list.
-   * 
+   *
    * @param {Object} userProfile - User biometric and preference parameters
    * @param {number} [topN=8] - Maximum number of recommended items
    * @returns {Array<Object>} Sorted list of recommended supplements
+   * @throws {TypeError|RangeError|Error} If userProfile validation fails
    */
   recommend(userProfile, topN = 8) {
-    if (!userProfile) return [];
+    // PATCH 1: Validate input strictly
+    validateUserProfile(userProfile);
+
+    // Sanitize and apply defaults
+    const profile = sanitizeUserProfile(userProfile);
+
+    // Validate and clamp topN parameter
+    if (typeof topN !== 'number' || isNaN(topN)) {
+      topN = 8; // Safe fallback for invalid types
+    } else {
+      topN = Math.max(1, Math.min(50, Math.floor(topN))); // Clamp to [1, 50]
+    }
 
     const results = [];
-    const hash = StackRecommender.profileHash(userProfile);
+    const hash = StackRecommender.profileHash(profile);
 
+    // PATCH 2: Add error resilience — process all supplements even if one fails
     for (const supplement of SUPPLEMENTS_DB) {
-      if (this._isEligible(supplement, userProfile)) {
-        const score = this._calculateScore(supplement, userProfile);
-        const dosage = this._calculatePersonalDosage(supplement, userProfile);
-        const cost = this._estimateMonthlyCost(supplement, dosage.daily, userProfile);
-        
-        const formatted = this._formatResult(supplement, score, dosage, cost, userProfile);
-        results.push(formatted);
+      try {
+        if (this._isEligible(supplement, profile)) {
+          const dosage = this._calculatePersonalDosage(supplement, profile);
+          const score = this._calculateScore(supplement, profile, dosage.daily);
+          const cost = this._estimateMonthlyCost(supplement, dosage.daily, profile);
+
+          const formatted = this._formatResult(supplement, score, dosage, cost, profile);
+          results.push(formatted);
+        }
+      } catch (error) {
+        // Log error but continue processing remaining supplements (resilience)
+        console.error(`[StackRecommender] Failed to process ${supplement.id}:`, error);
+
+        // Emit tracking event for monitoring
+        eventBus.emit('ai:supplementProcessingError', {
+          supplementId: supplement.id,
+          error: error.message,
+          profileHash: hash
+        });
       }
     }
 
@@ -975,12 +1002,17 @@ export class StackRecommender {
 
   /**
    * Scoring formula combining objective relevance, evidence, compatibility, and cost-benefit.
+   *
+   * @param {Object} supplement - Supplement from SUPPLEMENTS_DB
+   * @param {Object} userProfile - Validated user profile
+   * @param {number} dailyDose - Pre-calculated daily dosage (avoids recalculation)
+   * @returns {number} Normalized score [0-1]
    */
-  _calculateScore(supplement, userProfile) {
+  _calculateScore(supplement, userProfile, dailyDose) {
     const r = this._scoreObjectiveRelevance(supplement, userProfile.objective);
     const e = this._scoreEvidenceLevel(supplement);
     const c = this._scoreCompatibility(supplement, userProfile);
-    const cb = this._scoreCostBenefit(supplement, userProfile);
+    const cb = this._scoreCostBenefit(supplement, userProfile, dailyDose);
 
     const score = (r * 0.40) + (e * 0.30) + (c * 0.20) + (cb * 0.10);
     return Math.round(score * 100) / 100; // Round to 2 decimal places
@@ -1011,29 +1043,34 @@ export class StackRecommender {
 
   /**
    * Checks cost against monthly budget limits, penalizing items exceeding budget capacity.
+   *
+   * @param {Object} supplement - Supplement from SUPPLEMENTS_DB
+   * @param {Object} userProfile - Validated user profile
+   * @param {number} dailyDose - Pre-calculated daily dosage (avoids recalculation)
+   * @returns {number} Cost-benefit score [0.1-1.0]
    */
-  _scoreCostBenefit(supplement, userProfile) {
+  _scoreCostBenefit(supplement, userProfile, dailyDose) {
     const budget = userProfile.budget || 200;
-    
-    // Estimate daily dose first
-    const dailyDose = this._calculatePersonalDosage(supplement, userProfile).daily;
     const pricePerGram = supplement.pricePerGram || 0.05;
-    
-    // Monthly Cost (mg scaled to g if needed, but we keep it standardized)
-    let dailyGrams = dailyDose;
-    if (supplement.dosage.unit === 'mg') {
-      dailyGrams = dailyDose / 1000;
-    } else if (supplement.dosage.unit === 'mcg') {
-      dailyGrams = dailyDose / 1_000_000; // L1 FIX: converter microgramas para gramas
-    } else if (supplement.dosage.unit === 'UI') {
-      dailyGrams = dailyDose * 0.000025; // standard microgram approximation
+
+    // PATCH 3: Use centralized conversion function
+    let dailyGrams;
+    try {
+      dailyGrams = convertToGrams(dailyDose, supplement.dosage.unit, supplement.id);
+    } catch (error) {
+      // Fallback: if conversion fails, treat as free (score = 1.0)
+      console.warn(`[StackRecommender] Cost conversion failed for ${supplement.id}:`, error.message);
+      return 1.0;
     }
 
     const monthlyCost = dailyGrams * 30 * pricePerGram;
-    
+
     if (monthlyCost <= 0) return 1.0;
     if (monthlyCost <= budget) return 1.0;
-    return Math.max(0.1, budget / monthlyCost);
+
+    // PATCH 4: Clamp ratio to [0.1, 1.0] to prevent scores > 1.0
+    const ratio = budget / monthlyCost;
+    return Math.max(0.1, Math.min(1.0, ratio));
   }
 
   /**
@@ -1128,16 +1165,27 @@ export class StackRecommender {
 
   /**
    * Computes individual monthly budget footprint.
+   *
+   * @param {Object} supplement - Supplement from SUPPLEMENTS_DB
+   * @param {number} dailyDose - Pre-calculated daily dosage
+   * @param {Object} userProfile - Validated user profile
+   * @returns {Object} Cost breakdown with perMonth, perDose, withinBudget
    */
   _estimateMonthlyCost(supplement, dailyDose, userProfile) {
     const pricePerGram = supplement.pricePerGram || 0.05;
-    let dailyGrams = dailyDose;
-    if (supplement.dosage.unit === 'mg') {
-      dailyGrams = dailyDose / 1000;
-    } else if (supplement.dosage.unit === 'mcg') {
-      dailyGrams = dailyDose / 1_000_000; // L1 FIX: converter microgramas para gramas
-    } else if (supplement.dosage.unit === 'UI') {
-      dailyGrams = dailyDose * 0.000025;
+
+    // PATCH 5: Use centralized conversion function (replaces duplicated logic)
+    let dailyGrams;
+    try {
+      dailyGrams = convertToGrams(dailyDose, supplement.dosage.unit, supplement.id);
+    } catch (error) {
+      // Fallback: if conversion fails, return zero cost
+      console.warn(`[StackRecommender] Cost calculation failed for ${supplement.id}:`, error.message);
+      return {
+        perMonth: 0,
+        perDose: 0,
+        withinBudget: true
+      };
     }
 
     const perDose = dailyGrams * pricePerGram;

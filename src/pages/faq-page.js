@@ -1,3 +1,5 @@
+import { SchemaManager } from '../core/schema-manager.js';
+
 const FAQ_DATA = [
   {
     category: 'Geral',
@@ -218,10 +220,28 @@ export default class FaqPage {
     this._injectStyles();
     this.container.innerHTML = this._render();
     this._bindEvents();
+
+    // Insert FAQ schema for SEO and rich snippets
+    const faqSchema = SchemaManager.createFAQPageSchema(
+      FAQ_DATA.flatMap(cat => cat.items.map(item => ({
+        question: item.q,
+        answer: item.a || this._stripHtml(item.aHtml)
+      })))
+    );
+    SchemaManager.insertSchema(faqSchema);
   }
 
   unmount() {
     this.container.innerHTML = '';
+  }
+
+  /**
+   * Remove HTML tags from string
+   */
+  _stripHtml(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
   }
 
   _injectStyles() {

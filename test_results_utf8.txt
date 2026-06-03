@@ -1,0 +1,2198 @@
+﻿
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.8 [39m[90mC:/Users/User/Desktop/suplilist[39m
+
+ [31mÔØ»[39m src/pages/home-page.test.js [2m([22m[2m0 test[22m[2m)[22m
+node.exe : Not implemented: navigation to another Document
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Not implemented...nother Document:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+[90mstderr[2m | src/core/router.test.js[2m > [22m[2mRouter ÔÇö Page Lifecycle[2m > [22m[2m14. handleRoute() 
+instantiates page with container and params
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see 
+https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | src/core/router.test.js[2m > [22m[2mRouter ÔÇö Page Lifecycle[2m > [22m[2m15. handleRoute() 
+calls page.mount()
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see 
+https://vitest.dev/api/vi#vi-spyon for examples.
+
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+ [31mÔØ»[39m src/core/router.test.js [2m([22m[2m20 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[32m 82[2mms[22m[39m
+     [32mÔ£ô[39m 1. navigate() calls window.history.pushState[32m 6[2mms[22m[39m
+     [32mÔ£ô[39m 2. navigate() dispatches popstate event[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 3. matchRoute() returns null for non-existent path[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 4. matchRoute() returns route and params for valid path[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 5. matchRoute() extracts query parameters[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 6. matchRoute() normalizes paths with trailing slashes[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 7. matchRoute() decodes URL-encoded parameters[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 8. matchRoute() extracts path parameters[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 9. matchRoute() decodes path parameters[32m 0[2mms[22m[39m
+     [32mÔ£ô[39m 10. matchRoute() extracts multiple path parameters[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 11. matchRoute() returns null if segment count mismatch[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 12. handleRoute() shows 404 for non-existent routes[39m[32m 17[2mms[22m[39m
+[31m     [31m├ù[31m 13. handleRoute() sets document.title for 404[39m[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m 14. handleRoute() instantiates page with container and params[39m[32m 23[2mms[22m[39m
+[31m     [31m├ù[31m 15. handleRoute() calls page.mount()[39m[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m 16. Navigation token increments on each navigation[39m[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 17. Stale navigation result is discarded (token mismatch)[32m 11[2mms[22m[39m
+[31m     [31m├ù[31m 18. handleRoute() shows error message on page load failure[39m[32m 4[2mms[22m[39m
+     [32mÔ£ô[39m 19. destroy() removes popstate listener[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 20. start() calls handleRoute()[32m 2[2mms[22m[39m
+ [31mÔØ»[39m src/pages/history-page.test.js [2m([22m[2m11 tests[22m[2m | [22m[31m11 failed[39m[2m)[22m[32m 181[2mms[22m[39m
+[31m     [31m├ù[31m 1. Calculates and displays adherence percentage[39m[32m 169[2mms[22m[39m
+[31m     [31m├ù[31m 2. Displays total cycles and investment calculated from checkins[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 3. Renders 7-day calendar grid with day labels and today indicator[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 4. Calendar shows filled/empty dots for checked/unchecked days[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 5. Search filters supplements by name and category[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 6. Category chips toggle filter on/off[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 7. Expandable card toggles log panel open/closed[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 8. Logs sort newest-first within log panel[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 9. Adherence color class (green/yellow/red) reflects adherence level[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 10. Calculates per-supplement adherence with edge case handling[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 11. Unmount removes event listeners[39m[32m 1[2mms[22m[39m
+ [31mÔØ»[39m src/core/virtual-scroller.test.js [2m([22m[2m17 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 242[2mms[22m[39m
+     [32mÔ£ô[39m 1. mount() creates list container[32m 44[2mms[22m[39m
+     [32mÔ£ô[39m 2. mount() renders initial items[32m 10[2mms[22m[39m
+     [32mÔ£ô[39m 3. Virtual list has correct total height[32m 6[2mms[22m[39m
+     [32mÔ£ô[39m 4. Only visible items + buffer are rendered[32m 6[2mms[22m[39m
+     [32mÔ£ô[39m 5. updateItems() updates the list[32m 16[2mms[22m[39m
+     [32mÔ£ô[39m 6. scrollToIndex() scrolls to item[32m 4[2mms[22m[39m
+     [32mÔ£ô[39m 7. Items have correct positioning[32m 97[2mms[22m[39m
+     [32mÔ£ô[39m 8. renderItem is called with correct parameters[32m 11[2mms[22m[39m
+     [32mÔ£ô[39m 9. unmount() cleans up[32m 9[2mms[22m[39m
+     [32mÔ£ô[39m 10. visibleStartIndex and visibleEndIndex calculated correctly[32m 7[2mms[22m[39m
+     [32mÔ£ô[39m 11. Buffer size affects rendered items[32m 13[2mms[22m[39m
+     [32mÔ£ô[39m 12. Different itemHeight works[32m 6[2mms[22m[39m
+     [32mÔ£ô[39m 13. Empty items list works[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m 1. mount() creates list container[39m[32m 6[2mms[22m[39m
+[31m     [31m├ù[31m 2. mount() renders all items[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 3. updateItems() works[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 4. unmount() cleans up[39m[32m 1[2mms[22m[39m
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m1. init() sets up event listeners and initializes session
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.js:954:42
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at VitestModuleEvaluator._runInlinedModule [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvite
+st[24m/dist/module-evaluator.js:206:4[90m)[39m
+    at VitestModuleRunner.directRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1259:59[90m)[39m
+    at VitestModuleRunner.cachedRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1166:73[90m)[39m
+    at C:/Users/User/Desktop/suplilist/src/analytics/event-pipeline.js:7:1
+
+[90mstderr[2m | src/state/state-manager.test.js
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.js:954:42
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at VitestModuleEvaluator._runInlinedModule [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvite
+st[24m/dist/module-evaluator.js:206:4[90m)[39m
+    at VitestModuleRunner.directRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1259:59[90m)[39m
+    at VitestModuleRunner.cachedRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1166:73[90m)[39m
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:2:1
+
+ [31mÔØ»[39m src/core/schema-manager.test.js [2m([22m[2m14 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 55[2mms[22m[39m
+     [32mÔ£ô[39m 1. createFAQPageSchema() returns valid FAQPage structure[32m 17[2mms[22m[39m
+     [32mÔ£ô[39m 2. createWebApplicationSchema() returns WebApplication with correct properties[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 3. createProductSchema() generates product with offers[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 4. createProductSchema() includes evidence rating[39m[32m 9[2mms[22m[39m
+     [32mÔ£ô[39m 5. createBreadcrumbSchema() generates correct list structure[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 6. createOrganizationSchema() includes contactPoint[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 7. insertSchema() creates script tag with JSON-LD[32m 7[2mms[22m[39m
+     [32mÔ£ô[39m 8. insertSchema() removes old schema of same type[32m 5[2mms[22m[39m
+     [32mÔ£ô[39m 9. insertSchema() allows multiple different schemas[32m 3[2mms[22m[39m
+     [32mÔ£ô[39m 10. createSearchResultsSchema() generates correct structure[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 11. clearSchemas() removes all JSON-LD scripts[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 12. createProductSchema() includes dosage information[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 13. Evidence rating mapping works correctly[39m[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 14. WebApplicationSchema includes aggregateRating[32m 0[2mms[22m[39m
+ [31mÔØ»[39m src/pages/checkin-page.test.js [2m([22m[2m10 tests[22m[2m | [22m[31m10 failed[39m[2m)[22m[32m 103[2mms[22m[39m
+[31m     [31m├ù[31m 1. Renders streak counter and progress bar with correct state[39m[32m 88[2mms[22m[39m
+[31m     [31m├ù[31m 2. Progress percentage reflects checked count / total stack[39m[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m 3. Supplement card toggles checked visual state on click[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 4. Checking supplement dispatches ADD_CHECKIN with today date[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 5. Mark all button checks remaining supplements and dispatches ADD_CHECKIN batch[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 6. Toast event fires on single checkin[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 7. Toast event fires on mark all[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 8. Empty stack shows CTA with navigation link[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 9. Checked supplement shows Feito checkmark icon[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 10. Unmount removes event listeners[39m[32m 4[2mms[22m[39m
+ [31mÔØ»[39m src/core/meta-manager.test.js [2m([22m[2m14 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 122[2mms[22m[39m
+     [32mÔ£ô[39m 1. updateMeta() sets title and description for home page[32m 27[2mms[22m[39m
+     [32mÔ£ô[39m 2. updateMeta() sets og:title and og:description[32m 8[2mms[22m[39m
+     [32mÔ£ô[39m 3. updateMeta() sets og:image and og:url[32m 7[2mms[22m[39m
+     [32mÔ£ô[39m 4. updateMeta() sets twitter card tags[32m 7[2mms[22m[39m
+     [32mÔ£ô[39m 5. updateMeta() sets canonical link[32m 6[2mms[22m[39m
+[31m     [31m├ù[31m 6. updateMeta() updates different pages with correct content[39m[32m 15[2mms[22m[39m
+     [32mÔ£ô[39m 7. updateMeta() accepts custom context to override defaults[32m 7[2mms[22m[39m
+     [32mÔ£ô[39m 8. updateMeta() sets og:type and og:site_name[32m 4[2mms[22m[39m
+     [32mÔ£ô[39m 9. updateMeta() sets locale to pt_BR[32m 5[2mms[22m[39m
+[31m     [31m├ù[31m 10. updateMeta() handles unknown routes with default meta[39m[32m 9[2mms[22m[39m
+     [32mÔ£ô[39m 11. updateMeta() creates meta tags if they don't exist[32m 8[2mms[22m[39m
+     [32mÔ£ô[39m 12. updateMeta() updates existing meta tags[32m 5[2mms[22m[39m
+     [32mÔ£ô[39m 13. updateMeta() sets og:image:width and og:image:height[32m 5[2mms[22m[39m
+     [32mÔ£ô[39m 14. updateMeta() sets keywords meta tag[32m 6[2mms[22m[39m
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m1. Returns singleton 
+(getInstance() ├ù 2 -> same object)
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:15:17
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m2. Dispatches valid 
+action -> state changes
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:22:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m3. Does not add 
+duplicate to stack
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:35:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/pages/list-page.test.js[2m > [22m[2mListPage ÔÇö Supplement Catalog[2m > [22m[2m1. Renders 
+supplement grid with correct structure
+[22m[39m[SupliList] [Affiliate] VITE_AMAZON_AFFILIATE_ID not set, using fallback: suplilist01-20
+[SupliList] [Affiliate] VITE_ML_AFFILIATE_ID not set, using fallback: SUPLILIST_ML
+[SupliList] [Affiliate] VITE_SHOPEE_AFFILIATE_ID not set, using fallback: SUPLILIST_SHOPEE
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m4. Removes from stack
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:49:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m5. subscribe() -> 
+listener called on change
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:64:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m6. Unsubscribe -> 
+listener NOT called
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:80:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/monetization/affiliate-engine.test.js
+[22m[39m[SupliList] [Affiliate] VITE_AMAZON_AFFILIATE_ID not set, using fallback: suplilist01-20
+[SupliList] [Affiliate] VITE_ML_AFFILIATE_ID not set, using fallback: SUPLILIST_ML
+[SupliList] [Affiliate] VITE_SHOPEE_AFFILIATE_ID not set, using fallback: SUPLILIST_SHOPEE
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m7. State persists 
+after simulated reload
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:96:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m8. Adds check-in 
+with auto ID + timestamp
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:119:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m9. todayCheckins 
+returns only today's items
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:137:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m10. Favorites: add 
+and remove
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:168:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m11. 1000+ dispatches 
+in <200ms
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:193:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m12. Invalid action 
+type -> no crash
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:213:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m13. Null action -> 
+no crash
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:221:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/pages/my-stack-page.test.js[2m > [22m[2mMyStackPage ÔÇö User Personal Stack[2m > [22m[2m1. 
+Calculates and displays monthly investment with unit conversion
+[22m[39m[SupliList] [Affiliate] VITE_AMAZON_AFFILIATE_ID not set, using fallback: suplilist01-20
+[SupliList] [Affiliate] VITE_ML_AFFILIATE_ID not set, using fallback: SUPLILIST_ML
+[SupliList] [Affiliate] VITE_SHOPEE_AFFILIATE_ID not set, using fallback: SUPLILIST_SHOPEE
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m14. Streak returns 0 
+with no checkins
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:230:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m15. Streak counts 
+consecutive days
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:236:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2mValidation 
+Checklist: EventBus events are emitted for mapped actions
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:255:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+ [31mÔØ»[39m src/monetization/affiliate-engine.test.js [2m([22m[2m8 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 23[2mms[22m[39m
+     [32mÔ£ô[39m returns amazon, mercadolivre, and shopee keys[32m 3[2mms[22m[39m
+     [32mÔ£ô[39m Amazon URL contains affiliate tag suplilist01-20[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m Amazon URL encodes supplement name in query[32m 0[2mms[22m[39m
+[31m     [31m├ù[31m Mercado Livre URL contains ML placeholder ID[39m[32m 10[2mms[22m[39m
+[31m     [31m├ù[31m Shopee URL contains Shopee placeholder ID[39m[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m encodes special characters in supplement name correctly[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m emits AFFILIATE_CLICK event with supplementId and marketplace[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m emits the event on each call (no dedup)[32m 0[2mms[22m[39m
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m18. CLEAR_CHECKINS 
+empties the checkins array
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:274:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m19. undo() reverts 
+the last dispatched action
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:284:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/state/state-manager.test.js[2m > [22m[2mStateManager v4.0[2m > [22m[2m17. Gracefully 
+handles QuotaExceededError and prevents infinite recursion loops
+[22m[39m[SupliList] [StateManager] Corrupted storage detected, falling back to default: SyntaxError: Unexpected 
+token 'o', "[object Promise]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at StateManager._initializeState (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:753:27)
+    at new StateManager (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:337:10)
+    at StateManager.getInstance (C:/Users/User/Desktop/suplilist/src/state/state-manager.js:351:32)
+    at createTestSM (C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:9:23)
+    at C:/Users/User/Desktop/suplilist/src/state/state-manager.test.js:302:16
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+ [31mÔØ»[39m src/state/state-manager.test.js [2m([22m[2m19 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 49[2mms[22m[39m
+     [32mÔ£ô[39m 1. Returns singleton (getInstance() ├ù 2 -> same object)[32m 4[2mms[22m[39m
+     [32mÔ£ô[39m 2. Dispatches valid action -> state changes[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 3. Does not add duplicate to stack[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 4. Removes from stack[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 5. subscribe() -> listener called on change[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 6. Unsubscribe -> listener NOT called[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 7. State persists after simulated reload[39m[32m 5[2mms[22m[39m
+     [32mÔ£ô[39m 8. Adds check-in with auto ID + timestamp[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 9. todayCheckins returns only today's items[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 10. Favorites: add and remove[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 11. 1000+ dispatches in <200ms[32m 11[2mms[22m[39m
+     [32mÔ£ô[39m 12. Invalid action type -> no crash[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m 13. Null action -> no crash[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 14. Streak returns 0 with no checkins[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 15. Streak counts consecutive days[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m Validation Checklist: EventBus events are emitted for mapped actions[32m 3[2mms[22m[39m
+     [32mÔ£ô[39m 18. CLEAR_CHECKINS empties the checkins array[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 19. undo() reverts the last dispatched action[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m 17. Gracefully handles QuotaExceededError and prevents infinite recursion loops[32m 3[2mms[22m[39m
+ [31mÔØ»[39m src/pages/list-page.test.js [2m([22m[2m8 tests[22m[2m | [22m[31m8 failed[39m[2m)[22m[33m 527[2mms[22m[39m
+[31m     [31m├ù[31m 1. Renders supplement grid with correct structure[39m[33m 503[2mms[22m[39m
+[31m     [31m├ù[31m 2. Filter by category updates visible supplements[39m[32m 4[2mms[22m[39m
+[31m     [31m├ù[31m 3. Search query filters supplements and updates grid[39m[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m 4. Modal opens with supplement data and handles tab switching[39m[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m 5. Modal closes on close button, overlay click, and Escape key[39m[32m 4[2mms[22m[39m
+[31m     [31m├ù[31m 6. Favorite toggle dispatches ADD_FAVORITE/REMOVE_FAVORITE[39m[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m 7. Supplement card displays price when prices.json loads[39m[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m 8. Unmount clears listeners and virtual scroller[39m[32m 2[2mms[22m[39m
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m1. init() sets up event listeners and initializes session
+[22m[39m[SupliList] [FunnelEngine] Funnel defined: "free-to-premium" (4 steps)
+[SupliList] [FunnelEngine] Funnel defined: "stack-adoption" (4 steps)
+[SupliList] [FunnelEngine] Funnel defined: "affiliate-conversion" (4 steps)
+[SupliList] [FunnelEngine] Funnel defined: "engagement" (4 steps)
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m1. init() sets up event listeners and initializes session
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m1. init() sets up event listeners and initializes session
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:603:19
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at VitestModuleEvaluator._runInlinedModule [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvite
+st[24m/dist/module-evaluator.js:206:4[90m)[39m
+    at VitestModuleRunner.directRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1259:59[90m)[39m
+    at VitestModuleRunner.cachedRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1166:73[90m)[39m
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:24:20
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m1. init() sets up event listeners and initializes session
+[22m[39m[SupliList] [AnalyticsEngine] Auto-init failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:603:19
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at VitestModuleEvaluator._runInlinedModule [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvite
+st[24m/dist/module-evaluator.js:206:4[90m)[39m
+    at VitestModuleRunner.directRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1259:59[90m)[39m
+    at VitestModuleRunner.cachedRequest [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mvitest[24m
+/node_modules/[4mvite[24m/dist/node/module-runner.js:1166:73[90m)[39m
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:24:20
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m1. init() sets up event listeners and initializes session
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m1. init() sets up event listeners and initializes session
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:33:42
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m2. Tracks page view with path and title
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m2. Tracks page view with path and title
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:40:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m3. Tracks user action with category and label
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m3. Tracks user action with category and label
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:54:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m4. Tracks check-in event with supplement ID
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m4. Tracks check-in event with supplement ID
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:71:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m5. Tracks session duration on endSession()
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m5. Tracks session duration on endSession()
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:85:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m6. Tracks Core Web Vitals (LCP, FID, CLS)
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m6. Tracks Core Web Vitals (LCP, FID, CLS)
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:96:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m7. Tracks exception/error with message and stack
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m7. Tracks exception/error with message and stack
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:117:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m8. Batches events and sends on flush()
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m8. Batches events and sends on flush()
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:133:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m9. Respects user privacy: no tracking if opted out
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m9. Respects user privacy: no tracking if opted out
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:153:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m10. Tracks user session ID and timestamp for all events
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m10. Tracks user session ID and timestamp for all events
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:162:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m11. Tracks device info: OS, browser, viewport
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m11. Tracks device info: OS, browser, viewport
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:177:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m12. Implements exponential backoff on fetch failure
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m12. Implements exponential backoff on fetch failure
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:187:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m13. Debounces rapid tracking calls to prevent spam
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m13. Debounces rapid tracking calls to prevent spam
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:203:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m14. Respects analytics disabled via analytics flag in config
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m14. Respects analytics disabled via analytics flag in config
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:220:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m15. Queues events while offline and sends on reconnect
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m15. Queues events while offline and sends on reconnect
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:229:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m16. Tracks conversion events with value and currency
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m16. Tracks conversion events with value and currency
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:249:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m17. Tracks affiliate link clicks
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m17. Tracks affiliate link clicks
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m18. Queues events in memory before storage init
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m19. Deduplicates identical rapid events
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:265:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m18. Queues events in memory before storage init
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:289:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m19. Deduplicates identical rapid events
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:294:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstderr[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m[2m20. Implements localStorage quota safety (no QuotaExceeded)
+[22m[39m[SupliList] [AnalyticsEngine] Initialization failed: ReferenceError: indexedDB is not defined
+    at C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:33:23
+    at new Promise (<anonymous>)
+    at AnalyticsStorage.init (C:/Users/User/Desktop/suplilist/src/analytics/storage/analytics-storage.js:32:12)
+    at AnalyticsEngine.init (C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.js:31:30)
+    at C:/Users/User/Desktop/suplilist/src/analytics/analytics-engine.test.js:310:27
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at 
+[90mfile:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk
+-artifact.js:2323:10[90m)[39m
+
+[90mstdout[2m | src/analytics/analytics-engine.test.js[2m > [22m[2mAnalyticsEngine ÔÇö User Tracking[2m > [22m[2m20. Implements localStorage quota safety (no QuotaExceeded)
+[22m[39m[SupliList] [AnalyticsEngine] Initializing...
+
+ [31mÔØ»[39m src/analytics/analytics-engine.test.js [2m([22m[2m21 tests[22m[2m | [22m[31m20 failed[39m[2m)[22m[33m 539[2mms[22m[39m
+[31m     [31m├ù[31m 1. init() sets up event listeners and initializes session[39m[33m 518[2mms[22m[39m
+[31m     [31m├ù[31m 2. Tracks page view with path and title[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 3. Tracks user action with category and label[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 4. Tracks check-in event with supplement ID[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 5. Tracks session duration on endSession()[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 6. Tracks Core Web Vitals (LCP, FID, CLS)[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 7. Tracks exception/error with message and stack[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 8. Batches events and sends on flush()[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 9. Respects user privacy: no tracking if opted out[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 10. Tracks user session ID and timestamp for all events[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 11. Tracks device info: OS, browser, viewport[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 12. Implements exponential backoff on fetch failure[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 13. Debounces rapid tracking calls to prevent spam[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 14. Respects analytics disabled via analytics flag in config[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 15. Queues events while offline and sends on reconnect[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 16. Tracks conversion events with value and currency[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 17. Tracks affiliate link clicks[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 18. Queues events in memory before storage init[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 19. Deduplicates identical rapid events[39m[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m 20. Implements localStorage quota safety (no QuotaExceeded)[39m[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m returns same instance across calls[32m 1[2mms[22m[39m
+ [32mÔ£ô[39m src/pages/onboarding-page.test.js [2m([22m[2m16 tests[22m[2m)[22m[33m 558[2mms[22m[39m
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+ [31mÔØ»[39m src/pages/my-stack-page.test.js [2m([22m[2m8 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 1422[2mms[22m[39m
+     [33m[2mÔ£ô[22m[39m 1. Calculates and displays monthly investment with unit conversion [33m 700[2mms[22m[39m
+     [32mÔ£ô[39m 2. Calculates adherence rate based on checkins[32m 24[2mms[22m[39m
+[31m     [31m├ù[31m 3. Modal search filters supplements and ADD_TO_STACK dispatches[39m[33m 403[2mms[22m[39m
+     [32mÔ£ô[39m 4. Inline edit form saves with validation and dispatches UPDATE_STACK_ITEM[32m 128[2mms[22m[39m
+     [32mÔ£ô[39m 5. REMOVE_FROM_STACK dispatches on delete action[32m 14[2mms[22m[39m
+     [32mÔ£ô[39m 6. Replenishment sidebar calculates best price and days remaining[32m 124[2mms[22m[39m
+     [32mÔ£ô[39m 7. Empty stack shows CTA button and hides metrics[32m 13[2mms[22m[39m
+[31m     [31m├ù[31m 8. Unmount removes listeners and cleans up modal[39m[32m 13[2mms[22m[39m
+[90mstderr[2m | src/core/event-bus.test.js[2m > [22m[2mEventBus v4.0 Unit Tests[2m > [22m[2m5. Error in one 
+listener ÔÇö other listeners still called
+[22m[39m[SupliList] [EventBus] Callback error for "premium:unlocked": Error: Test Error
+    at Object.badHandler [as callback] (C:/Users/User/Desktop/suplilist/src/core/event-bus.test.js:60:13)
+    at C:/Users/User/Desktop/suplilist/src/core/event-bus.js:375:20
+    at Array.forEach (<anonymous>)
+    at EventBus.emit (C:/Users/User/Desktop/suplilist/src/core/event-bus.js:373:16)
+    at C:/Users/User/Desktop/suplilist/src/core/event-bus.test.js:68:16
+    at Proxy.assertThrows 
+[90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mchai[24m/index.js:2798:5[90m)[39m
+    at Proxy.methodWrapper 
+[90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mchai[24m/index.js:1700:25[90m)[39m
+    at Proxy.<anonymous> [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/expect[24m/dist/i
+ndex.js:1216:12[90m)[39m
+    at Proxy.overwritingMethodWrapper 
+[90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4mchai[24m/index.js:1750:33[90m)[39m
+    at Proxy.<anonymous> [90m(file:///C:/Users/User/Desktop/suplilist/[39mnode_modules/[4m@vitest/expect[24m/dist/i
+ndex.js:1552:16[90m)[39m
+
+ [32mÔ£ô[39m src/core/event-bus.test.js [2m([22m[2m14 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [31mÔØ»[39m e2e/mobile-ux.spec.ts [2m([22m[2m0 test[22m[2m)[22m
+ [32mÔ£ô[39m src/analytics/event-pipeline.test.js [2m([22m[2m15 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32mÔ£ô[39m src/analytics/analytics-engine.e2e.test.js [2m([22m[2m15 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32mÔ£ô[39m src/ai/stack-recommender.test.js [2m([22m[2m14 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32mÔ£ô[39m src/utils/evidence.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32mÔ£ô[39m src/utils/date.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32mÔ£ô[39m src/ai/dosage-calculator.test.js [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mÔ£ô[39m src/utils/escape.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32mÔ£ô[39m src/utils/stack.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+Not implemented: navigation to another Document
+ [31mÔØ»[39m src/core/app.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m14 failed[39m[2m)[22m[33m 2316[2mms[22m[39m
+[31m     [31m├ù[31m 1. StorageManager.init() is called on DOMContentLoaded[39m[32m 242[2mms[22m[39m
+[31m     [31m├ù[31m 2. Nav.init() is called on DOMContentLoaded[39m[32m 107[2mms[22m[39m
+[31m     [31m├ù[31m 3. Router is created with correct routes and container[39m[32m 124[2mms[22m[39m
+[31m     [31m├ù[31m 4. Router.start() is called[39m[32m 112[2mms[22m[39m
+[31m     [31m├ù[31m 5. AnalyticsEngine.init() is called[39m[32m 109[2mms[22m[39m
+[31m     [31m├ù[31m 6. Landing mode is applied for home page[39m[32m 113[2mms[22m[39m
+     [32mÔ£ô[39m 7. Landing mode is NOT applied for /list page[32m 106[2mms[22m[39m
+[31m     [31m├ù[31m 8. SEO metadata is updated on navigation[39m[32m 118[2mms[22m[39m
+[31m     [31m├ù[31m 9. Theme is restored from StorageManager on init[39m[32m 116[2mms[22m[39m
+[31m     [31m├ù[31m 10. Theme toggle updates document and storage[39m[32m 108[2mms[22m[39m
+[31m     [31m├ù[31m 11. Loading screen is hidden on init[39m[33m 406[2mms[22m[39m
+[31m     [31m├ù[31m 12. Toast event listener is registered[39m[32m 110[2mms[22m[39m
+[31m     [31m├ù[31m 13. ROUTER_NAVIGATE event triggers router.navigate()[39m[32m 3[2mms[22m[39m
+     [32mÔ£ô[39m 14. Toast message is displayed when toast:show event fires[32m 105[2mms[22m[39m
+[31m     [31m├ù[31m 15. beforeunload flushes analytics[39m[32m 111[2mms[22m[39m
+[31m     [31m├ù[31m 16. Nav route changes on popstate event[39m[32m 108[2mms[22m[39m
+     [32mÔ£ô[39m 17. StorageManager init errors are caught (IndexedDB fallback)[32m 107[2mms[22m[39m
+     [32mÔ£ô[39m 18. AnalyticsEngine init errors do not crash app[32m 110[2mms[22m[39m
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m[1m[41m Failed Suites 2 [49m[22m[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+
+[41m[1m FAIL [22m[49m e2e/mobile-ux.spec.ts[2m [ e2e/mobile-ux.spec.ts ][22m
+[31m[1mError[22m: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.[39m
+[90m [2mÔØ»[22m _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:[2m2221:13[22m[39m
+[90m [2mÔØ»[22m _TestTypeImpl._describe node_modules/playwright/lib/common/index.js:[2m2261:24[22m[39m
+[90m [2mÔØ»[22m Function.describe node_modules/playwright/lib/common/index.js:[2m1111:12[22m[39m
+[36m [2mÔØ»[22m e2e/mobile-ux.spec.ts:[2m22:6[22m[39m
+    [90m 20|[39m }[33m;[39m
+    [90m 21|[39m
+    [90m 22|[39m test[33m.[39m[34mdescribe[39m([32m'Mobile UX - Responsiveness @mobile'[39m[33m,[39m () 
+[33m=>[39m {
+    [90m   |[39m      [31m^[39m
+    [90m 23|[39m   
+[33mObject[39m[33m.[39m[34mentries[39m([33mVIEWPORT_SIZES[39m)[33m.[39m[34mforEach[39m(([device[33m,[39m 
+viewport]) [33m=>[39m {
+    [90m 24|[39m     test(`Should render correctly on ${device}`, async ({ browser }) =ÔÇª
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/home-page.test.js[2m [ src/pages/home-page.test.js ][22m
+[31m[1mError[22m: Failed to resolve import "../analytics/schema-manager.js" from "src/pages/home-page.test.js". 
+Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/User/Desktop/suplilist/src/pages/home-page.test.js[39m:142:43
+[33m  140 |  
+  141 |    it('8. Schema is inserted to DOM head', async () => {
+  142 |      const { SchemaManager } = await import('../analytics/schema-manager.js');
+      |                                             ^
+  143 |      await homePage.mount();
+  144 |  [39m
+[90m [2mÔØ»[22m TransformPluginContext._formatLog 
+node_modules/vitest/node_modules/vite/dist/node/chunks/node.js:[2m30602:39[22m[39m
+[90m [2mÔØ»[22m TransformPluginContext.error 
+node_modules/vitest/node_modules/vite/dist/node/chunks/node.js:[2m30599:14[22m[39m
+[90m [2mÔØ»[22m normalizeUrl node_modules/vitest/node_modules/vite/dist/node/chunks/node.js:[2m27842:18[22m[39m
+[90m [2mÔØ»[22m node_modules/vitest/node_modules/vite/dist/node/chunks/node.js:[2m27905:30[22m[39m
+[90m [2mÔØ»[22m TransformPluginContext.transform 
+node_modules/vitest/node_modules/vite/dist/node/chunks/node.js:[2m27873:4[22m[39m
+[90m [2mÔØ»[22m EnvironmentPluginContainer.transform 
+node_modules/vitest/node_modules/vite/dist/node/chunks/node.js:[2m30387:14[22m[39m
+[90m [2mÔØ»[22m loadAndTransform 
+node_modules/vitest/node_modules/vite/dist/node/chunks/node.js:[2m24646:26[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/84]ÔÄ»[22m[39m
+
+
+[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m[1m[41m Failed Tests 82 [49m[22m[31mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m1. init() sets up event listeners and initializes session
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m33:42[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m2. Tracks page view with path and title
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m40:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m3. Tracks user action with category and label
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m54:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m4. Tracks check-in event with supplement ID
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m71:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m5. Tracks session duration on endSession()
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m85:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[7/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m6. Tracks Core Web Vitals (LCP, FID, CLS)
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m96:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[8/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m7. Tracks exception/error with message and stack
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m117:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[9/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m8. Batches events and sends on flush()
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m133:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[10/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m9. Respects user privacy: no tracking if opted out
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m153:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[11/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m10. Tracks user session ID and timestamp for all events
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m162:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[12/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m11. Tracks device info: OS, browser, viewport
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m177:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[13/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m12. Implements exponential backoff on fetch failure
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m187:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[14/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m13. Debounces rapid tracking calls to prevent spam
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m203:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[15/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m14. Respects analytics disabled via analytics flag in config
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m220:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[16/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m15. Queues events while offline and sends on reconnect
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m229:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[17/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m16. Tracks conversion events with value and currency
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m249:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[18/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m17. Tracks affiliate link clicks
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m265:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[19/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m18. Queues events in memory before storage init
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m289:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[20/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m19. Deduplicates identical rapid events
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m294:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[21/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/analytics/analytics-engine.test.js[2m > [22mAnalyticsEngine ÔÇö User Tracking[2m > 
+[22m20. Implements localStorage quota safety (no QuotaExceeded)
+[31m[1mReferenceError[22m: indexedDB is not defined[39m
+[36m [2mÔØ»[22m src/analytics/storage/analytics-storage.js:[2m33:23[22m[39m
+    [90m 31|[39m   [35masync[39m [34minit[39m() {
+    [90m 32|[39m     [35mreturn[39m [35mnew[39m [33mPromise[39m((resolve[33m,[39m reject) [33m=>[39m {
+    [90m 33|[39m       [35mconst[39m request [33m=[39m 
+indexedDB[33m.[39m[34mopen[39m([33mDB_NAME[39m[33m,[39m [33mDB_VERSION[39m)[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m 34|[39m
+    [90m 35|[39m       request[33m.[39monerror [33m=[39m () [33m=>[39m {
+[90m [2mÔØ»[22m AnalyticsStorage.init src/analytics/storage/analytics-storage.js:[2m32:12[22m[39m
+[90m [2mÔØ»[22m AnalyticsEngine.init src/analytics/analytics-engine.js:[2m31:30[22m[39m
+[90m [2mÔØ»[22m src/analytics/analytics-engine.test.js:[2m310:27[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[22/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m1. StorageManager.init() is 
+called on DOMContentLoaded
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called at least once[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m163:33[22m[39m
+    [90m161|[39m     [35mawait[39m [35mnew[39m [33mPromise[39m(resolve [33m=>[39m 
+[34msetTimeout[39m(resolve[33m,[39m [34m100[39m))[33m;[39m
+    [90m162|[39m
+    [90m163|[39m     
+[34mexpect[39m([33mStorageManager[39m[33m.[39minit)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   |[39m                                 [31m^[39m
+    [90m164|[39m   })[33m;[39m
+    [90m165|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[23/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m2. Nav.init() is called on 
+DOMContentLoaded
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called at least once[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m172:22[22m[39m
+    [90m170|[39m     [35mawait[39m [35mnew[39m [33mPromise[39m(resolve [33m=>[39m 
+[34msetTimeout[39m(resolve[33m,[39m [34m100[39m))[33m;[39m
+    [90m171|[39m
+    [90m172|[39m     [34mexpect[39m([33mNav[39m[33m.[39minit)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   |[39m                      [31m^[39m
+    [90m173|[39m   })[33m;[39m
+    [90m174|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[24/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m3. Router is created with 
+correct routes and container
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ ArrayContaining{ÔÇª}, ÔÇª(1) ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m181:20[22m[39m
+    [90m179|[39m     [35mawait[39m [35mnew[39m [33mPromise[39m(resolve [33m=>[39m 
+[34msetTimeout[39m(resolve[33m,[39m [34m100[39m))[33m;[39m
+    [90m180|[39m
+    [90m181|[39m     [34mexpect[39m([33mRouter[39m)[33m.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   |[39m                    [31m^[39m
+    [90m182|[39m       expect[33m.[39m[34marrayContaining[39m([
+    [90m183|[39m         expect[33m.[39m[34mobjectContaining[39m({ path[33m:[39m [32m'/onboarding'[39m 
+})[33m,[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[25/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m4. Router.start() is called
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'value')[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m199:51[22m[39m
+    [90m197|[39m     [35mawait[39m [35mnew[39m [33mPromise[39m(resolve [33m=>[39m 
+[34msetTimeout[39m(resolve[33m,[39m [34m100[39m))[33m;[39m
+    [90m198|[39m
+    [90m199|[39m     [35mconst[39m routerInstance [33m=[39m 
+[33mRouter[39m[33m.[39mmock[33m.[39mresults[[34m0[39m][33m.[39mvalue[33m;[39m
+    [90m   |[39m                                                   [31m^[39m
+    [90m200|[39m     
+[34mexpect[39m(routerInstance[33m.[39mstart)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m201|[39m   })[33m;[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[26/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m5. AnalyticsEngine.init() is 
+called
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called at least once[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m209:34[22m[39m
+    [90m207|[39m     [35mawait[39m [35mnew[39m [33mPromise[39m(resolve [33m=>[39m 
+[34msetTimeout[39m(resolve[33m,[39m [34m100[39m))[33m;[39m
+    [90m208|[39m
+    [90m209|[39m     
+[34mexpect[39m(analyticsEngine[33m.[39minit)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   |[39m                                  [31m^[39m
+    [90m210|[39m   })[33m;[39m
+    [90m211|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[27/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m6. Landing mode is applied for 
+home page
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2mÔØ»[22m src/core/app.test.js:[2m218:63[22m[39m
+    [90m216|[39m     [35mawait[39m [35mnew[39m [33mPromise[39m(resolve [33m=>[39m 
+[34msetTimeout[39m(resolve[33m,[39m [34m100[39m))[33m;[39m
+    [90m217|[39m
+    [90m218|[39m     expect(document.body.classList.contains('body--landing')).toBe(truÔÇª
+    [90m   |[39m                                                               [31m^[39m
+    [90m219|[39m   })[33m;[39m
+    [90m220|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[28/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m8. SEO metadata is updated on 
+navigation
+[31m[1mAssertionError[22m: the given combination of arguments (null and string) is invalid for this assertion. You 
+can use an array, a map, an object, a set, a string, or a weakset instead of a string[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m237:46[22m[39m
+    [90m235|[39m
+    [90m236|[39m     const descMeta = document.querySelector('meta[name="description"]'ÔÇª
+    [90m237|[39m     [34mexpect[39m(descMeta[33m.[39m[34mgetAttribute[39m([32m'content'[39m))[33m.[39m[34m
+toContain[39m([32m'Cat├ílogo'[39m)[33m;[39m
+    [90m   |[39m                                              [31m^[39m
+    [90m238|[39m   })[33m;[39m
+    [90m239|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[29/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m9. Theme is restored from 
+StorageManager on init
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called at least once[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m248:36[22m[39m
+    [90m246|[39m
+    [90m247|[39m     // Theme should be set (though mocked, we verify getItem was calleÔÇª
+    [90m248|[39m     
+[34mexpect[39m([33mStorageManager[39m[33m.[39mgetItem)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m249|[39m   })[33m;[39m
+    [90m250|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[30/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m10. Theme toggle updates 
+document and storage
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ Any<String>, ÔÇª(1) ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m263:36[22m[39m
+    [90m261|[39m     themeBtn[33m.[39m[34mdispatchEvent[39m(clickEvent)[33m;[39m
+    [90m262|[39m
+    [90m263|[39m     
+[34mexpect[39m([33mStorageManager[39m[33m.[39msetItem)[33m.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   |[39m                                    [31m^[39m
+    [90m264|[39m       expect[33m.[39m[34many[39m([33mString[39m)[33m,[39m
+    [90m265|[39m       expect[33m.[39m[34mstringMatching[39m([36m/^(light|dark)$/[39m)
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[31/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m11. Loading screen is hidden 
+on init
+[31m[1mAssertionError[22m: expected '' to be 'none' // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- none[39m
+
+[36m [2mÔØ»[22m src/core/app.test.js:[2m274:35[22m[39m
+    [90m272|[39m
+    [90m273|[39m     [35mconst[39m loading [33m=[39m 
+document[33m.[39m[34mgetElementById[39m([32m'app-loading'[39m)[33m;[39m
+    [90m274|[39m     
+[34mexpect[39m(loading[33m.[39mstyle[33m.[39mdisplay)[33m.[39m[34mtoBe[39m([32m'none'[39m)[33m;[39m
+    [90m   |[39m                                   [31m^[39m
+    [90m275|[39m   })[33m;[39m
+    [90m276|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[32/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m12. Toast event listener is 
+registered
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ 'toast:show', Any<Function> ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m283:25[22m[39m
+    [90m281|[39m     [35mawait[39m [35mnew[39m [33mPromise[39m(resolve [33m=>[39m 
+[34msetTimeout[39m(resolve[33m,[39m [34m100[39m))[33m;[39m
+    [90m282|[39m
+    [90m283|[39m     expect(eventBus.on).toHaveBeenCalledWith('toast:show', expect.any(ÔÇª
+    [90m   |[39m                         [31m^[39m
+    [90m284|[39m   })[33m;[39m
+    [90m285|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[33/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m13. ROUTER_NAVIGATE event 
+triggers router.navigate()
+[31m[1mError[22m: [vitest] No "eventBus" export is defined on the "./router.js" mock. Did you forget to return it 
+from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("./router.js"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2mÔØ»[22m src/core/app.test.js:[2m287:21[22m[39m
+    [90m285|[39m
+    [90m286|[39m   it('13. ROUTER_NAVIGATE event triggers router.navigate()', async () ÔÇª
+    [90m287|[39m     [35mconst[39m { [33mRouter[39m[33m,[39m eventBus } [33m=[39m [35mawait[39m 
+[35mimport[39m([32m'./router.js'[39m)[33m;[39m
+    [90m   |[39m                     [31m^[39m
+    [90m288|[39m
+    [90m289|[39m     document[33m.[39m[34mdispatchEvent[39m(mockDOMContentLoaded)[33m;[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[34/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m15. beforeunload flushes 
+analytics
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called at least once[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m329:35[22m[39m
+    [90m327|[39m     window[33m.[39m[34mdispatchEvent[39m([35mnew[39m 
+[33mEvent[39m([32m'beforeunload'[39m))[33m;[39m
+    [90m328|[39m
+    [90m329|[39m     
+[34mexpect[39m(analyticsEngine[33m.[39mflush)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   |[39m                                   [31m^[39m
+    [90m330|[39m   })[33m;[39m
+    [90m331|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[35/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/app.test.js[2m > [22mApp Initialization[2m > [22m16. Nav route changes on 
+popstate event
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called at least once[39m
+[36m [2mÔØ»[22m src/core/app.test.js:[2m341:30[22m[39m
+    [90m339|[39m     window[33m.[39m[34mdispatchEvent[39m([35mnew[39m 
+[33mPopStateEvent[39m([32m'popstate'[39m))[33m;[39m
+    [90m340|[39m
+    [90m341|[39m     
+[34mexpect[39m([33mNav[39m[33m.[39mupdateActive)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   |[39m                              [31m^[39m
+    [90m342|[39m   })[33m;[39m
+    [90m343|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[36/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/meta-manager.test.js[2m > [22mMetaManager ÔÇö Dynamic Meta Tags[2m > [22m6. 
+updateMeta() updates different pages with correct content
+[31m[1mAssertionError[22m: expected 'Perguntas Frequentes | SupliList' to contain 'FAQ'[39m
+
+Expected: [32m"FAQ"[39m
+Received: [31m"Perguntas Frequentes | SupliList"[39m
+
+[36m [2mÔØ»[22m src/core/meta-manager.test.js:[2m75:28[22m[39m
+    [90m 73|[39m     [33mMetaManager[39m[33m.[39m[34mupdateMeta[39m([32m'/faq'[39m)[33m;[39m
+    [90m 74|[39m
+    [90m 75|[39m     
+[34mexpect[39m(document[33m.[39mtitle)[33m.[39m[34mtoContain[39m([32m'FAQ'[39m)[33m;[39m
+    [90m   |[39m                            [31m^[39m
+    [90m 76|[39m     [34mexpect[39m([34mgetMetaContent[39m([32m'description'[39m))[33m.[39m[34mtoContain[39
+m([32m'Perguntas'[39m)[33m;[39m
+    [90m 77|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[37/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/meta-manager.test.js[2m > [22mMetaManager ÔÇö Dynamic Meta Tags[2m > [22m10. 
+updateMeta() handles unknown routes with default meta
+[31m[1mAssertionError[22m: expected 'Compare pre├ºos de 57+ suplementos na ÔÇª' to contain 'Evid├¬ncia'[39m
+
+Expected: [32m"Evid├¬ncia"[39m
+Received: [31m"Compare pre├ºos de 57+ suplementos na Amazon, Mercado Livre e Shopee. Calcule doses personalizadas. 
+100% offline e gratuito."[39m
+
+[36m [2mÔØ»[22m src/core/meta-manager.test.js:[2m119:43[22m[39m
+    [90m117|[39m
+    [90m118|[39m     
+[34mexpect[39m(document[33m.[39mtitle)[33m.[39m[34mtoContain[39m([32m'SupliList'[39m)[33m;[39m
+    [90m119|[39m     [34mexpect[39m([34mgetMetaContent[39m([32m'description'[39m))[33m.[39m[34mtoContain[39
+m([32m'Evid├¬ncia'[39m)[33m;[39m
+    [90m   |[39m                                           [31m^[39m
+    [90m120|[39m   })[33m;[39m
+    [90m121|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[38/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/router.test.js[2m > [22mRouter ÔÇö 404 Handling[2m > [22m12. handleRoute() 
+shows 404 for non-existent routes
+[31m[1mAssertionError[22m: expected '<div>Mock Page</div>' to contain '404'[39m
+
+Expected: [32m"404"[39m
+Received: [31m"<div>Mock Page</div>"[39m
+
+[36m [2mÔØ»[22m src/core/router.test.js:[2m185:33[22m[39m
+    [90m183|[39m     [35mawait[39m router[33m.[39m[34mhandleRoute[39m()[33m;[39m
+    [90m184|[39m
+    [90m185|[39m     
+[34mexpect[39m(container[33m.[39minnerHTML)[33m.[39m[34mtoContain[39m([32m'404'[39m)[33m;[39m
+    [90m   |[39m                                 [31m^[39m
+    [90m186|[39m     [34mexpect[39m(container[33m.[39minnerHTML)[33m.[39m[34mtoContain[39m([32m'P├ígina 
+n├úo encontrada'[39m)[33m;[39m
+    [90m187|[39m   })[33m;[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[39/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/router.test.js[2m > [22mRouter ÔÇö 404 Handling[2m > [22m13. handleRoute() sets 
+document.title for 404
+[31m[1mAssertionError[22m: expected '' to contain 'P├ígina n├úo encontrada'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- P├ígina n├úo encontrada[39m
+
+[36m [2mÔØ»[22m src/core/router.test.js:[2m195:28[22m[39m
+    [90m193|[39m     [35mawait[39m router[33m.[39m[34mhandleRoute[39m()[33m;[39m
+    [90m194|[39m
+    [90m195|[39m     [34mexpect[39m(document[33m.[39mtitle)[33m.[39m[34mtoContain[39m([32m'P├ígina n├úo 
+encontrada'[39m)[33m;[39m
+    [90m   |[39m                            [31m^[39m
+    [90m196|[39m   })[33m;[39m
+    [90m197|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[40/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/router.test.js[2m > [22mRouter ÔÇö Page Lifecycle[2m > [22m14. handleRoute() 
+instantiates page with container and params
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ <div><p ÔÇª(1)></p></div>, ÔÇª(1) 
+][90m
+
+Received:
+
+[1m  1st vi.fn() call:
+
+[22m[33m@@ -4,9 +4,7 @@[90m
+[2m        style="color:var(--color-error);padding:2rem;"[22m
+[2m      >[22m
+[2m        Erro ao carregar a p├ígina. Tente novamente.[22m
+[2m      </p>[22m
+[2m    </div>,[22m
+[32m-   ObjectContaining {[90m
+[32m-     "test": "param",[90m
+[32m-   },[90m
+[31m+   {},[90m
+[2m  ][22m
+[31m[90m
+
+Number of calls: [1m1[22m
+[31m[39m
+[36m [2mÔØ»[22m src/core/router.test.js:[2m239:23[22m[39m
+    [90m237|[39m     [35mawait[39m router[33m.[39m[34mhandleRoute[39m()[33m;[39m
+    [90m238|[39m
+    [90m239|[39m     [34mexpect[39m([33mPageClass[39m)[33m.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   |[39m                       [31m^[39m
+    [90m240|[39m       container[33m,[39m
+    [90m241|[39m       expect[33m.[39m[34mobjectContaining[39m({ test[33m:[39m [32m'param'[39m })
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[41/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/router.test.js[2m > [22mRouter ÔÇö Page Lifecycle[2m > [22m15. handleRoute() 
+calls page.mount()
+[31m[1mTypeError[22m: undefined is not a spy or a call to a spy![39m
+[36m [2mÔØ»[22m src/core/router.test.js:[2m253:36[22m[39m
+    [90m251|[39m     [34mexpect[39m([33mPageClass[39m)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m252|[39m     [35mconst[39m mockPageInstance [33m=[39m 
+[33mPageClass[39m[33m.[39mmock[33m.[39mresults[[34m0[39m][33m.[39mvalue[33m;[39m
+    [90m253|[39m     
+[34mexpect[39m(mockPageInstance[33m.[39mmount)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m254|[39m   })[33m;[39m
+    [90m255|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[42/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/router.test.js[2m > [22mRouter ÔÇö Stale Navigation Prevention (Token System)[2m 
+> [22m16. Navigation token increments on each navigation
+[31m[1mAssertionError[22m: expected +0 to be 1 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+[36m [2mÔØ»[22m src/core/router.test.js:[2m294:37[22m[39m
+    [90m292|[39m     
+[34mexpect[39m(router[33m.[39m_navigationToken)[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m
+    [90m293|[39m     router[33m.[39m[34mnavigate[39m([32m'/fast'[39m)[33m;[39m
+    [90m294|[39m     
+[34mexpect[39m(router[33m.[39m_navigationToken)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m   |[39m                                     [31m^[39m
+    [90m295|[39m   })[33m;[39m
+    [90m296|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[43/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/router.test.js[2m > [22mRouter ÔÇö Error Handling[2m > [22m18. handleRoute() 
+shows error message on page load failure
+[31m[1mAssertionError[22m: expected '<div style="padding:2rem;text-align:cÔÇª' to contain 'Erro ao carregar a 
+p├ígina'[39m
+
+Expected: [32m"Erro ao carregar a p├ígina"[39m
+Received: [31m"<div style="padding:2rem;text-align:center;color:var(--color-text-secondary);"><p 
+style="font-size:2rem;margin-bottom:1rem;">404</p><p>P├ígina n├úo encontrada.</p></div>"[39m
+
+[36m [2mÔØ»[22m src/core/router.test.js:[2m350:33[22m[39m
+    [90m348|[39m     [35mawait[39m router[33m.[39m[34mhandleRoute[39m()[33m;[39m
+    [90m349|[39m
+    [90m350|[39m     [34mexpect[39m(container[33m.[39minnerHTML)[33m.[39m[34mtoContain[39m([32m'Erro ao 
+carregar a p├ígina'[39m)[33m;[39m
+    [90m   |[39m                                 [31m^[39m
+    [90m351|[39m   })[33m;[39m
+    [90m352|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[44/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/schema-manager.test.js[2m > [22mSchemaManager ÔÇö JSON-LD Structured Data[2m > 
+[22m4. createProductSchema() includes evidence rating
+[31m[1mAssertionError[22m: expected 5 to be '5' // Object.is equality[39m
+
+[32m- Expected:[39m
+"5"
+
+[31m+ Received:[39m
+5
+
+[36m [2mÔØ»[22m src/core/schema-manager.test.js:[2m75:48[22m[39m
+    [90m 73|[39m
+    [90m 74|[39m     [34mexpect[39m(schema[33m.[39maggregateRating)[33m.[39m[34mtoBeTruthy[39m()[33m;[39m
+    [90m 75|[39m     expect(schema.aggregateRating.ratingValue).toBe('5'); // A = 5 staÔÇª
+    [90m   |[39m                                                [31m^[39m
+    [90m 76|[39m     expect(schema.aggregateRating.ratingExplanation).toContain('Grau AÔÇª
+    [90m 77|[39m   })[33m;[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[45/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/schema-manager.test.js[2m > [22mSchemaManager ÔÇö JSON-LD Structured Data[2m > 
+[22m13. Evidence rating mapping works correctly
+[31m[1mAssertionError[22m: expected 5 to be '5' // Object.is equality[39m
+
+[32m- Expected:[39m
+"5"
+
+[31m+ Received:[39m
+5
+
+[36m [2mÔØ»[22m src/core/schema-manager.test.js:[2m202:50[22m[39m
+    [90m200|[39m       [35mconst[39m supplement [33m=[39m { name[33m:[39m [32m'Test'[39m[33m,[39m 
+evidence[33m,[39m offers[33m:[39m [] }[33m;[39m
+    [90m201|[39m       [35mconst[39m schema [33m=[39m 
+[33mSchemaManager[39m[33m.[39m[34mcreateProductSchema[39m(supplement)[33m;[39m
+    [90m202|[39m       
+[34mexpect[39m(schema[33m.[39maggregateRating[33m.[39mratingValue)[33m.[39m[34mtoBe[39m(expected)[33m;[39m
+    [90m   |[39m                                                  [31m^[39m
+    [90m203|[39m     })[33m;[39m
+    [90m204|[39m   })[33m;[39m
+[90m [2mÔØ»[22m src/core/schema-manager.test.js:[2m199:13[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[46/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/virtual-scroller.test.js[2m > [22mIntersectionVirtualScroller ÔÇö Observer-based 
+Rendering[2m > [22m1. mount() creates list container
+[31m[1mReferenceError[22m: IntersectionObserver is not defined[39m
+[36m [2mÔØ»[22m IntersectionVirtualScroller._initializeObserver src/core/virtual-scroller.js:[2m254:26[22m[39m
+    [90m252|[39m
+    [90m253|[39m   [34m_initializeObserver[39m() {
+    [90m254|[39m     [35mthis[39m[33m.[39m_observer [33m=[39m [35mnew[39m 
+[33mIntersectionObserver[39m(entries [33m=>[39m {
+    [90m   |[39m                          [31m^[39m
+    [90m255|[39m       entries[33m.[39m[34mforEach[39m(entry [33m=>[39m {
+    [90m256|[39m         [35mconst[39m index [33m=[39m 
+[34mparseInt[39m(entry[33m.[39mtarget[33m.[39mdataset[33m.[39mindex[33m,[39m [34m10[39m)[33m;[39m
+[90m [2mÔØ»[22m IntersectionVirtualScroller.mount src/core/virtual-scroller.js:[2m231:10[22m[39m
+[90m [2mÔØ»[22m src/core/virtual-scroller.test.js:[2m230:14[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[47/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/virtual-scroller.test.js[2m > [22mIntersectionVirtualScroller ÔÇö Observer-based 
+Rendering[2m > [22m2. mount() renders all items
+[31m[1mReferenceError[22m: IntersectionObserver is not defined[39m
+[36m [2mÔØ»[22m IntersectionVirtualScroller._initializeObserver src/core/virtual-scroller.js:[2m254:26[22m[39m
+    [90m252|[39m
+    [90m253|[39m   [34m_initializeObserver[39m() {
+    [90m254|[39m     [35mthis[39m[33m.[39m_observer [33m=[39m [35mnew[39m 
+[33mIntersectionObserver[39m(entries [33m=>[39m {
+    [90m   |[39m                          [31m^[39m
+    [90m255|[39m       entries[33m.[39m[34mforEach[39m(entry [33m=>[39m {
+    [90m256|[39m         [35mconst[39m index [33m=[39m 
+[34mparseInt[39m(entry[33m.[39mtarget[33m.[39mdataset[33m.[39mindex[33m,[39m [34m10[39m)[33m;[39m
+[90m [2mÔØ»[22m IntersectionVirtualScroller.mount src/core/virtual-scroller.js:[2m231:10[22m[39m
+[90m [2mÔØ»[22m src/core/virtual-scroller.test.js:[2m238:14[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[48/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/virtual-scroller.test.js[2m > [22mIntersectionVirtualScroller ÔÇö Observer-based 
+Rendering[2m > [22m3. updateItems() works
+[31m[1mReferenceError[22m: IntersectionObserver is not defined[39m
+[36m [2mÔØ»[22m IntersectionVirtualScroller._initializeObserver src/core/virtual-scroller.js:[2m254:26[22m[39m
+    [90m252|[39m
+    [90m253|[39m   [34m_initializeObserver[39m() {
+    [90m254|[39m     [35mthis[39m[33m.[39m_observer [33m=[39m [35mnew[39m 
+[33mIntersectionObserver[39m(entries [33m=>[39m {
+    [90m   |[39m                          [31m^[39m
+    [90m255|[39m       entries[33m.[39m[34mforEach[39m(entry [33m=>[39m {
+    [90m256|[39m         [35mconst[39m index [33m=[39m 
+[34mparseInt[39m(entry[33m.[39mtarget[33m.[39mdataset[33m.[39mindex[33m,[39m [34m10[39m)[33m;[39m
+[90m [2mÔØ»[22m IntersectionVirtualScroller.mount src/core/virtual-scroller.js:[2m231:10[22m[39m
+[90m [2mÔØ»[22m src/core/virtual-scroller.test.js:[2m246:14[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[49/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/core/virtual-scroller.test.js[2m > [22mIntersectionVirtualScroller ÔÇö Observer-based 
+Rendering[2m > [22m4. unmount() cleans up
+[31m[1mReferenceError[22m: IntersectionObserver is not defined[39m
+[36m [2mÔØ»[22m IntersectionVirtualScroller._initializeObserver src/core/virtual-scroller.js:[2m254:26[22m[39m
+    [90m252|[39m
+    [90m253|[39m   [34m_initializeObserver[39m() {
+    [90m254|[39m     [35mthis[39m[33m.[39m_observer [33m=[39m [35mnew[39m 
+[33mIntersectionObserver[39m(entries [33m=>[39m {
+    [90m   |[39m                          [31m^[39m
+    [90m255|[39m       entries[33m.[39m[34mforEach[39m(entry [33m=>[39m {
+    [90m256|[39m         [35mconst[39m index [33m=[39m 
+[34mparseInt[39m(entry[33m.[39mtarget[33m.[39mdataset[33m.[39mindex[33m,[39m [34m10[39m)[33m;[39m
+[90m [2mÔØ»[22m IntersectionVirtualScroller.mount src/core/virtual-scroller.js:[2m231:10[22m[39m
+[90m [2mÔØ»[22m src/core/virtual-scroller.test.js:[2m257:14[22m[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[50/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/monetization/affiliate-engine.test.js[2m > [22mAffiliateEngine.getLinks[2m > 
+[22mMercado Livre URL contains ML placeholder ID
+[31m[1mAssertionError[22m: expected 'https://lista.mercadolivre.com.br/creÔÇª' to contain 
+'partner_id=SUPLILIST_ML'[39m
+
+Expected: [32m"partner_id=SUPLILIST_ML"[39m
+Received: [31m"https://lista.mercadolivre.com.br/creatina-monoidratada_OrderId_PRICE_ASC*"[39m
+
+[36m [2mÔØ»[22m src/monetization/affiliate-engine.test.js:[2m36:26[22m[39m
+    [90m 34|[39m   [34mit[39m([32m'Mercado Livre URL contains ML placeholder ID'[39m[33m,[39m () [33m=>[39m {
+    [90m 35|[39m     const { mercadolivre } = affiliateEngine.getLinks('Creatina MonoidÔÇª
+    [90m 36|[39m     
+[34mexpect[39m(mercadolivre)[33m.[39m[34mtoContain[39m([32m'partner_id=SUPLILIST_ML'[39m)[33m;[39m
+    [90m   |[39m                          [31m^[39m
+    [90m 37|[39m   })[33m;[39m
+    [90m 38|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[51/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/monetization/affiliate-engine.test.js[2m > [22mAffiliateEngine.getLinks[2m > 
+[22mShopee URL contains Shopee placeholder ID
+[31m[1mAssertionError[22m: expected 'https://shopee.com.br/search?keyword=ÔÇª' to contain 
+'af_id=SUPLILIST_SHOPEE'[39m
+
+Expected: [32m"af_id=SUPLILIST_SHOPEE"[39m
+Received: [31m"https://shopee.com.br/search?keyword=Creatina%20Monoidratada&sortBy=sales&rating=4"[39m
+
+[36m [2mÔØ»[22m src/monetization/affiliate-engine.test.js:[2m41:20[22m[39m
+    [90m 39|[39m   [34mit[39m([32m'Shopee URL contains Shopee placeholder ID'[39m[33m,[39m () [33m=>[39m {
+    [90m 40|[39m     const { shopee } = affiliateEngine.getLinks('Creatina MonoidratadaÔÇª
+    [90m 41|[39m     
+[34mexpect[39m(shopee)[33m.[39m[34mtoContain[39m([32m'af_id=SUPLILIST_SHOPEE'[39m)[33m;[39m
+    [90m   |[39m                    [31m^[39m
+    [90m 42|[39m   })[33m;[39m
+    [90m 43|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[52/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/state/state-manager.test.js[2m > [22mStateManager v4.0[2m > [22m7. State persists 
+after simulated reload
+[31m[1mTypeError[22m: Cannot read properties of null (reading 'user')[39m
+[36m [2mÔØ»[22m src/state/state-manager.test.js:[2m108:19[22m[39m
+    [90m106|[39m     [90m// Verify written to storage[39m
+    [90m107|[39m     [35mconst[39m stored [33m=[39m 
+[33mJSON[39m[33m.[39m[34mparse[39m(localStorage[33m.[39m[34mgetItem[39m([33mSTORAGE_KEY[39m))[33m;[39m
+    [90m108|[39m     
+[34mexpect[39m(stored[33m.[39muser[33m.[39mname)[33m.[39m[34mtoBe[39m([32m'Alice'[39m)[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m109|[39m
+    [90m110|[39m     [90m// Simulate page reload by creating a new StateManager instance[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[53/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m1. 
+Renders streak counter and progress bar with correct state
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m2. 
+Progress percentage reflects checked count / total stack
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m3. 
+Supplement card toggles checked visual state on click
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m4. 
+Checking supplement dispatches ADD_CHECKIN with today date
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m5. Mark 
+all button checks remaining supplements and dispatches ADD_CHECKIN batch
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m6. Toast 
+event fires on single checkin
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m7. Toast 
+event fires on mark all
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m8. Empty 
+stack shows CTA with navigation link
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m9. 
+Checked supplement shows Feito checkmark icon
+[41m[1m FAIL [22m[49m src/pages/checkin-page.test.js[2m > [22mCheckinPage ÔÇö Daily Check-in[2m > [22m10. 
+Unmount removes event listeners
+[31m[1mTypeError[22m: CheckinPage is not a constructor[39m
+[36m [2mÔØ»[22m src/pages/checkin-page.test.js:[2m71:19[22m[39m
+    [90m 69|[39m
+    [90m 70|[39m     [35mconst[39m { [33mCheckinPage[39m } [33m=[39m [35mawait[39m 
+[35mimport[39m([32m'./checkin-page.js'[39m)[33m;[39m
+    [90m 71|[39m     checkinPage [33m=[39m [35mnew[39m [33mCheckinPage[39m(container)[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m 72|[39m   })[33m;[39m
+    [90m 73|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[54/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m1. 
+Calculates and displays adherence percentage
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m2. 
+Displays total cycles and investment calculated from checkins
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m3. 
+Renders 7-day calendar grid with day labels and today indicator
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m4. 
+Calendar shows filled/empty dots for checked/unchecked days
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m5. 
+Search filters supplements by name and category
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m6. 
+Category chips toggle filter on/off
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m7. 
+Expandable card toggles log panel open/closed
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m8. 
+Logs sort newest-first within log panel
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m9. 
+Adherence color class (green/yellow/red) reflects adherence level
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m10. 
+Calculates per-supplement adherence with edge case handling
+[41m[1m FAIL [22m[49m src/pages/history-page.test.js[2m > [22mHistoryPage ÔÇö Check-in History[2m > [22m11. 
+Unmount removes event listeners
+[31m[1mTypeError[22m: HistoryPage is not a constructor[39m
+[36m [2mÔØ»[22m src/pages/history-page.test.js:[2m61:19[22m[39m
+    [90m 59|[39m
+    [90m 60|[39m     [35mconst[39m { [33mHistoryPage[39m } [33m=[39m [35mawait[39m 
+[35mimport[39m([32m'./history-page.js'[39m)[33m;[39m
+    [90m 61|[39m     historyPage [33m=[39m [35mnew[39m [33mHistoryPage[39m(container)[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m 62|[39m   })[33m;[39m
+    [90m 63|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[55/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m1. Renders 
+supplement grid with correct structure
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m2. Filter 
+by category updates visible supplements
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m3. Search 
+query filters supplements and updates grid
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m4. Modal 
+opens with supplement data and handles tab switching
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m5. Modal 
+closes on close button, overlay click, and Escape key
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m6. 
+Favorite toggle dispatches ADD_FAVORITE/REMOVE_FAVORITE
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m7. 
+Supplement card displays price when prices.json loads
+[41m[1m FAIL [22m[49m src/pages/list-page.test.js[2m > [22mListPage ÔÇö Supplement Catalog[2m > [22m8. Unmount 
+clears listeners and virtual scroller
+[31m[1mTypeError[22m: ListPage is not a constructor[39m
+[36m [2mÔØ»[22m src/pages/list-page.test.js:[2m94:16[22m[39m
+    [90m 92|[39m     [90m// Dynamic import to get fresh class instance[39m
+    [90m 93|[39m     [35mconst[39m { [33mListPage[39m } [33m=[39m [35mawait[39m 
+[35mimport[39m([32m'./list-page.js'[39m)[33m;[39m
+    [90m 94|[39m     listPage [33m=[39m [35mnew[39m [33mListPage[39m(container[33m,[39m {})[33m;[39m
+    [90m   |[39m                [31m^[39m
+    [90m 95|[39m   })[33m;[39m
+    [90m 96|[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[56/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/my-stack-page.test.js[2m > [22mMyStackPage ÔÇö User Personal Stack[2m > [22m3. 
+Modal search filters supplements and ADD_TO_STACK dispatches
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ ObjectContaining{ÔÇª} ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[36m [2mÔØ»[22m src/pages/my-stack-page.test.js:[2m154:37[22m[39m
+    [90m152|[39m       submitBtn[33m?.[39m[34mclick[39m()[33m;[39m
+    [90m153|[39m
+    [90m154|[39m       [34mexpect[39m(stateManager[33m.[39mdispatch)[33m.[39m[34mtoHaveBeenCalledWith[39m(
+    [90m   |[39m                                     [31m^[39m
+    [90m155|[39m         expect[33m.[39m[34mobjectContaining[39m({
+    [90m156|[39m           type[33m:[39m [32m'ADD_TO_STACK'[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[57/84]ÔÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/my-stack-page.test.js[2m > [22mMyStackPage ÔÇö User Personal Stack[2m > [22m8. 
+Unmount removes listeners and cleans up modal
+[31m[1mAssertionError[22m: expected '' to be 'none' // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- none[39m
+
+[36m [2mÔØ»[22m src/pages/my-stack-page.test.js:[2m245:33[22m[39m
+    [90m243|[39m
+    [90m244|[39m     [35mconst[39m modal [33m=[39m 
+document[33m.[39m[34mgetElementById[39m([32m'stack-modal'[39m)[33m;[39m
+    [90m245|[39m     
+[34mexpect[39m(modal[33m.[39mstyle[33m.[39mdisplay)[33m.[39m[34mtoBe[39m([32m'none'[39m)[33m;[39m
+    [90m   |[39m                                 [31m^[39m
+    [90m246|[39m   })[33m;[39m
+    [90m247|[39m })[33m;[39m
+
+[31m[2mÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[58/84]ÔÄ»[22m[39m
+
+
+[2m Test Files [22m [1m[31m14 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (24)[39m
+[2m      Tests [22m [1m[31m82 failed[39m[22m[2m | [22m[1m[32m189 passed[39m[22m[90m (271)[39m
+[2m   Start at [22m 12:53:52
+[2m   Duration [22m 4.38s[2m (transform 3.41s, setup 0ms, import 2.80s, tests 6.31s, environment 35.21s)[22m
+

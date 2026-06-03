@@ -10,6 +10,9 @@ import { renderEvidenceBadge } from '../utils/evidence.js';
 import { getSupplementId } from '../utils/stack.js';
 import { escapeHtml } from '../utils/escape.js';
 import affiliateEngine from '../monetization/affiliate-engine.js';
+import ShareService from '../features/sharing/share-service.js';
+import QRGenerator from '../features/sharing/qr-generator.js';
+
 
 // Prices loaded lazily from /data/prices.json
 let PRICES_DB = null;
@@ -107,10 +110,11 @@ const STYLES = `
   .msp-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 10px;
   }
-  @media (max-width: 360px) {
-    .msp-stats { grid-template-columns: 1fr; }
+  @media (max-width: 540px) {
+    .msp-stats { grid-template-columns: 1fr 1fr; }
+    .msp-stats .msp-stat-card:first-child { grid-column: 1 / -1; }
   }
   .msp-stat-card {
     background: var(--color-surface-primary);
@@ -142,12 +146,16 @@ const STYLES = `
     color: var(--color-text-muted);
   }
   .msp-stat-value {
-    font-size: 22px;
+    font-size: clamp(24px, 4vw, 36px);
     font-weight: 800;
     color: var(--color-text-primary);
-    line-height: 1.1;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
   }
   .msp-stat-value.brand { color: var(--color-brand); }
+  .msp-stat-icon--ev { background: var(--ev-a-bg, rgba(52,211,153,0.12)); color: var(--ev-a, #34D399); }
+  .msp-stat-icon--adherence { background: var(--ev-b-bg, rgba(251,191,36,0.12)); color: var(--ev-b, #FBBF24); }
 
   /* Desktop: two-column layout for list + sidebar */
   .msp-body {
@@ -189,6 +197,28 @@ const STYLES = `
     transition: background 150ms;
   }
   .msp-btn-add:hover { background: var(--color-brand-hover); }
+
+  .msp-btn-share {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: transparent;
+    border: 1.5px solid var(--color-border-strong);
+    color: var(--color-text-primary);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 150ms ease;
+  }
+  .msp-btn-share:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    background: var(--color-surface-hover);
+  }
+
 
   /* Stack list */
   .msp-list { display: flex; flex-direction: column; gap: 10px; }
@@ -244,7 +274,7 @@ const STYLES = `
     height: 72px;
     border-radius: 12px;
     object-fit: contain;
-    background: #111;
+    background: var(--color-surface-secondary, #191D25);
     flex-shrink: 0;
     padding: 4px;
   }
@@ -581,8 +611,9 @@ const STYLES = `
   }
   .msp-replen-price {
     font-size: 12px;
-    color: var(--color-success);
+    color: var(--color-savings, #22C55E);
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
   .msp-replen-market {
     font-size: 11px;
@@ -601,7 +632,25 @@ const STYLES = `
   }
 `;
 
+/**
+ * MyStackPage — User's supplement stack management
+ *
+ * Shows:
+ * - Header: title + subtitle (count, monthly cost)
+ * - Stat cards: count, monthly investment, 7-day adherence rate
+ * - Left column: list of supplements in stack with quantity/dosage controls
+ * - Right sidebar: replenishment suggestions + best prices per supplement
+ * - Add modal: search + select supplement to add to stack
+ * - Share modal: generate shareable link + QR code
+ *
+ * Integrates with StateManager (stack mutations), SUPPLEMENTS_DB (lookups),
+ * ShareService (social sharing), and live pricing from prices.json.
+ */
 export class MyStackPage {
+  /**
+   * Create a new MyStackPage
+   * @param {HTMLElement} container - DOM element to mount the page
+   */
   constructor(container) {
     this.container = container;
     this._unsub = null;
@@ -609,8 +658,19 @@ export class MyStackPage {
     this._modalOpen = false;
     this._prices = null;
     this._docClickHandler = null;
+    this.shareService = new ShareService();
+    this.qrGenerator = new QRGenerator();
   }
 
+  /**
+   * Mount the page to the DOM and initialize all subscriptions.
+   *
+   * Injects CSS, renders main scaffold, fetches live pricing async,
+   * subscribes to stack state changes, attaches event listeners.
+   * Uses _isMounted flag to abort renders if unmounted before async completes.
+   *
+   * @returns {void}
+   */
   mount() {
     this._isMounted = true; // L4 FIX: flag de montagem ativa
     this._attachStyles();
@@ -630,6 +690,15 @@ export class MyStackPage {
     });
   }
 
+  /**
+   * Unmount the page and clean up all resources.
+   *
+   * Stops state subscription, removes event listeners, closes modal,
+   * and sets _isMounted flag to prevent async renders after unmount.
+   * Safe to call multiple times.
+   *
+   * @returns {void}
+   */
   unmount() {
     this._isMounted = false; // L4 FIX: flag de montagem inativa
     if (this._docClickHandler) {
@@ -641,6 +710,16 @@ export class MyStackPage {
   }
 
   // ─── Styles ────────────────────────────────────────────────────────────────
+
+  /**
+   * Inject CSS styles for MyStackPage into <head> (idempotent).
+   *
+   * Creates <style id="msp2-styles"> with all component styles (layout, cards,
+   * list, sidebar, buttons, modals). Skips if already injected.
+   *
+   * @returns {void}
+   * @private
+   */
   _attachStyles() {
     if (document.getElementById('msp2-styles')) return;
     const style = document.createElement('style');
@@ -650,12 +729,28 @@ export class MyStackPage {
   }
 
   // ─── Main render ───────────────────────────────────────────────────────────
+
+  /**
+   * Render the complete MyStackPage DOM scaffold into the container.
+   *
+   * Builds HTML structure with:
+   * - Header: title + subtitle (#msp-subtitle)
+   * - Stat cards: count, monthly cost, adherence (#msp-stats)
+   * - Left column: section header + list (#msp-list) + Share/Add buttons
+   * - Right sidebar: replenishment card (#msp-replenishment)
+   *
+   * Then calls _renderAll() to populate dynamic sections and _attachDelegatedListeners()
+   * for event delegation. Direct listeners attached to Share and Add buttons.
+   *
+   * @returns {void}
+   * @private
+   */
   _render() {
     this.container.innerHTML = `
       <div class="msp-wrap">
         <!-- Header -->
         <div>
-          <h1 class="msp-header-title">📦 Meu Stack</h1>
+          <h1 class="msp-header-title">Meu Stack</h1>
           <p class="msp-header-sub" id="msp-subtitle">Carregando...</p>
         </div>
 
@@ -668,9 +763,14 @@ export class MyStackPage {
           <div>
             <div class="msp-section-header">
               <h2 class="msp-section-title">Suplementos Ativos</h2>
-              <button class="msp-btn-add" id="msp-open-modal">
-                <span>+</span> Adicionar Suplemento
-              </button>
+              <div style="display: flex; gap: 8px;">
+                <button class="msp-btn-share" id="msp-share-stack">
+                  <span>🔗</span> Compartilhar
+                </button>
+                <button class="msp-btn-add" id="msp-open-modal">
+                  <span>+</span> Adicionar Suplemento
+                </button>
+              </div>
             </div>
             <div class="msp-list" id="msp-list"></div>
           </div>
@@ -692,9 +792,20 @@ export class MyStackPage {
     this._attachDelegatedListeners();
 
     this.container.querySelector('#msp-open-modal')?.addEventListener('click', () => this._openModal());
+    this.container.querySelector('#msp-share-stack')?.addEventListener('click', () => this._openShareModal());
   }
 
   // ─── Render all dynamic sections ──────────────────────────────────────────
+
+  /**
+   * Re-render all dynamic sections (title, stats, list, replenishment).
+   *
+   * Called after state mutations (ADD_TO_STACK, REMOVE_FROM_STACK, etc.).
+   * Skips replenishment if prices not loaded yet.
+   *
+   * @returns {void}
+   * @private
+   */
   _renderAll() {
     this._renderSubtitle();
     this._renderStats();
@@ -702,6 +813,15 @@ export class MyStackPage {
     if (this._prices) this._renderReplenishment();
   }
 
+  /**
+   * Update subtitle with stack count and monthly investment estimate.
+   *
+   * Displays: "{count} suplemento(s) ativo(s) · R$ XX,XX/mês estimado"
+   * Recalculates monthly cost using calcMonthlyInvestment() each render.
+   *
+   * @returns {void}
+   * @private
+   */
   _renderSubtitle() {
     const stack = stateManager.stack ?? [];
     const total = calcMonthlyInvestment(stack);
@@ -710,6 +830,19 @@ export class MyStackPage {
     el.textContent = `${stack.length} suplemento${stack.length !== 1 ? 's' : ''} ativo${stack.length !== 1 ? 's' : ''} · ${formatBRL(total)}/mês estimado`;
   }
 
+  /**
+   * Render stat cards: supplement count, monthly investment, 7-day adherence.
+   *
+   * Updates three stat boxes (#msp-stats) with:
+   * - Count: number of items in stack
+   * - Investment: estimated monthly cost using calcMonthlyInvestment()
+   * - Adherence: 7-day completion rate from checkins using calcAdherenceRate()
+   *
+   * Each card has icon, label, value, and optional sub-label.
+   *
+   * @returns {void}
+   * @private
+   */
   _renderStats() {
     const el = this.container.querySelector('#msp-stats');
     if (!el) return;
@@ -727,7 +860,7 @@ export class MyStackPage {
         <span class="msp-stat-sub">Estimado por stack atual</span>
       </div>
       <div class="msp-stat-card">
-        <div class="msp-stat-icon" style="background:rgba(34,197,94,0.12);color:#22C55E;">
+        <div class="msp-stat-icon msp-stat-icon--ev">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
         </div>
         <span class="msp-stat-label">Ciclos Ativos</span>
@@ -735,7 +868,7 @@ export class MyStackPage {
         <span class="msp-stat-sub">${stack.length > 0 ? stack.length + ' suplemento' + (stack.length !== 1 ? 's' : '') + ' no protocolo' : 'Nenhum ativo'}</span>
       </div>
       <div class="msp-stat-card">
-        <div class="msp-stat-icon" style="background:rgba(234,179,8,0.12);color:#EAB308;">
+        <div class="msp-stat-icon msp-stat-icon--adherence">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <span class="msp-stat-label">Taxa de Adesão</span>
@@ -745,6 +878,24 @@ export class MyStackPage {
     `;
   }
 
+  /**
+   * Render the supplement list with inline edit controls and quick actions.
+   *
+   * For each item in stack:
+   * - Shows image, name, category, dosage, days left
+   * - Evidence badge (graded A-D)
+   * - Inline edit mode for quantity (toggle w/ pencil button)
+   * - Favorite toggle (heart icon)
+   * - Quick delete button (trash icon)
+   * - Affiliate links to Shopee/Amazon/Mercado Livre
+   *
+   * If stack empty, shows empty state with CTA to "Explorar Catálogo".
+   *
+   * Events delegated via _attachDelegatedListeners() for edit/delete/favorite.
+   *
+   * @returns {void}
+   * @private
+   */
   _renderList() {
     const list = this.container.querySelector('#msp-list');
     if (!list) return;
@@ -823,6 +974,22 @@ export class MyStackPage {
     });
   }
 
+  /**
+   * Render sidebar with replenishment suggestions and best prices per supplement.
+   *
+   * Filters stack items to those with live pricing data.
+   * For each item, finds cheapest market and displays:
+   * - Item name
+   * - Best price (lowest among Shopee/Amazon/Mercado Livre)
+   * - Market name (store that has the best price)
+   * - Divider between items
+   *
+   * Falls back to empty state if no pricing data available.
+   * Sidebar updates only when this._prices is loaded (async from prices.json).
+   *
+   * @returns {void}
+   * @private
+   */
   _renderReplenishment() {
     const el = this.container.querySelector('#msp-replenishment');
     if (!el) return;
@@ -861,6 +1028,22 @@ export class MyStackPage {
   }
 
   // ─── Delegated list event listeners ───────────────────────────────────────
+
+  /**
+   * Attach delegated event listeners to the stack list for edit/delete/affiliate actions.
+   *
+   * Handles:
+   * - Affiliate link clicks: tracks via affiliateEngine.trackClick()
+   * - Edit button: toggles inline edit form for dosage/quantity
+   * - Remove button: confirms deletion + dispatches REMOVE_FROM_STACK action
+   * - Save-edit button: persists inline edits to state
+   * - Cancel-edit button: closes inline edit without saving
+   *
+   * Event delegation attached to #msp-list for efficiency.
+   *
+   * @returns {void}
+   * @private
+   */
   _attachDelegatedListeners() {
     this.container.querySelector('#msp-list')?.addEventListener('click', e => {
       const affLink = e.target.closest('[data-aff-mp]');
@@ -889,6 +1072,22 @@ export class MyStackPage {
   }
 
   // ─── Inline edit ──────────────────────────────────────────────────────────
+
+  /**
+   * Toggle inline edit form open/closed for a supplement item.
+   *
+   * If already open, closes it. Otherwise, renders form with:
+   * - Dosage input (number, min 0.1)
+   * - Unit dropdown (g, mg, UI, mcg, cápsulas)
+   * - Quantity/stock input (number, min 0)
+   * - Save + Cancel buttons
+   *
+   * Ensures only one edit form open at a time (closes others).
+   *
+   * @param {string} id - Supplement ID to edit
+   * @returns {void}
+   * @private
+   */
   _toggleInlineEdit(id) {
     const wrap = this.container.querySelector(`#msp-edit-${id}`);
     if (!wrap) return;
@@ -933,11 +1132,33 @@ export class MyStackPage {
     wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  /**
+   * Close inline edit form without saving changes.
+   *
+   * Hides the edit wrapper (msp-edit-{id}) by setting display to 'none'.
+   * Safe to call multiple times or if form doesn't exist.
+   *
+   * @param {string} id - Supplement ID
+   * @returns {void}
+   * @private
+   */
   _closeInlineEdit(id) {
     const wrap = this.container.querySelector(`#msp-edit-${id}`);
     if (wrap) wrap.style.display = 'none';
   }
 
+  /**
+   * Save inline edit form changes to state and close form.
+   *
+   * Reads dosage, unit, and quantity from form inputs.
+   * Validates dosage > 0 (shows alert if invalid).
+   * Dispatches UPDATE_STACK_ITEM action to stateManager.
+   * Then closes the edit form.
+   *
+   * @param {string} id - Supplement ID
+   * @returns {void}
+   * @private
+   */
   _saveInlineEdit(id) {
     const dosage = parseFloat(this.container.querySelector(`#msp-ei-dosage-${id}`)?.value) || 0;
     const unit = this.container.querySelector(`#msp-ei-unit-${id}`)?.value || 'g';
@@ -950,6 +1171,27 @@ export class MyStackPage {
   }
 
   // ─── Add supplement modal ─────────────────────────────────────────────────
+
+  /**
+   * Open "Add Supplement" modal dialog with search, dosage, and quantity fields.
+   *
+   * Creates modal overlay with:
+   * - Search input (debounced 180ms) that filters SUPPLEMENTS_DB by name/category
+   * - Results dropdown (up to 8 matches)
+   * - Dosage input + unit dropdown (pre-filled from selected result)
+   * - Quantity/stock input
+   * - Submit button (ADD_TO_STACK action)
+   *
+   * Closing: click overlay, click close button, or submit form.
+   * Auto-focuses search input for quick typing.
+   * Handles case where supplement already in DB (uses ID) or custom name (generates ID).
+   *
+   * Guard: returns early if modal already open (prevents duplicates).
+   * Event delegation: document click closes results dropdown (outside search/results).
+   *
+   * @returns {void}
+   * @private
+   */
   _openModal() {
     if (this._modalOpen) return;
     this._modalOpen = true;
@@ -1092,6 +1334,18 @@ export class MyStackPage {
     setTimeout(() => searchInput?.focus(), 100);
   }
 
+  /**
+   * Close the "Add Supplement" modal and clean up event listeners.
+   *
+   * Removes document click listener (used for dropdown closing),
+   * clears _modalOpen flag and _modalSelectedId, removes overlay from DOM.
+   * Restores router-outlet scroll state.
+   *
+   * Safe to call multiple times or if modal not open.
+   *
+   * @returns {void}
+   * @private
+   */
   _closeModal() {
     if (this._docClickHandler) {
       document.removeEventListener('click', this._docClickHandler);
@@ -1104,6 +1358,119 @@ export class MyStackPage {
     // Restore router-outlet scroll
     const outlet = document.getElementById('router-outlet');
     if (outlet) outlet.style.overflow = '';
+  }
+
+  /**
+   * Open share modal with QR code, social sharing, and link copy options.
+   *
+   * Shows:
+   * - QR code (renders via qrGenerator.renderQRCode())
+   * - Native share button (Web Share API)
+   * - WhatsApp share (opens whatsapp.com/send with pre-filled text)
+   * - Telegram share (opens t.me/share/url with pre-filled text)
+   * - Copy link button (clipboard copy with toast feedback)
+   *
+   * Closes on overlay click or close button click.
+   * Guards against empty stack (shows alert if no items).
+   *
+   * Share URL: generated by shareService.generateShareUrl(stack).
+   * Share text: formatted by shareService.formatStackText(stack).
+   *
+   * @returns {void}
+   * @private
+   */
+  _openShareModal() {
+    const stack = stateManager.stack || [];
+    if (!stack.length) {
+      alert('Seu stack de suplementação está vazio. Adicione suplementos para poder compartilhá-lo!');
+      return;
+    }
+
+    const shareUrl = this.shareService.generateShareUrl(stack);
+    const shareText = this.shareService.formatStackText(stack);
+
+    // Create modal element
+    const modalDiv = document.createElement('div');
+    modalDiv.className = 'msp-modal-overlay';
+    modalDiv.id = 'msp-share-modal';
+    modalDiv.style.zIndex = '2000';
+
+    modalDiv.innerHTML = `
+      <div class="msp-modal" style="max-width: 440px; padding: 24px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 class="msp-modal-title" style="margin: 0; font-size: 18px;">Compartilhar Stack</h3>
+          <button class="msp-btn-icon" id="msp-close-share" style="font-size: 20px;">✕</button>
+        </div>
+
+        <p style="color: var(--color-text-secondary); font-size: 13px; margin: 0 0 16px 0;">
+          Compartilhe sua rotina de suplementação offline-first de forma 100% segura. Seus dados ficam no seu link!
+        </p>
+
+        <!-- QR Code Canvas Container -->
+        <div style="background: var(--color-surface-secondary); padding: 16px; border-radius: 12px; display: inline-block; margin-bottom: 20px; border: 1px solid var(--color-border);">
+          <canvas id="msp-share-qr-canvas" style="display: block; max-width: 100%; border-radius: 8px;"></canvas>
+          <span style="font-size: 11px; color: var(--color-text-muted); display: block; margin-top: 8px;">Aponte a câmera para escanear e importar</span>
+        </div>
+
+        <!-- Sharing action buttons -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+          <button class="msp-btn-save" id="msp-share-native-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>📱</span> Compartilhar no Aparelho
+          </button>
+          
+          <div style="display: flex; gap: 8px;">
+            <button class="msp-btn-cancel" id="msp-share-wa-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border-color: #25D366; color: #25D366; background: rgba(37,211,102,0.06);">
+              <span>💬</span> WhatsApp
+            </button>
+            <button class="msp-btn-cancel" id="msp-share-tg-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border-color: #0088cc; color: #0088cc; background: rgba(0,136,204,0.06);">
+              <span>✈️</span> Telegram
+            </button>
+          </div>
+
+          <button class="msp-btn-cancel" id="msp-share-copy-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>📋</span> Copiar Link de Importação
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modalDiv);
+
+    // Render QR Code
+    const canvas = modalDiv.querySelector('#msp-share-qr-canvas');
+    if (canvas) {
+      this.qrGenerator.renderQRCode(canvas, shareUrl);
+    }
+
+    // Attach listeners
+    modalDiv.querySelector('#msp-close-share')?.addEventListener('click', () => modalDiv.remove());
+    
+    // Native sharing
+    modalDiv.querySelector('#msp-share-native-btn')?.addEventListener('click', async () => {
+      await this.shareService.shareStack(stack);
+    });
+
+    // WhatsApp
+    modalDiv.querySelector('#msp-share-wa-btn')?.addEventListener('click', () => {
+      const link = this.shareService.getWhatsAppLink(shareText, shareUrl);
+      window.open(link, '_blank');
+    });
+
+    // Telegram
+    modalDiv.querySelector('#msp-share-tg-btn')?.addEventListener('click', () => {
+      const link = this.shareService.getTelegramLink(shareText, shareUrl);
+      window.open(link, '_blank');
+    });
+
+    // Copy Link
+    modalDiv.querySelector('#msp-share-copy-btn')?.addEventListener('click', async () => {
+      await this.shareService.copyToClipboard(shareUrl, 'Link de importação copiado!');
+    });
+
+    // Close on overlay click
+    modalDiv.addEventListener('click', (e) => {
+      if (e.target === modalDiv) modalDiv.remove();
+    });
   }
 }
 

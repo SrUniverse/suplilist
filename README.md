@@ -1,7 +1,13 @@
 # SupliList v2.0
-> Guia inteligente de suplementação fitness
+> Guia inteligente de suplementação fitness — suplilist.com
 
-O SupliList v2.0 é uma aplicação SPA (Single Page Application) moderna, reativa, responsiva e acessível para o gerenciamento de suplementação alimentar. Projetada sob rígidos padrões de arquitetura com zero variáveis globais, imutabilidade com StateManager, blindagem por barreiras de erro (`ErrorBoundary`), comunicação desacoplada via Pub/Sub (`EventBus`) e validação de dados em 3 camadas.
+O SupliList é um PWA (Progressive Web App) para rastreamento de suplementação, comparação de preços e recomendações personalizadas. Funciona offline, instalável como app nativo, com suporte a 55+ suplementos com evidência científica classificada.
+
+**Stack:** Vite + VitePWA · Vanilla JS SPA · StateManager imutável · EventBus pub/sub · Fuse.js · Vitest
+
+**Deploy:** GitHub Pages via branch `main:/docs` — CI/CD automático no push.
+
+**Monetização:** Freemium (free / pro / elite). Tier free com funcionalidades completas + ads e analytics básico. Tier premium com painel analítico avançado, export Excel e sem ads.
 
 ---
 

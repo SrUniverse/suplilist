@@ -195,9 +195,9 @@ describe('StackRecommender AI Engine', () => {
     const profile = { objective: 'bulk', weight: 70, restrictions: [], budget: 200, age: 25, currentStack: [] };
     const results = recommender.recommend(profile, 100);
 
-    // creatina-monohidratada is evidence 'A'; l-carnitina is evidence 'B'
+    // creatina-monohidratada is evidence 'A'; ashwagandha is evidence 'B' with bulk target 0.8
     const aSupplement = results.find(r => r.id === 'creatina-monohidratada');
-    const bSupplement = results.find(r => r.id === 'l-carnitina');
+    const bSupplement = results.find(r => r.id === 'ashwagandha');
 
     expect(aSupplement).toBeDefined();
     expect(bSupplement).toBeDefined();
@@ -215,15 +215,17 @@ describe('StackRecommender AI Engine', () => {
     expect(hash1).not.toBe(hash2);
   });
 
-  // 10. 100 mock supplements scored in <100ms
-  it('10. 100 mock supplements scored in <100ms', () => {
+  // 10. All supplements scored in <100ms (topN clamped to 50 max)
+  it('10. All supplements scored in <100ms (topN clamped to 50 max)', () => {
     const profile = { objective: 'bulk', weight: 70, restrictions: [], budget: 200, age: 25, currentStack: [] };
-    
+
     const start = performance.now();
     const results = recommender.recommend(profile, 100);
     const duration = performance.now() - start;
 
-    expect(results.length).toBeGreaterThanOrEqual(10); 
+    // topN=100 is clamped to 50 max in recommend()
+    expect(results.length).toBeGreaterThanOrEqual(10);
+    expect(results.length).toBeLessThanOrEqual(50);
     expect(duration).toBeLessThan(100);
   });
 

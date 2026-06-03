@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   root: '.',
@@ -10,6 +11,12 @@ export default defineConfig({
     historyApiFallback: true
   },
   plugins: [
+    process.env.ANALYZE && visualizer({
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: 'dist/stats.html'
+    }),
     VitePWA({
       strategies: 'injectManifest',
       srcDir: '.',
@@ -65,9 +72,8 @@ export default defineConfig({
       },
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor'; // Cria um chunk isolado só para dependências, melhorando o cache do navegador
-          }
+          if (id.includes('node_modules/exceljs')) return 'exceljs';
+          if (id.includes('node_modules')) return 'vendor';
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',

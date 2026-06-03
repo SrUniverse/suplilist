@@ -1,9 +1,16 @@
 import '../css/main.css';
-import { stateManager, STORAGE_KEYS } from '../state/state-manager.js';
+import { stateManager, STORAGE_KEYS, ACTIONS } from '../state/state-manager.js';
 import { eventBus, EVENTS } from './event-bus.js';
 import { Router } from './router.js';
 import { Nav } from './nav.js';
 import { analyticsEngine } from '../analytics/analytics-engine.js';
+import { StorageManager } from './storage-manager.js';
+import './mobile-keyboard-handler.js';
+import './mobile-utilities.js';
+import './pwa-handler.js';
+import './performance-monitor.js';
+import NotificationService from '../features/notifications/notification-service.js';
+
 
 const routes = [
   { path: '/onboarding', load: () => import('../pages/onboarding-page.js') },
@@ -89,6 +96,13 @@ const PAGE_METADATA = {
   }
 };
 
+/**
+ * Update SEO metadata (title, description, og:*, twitter:*) based on current route
+ * Called on every route change for proper search engine indexing and social sharing
+ * @returns {void}
+ * @example
+ * // On navigation to /list, updates document.title and all meta tags for that page
+ */
 function updateSEOMetadata() {
   const path = window.location.pathname;
   const meta = PAGE_METADATA[path] || PAGE_METADATA['/'];
@@ -131,16 +145,33 @@ function updateSEOMetadata() {
   if (twitterUrl) twitterUrl.setAttribute('content', `https://suplilist.com${path === '/' ? '' : path}`);
 }
 
-// Landing mode: hide app shell (sidebar/topbar) on the marketing home
+/**
+ * Toggle "landing mode" UI — hides app shell (sidebar/topbar) on marketing pages
+ * Pages: / (home), /home, /onboarding
+ * Adds .body--landing class to <body> for CSS hooks
+ * @returns {void}
+ */
 function applyLandingMode() {
   const path = window.location.pathname;
   const isLanding = path === '/' || path === '/home' || path === '/onboarding';
   document.body.classList.toggle('body--landing', isLanding);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Inicializar IndexedDB (não bloqueia, mas prepara para uso)
+  StorageManager.init().catch(e => {
+    console.warn('[App] IndexedDB init falhou, usando fallback:', e);
+  });
+
   // State is initialized in the StateManager constructor (_initializeState reads from localStorage).
   // Do NOT call hydrate() here — hydrate(undefined) merges with DEFAULT_STATE, wiping user data.
+
+  // C-1/M-2: Hydrate saved tier on boot so upgrades persist across reloads
+  const savedTier = StorageManager.getItem('suplilist:tier');
+  const VALID_TIERS = ['free', 'pro', 'elite'];
+  if (savedTier && VALID_TIERS.includes(savedTier)) {
+    stateManager.dispatch(ACTIONS.SET_TIER, { tier: savedTier });
+  }
 
   Nav.init();
   Nav.updateActive(window.location.pathname);
@@ -175,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Restaurar tema salvo
-  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) || localStorage.getItem('theme');
+  const savedTheme = StorageManager.getItem(STORAGE_KEYS.THEME) || StorageManager.getItem('theme');
   if (savedTheme === 'light' || savedTheme === 'dark') {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }
@@ -185,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem(STORAGE_KEYS.THEME, next);
+    StorageManager.setItem(STORAGE_KEYS.THEME, next);
     const themeIcon = next === 'dark'
       ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
       : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
@@ -262,6 +293,62 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // L3 notifications and streak tracking integration
+  const notifService = new NotificationService();
+  
+  // Initial check on app startup
+  try {
+    notifService.checkAndTriggerDailyReminder(stateManager.state);
+    notifService.checkAndTriggerLowStockAlerts(stateManager.state);
+  } catch (err) {
+    console.error('[App] Initial notifications check failed:', err);
+  }
+
+  // Subscribe to state changes to handle streak milestones and low-stock alerts dynamically
+  stateManager.subscribe((state, action) => {
+    try {
+      notifService.checkAndTriggerStreakMilestones(state);
+      if (action && (action.type?.includes('CHECKIN') || action.type?.includes('STACK') || action.type?.includes('QUANTITY'))) {
+        notifService.checkAndTriggerLowStockAlerts(state);
+      }
+    } catch (err) {
+      console.error('[App] Notification subscriber error:', err);
+    }
+  });
+
+  // L3 query string shared stack auto-import integration
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedStack = urlParams.get('stack');
+  if (sharedStack) {
+    try {
+      const decoded = decodeURIComponent(escape(atob(sharedStack)));
+      const stackItems = JSON.parse(decoded);
+      if (Array.isArray(stackItems) && stackItems.length > 0) {
+        setTimeout(() => {
+          if (confirm(`Deseja importar o stack compartilhado com ${stackItems.length} suplemento(s)? Isso substituirá sua rotina atual.`)) {
+            stateManager.dispatch('IMPORT_STACK', stackItems);
+            eventBus.emit('toast:show', { message: 'Stack importado com sucesso!', type: 'success' });
+            
+            // Clean up URL parameters safely
+            const newUrl = window.location.pathname;
+            window.history.replaceState(null, null, newUrl);
+            
+            // Re-route to my-stack to show imported items
+            if (window.location.pathname !== '/my-stack') {
+              eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
+            }
+          } else {
+            // Clean up parameter to avoid prompt on page refresh
+            const newUrl = window.location.pathname;
+            window.history.replaceState(null, null, newUrl);
+          }
+        }, 800);
+      }
+    } catch (e) {
+      console.error('[App] Shared stack parsing failed:', e);
+    }
+  }
+
   // Flush analytics before page unload
   window.addEventListener('beforeunload', () => {
     if (analyticsEngine.isInitialized()) {
@@ -274,3 +361,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+

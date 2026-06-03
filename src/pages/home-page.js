@@ -5,20 +5,38 @@
 
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { escapeHtml } from '../utils/escape.js';
+import { SchemaManager } from '../core/schema-manager.js';
 
 export default class HomePage {
+  /**
+   * Initialize the HomePage component.
+   * @param {HTMLElement} container - The DOM container element where the landing page will render.
+   */
   constructor(container) {
     this.container = container;
     this._styleEl = null;
     this._onClick = null;
   }
 
+  /**
+   * Mount the landing page component. Injects styles, renders the template, binds event listeners,
+   * and inserts WebApplication schema for SEO.
+   * @returns {void}
+   */
   mount() {
     this._injectStyle();
     this.container.innerHTML = this._template();
     this._bindEvents();
+
+    // Insert WebApplication schema for SEO
+    const appSchema = SchemaManager.createWebApplicationSchema();
+    SchemaManager.insertSchema(appSchema);
   }
 
+  /**
+   * Unmount the landing page component. Removes event listeners and clears DOM content.
+   * @returns {void}
+   */
   unmount() {
     if (this._onClick) {
       this.container.removeEventListener('click', this._onClick);
@@ -27,9 +45,12 @@ export default class HomePage {
     this.container.innerHTML = '';
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Eventos — delegação para qualquer [data-nav]
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Bind click event listeners to the container. Delegates navigation clicks on [data-nav]
+   * elements to perform client-side routing, and handles custom actions like scroll-features.
+   * @private
+   * @returns {void}
+   */
   _bindEvents() {
     this._onClick = (e) => {
       const navTarget = e.target.closest('[data-nav]');
@@ -54,9 +75,13 @@ export default class HomePage {
     this.container.addEventListener('click', this._onClick);
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Template
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Generate the complete landing page HTML template. Includes hero section with mockup cards,
+   * feature cards, step-by-step guide, goal filter chips, marketplace integration cards, CTA sections,
+   * Instagram promotion, and footer with navigation links.
+   * @private
+   * @returns {string} The complete HTML template string.
+   */
   _template() {
     const count = SUPPLEMENTS_DB.length;
 
@@ -316,9 +341,13 @@ export default class HomePage {
     `;
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Hero mock product cards
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Generate hero section mockup product cards showing the first 3 supplements from SUPPLEMENTS_DB.
+   * Displays supplement name, category, evidence level badge, and calculated monthly cost based on
+   * dosage and price per gram.
+   * @private
+   * @returns {string} HTML string containing the mock product cards.
+   */
   _heroMockupCards() {
     const items = SUPPLEMENTS_DB.slice(0, 3);
     return `<div class="lp-mock-stack">
@@ -335,9 +364,10 @@ export default class HomePage {
         const monthPrice = (dailyGrams * (item.pricePerGram ?? 0.3) * 30)
           .toFixed(2).replace('.', ',');
         const ev = item.evidenceLevel || 'A';
+        const evLower = String(ev).toLowerCase();
         return `
           <div class="lp-mock-card">
-            <div class="lp-mock-card__ev">EV. ${escapeHtml(String(ev))}</div>
+            <div class="lp-mock-card__ev lp-mock-card__ev--${evLower}">NÍVEL ${escapeHtml(String(ev))}</div>
             <div class="lp-mock-card__name">${escapeHtml(item.name)}</div>
             <div class="lp-mock-card__cat">${escapeHtml(item.category || '')}</div>
             <div class="lp-mock-card__price">R$ ${escapeHtml(monthPrice)}<span class="lp-mock-card__dose"> / mês</span></div>
@@ -346,17 +376,23 @@ export default class HomePage {
     </div>`;
   }
 
-  // ──────────────────────────────────────────────────────────
-  // Estilos
-  // ──────────────────────────────────────────────────────────
+  /**
+   * Inject landing page CSS styles into the document. Creates a <style> tag with comprehensive
+   * styling for the entire page including navigation, hero, sections, cards, buttons, forms, animations,
+   * and responsive breakpoints (860px, 768px, 480px). Respects prefers-reduced-motion media query.
+   * Prevents duplicate style injection.
+   * @private
+   * @returns {void}
+   */
   _injectStyle() {
-    if (document.querySelector('[data-page="home"]')) return;
+    if (document.querySelector('[data-page="home-v2"]')) return;
+    document.querySelector('[data-page="home"]')?.remove();
     const style = document.createElement('style');
-    style.setAttribute('data-page', 'home');
+    style.setAttribute('data-page', 'home-v2');
     style.textContent = `
       .lp-root {
-        background: var(--color-bg-primary, #080808);
-        color: var(--color-text-primary, #F2F2F2);
+        background: var(--color-bg-primary, #0A0C10);
+        color: var(--color-text-primary, #F1F5F9);
         font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
         min-height: 100vh;
@@ -367,9 +403,9 @@ export default class HomePage {
       /* ── NAV ── */
       .lp-nav {
         position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-        background: rgba(8, 8, 8, 0.8);
-        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        background: color-mix(in srgb, var(--color-bg-primary, #0A0C10) 80%, transparent);
+        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.06));
       }
       .lp-nav__inner {
         max-width: 1160px; margin: 0 auto; padding: 14px 24px;
@@ -388,7 +424,7 @@ export default class HomePage {
       .lp-logo {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: 22px; letter-spacing: -0.02em;
-        color: var(--color-brand, #7C3AED); text-decoration: none;
+        color: var(--color-brand, #8B5CF6); text-decoration: none;
       }
 
       /* ── BOTÕES ── */
@@ -411,14 +447,14 @@ export default class HomePage {
       .lp-hero {
         position: relative; min-height: 100vh;
         display: flex; align-items: center; justify-content: center;
-        text-align: center; padding: 140px 24px 100px; overflow: hidden;
+        text-align: center; padding: 100px 24px 80px; overflow: hidden;
       }
       .lp-hero__bg {
         position: absolute; inset: 0; z-index: 0; pointer-events: none;
         background:
-          radial-gradient(70% 55% at 50% 0%, rgba(124,58,237,0.18), transparent 65%),
-          radial-gradient(40% 30% at 80% 20%, rgba(124,58,237,0.06), transparent 60%),
-          var(--color-bg-primary, #080808);
+          radial-gradient(80% 60% at 50% -10%, rgba(139,92,246,0.22), transparent 65%),
+          radial-gradient(50% 40% at 85% 15%, rgba(99,102,241,0.09), transparent 60%),
+          var(--color-bg-primary, #0A0C10);
       }
       /* Two-column hero layout */
       .lp-hero__inner {
@@ -435,12 +471,11 @@ export default class HomePage {
       }
       .lp-pill {
         display: inline-flex; align-items: center; gap: 8px;
-        font-size: 13px; font-weight: 700;
-        color: #9F7AEA;
-        background: rgba(124,58,237,0.08);
-        border: 1px solid rgba(124,58,237,0.25);
-        padding: 7px 16px; border-radius: 999px; margin-bottom: 32px;
-        letter-spacing: 0.01em;
+        font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+        color: var(--color-text-brand, #A78BFA);
+        background: transparent;
+        border: 1px solid rgba(139,92,246,0.25);
+        padding: 6px 14px; border-radius: 999px; margin-bottom: 28px;
       }
       .lp-hero__title {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
@@ -448,7 +483,7 @@ export default class HomePage {
         letter-spacing: -0.04em; margin: 0 0 28px;
         overflow-wrap: break-word;
       }
-      .lp-accent { color: var(--color-brand, #7C3AED); }
+      .lp-accent { color: var(--color-brand, #8B5CF6); }
       .lp-hero__sub {
         font-size: 19px; line-height: 1.65;
         color: var(--color-text-secondary, #9A9A9A);
@@ -460,12 +495,12 @@ export default class HomePage {
         justify-content: flex-start;
       }
       .lp-btn--primary {
-        background: var(--color-brand, #7C3AED); color: #fff;
-        box-shadow: 0 4px 20px rgba(124,58,237,0.30);
+        background: var(--color-brand, #8B5CF6); color: #fff;
+        box-shadow: 0 4px 20px rgba(139,92,246,0.30);
       }
       .lp-btn--primary:hover {
-        background: var(--color-brand-hover, #6D28D9);
-        box-shadow: 0 6px 28px rgba(124,58,237,0.45);
+        background: var(--color-brand-hover, #7C3AED);
+        box-shadow: 0 6px 28px rgba(139,92,246,0.45);
         transform: translateY(-1px);
       }
 
@@ -474,76 +509,94 @@ export default class HomePage {
         display: flex; flex-direction: column; gap: 14px;
       }
       .lp-mock-card {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 4px solid var(--color-brand, #7C3AED);
-        border-radius: 14px; padding: 22px 24px;
+        background: linear-gradient(145deg, var(--color-surface-primary, #13161C), rgba(18,22,30,0.98));
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-radius: 16px; padding: 20px 22px;
         display: flex; flex-direction: column; gap: 6px;
+        position: relative; overflow: hidden;
         transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset;
       }
       .lp-mock-card:hover {
-        transform: translateX(-6px);
-        border-top-color: rgba(124,58,237,0.3);
-        border-right-color: rgba(124,58,237,0.3);
-        border-bottom-color: rgba(124,58,237,0.3);
-        border-left-color: var(--color-brand, #7C3AED);
-        box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(124,58,237,0.1);
+        transform: translateX(-4px) translateY(-2px);
+        border-color: rgba(139,92,246,0.22);
+        box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 16px -4px rgba(139,92,246,0.18);
       }
       .lp-mock-card__ev {
         font-size: 10px; font-weight: 700; letter-spacing: .08em;
-        color: var(--color-success, #22C55E);
-        background: rgba(34,197,94,0.12);
-        padding: 2px 8px; border-radius: 999px;
+        color: var(--ev-a, #34D399);
+        background: var(--ev-a-bg, rgba(52,211,153,0.12));
+        border: 1px solid var(--ev-a-border, rgba(52,211,153,0.25));
+        padding: 2px 8px; border-radius: 6px;
         width: fit-content;
+      }
+      .lp-mock-card__ev--b {
+        color: var(--ev-b, #FBBF24);
+        background: var(--ev-b-bg, rgba(251,191,36,0.12));
+        border-color: var(--ev-b-border, rgba(251,191,36,0.25));
+      }
+      .lp-mock-card__ev--c {
+        color: var(--ev-c, #94A3B8);
+        background: var(--ev-c-bg, rgba(148,163,184,0.10));
+        border-color: var(--ev-c-border, rgba(148,163,184,0.20));
       }
       .lp-mock-card__name { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
       .lp-mock-card__cat  { font-size: 12px; color: var(--color-text-secondary, #9A9A9A); }
-      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand); margin-top: 6px; }
+      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand, #8B5CF6); margin-top: 6px; font-variant-numeric: tabular-nums; }
       .lp-mock-card__dose  { font-size: 11px; color: var(--color-text-secondary, #9A9A9A); font-weight: 400; }
       .lp-hero__stats {
-        font-size: 13px; color: var(--color-text-muted, #555555);
+        font-size: 13px; color: var(--color-text-muted, #475569);
         margin: 0; letter-spacing: 0.02em;
       }
 
       /* ── SEÇÕES ── */
       .lp-section-wrap { width: 100%; border-top: 1px solid var(--color-border, rgba(255,255,255,0.07)); }
       .lp-section-wrap--alt {
-        background: linear-gradient(180deg, rgba(124,58,237,0.03) 0%, var(--color-bg-secondary, #0F0F0F) 40%);
+        background: linear-gradient(180deg, rgba(139,92,246,0.04) 0%, var(--color-bg-secondary, #0D0F14) 40%);
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
         border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
       }
-      .lp-section { max-width: 1160px; margin: 0 auto; padding: 96px 24px; }
+      .lp-section { max-width: 1160px; margin: 0 auto; padding: 80px 24px; }
       .lp-h2 {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
-        font-size: clamp(32px, 4.5vw, 56px); line-height: 1.08;
+        font-size: clamp(30px, 4vw, 52px); line-height: 1.08;
         letter-spacing: -0.03em; text-align: center; margin: 0 0 64px;
+        background: linear-gradient(135deg, var(--color-text-primary, #F1F5F9) 60%, rgba(139,92,246,0.7) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .lp-grid { display: grid; gap: 24px; }
       .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
       .lp-card, .lp-step {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 4px solid var(--color-brand, #7C3AED);
-        border-radius: 16px; padding: 36px;
-        transition: border-color .2s ease, transform .22s ease, box-shadow .22s ease;
+        background: linear-gradient(160deg, rgba(30,35,46,0.9) 0%, rgba(18,22,30,0.95) 100%);
+        border: 1px solid rgba(255,255,255,0.09);
+        border-radius: 20px; padding: 36px;
+        position: relative; overflow: hidden;
+        transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+        box-shadow: 0 2px 0 rgba(255,255,255,0.04) inset, 0 4px 24px rgba(0,0,0,0.3);
+      }
+      .lp-card::before, .lp-step::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+        opacity: 1; transition: opacity .25s ease;
       }
       .lp-card:hover, .lp-step:hover {
-        border-top-color: rgba(124,58,237,0.3);
-        border-right-color: rgba(124,58,237,0.3);
-        border-bottom-color: rgba(124,58,237,0.3);
-        border-left-color: var(--color-brand, #7C3AED);
-        transform: translateY(-6px);
-        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.08);
+        border-color: rgba(139,92,246,0.25);
+        transform: translateY(-5px);
+        box-shadow: 0 2px 0 rgba(255,255,255,0.05) inset, 0 0 0 1px rgba(139,92,246,0.12), 0 24px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px rgba(139,92,246,0.18);
+      }
+      .lp-card:hover::before, .lp-step:hover::before {
+        background: linear-gradient(90deg, transparent 0%, rgba(139,92,246,0.6) 50%, transparent 100%);
       }
       .lp-card__icon {
-        width: 64px; height: 64px; border-radius: 16px;
+        width: 48px; height: 48px;
         display: flex; align-items: center; justify-content: center;
-        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
-        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
-        margin-bottom: 24px;
+        color: var(--color-brand, #8B5CF6);
+        margin-bottom: 20px;
+        opacity: 0.9;
       }
       .lp-card__title {
         font-size: 20px; font-weight: 700; margin: 0 0 12px; line-height: 1.2;
@@ -554,13 +607,12 @@ export default class HomePage {
         color: var(--color-text-secondary, #9A9A9A);
       }
       .lp-step__num {
-        width: 56px; height: 56px; border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 24px;
-        color: var(--color-brand, #7C3AED);
-        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
-        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
-        margin-bottom: 22px;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 900;
+        font-size: 64px; line-height: 1;
+        letter-spacing: -0.05em;
+        color: rgba(139,92,246,0.18);
+        margin-bottom: 12px;
+        display: block;
       }
 
       /* ── CHIPS ── */
@@ -574,35 +626,41 @@ export default class HomePage {
         transition: border-color .18s ease, background .18s ease, color .18s ease;
       }
       .lp-chip:hover {
-        border-color: var(--color-brand, #7C3AED);
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+        border-color: var(--color-brand, #8B5CF6);
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
       }
 
       /* ── MARKETPLACES ── */
       .lp-market {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 6px solid var(--mk-color, rgba(255,255,255,0.14));
-        border-radius: 16px; padding: 32px 36px;
+        background: linear-gradient(145deg, var(--color-surface-primary, #13161C), rgba(18,22,30,0.95));
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-radius: 20px; padding: 32px 36px;
         display: flex; flex-direction: column;
         align-items: flex-start; gap: 20px;
+        position: relative; overflow: hidden;
         transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease;
-        background-image: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+      }
+      .lp-market::after {
+        content: ''; position: absolute;
+        top: -60px; right: -60px;
+        width: 140px; height: 140px;
+        background: radial-gradient(circle, var(--mk-color, rgba(255,255,255,0.1)) 0%, transparent 70%);
+        opacity: 0.15; pointer-events: none;
+        transition: opacity .3s ease;
       }
       .lp-market:hover {
-        border-top-color: rgba(255,255,255,0.12);
-        border-right-color: rgba(255,255,255,0.12);
-        border-bottom-color: rgba(255,255,255,0.12);
-        border-left-color: var(--mk-color, rgba(255,255,255,0.3));
+        border-color: rgba(255,255,255,0.10);
         transform: translateY(-5px);
-        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+        box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
       }
+      .lp-market:hover::after { opacity: 0.35; }
       .lp-market__logo { display: flex; align-items: center; min-height: 40px; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;
-        color: var(--color-success, #22C55E);
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.2);
+        color: var(--color-savings, #22C55E);
+        background: var(--color-savings-bg, rgba(34,197,94,0.12));
+        border: 1px solid rgba(34,197,94,0.25);
         padding: 5px 14px; border-radius: 999px;
         letter-spacing: 0.02em;
       }
@@ -624,7 +682,7 @@ export default class HomePage {
         background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
       }
       .lp-ig__inner {
-        background: var(--color-bg-primary, #0A0A0A);
+        background: var(--color-bg-primary, #0A0C10);
         border-radius: 18px; padding: 28px 32px;
         display: flex; align-items: center; justify-content: space-between;
         gap: 24px; flex-wrap: wrap;
@@ -666,7 +724,7 @@ export default class HomePage {
       /* ── FOOTER ── */
       .lp-footer {
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        background: var(--color-surface-primary, #111111);
+        background: var(--color-surface-primary, #13161C);
         padding: 64px 24px 40px;
       }
       .lp-footer__grid {
@@ -725,7 +783,7 @@ export default class HomePage {
       .lp-btn--primary::after {
         content: ''; position: absolute; inset: -4px;
         border-radius: inherit;
-        background: rgba(124,58,237,0.35); filter: blur(12px);
+        background: rgba(139,92,246,0.35); filter: blur(12px);
         opacity: 0; pointer-events: none; z-index: -1;
         animation: lp-pulse-glow-opacity 3s ease-in-out infinite;
       }
@@ -754,8 +812,9 @@ export default class HomePage {
         .lp-hero { padding: 110px 20px 72px; min-height: auto; }
         .lp-hero__cta .lp-btn { flex: 1 1 auto; min-height: 52px; }
         .lp-h2 { margin-bottom: 48px; }
-        .lp-card, .lp-step { border-left-width: 3px; }
-        .lp-market { border-left-width: 4px; padding: 24px 28px; }
+        .lp-card, .lp-step { padding: 28px; }
+        .lp-market { padding: 24px 28px; }
+        .lp-step__num { font-size: 52px; }
         .lp-ig__inner { flex-direction: column; align-items: flex-start; gap: 20px; }
       }
 
@@ -768,9 +827,9 @@ export default class HomePage {
         .lp-cta__title { font-size: clamp(26px, 8vw, 44px); }
         .lp-hero { padding: 96px 16px 60px; }
         .lp-section { padding: 56px 16px; }
-        .lp-card, .lp-step { padding: 26px 20px; }
-        .lp-card__icon { width: 52px; height: 52px; }
-        .lp-step__num { width: 48px; height: 48px; font-size: 20px; }
+        .lp-card, .lp-step { padding: 24px 20px; }
+        .lp-card__icon { width: 40px; height: 40px; }
+        .lp-step__num { font-size: 48px; }
         .lp-hero__cta { gap: 12px; }
         .lp-chips { gap: 10px; }
         .lp-chip { padding: 10px 18px; font-size: 14px; }

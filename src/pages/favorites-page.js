@@ -181,7 +181,7 @@ export default class FavoritesPage {
       }
       .fv-card:hover {
         border-color: var(--color-brand);
-        box-shadow: 0 4px 20px rgba(124,58,237,0.1);
+        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
       }
       .fv-card-img-wrap {
         position: relative;

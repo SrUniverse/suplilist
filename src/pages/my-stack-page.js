@@ -90,6 +90,7 @@ const STYLES = `
     padding: 24px 16px 120px;
     max-width: 960px;
     margin: 0 auto;
+    overflow-x: hidden;
   }
 
   /* Header */
@@ -763,7 +764,7 @@ export class MyStackPage {
           <div>
             <div class="msp-section-header">
               <h2 class="msp-section-title">Suplementos Ativos</h2>
-              <div style="display: flex; gap: 8px;">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button class="msp-btn-share" id="msp-share-stack">
                   <span>🔗</span> Compartilhar
                 </button>

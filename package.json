@@ -10,6 +10,7 @@
     "dev":           "npm run dev -w @suplilist/frontend",
     "build":         "npm run build -w @suplilist/frontend",
     "test":          "npm run test -w @suplilist/frontend",
+    "test:server":   "npm run test -w @suplilist/server",
     "test:coverage": "npm run test:coverage -w @suplilist/frontend",
     "test:e2e":      "playwright test",
     "lint:css":      "npm run lint:css -w @suplilist/frontend",

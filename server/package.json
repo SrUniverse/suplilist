@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p ../shared && tsc",
     "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@suplilist/shared": "*",
@@ -34,7 +35,11 @@
     "@types/ioredis": "^4.28.10",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.12.7",
+    "@types/supertest": "^6.0.2",
+    "mongodb-memory-server": "^10.1.4",
+    "supertest": "^7.0.0",
     "tsx": "^4.7.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.7"
   }
 }

@@ -1238,12 +1238,21 @@ export default class ListPage {
    */
   _renderSponsoredAdCard() {
     return `
-      <div class="lp-card sponsored-ad-card" style="border: 1.5px dashed var(--color-brand); background: rgba(124, 58, 237, 0.02); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; height: 100%; box-sizing: border-box; position: relative; min-height: 290px;">
-        <span style="position: absolute; top: 12px; right: 12px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(124, 58, 237, 0.12); color: var(--color-brand); padding: 3px 8px; border-radius: 6px;">Patrocinado</span>
-        <div style="font-size: 36px; margin-bottom: 12px; filter: drop-shadow(0 4px 10px rgba(124,58,237,0.3));">🌟</div>
-        <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 15px; margin: 0 0 6px 0; color: var(--color-text-primary);">SupliList PRO</p>
-        <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 18px 0; line-height: 1.45; max-width: 190px;">Remova anúncios e tenha acesso ao Histórico Avançado com gráficos e relatórios Excel.</p>
-        <button class="lp-btn-ver-precos lp-upgrade-btn" style="width: 100%; height: 40px; min-height: 40px; font-size: 12px; background: var(--color-brand); color: #ffffff; border-color: var(--color-brand); font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;" data-action="upgrade-now">Quero Premium</button>
+      <div class="lp-card sponsored-ad-card" style="
+        background: linear-gradient(160deg, rgba(30,22,50,0.95) 0%, rgba(18,14,30,0.98) 100%);
+        border: 1px solid rgba(139,92,246,0.18);
+        display: flex; flex-direction: column; justify-content: flex-end;
+        padding: 0; height: 100%; box-sizing: border-box;
+        position: relative; min-height: 290px; overflow: hidden;
+      ">
+        <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.18) 0%, transparent 65%); pointer-events: none;"></div>
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);"></div>
+        <div style="padding: 20px; position: relative; z-index: 1;">
+          <p style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-brand, #A78BFA); margin: 0 0 10px 0;">PRO</p>
+          <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 16px; margin: 0 0 6px 0; color: var(--color-text-primary); letter-spacing: -0.02em; line-height: 1.2;">Histórico Avançado + Sem Anúncios</p>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 16px 0; line-height: 1.5;">Gráficos de adesão, relatórios Excel e experiência limpa.</p>
+          <button class="lp-upgrade-btn" style="width: 100%; height: 38px; font-size: 12px; font-weight: 700; background: var(--color-brand, #8B5CF6); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; letter-spacing: 0.01em;" data-action="upgrade-now">Ativar PRO</button>
+        </div>
       </div>
     `;
   }

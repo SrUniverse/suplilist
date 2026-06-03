@@ -1,4 +1,4 @@
-import{e as E,s as c,A as b,o as _}from"./main-DJiTQW8V.js";import{S as h}from"./stack-recommender-CA-Jl89Y.js";import{r as C}from"./evidence-D5RtUc7g.js";import{e as p}from"./escape-Br5wU8qn.js";import{a as k}from"./affiliate-engine-Smwa15wa.js";import{b as $}from"./vendor-Vk1E4gpc.js";function g(i){return i==null?null:i.supplementId??i.id??null}class I{generateShareUrl(e){if(!e||!e.length)return"";const t=e.map(s=>({name:s.name,supplementId:s.supplementId||s.id,quantity:s.quantity,dosage:s.dosage,frequency:s.frequency,timeOfDay:s.timeOfDay,notes:s.notes||""})),r=JSON.stringify(t),a=btoa(unescape(encodeURIComponent(r)));return`${window.location.origin}/my-stack?stack=${a}`}formatStackText(e){if(!e||!e.length)return"Meu stack de suplementação está vazio.";let t=`💊 Meu Stack de Suplementação no SupliList:
+import{e as E,s as c,A as b,o as _}from"./main-DTMwk5pg.js";import{S as h}from"./stack-recommender-CER3fSFG.js";import{r as C}from"./evidence-D5RtUc7g.js";import{e as p}from"./escape-Br5wU8qn.js";import{a as k}from"./affiliate-engine-B21rDRGI.js";import{b as $}from"./vendor-Vk1E4gpc.js";function g(i){return i==null?null:i.supplementId??i.id??null}class I{generateShareUrl(e){if(!e||!e.length)return"";const t=e.map(s=>({name:s.name,supplementId:s.supplementId||s.id,quantity:s.quantity,dosage:s.dosage,frequency:s.frequency,timeOfDay:s.timeOfDay,notes:s.notes||""})),r=JSON.stringify(t),a=btoa(unescape(encodeURIComponent(r)));return`${window.location.origin}/my-stack?stack=${a}`}formatStackText(e){if(!e||!e.length)return"Meu stack de suplementação está vazio.";let t=`💊 Meu Stack de Suplementação no SupliList:
 
 `;return e.forEach(r=>{t+=`• ${r.name} — Dose: ${r.dosage} (Tomar: ${r.timeOfDay||"qualquer horário"})
 `}),t+=`
@@ -34,10 +34,11 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
   .msp-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 10px;
   }
-  @media (max-width: 360px) {
-    .msp-stats { grid-template-columns: 1fr; }
+  @media (max-width: 540px) {
+    .msp-stats { grid-template-columns: 1fr 1fr; }
+    .msp-stats .msp-stat-card:first-child { grid-column: 1 / -1; }
   }
   .msp-stat-card {
     background: var(--color-surface-primary);
@@ -557,7 +558,7 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
       <div class="msp-wrap">
         <!-- Header -->
         <div>
-          <h1 class="msp-header-title">📦 Meu Stack</h1>
+          <h1 class="msp-header-title">Meu Stack</h1>
           <p class="msp-header-sub" id="msp-subtitle">Carregando...</p>
         </div>
 
@@ -742,7 +743,7 @@ ${t}`;return`https://api.whatsapp.com/send?text=${encodeURIComponent(r)}`}getTel
         `).join(""),a.style.display="block",a.querySelectorAll(".msp-result-btn").forEach(n=>{n.addEventListener("click",m=>{m.preventDefault(),this._modalSelectedId=n.dataset.id,r.value=n.dataset.name,document.getElementById("msp-modal-dosage").value=n.dataset.dosage,document.getElementById("msp-modal-unit").value=n.dataset.unit,a.style.display="none"})})},180)}),this._docClickHandler=o=>{!r?.contains(o.target)&&!a?.contains(o.target)&&(a.style.display="none")},document.addEventListener("click",this._docClickHandler),document.getElementById("msp-modal-submit")?.addEventListener("click",()=>{const o=(document.getElementById("msp-modal-search")?.value??"").trim(),l=parseFloat(document.getElementById("msp-modal-dosage")?.value)||0,d=document.getElementById("msp-modal-unit")?.value||"g",n=parseFloat(document.getElementById("msp-modal-qty")?.value)||0;if(!o){alert("Informe o nome do suplemento.");return}if(l<=0){alert("Informe a dosagem diária.");return}const m=this._modalSelectedId??o.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")+"-"+Date.now();c.dispatch(b.ADD_TO_STACK,{supplementId:m,name:o,dosage:l,unit:d,quantity:n||null}),this._closeModal()}),setTimeout(()=>r?.focus(),100)}_closeModal(){this._docClickHandler&&(document.removeEventListener("click",this._docClickHandler),this._docClickHandler=null),this._modalOpen=!1,this._modalSelectedId=null,document.getElementById("msp-modal-overlay")?.remove();const t=document.getElementById("router-outlet");t&&(t.style.overflow="")}_openShareModal(){const e=c.stack||[];if(!e.length){alert("Seu stack de suplementação está vazio. Adicione suplementos para poder compartilhá-lo!");return}const t=this.shareService.generateShareUrl(e),r=this.shareService.formatStackText(e),a=document.createElement("div");a.className="msp-modal-overlay",a.id="msp-share-modal",a.style.zIndex="2000",a.innerHTML=`
       <div class="msp-modal" style="max-width: 440px; padding: 24px; text-align: center;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 class="msp-modal-title" style="margin: 0; font-size: 18px;">🔗 Compartilhar Meu Stack</h3>
+          <h3 class="msp-modal-title" style="margin: 0; font-size: 18px;">Compartilhar Stack</h3>
           <button class="msp-btn-icon" id="msp-close-share" style="font-size: 20px;">✕</button>
         </div>
 

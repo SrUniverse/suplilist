@@ -1,37 +1,40 @@
 /**
- * Shared test helpers — NOT wired as vitest setupFiles.
+ * Vitest setupFiles — runs once per worker process before the test file executes.
  *
- * Each test file that needs MongoDB creates its own MongoMemoryReplSet and
- * manages the connection lifecycle via local beforeAll / afterAll hooks.
- * This prevents pure unit test files from being blocked by a MongoDB binary
- * download or connection timeout.
+ * Responsibility: connect this worker's Mongoose instance to the shared
+ * MongoMemoryReplSet started by global-setup.ts, and clean collections
+ * between tests for idempotency.
  *
- * Usage in integration test files:
- *
- *   import { startReplSet, stopReplSet, cleanCollections } from '../../../shared/test/setup.js';
- *
- *   beforeAll(startReplSet);
- *   afterEach(cleanCollections);
- *   afterAll(stopReplSet);
+ * MONGO_TEST_URI is set by global-setup.ts before any worker spawns.
+ * If it is undefined (e.g., MongoDB binary not yet cached on first run),
+ * this setup logs a warning and skips the connection — individual test files
+ * that need MongoDB check mongoose.connection.readyState themselves.
  */
 import mongoose from 'mongoose';
-import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
-let replSet: MongoMemoryReplSet;
+const uri = process.env.MONGO_TEST_URI;
 
-export async function startReplSet(): Promise<void> {
-  replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
-  await mongoose.connect(replSet.getUri());
-}
+beforeAll(async () => {
+  if (!uri) {
+    console.warn('[setup] MONGO_TEST_URI not set — DB-dependent tests will be skipped.');
+    return;
+  }
+  // Each worker gets its own Mongoose connection to the shared replica set.
+  await mongoose.connect(uri);
+});
 
-export async function cleanCollections(): Promise<void> {
+afterEach(async () => {
+  if (mongoose.connection.readyState !== 1) return;
+  // Wipe every collection between tests for idempotency.
+  // Cheaper than reconnecting; safe because fileParallelism: false ensures
+  // only one worker is active at a time.
   const collections = mongoose.connection.collections;
   for (const key in collections) {
     await collections[key].deleteMany({});
   }
-}
+});
 
-export async function stopReplSet(): Promise<void> {
+afterAll(async () => {
+  if (mongoose.connection.readyState !== 1) return;
   await mongoose.disconnect();
-  await replSet.stop();
-}
+});

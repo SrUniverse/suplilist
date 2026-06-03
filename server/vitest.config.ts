@@ -8,13 +8,16 @@ export default defineConfig({
   resolve: {
     alias: {
       /**
-       * Replace the real ioredis with a no-op mock for all tests.
+       * Replace ioredis with the in-memory Map-based mock for all tests.
        *
-       * Every `import … from 'ioredis'` in the server source resolves here:
-       *   redis.client.ts → auth.middleware.ts, auth-rate-limiter.ts, …
+       * The mock implements full command semantics (SET NX EX, EXISTS, LPUSH,
+       * LRANGE, LTRIM, FLUSHDB, …) rather than returning static values.
+       * This means tests can validate blocklist state after logout, list length
+       * after LPUSH, and SET NX atomicity — all without a real Redis connection.
        *
-       * MockRedis.exists() returns 0 → token/user NOT blocked → requireAuth
-       * passes for every well-signed JWT.
+       * Every import chain that reaches ioredis is covered:
+       *   redis.client.ts → auth.middleware.ts, redis-token-blocklist.ts,
+       *   auth-rate-limiter.ts (uses redisClient.call for rate-limit-redis)
        */
       ioredis: path.resolve(__dirname, 'src/shared/test/mocks/ioredis.mock.ts'),
     },
@@ -22,19 +25,42 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+
     /**
-     * No global setupFiles — each test file manages its own infrastructure.
+     * globalSetup runs ONCE in the main process before any workers spawn.
+     * It starts a single MongoMemoryReplSet and sets MONGO_TEST_URI.
+     * Workers inherit the env var and connect in their own beforeAll (setup.ts).
      *
-     * Rationale: ProfileMapper tests are pure unit tests (no DB needed).
-     * ProfileController tests manage their own MongoMemoryReplSet lifecycle
-     * via beforeAll/afterAll in the test file itself. Forcing the replica-set
-     * startup on every file would block pure unit tests from running when
-     * the MongoDB binary is not yet cached locally.
+     * This replaces the previous per-file ReplSet instantiation which would
+     * have caused O(n) resource consumption with 10+ test files.
      */
+    globalSetup: ['./src/shared/test/global-setup.ts'],
+
+    /**
+     * setupFiles run in EACH worker before its test file.
+     * Responsibilities: mongoose.connect(MONGO_TEST_URI) + afterEach cleanup.
+     */
+    setupFiles: ['./src/shared/test/setup.ts'],
+
     pool: 'forks',
-    hookTimeout: 120_000, // covers first-run binary download + RS negotiation
+
+    /**
+     * fileParallelism: false — run test files sequentially (one fork at a time).
+     *
+     * Rationale: all workers share the same MongoMemoryReplSet and the same
+     * InMemoryRedis instance (via the ioredis alias singleton). Running files in
+     * parallel would interleave writes and afterEach cleanups across workers,
+     * causing non-deterministic failures. Sequential execution is safe: each
+     * worker gets a clean DB state from the previous worker's afterAll disconnect.
+     */
+    fileParallelism: false,
+
+    hookTimeout: 120_000, // covers first-run MongoDB binary download in CI
+
     env: {
+      // auth.middleware.ts: process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me'
       JWT_SECRET: 'dev-jwt-secret-unsafe-change-me',
+      // encryption.ts validates a 64-char hex key at import time
       ENCRYPTION_KEY: 'a'.repeat(64),
       NODE_ENV: 'test',
     },

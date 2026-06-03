@@ -1,4 +1,4 @@
-import{t as g,s as n,A as d,e as p}from"./main-CYS-UJeT.js";import{S as f}from"./stack-recommender-BGeZSZCS.js";import{e as l}from"./escape-Br5wU8qn.js";class m{constructor(e){this.container=e,this._internalNavHandler=null}mount(){this._render(),this._attachListeners(),this._internalNavHandler=e=>{const t=e.target.closest("[data-nav-internal]");if(!t)return;e.preventDefault();const a=t.getAttribute("data-nav-internal");window.history.pushState(null,null,a),window.dispatchEvent(new PopStateEvent("popstate"))},this.container.addEventListener("click",this._internalNavHandler)}unmount(){this._internalNavHandler&&(this.container.removeEventListener("click",this._internalNavHandler),this._internalNavHandler=null),this.container.innerHTML=""}_getTodayStr(){return g()}_getCheckedIds(){const e=this._getTodayStr();return new Set(n.checkins.filter(t=>t.date===e).map(t=>t.supplementId))}_render(){const e=n.stack,t=n.calculateStreak(),a=this._getCheckedIds(),r=e.length,o=a.size,s=r>0&&o>=r,i=r>0?Math.round(o/r*100):0,c=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"}),h=c.charAt(0).toUpperCase()+c.slice(1);this.container.innerHTML=`
+import{t as g,s as n,A as c,e as p}from"./main-5Kzhlj7v.js";import{S as f}from"./stack-recommender-BKcNh00X.js";import{e as l}from"./escape-Br5wU8qn.js";class m{constructor(e){this.container=e,this._internalNavHandler=null}mount(){this._render(),this._attachListeners(),this._internalNavHandler=e=>{const t=e.target.closest("[data-nav-internal]");if(!t)return;e.preventDefault();const a=t.getAttribute("data-nav-internal");window.history.pushState(null,null,a),window.dispatchEvent(new PopStateEvent("popstate"))},this.container.addEventListener("click",this._internalNavHandler)}unmount(){this._internalNavHandler&&(this.container.removeEventListener("click",this._internalNavHandler),this._internalNavHandler=null),this.container.innerHTML=""}_getTodayStr(){return g()}_getCheckedIds(){const e=this._getTodayStr();return new Set(n.checkins.filter(t=>t.date===e).map(t=>t.supplementId))}_render(){const e=n.stack,t=n.calculateStreak(),a=this._getCheckedIds(),r=e.length,o=a.size,s=r>0&&o>=r,i=r>0?Math.round(o/r*100):0,d=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"}),h=d.charAt(0).toUpperCase()+d.slice(1);this.container.innerHTML=`
       <div style="
         padding: 24px 16px 40px;
         display: flex;
@@ -33,8 +33,8 @@ import{t as g,s as n,A as d,e as p}from"./main-CYS-UJeT.js";import{S as f}from".
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(124,58,237,0.15);
-            border: 1px solid rgba(124,58,237,0.35);
+            background: var(--color-brand-muted, rgba(139,92,246,0.15));
+            border: 1px solid var(--color-border-brand, rgba(139,92,246,0.35));
             border-radius: 10px;
             padding: 8px 14px;
             flex-shrink: 0;
@@ -76,8 +76,8 @@ import{t as g,s as n,A as d,e as p}from"./main-CYS-UJeT.js";import{S as f}from".
       </div>
     `}_progressCard(e,t,a,r){return`
       <div style="
-        background: ${r?"rgba(34,197,94,0.08)":"var(--color-surface-primary)"};
-        border: ${r?"1px solid rgba(34,197,94,0.30)":"1px solid var(--color-border)"};
+        background: ${r?"var(--ev-a-bg, rgba(52,211,153,0.08))":"var(--color-surface-primary)"};
+        border: ${r?"1px solid var(--ev-a-border, rgba(52,211,153,0.30))":"1px solid var(--color-border)"};
         border-radius: 16px;
         padding: 24px 20px 20px;
         display: flex;
@@ -139,14 +139,14 @@ import{t as g,s as n,A as d,e as p}from"./main-CYS-UJeT.js";import{S as f}from".
     `}_supplementCard(e,t){const r=f.find(i=>i.id===e.supplementId)?.image||`/assets/${(e.supplementId||"").replace(/-/g,"_")}.png`,o=e.dosage?`${e.dosage}${e.unit||"g"}/dia`:"",s=e.timing||"";return`
       <div style="
         background: var(--color-surface-primary);
-        border: 1px solid ${t?"rgba(34,197,94,0.35)":"var(--color-border)"};
+        border: 1px solid ${t?"var(--ev-a-border, rgba(52,211,153,0.35))":"var(--color-border)"};
         border-radius: 14px;
         padding: 14px 16px;
         display: flex;
         align-items: center;
         gap: 14px;
         transition: border-color 0.2s, background 0.2s;
-        ${t?"background: rgba(34,197,94,0.05);":""}
+        ${t?"background: var(--ev-a-bg, rgba(52,211,153,0.08));":""}
       ">
 
         <!-- Checkbox circle -->
@@ -259,4 +259,4 @@ import{t as g,s as n,A as d,e as p}from"./main-CYS-UJeT.js";import{S as f}from".
           border-radius: 10px;
         ">Ver Meu Stack</a>
       </div>
-    `}_attachListeners(){this.container.querySelectorAll(".btn-checkin-single").forEach(t=>{t.addEventListener("click",a=>{a.stopPropagation(),this._doCheckin(t.dataset.id,t.dataset.name)})});const e=this.container.querySelector("#btn-checkin-all");e&&e.addEventListener("click",()=>{const t=this._getCheckedIds(),a=this._getTodayStr();n.stack.forEach(r=>{t.has(r.supplementId)||n.dispatch(d.ADD_CHECKIN,{supplementId:r.supplementId,date:a})}),this._refresh(),p.emit("toast:show",{message:"🎉 Check-in completo!",type:"success"})})}_doCheckin(e,t,a=!0){this._getCheckedIds().has(e)||(n.dispatch(d.ADD_CHECKIN,{supplementId:e,date:this._getTodayStr()}),a&&p.emit("toast:show",{message:`✅ ${t} marcado!`,type:"success"}),this._refresh())}_refresh(){this._render(),this._attachListeners()}}export{m as default};
+    `}_attachListeners(){this.container.querySelectorAll(".btn-checkin-single").forEach(t=>{t.addEventListener("click",a=>{a.stopPropagation(),this._doCheckin(t.dataset.id,t.dataset.name)})});const e=this.container.querySelector("#btn-checkin-all");e&&e.addEventListener("click",()=>{const t=this._getCheckedIds(),a=this._getTodayStr();n.stack.forEach(r=>{t.has(r.supplementId)||n.dispatch(c.ADD_CHECKIN,{supplementId:r.supplementId,date:a})}),this._refresh(),p.emit("toast:show",{message:"🎉 Check-in completo!",type:"success"})})}_doCheckin(e,t,a=!0){this._getCheckedIds().has(e)||(n.dispatch(c.ADD_CHECKIN,{supplementId:e,date:this._getTodayStr()}),a&&p.emit("toast:show",{message:`✅ ${t} marcado!`,type:"success"}),this._refresh())}_refresh(){this._render(),this._attachListeners()}}export{m as default};

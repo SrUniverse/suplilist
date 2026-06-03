@@ -1,4 +1,4 @@
-import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-Br5wU8qn.js";import{S as s}from"./schema-manager-DpTEqGGv.js";import"./main-CYS-UJeT.js";class x{constructor(a){this.container=a,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents();const a=s.createWebApplicationSchema();s.insertSchema(a)}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=a=>{const r=a.target.closest("[data-nav]");if(r){a.preventDefault();const t=r.getAttribute("data-nav");t&&t.startsWith("/")&&(window.history.pushState(null,null,t),window.dispatchEvent(new PopStateEvent("popstate")));return}const o=a.target.closest("[data-action]");if(o&&o.getAttribute("data-action")==="scroll-features"){const l=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:l?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const a=n.length,r=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],o=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],t=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=[{name:"Amazon",color:"#FF9900",logo:`<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
+import{S as n}from"./stack-recommender-BKcNh00X.js";import{e as i}from"./escape-Br5wU8qn.js";import{S as s}from"./schema-manager-DpTEqGGv.js";import"./main-5Kzhlj7v.js";class h{constructor(r){this.container=r,this._styleEl=null,this._onClick=null}mount(){this._injectStyle(),this.container.innerHTML=this._template(),this._bindEvents();const r=s.createWebApplicationSchema();s.insertSchema(r)}unmount(){this._onClick&&(this.container.removeEventListener("click",this._onClick),this._onClick=null),this.container.innerHTML=""}_bindEvents(){this._onClick=r=>{const o=r.target.closest("[data-nav]");if(o){r.preventDefault();const t=o.getAttribute("data-nav");t&&t.startsWith("/")&&(window.history.pushState(null,null,t),window.dispatchEvent(new PopStateEvent("popstate")));return}const a=r.target.closest("[data-action]");if(a&&a.getAttribute("data-action")==="scroll-features"){const l=window.matchMedia("(prefers-reduced-motion: reduce)").matches;document.getElementById("lp-features")?.scrollIntoView({behavior:l?"instant":"smooth"})}},this.container.addEventListener("click",this._onClick)}_template(){const r=n.length,o=[{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',title:"Comparação de Preços",text:"Amazon, Mercado Livre e Shopee lado a lado. Compre sempre pelo melhor preço, sem sair do app."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>',title:"Dosagem Científica",text:"Doses calculadas pelo seu peso, objetivo e biometria — sem chute, baseadas em evidência."},{icon:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',title:"Stack Personalizado",text:"Monte, monitore e evolua seu protocolo de suplementação ao longo do tempo."}],a=[{n:"1",title:"Defina seus Objetivos",text:"Hipertrofia, longevidade, foco ou performance — você escolhe o caminho."},{n:"2",title:"Compare Preços e Doses",text:"Cruze evidência clínica e o melhor preço entre 3 marketplaces."},{n:"3",title:"Monitore e Avance",text:"Acompanhe sua adesão e ajuste o protocolo conforme você evolui."}],t=["Hipertrofia","Saúde Geral","Longevidade","Performance","Foco","Emagrecimento"],l=[{name:"Amazon",color:"#FF9900",logo:`<svg width="116" height="40" viewBox="0 0 116 40" xmlns="http://www.w3.org/2000/svg" aria-label="Amazon" role="img">
           <text x="0" y="26" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#FF9900" letter-spacing="-1">amazon</text>
           <path d="M8 33 C22 40 52 40 66 33" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round"/>
           <path d="M63 30 L67 33 L62 36" stroke="#FF9900" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -54,7 +54,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
                   <button class="lp-btn lp-btn--outline lp-btn--lg" data-action="scroll-features" type="button">Ver Recursos ↓</button>
                 </div>
                 <p class="lp-hero__stats lp-anim" style="--d:.32s">
-                  ${a}+ Suplementos · 3 Marketplaces · 100% Offline · Evidência Clínica
+                  ${r}+ Suplementos · 3 Marketplaces · 100% Offline · Evidência Clínica
                 </p>
               </div>
               <div class="lp-hero__right lp-anim" style="--d:.2s" aria-hidden="true">
@@ -66,7 +66,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
           <section class="lp-section" id="lp-features" aria-label="Recursos">
             <h2 class="lp-h2">TUDO QUE VOCÊ PRECISA. JUNTO.</h2>
             <div class="lp-grid lp-grid--3">
-              ${r.map(e=>`
+              ${o.map(e=>`
                 <article class="lp-card">
                   <div class="lp-card__icon" aria-hidden="true">${e.icon}</div>
                   <h3 class="lp-card__title">${e.title}</h3>
@@ -79,7 +79,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
           <section class="lp-section" aria-label="Como funciona">
             <h2 class="lp-h2">3 PASSOS PARA COMPRAR CERTO.</h2>
             <div class="lp-grid lp-grid--3">
-              ${o.map(e=>`
+              ${a.map(e=>`
                 <article class="lp-step">
                   <div class="lp-step__num" aria-hidden="true">${e.n}</div>
                   <h3 class="lp-card__title">${e.title}</h3>
@@ -192,17 +192,17 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
 
       </div>
     `}_heroMockupCards(){return`<div class="lp-mock-stack">
-      ${n.slice(0,3).map(r=>{let o=r.dosage?.maintenance??5;const t=r.dosage?.unit||"g";t==="mg"?o=o/1e3:t==="mcg"?o=o/1e6:t==="UI"&&(o=o*25e-6);const l=(o*(r.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=r.evidenceLevel||"A";return`
+      ${n.slice(0,3).map(o=>{let a=o.dosage?.maintenance??5;const t=o.dosage?.unit||"g";t==="mg"?a=a/1e3:t==="mcg"?a=a/1e6:t==="UI"&&(a=a*25e-6);const l=(a*(o.pricePerGram??.3)*30).toFixed(2).replace(".",","),e=o.evidenceLevel||"A";return`
           <div class="lp-mock-card">
-            <div class="lp-mock-card__ev">EV. ${i(String(e))}</div>
-            <div class="lp-mock-card__name">${i(r.name)}</div>
-            <div class="lp-mock-card__cat">${i(r.category||"")}</div>
+            <div class="lp-mock-card__ev lp-mock-card__ev--${String(e).toLowerCase()}">NÍVEL ${i(String(e))}</div>
+            <div class="lp-mock-card__name">${i(o.name)}</div>
+            <div class="lp-mock-card__cat">${i(o.category||"")}</div>
             <div class="lp-mock-card__price">R$ ${i(l)}<span class="lp-mock-card__dose"> / mês</span></div>
           </div>`}).join("")}
-    </div>`}_injectStyle(){if(document.querySelector('[data-page="home"]'))return;const a=document.createElement("style");a.setAttribute("data-page","home"),a.textContent=`
+    </div>`}_injectStyle(){if(document.querySelector('[data-page="home"]'))return;const r=document.createElement("style");r.setAttribute("data-page","home"),r.textContent=`
       .lp-root {
-        background: var(--color-bg-primary, #080808);
-        color: var(--color-text-primary, #F2F2F2);
+        background: var(--color-bg-primary, #0A0C10);
+        color: var(--color-text-primary, #F1F5F9);
         font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
         min-height: 100vh;
@@ -213,9 +213,9 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       /* ── NAV ── */
       .lp-nav {
         position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-        background: rgba(8, 8, 8, 0.8);
-        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
+        background: color-mix(in srgb, var(--color-bg-primary, #0A0C10) 80%, transparent);
+        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.06));
       }
       .lp-nav__inner {
         max-width: 1160px; margin: 0 auto; padding: 14px 24px;
@@ -234,7 +234,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       .lp-logo {
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800;
         font-size: 22px; letter-spacing: -0.02em;
-        color: var(--color-brand, #7C3AED); text-decoration: none;
+        color: var(--color-brand, #8B5CF6); text-decoration: none;
       }
 
       /* ── BOTÕES ── */
@@ -262,9 +262,9 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       .lp-hero__bg {
         position: absolute; inset: 0; z-index: 0; pointer-events: none;
         background:
-          radial-gradient(70% 55% at 50% 0%, rgba(124,58,237,0.18), transparent 65%),
-          radial-gradient(40% 30% at 80% 20%, rgba(124,58,237,0.06), transparent 60%),
-          var(--color-bg-primary, #080808);
+          radial-gradient(70% 55% at 50% 0%, rgba(139,92,246,0.16), transparent 65%),
+          radial-gradient(40% 30% at 80% 20%, rgba(99,102,241,0.06), transparent 60%),
+          var(--color-bg-primary, #0A0C10);
       }
       /* Two-column hero layout */
       .lp-hero__inner {
@@ -282,9 +282,9 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       .lp-pill {
         display: inline-flex; align-items: center; gap: 8px;
         font-size: 13px; font-weight: 700;
-        color: #9F7AEA;
-        background: rgba(124,58,237,0.08);
-        border: 1px solid rgba(124,58,237,0.25);
+        color: var(--color-text-brand, #A78BFA);
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
+        border: 1px solid var(--color-border-brand, rgba(139,92,246,0.30));
         padding: 7px 16px; border-radius: 999px; margin-bottom: 32px;
         letter-spacing: 0.01em;
       }
@@ -294,7 +294,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
         letter-spacing: -0.04em; margin: 0 0 28px;
         overflow-wrap: break-word;
       }
-      .lp-accent { color: var(--color-brand, #7C3AED); }
+      .lp-accent { color: var(--color-brand, #8B5CF6); }
       .lp-hero__sub {
         font-size: 19px; line-height: 1.65;
         color: var(--color-text-secondary, #9A9A9A);
@@ -306,12 +306,12 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
         justify-content: flex-start;
       }
       .lp-btn--primary {
-        background: var(--color-brand, #7C3AED); color: #fff;
-        box-shadow: 0 4px 20px rgba(124,58,237,0.30);
+        background: var(--color-brand, #8B5CF6); color: #fff;
+        box-shadow: 0 4px 20px rgba(139,92,246,0.30);
       }
       .lp-btn--primary:hover {
-        background: var(--color-brand-hover, #6D28D9);
-        box-shadow: 0 6px 28px rgba(124,58,237,0.45);
+        background: var(--color-brand-hover, #7C3AED);
+        box-shadow: 0 6px 28px rgba(139,92,246,0.45);
         transform: translateY(-1px);
       }
 
@@ -320,42 +320,53 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
         display: flex; flex-direction: column; gap: 14px;
       }
       .lp-mock-card {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 4px solid var(--color-brand, #7C3AED);
+        background: var(--color-surface-primary, #13161C);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-left: 3px solid var(--color-brand, #8B5CF6);
         border-radius: 14px; padding: 22px 24px;
         display: flex; flex-direction: column; gap: 6px;
         transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        box-shadow: var(--shadow-card, 0 2px 12px rgba(0,0,0,0.40));
       }
       .lp-mock-card:hover {
-        transform: translateX(-6px);
-        border-top-color: rgba(124,58,237,0.3);
-        border-right-color: rgba(124,58,237,0.3);
-        border-bottom-color: rgba(124,58,237,0.3);
-        border-left-color: var(--color-brand, #7C3AED);
-        box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(124,58,237,0.1);
+        transform: translateX(-5px);
+        border-top-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-right-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-bottom-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-left-color: var(--color-brand, #8B5CF6);
+        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
       }
       .lp-mock-card__ev {
         font-size: 10px; font-weight: 700; letter-spacing: .08em;
-        color: var(--color-success, #22C55E);
-        background: rgba(34,197,94,0.12);
-        padding: 2px 8px; border-radius: 999px;
+        color: var(--ev-a, #34D399);
+        background: var(--ev-a-bg, rgba(52,211,153,0.12));
+        border: 1px solid var(--ev-a-border, rgba(52,211,153,0.25));
+        padding: 2px 8px; border-radius: 6px;
         width: fit-content;
+      }
+      .lp-mock-card__ev--b {
+        color: var(--ev-b, #FBBF24);
+        background: var(--ev-b-bg, rgba(251,191,36,0.12));
+        border-color: var(--ev-b-border, rgba(251,191,36,0.25));
+      }
+      .lp-mock-card__ev--c {
+        color: var(--ev-c, #94A3B8);
+        background: var(--ev-c-bg, rgba(148,163,184,0.10));
+        border-color: var(--ev-c-border, rgba(148,163,184,0.20));
       }
       .lp-mock-card__name { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
       .lp-mock-card__cat  { font-size: 12px; color: var(--color-text-secondary, #9A9A9A); }
-      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand); margin-top: 6px; }
+      .lp-mock-card__price { font-size: 15px; font-weight: 600; color: var(--color-brand, #8B5CF6); margin-top: 6px; font-variant-numeric: tabular-nums; }
       .lp-mock-card__dose  { font-size: 11px; color: var(--color-text-secondary, #9A9A9A); font-weight: 400; }
       .lp-hero__stats {
-        font-size: 13px; color: var(--color-text-muted, #555555);
+        font-size: 13px; color: var(--color-text-muted, #475569);
         margin: 0; letter-spacing: 0.02em;
       }
 
       /* ── SEÇÕES ── */
       .lp-section-wrap { width: 100%; border-top: 1px solid var(--color-border, rgba(255,255,255,0.07)); }
       .lp-section-wrap--alt {
-        background: linear-gradient(180deg, rgba(124,58,237,0.03) 0%, var(--color-bg-secondary, #0F0F0F) 40%);
+        background: linear-gradient(180deg, rgba(139,92,246,0.04) 0%, var(--color-bg-secondary, #0D0F14) 40%);
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
         border-bottom: 1px solid var(--color-border, rgba(255,255,255,0.07));
       }
@@ -370,25 +381,25 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       .lp-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
       .lp-card, .lp-step {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 4px solid var(--color-brand, #7C3AED);
+        background: var(--color-surface-primary, #13161C);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-left: 3px solid var(--color-brand, #8B5CF6);
         border-radius: 16px; padding: 36px;
         transition: border-color .2s ease, transform .22s ease, box-shadow .22s ease;
       }
       .lp-card:hover, .lp-step:hover {
-        border-top-color: rgba(124,58,237,0.3);
-        border-right-color: rgba(124,58,237,0.3);
-        border-bottom-color: rgba(124,58,237,0.3);
-        border-left-color: var(--color-brand, #7C3AED);
-        transform: translateY(-6px);
-        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.08);
+        border-top-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-right-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-bottom-color: var(--color-border-brand, rgba(139,92,246,0.30));
+        border-left-color: var(--color-brand, #8B5CF6);
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
       }
       .lp-card__icon {
         width: 64px; height: 64px; border-radius: 16px;
         display: flex; align-items: center; justify-content: center;
-        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
-        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
+        background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.08));
+        box-shadow: 0 4px 16px rgba(139,92,246,0.15);
         margin-bottom: 24px;
       }
       .lp-card__title {
@@ -403,9 +414,9 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
         width: 56px; height: 56px; border-radius: 14px;
         display: flex; align-items: center; justify-content: center;
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; font-weight: 800; font-size: 24px;
-        color: var(--color-brand, #7C3AED);
-        background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(124,58,237,0.08));
-        box-shadow: 0 4px 16px rgba(124,58,237,0.15);
+        color: var(--color-brand, #8B5CF6);
+        background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.08));
+        box-shadow: 0 4px 16px rgba(139,92,246,0.15);
         margin-bottom: 22px;
       }
 
@@ -420,15 +431,15 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
         transition: border-color .18s ease, background .18s ease, color .18s ease;
       }
       .lp-chip:hover {
-        border-color: var(--color-brand, #7C3AED);
-        background: var(--color-brand-muted, rgba(124,58,237,0.12));
+        border-color: var(--color-brand, #8B5CF6);
+        background: var(--color-brand-muted, rgba(139,92,246,0.12));
       }
 
       /* ── MARKETPLACES ── */
       .lp-market {
-        background: var(--color-surface-primary, #111111);
-        border: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        border-left: 6px solid var(--mk-color, rgba(255,255,255,0.14));
+        background: var(--color-surface-primary, #13161C);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-left: 4px solid var(--mk-color, rgba(255,255,255,0.14));
         border-radius: 16px; padding: 32px 36px;
         display: flex; flex-direction: column;
         align-items: flex-start; gap: 20px;
@@ -446,9 +457,9 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       .lp-market__logo { display: flex; align-items: center; min-height: 40px; }
       .lp-market__badge {
         font-size: 12px; font-weight: 600;
-        color: var(--color-success, #22C55E);
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.2);
+        color: var(--color-savings, #22C55E);
+        background: var(--color-savings-bg, rgba(34,197,94,0.12));
+        border: 1px solid rgba(34,197,94,0.25);
         padding: 5px 14px; border-radius: 999px;
         letter-spacing: 0.02em;
       }
@@ -470,7 +481,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
         background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
       }
       .lp-ig__inner {
-        background: var(--color-bg-primary, #0A0A0A);
+        background: var(--color-bg-primary, #0A0C10);
         border-radius: 18px; padding: 28px 32px;
         display: flex; align-items: center; justify-content: space-between;
         gap: 24px; flex-wrap: wrap;
@@ -512,7 +523,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       /* ── FOOTER ── */
       .lp-footer {
         border-top: 1px solid var(--color-border, rgba(255,255,255,0.07));
-        background: var(--color-surface-primary, #111111);
+        background: var(--color-surface-primary, #13161C);
         padding: 64px 24px 40px;
       }
       .lp-footer__grid {
@@ -571,7 +582,7 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
       .lp-btn--primary::after {
         content: ''; position: absolute; inset: -4px;
         border-radius: inherit;
-        background: rgba(124,58,237,0.35); filter: blur(12px);
+        background: rgba(139,92,246,0.35); filter: blur(12px);
         opacity: 0; pointer-events: none; z-index: -1;
         animation: lp-pulse-glow-opacity 3s ease-in-out infinite;
       }
@@ -633,4 +644,4 @@ import{S as n}from"./stack-recommender-BGeZSZCS.js";import{e as i}from"./escape-
         .lp-btn--primary:hover { transform: none; }
         .lp-mock-card:hover { transform: none; }
       }
-    `,document.head.appendChild(a),this._styleEl=a}}export{x as default};
+    `,document.head.appendChild(r),this._styleEl=r}}export{h as default};

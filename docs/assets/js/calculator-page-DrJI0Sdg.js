@@ -1,4 +1,4 @@
-var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configurable:!0,writable:!0,value:a}):n[e]=a;var g=(n,e,a)=>q(n,typeof e!="symbol"?e+"":e,a);import{s as p,A as f,e as x}from"./main-CYS-UJeT.js";import{S as P}from"./stack-recommender-BGeZSZCS.js";import{e as l}from"./escape-Br5wU8qn.js";import{E as D}from"./evidence-D5RtUc7g.js";class j{constructor(){g(this,"FIXED_DOSE_SUPPLEMENTS",new Set(["vitamina-d3","omega-3","magnesio-bisglicinato","vitamina-c","ashwagandha"]));g(this,"WEIGHT_BASED_SUPPLEMENTS",new Map([["creatina-monohidratada",.07],["whey-protein",.4],["beta-alanina",.05],["l-carnitina",.02],["cafeina-teanina",3]]));g(this,"ACTIVITY_MULTIPLIERS",{low:.85,moderate:1,high:1.15});g(this,"OBJECTIVE_MULTIPLIERS",{bulk:1.2,strength:1.2,cut:.9,endurance:1,general:1});g(this,"TIMING_SCHEDULES",{preWorkout:"30-45 minutos antes do treino",postWorkout:"Pós-treino ou a qualquer hora com carboidratos",morning:"Pela manhã com refeição",night:"30-60 minutos antes de dormir"})}calculate(e,a){if(!e||!a)throw new Error("[DosageCalculator] Supplement and UserProfile are mandatory inputs");const t=a.weight||70,r=a.trainingFrequency||3,i=a.objective||"general",c=a.age||25;let o=e.dosage?.maintenance||0,s=e.dosage?.isFixed||this.FIXED_DOSE_SUPPLEMENTS.has(e.id),u="Dosagem clínica fixa recomendada.";if(!s){const I=this.WEIGHT_BASED_SUPPLEMENTS.get(e.id)||e.dosage?.multiplier||.05,R=this._getActivityLevel(r),T=this.ACTIVITY_MULTIPLIERS[R]||1,A=this.OBJECTIVE_MULTIPLIERS[i]||1,z=this._getAgeMultiplier(c);o=t*I*T*A*z,u=`Cálculo biométrico baseado no peso corporal (${t}kg), frequência de treinos (${r}x/semana) e objetivo de ${i}.`}const d=e.dosage?.upperLimit||o*2;let m=!0;o>=d&&(o=d,m=!1);const h=e.dosage?.unit||"g";o=(h==="g"?1:0)===1?Math.round(o*10)/10:Math.round(o);const y=o*7,_=o*30,w=this._getDosageFrequency(e,i),S=e.dosage?.timing||"A qualquer hora",L=e.id==="vitamina-d3"||e.id==="omega-3",E=e.id==="creatina-monohidratada"?"Beba com pelo menos 300ml de água e mantenha alta ingestão hídrica diária (3L+)":"Beba com um copo de água (200ml)",$=e.id==="creatina-monohidratada"?"A creatina funciona por saturação acumulativa, consuma todos os dias inclusive nos dias de descanso.":null;let b=null;e.dosage?.loading&&(b={dose:e.dosage.loading,unit:h,duration:"5-7 dias",frequency:"Fracionado 4x ao dia",description:`Protocolo opcional de saturação inicial: tome ${e.dosage.loading}${h} por dia durante 5-7 dias para saturar os estoques musculares rapidamente, depois retorne à dose de manutenção de ${o}${h}.`});const C=this._buildRationale(e,o,h,t,i,s),k=this._generateWarnings(e,o,d,c);return{daily:o,unit:h,weekly:y,monthly:_,frequency:w,timing:S,withFood:L,withWater:E,note:$,loadingProtocol:b,withinSafetyLimits:m,upperLimit:d,rationale:C,warnings:k,methodology:u}}calculateStack(e,a){return Array.isArray(e)?e.map(t=>({supplementId:t.id,supplementName:t.name,dosage:this.calculate(t,a)})):[]}calculateStackCost(e,a){if(!Array.isArray(e))return 0;let t=0;return e.forEach(r=>{const i=this.calculate(r,a),c=r.pricePerGram||.05;let o=i.daily;i.unit==="mg"?o=i.daily/1e3:i.unit==="mcg"?o=i.daily/1e6:i.unit==="UI"&&(o=i.daily*25e-6),t+=o*30*c}),Math.round(t*100)/100}_getActivityLevel(e){return e>=5?"high":e>=3?"moderate":"low"}_getAgeMultiplier(e){return e>=60?.9:1}_getDosageFrequency(e,a){return e.id==="cafeina-teanina"?"Somente nos dias de treino (pré-treino)":"Diariamente"}_buildRationale(e,a,t,r,i,c){return c?`Dose fixa padrão de ${a}${t} recomendada clinicamente, sem necessidade de alteração baseada no peso corporal.`:`Dose diária sugerida de ${a}${t} calculada com base no seu peso corporal (${r}kg) e no objetivo de ${i}.`}_generateWarnings(e,a,t,r){const i=[];return r<18&&i.push({type:"warning",message:"Atenção: Suplemento recomendado para maiores de 18 anos. Consulte um médico ou nutricionista."}),a>=t*.9&&i.push({type:"caution",message:"Cuidado: Sua dosagem está muito próxima ao limite máximo de segurança estabelecido."}),i}}const B=new j,N=[{value:"sedentary",label:"Sedentário"},{value:"moderate",label:"Moderado"},{value:"active",label:"Ativo"},{value:"athlete",label:"Atleta"}],F=[{value:"bulk",label:"Bulk"},{value:"cut",label:"Cut"},{value:"strength",label:"Força"},{value:"endurance",label:"Resistência"},{value:"general",label:"Saúde Geral"}],v=D;class J{constructor(e){this.container=e,this._weight=p.user?.weight??75,this._bodyfat=p.user?.bodyfat??null,this._activityLevel="moderate",this._objective=p.user?.objective??"general",this._searchQuery="",this._selectedSupp=null,this._phase="maintenance",this._calcResult=null,this._debounce=null,this._allSupps=P??[]}mount(){this._attachStyles(),this._render(),this._attachListeners()}unmount(){clearTimeout(this._debounce)}_render(){this.container.innerHTML=`
+var z=Object.defineProperty;var M=(l,e,a)=>e in l?z(l,e,{enumerable:!0,configurable:!0,writable:!0,value:a}):l[e]=a;var g=(l,e,a)=>M(l,typeof e!="symbol"?e+"":e,a);import{s as d,A as b,e as f}from"./main-5Kzhlj7v.js";import{S as D}from"./stack-recommender-BKcNh00X.js";import{e as s}from"./escape-Br5wU8qn.js";class B{constructor(){g(this,"FIXED_DOSE_SUPPLEMENTS",new Set(["vitamina-d3","omega-3","magnesio-bisglicinato","vitamina-c","ashwagandha"]));g(this,"WEIGHT_BASED_SUPPLEMENTS",new Map([["creatina-monohidratada",.07],["whey-protein",.4],["beta-alanina",.05],["l-carnitina",.02],["cafeina-teanina",3]]));g(this,"ACTIVITY_MULTIPLIERS",{low:.85,moderate:1,high:1.15});g(this,"OBJECTIVE_MULTIPLIERS",{bulk:1.2,strength:1.2,cut:.9,endurance:1,general:1});g(this,"TIMING_SCHEDULES",{preWorkout:"30-45 minutos antes do treino",postWorkout:"Pós-treino ou a qualquer hora com carboidratos",morning:"Pela manhã com refeição",night:"30-60 minutos antes de dormir"})}calculate(e,a){if(!e||!a)throw new Error("[DosageCalculator] Supplement and UserProfile are mandatory inputs");const t=a.weight||70,o=a.trainingFrequency||3,r=a.objective||"general",c=a.age||25;let i=e.dosage?.maintenance||0,p=e.dosage?.isFixed||this.FIXED_DOSE_SUPPLEMENTS.has(e.id),n="Dosagem clínica fixa recomendada.";if(!p){const C=this.WEIGHT_BASED_SUPPLEMENTS.get(e.id)||e.dosage?.multiplier||.05,I=this._getActivityLevel(o),R=this.ACTIVITY_MULTIPLIERS[I]||1,A=this.OBJECTIVE_MULTIPLIERS[r]||1,T=this._getAgeMultiplier(c);i=t*C*R*A*T,n=`Cálculo biométrico baseado no peso corporal (${t}kg), frequência de treinos (${o}x/semana) e objetivo de ${r}.`}const u=e.dosage?.upperLimit||i*2;let v=!0;i>=u&&(i=u,v=!1);const h=e.dosage?.unit||"g";i=(h==="g"?1:0)===1?Math.round(i*10)/10:Math.round(i);const x=i*7,y=i*30,_=this._getDosageFrequency(e,r),w=e.dosage?.timing||"A qualquer hora",S=e.id==="vitamina-d3"||e.id==="omega-3",L=e.id==="creatina-monohidratada"?"Beba com pelo menos 300ml de água e mantenha alta ingestão hídrica diária (3L+)":"Beba com um copo de água (200ml)",$=e.id==="creatina-monohidratada"?"A creatina funciona por saturação acumulativa, consuma todos os dias inclusive nos dias de descanso.":null;let m=null;e.dosage?.loading&&(m={dose:e.dosage.loading,unit:h,duration:"5-7 dias",frequency:"Fracionado 4x ao dia",description:`Protocolo opcional de saturação inicial: tome ${e.dosage.loading}${h} por dia durante 5-7 dias para saturar os estoques musculares rapidamente, depois retorne à dose de manutenção de ${i}${h}.`});const E=this._buildRationale(e,i,h,t,r,p),k=this._generateWarnings(e,i,u,c);return{daily:i,unit:h,weekly:x,monthly:y,frequency:_,timing:w,withFood:S,withWater:L,note:$,loadingProtocol:m,withinSafetyLimits:v,upperLimit:u,rationale:E,warnings:k,methodology:n}}calculateStack(e,a){return Array.isArray(e)?e.map(t=>({supplementId:t.id,supplementName:t.name,dosage:this.calculate(t,a)})):[]}calculateStackCost(e,a){if(!Array.isArray(e))return 0;let t=0;return e.forEach(o=>{const r=this.calculate(o,a),c=o.pricePerGram||.05;let i=r.daily;r.unit==="mg"?i=r.daily/1e3:r.unit==="mcg"?i=r.daily/1e6:r.unit==="UI"&&(i=r.daily*25e-6),t+=i*30*c}),Math.round(t*100)/100}_getActivityLevel(e){return e>=5?"high":e>=3?"moderate":"low"}_getAgeMultiplier(e){return e>=60?.9:1}_getDosageFrequency(e,a){return e.id==="cafeina-teanina"?"Somente nos dias de treino (pré-treino)":"Diariamente"}_buildRationale(e,a,t,o,r,c){return c?`Dose fixa padrão de ${a}${t} recomendada clinicamente, sem necessidade de alteração baseada no peso corporal.`:`Dose diária sugerida de ${a}${t} calculada com base no seu peso corporal (${o}kg) e no objetivo de ${r}.`}_generateWarnings(e,a,t,o){const r=[];return o<18&&r.push({type:"warning",message:"Atenção: Suplemento recomendado para maiores de 18 anos. Consulte um médico ou nutricionista."}),a>=t*.9&&r.push({type:"caution",message:"Cuidado: Sua dosagem está muito próxima ao limite máximo de segurança estabelecido."}),r}}const q=new B,P=[{value:"sedentary",label:"Sedentário"},{value:"moderate",label:"Moderado"},{value:"active",label:"Ativo"},{value:"athlete",label:"Atleta"}],F=[{value:"bulk",label:"Bulk"},{value:"cut",label:"Cut"},{value:"strength",label:"Força"},{value:"endurance",label:"Resistência"},{value:"general",label:"Saúde Geral"}];class H{constructor(e){this.container=e,this._weight=d.user?.weight??75,this._bodyfat=d.user?.bodyfat??null,this._activityLevel="moderate",this._objective=d.user?.objective??"general",this._searchQuery="",this._selectedSupp=null,this._phase="maintenance",this._calcResult=null,this._debounce=null,this._allSupps=D??[]}mount(){this._attachStyles(),this._render(),this._attachListeners()}unmount(){clearTimeout(this._debounce)}_render(){this.container.innerHTML=`
       <div class="calcp-root">
         <div class="calcp-header">
           <h1 class="calcp-title">Calculadora</h1>
@@ -31,7 +31,7 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
               <div class="calcp-field">
                 <label class="calcp-label" for="sel-activity">Nível de Atividade</label>
                 <select id="sel-activity" class="calcp-select" aria-label="Nível de atividade">
-                  ${N.map(e=>`
+                  ${P.map(e=>`
                     <option value="${e.value}"${this._activityLevel===e.value?" selected":""}>${e.label}</option>
                   `).join("")}
                 </select>
@@ -80,23 +80,23 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
           Consulte um médico ou nutricionista antes de iniciar qualquer protocolo.
         </p>
       </div>
-    `}_renderChips(){const e=this._searchQuery.toLowerCase().trim(),a=e?this._allSupps.filter(t=>t.name.toLowerCase().includes(e)||(t.category??"").toLowerCase().includes(e)):this._allSupps;return a.length?a.map(t=>{const r=this._selectedSupp?.id===t.id,i=t.evidenceLevel??"D",c=v[i]??v.C;return`
-        <button class="calcp-chip${r?" calcp-chip--active":""}"
-          role="option" aria-selected="${r}"
-          data-supp-id="${l(t.id)}" title="${l(t.name)}">
-          <span class="calcp-chip-name">${l(t.name)}</span>
-          <span class="calcp-chip-cat">${l(t.category??"")}</span>
-          <span class="calcp-ev-badge" style="background:${c.bg};color:${c.color}">${i}</span>
+    `}_renderChips(){const e=this._searchQuery.toLowerCase().trim(),a=e?this._allSupps.filter(t=>t.name.toLowerCase().includes(e)||(t.category??"").toLowerCase().includes(e)):this._allSupps;return a.length?a.map(t=>{const o=this._selectedSupp?.id===t.id,r=t.evidenceLevel??"D";return`
+        <button class="calcp-chip${o?" calcp-chip--active":""}"
+          role="option" aria-selected="${o}"
+          data-supp-id="${s(t.id)}" title="${s(t.name)}">
+          <span class="calcp-chip-name">${s(t.name)}</span>
+          <span class="calcp-chip-cat">${s(t.category??"")}</span>
+          <span class="calcp-ev-badge calcp-ev-badge--${r.toLowerCase()}">${r}</span>
         </button>`}).join(""):'<p class="calcp-empty-chips">Nenhum suplemento encontrado.</p>'}_renderResult(){if(!this._selectedSupp)return`
         <div class="calcp-placeholder">
           <div class="calcp-placeholder-icon">⚗️</div>
           <p class="calcp-placeholder-title">Selecione um composto</p>
           <p class="calcp-placeholder-sub">Escolha um suplemento na lista ao lado para ver o resultado de dosagem personalizado.</p>
-        </div>`;const e=this._selectedSupp,a=this._calcResult,t=e.evidenceLevel??"D",r=v[t]??v.C;let i="—",c=e.dosage?.unit??"g";a?i=this._phase==="loading"?a.loading??a.daily??"—":a.daily??a.maintenance??"—":e.dosage&&(i=this._phase==="loading"?e.dosage.loading??e.dosage.maintenance??"—":e.dosage.maintenance??"—");const o=a?.rationale??e.dosage?.timing??"",s=e.safetyScore??0,u=!!(e.dosage?.loading||a?.loading),d=(p.stack??[]).some(m=>m.supplementId===e.id);return`
+        </div>`;const e=this._selectedSupp,a=this._calcResult,t=e.evidenceLevel??"D";let o="—",r=e.dosage?.unit??"g";a?o=this._phase==="loading"?a.loading??a.daily??"—":a.daily??a.maintenance??"—":e.dosage&&(o=this._phase==="loading"?e.dosage.loading??e.dosage.maintenance??"—":e.dosage.maintenance??"—");const c=a?.rationale??e.dosage?.timing??"",i=e.safetyScore??0,p=!!(e.dosage?.loading||a?.loading),n=(d.stack??[]).some(u=>u.supplementId===e.id);return`
       <!-- Result header -->
       <div class="calcp-result-header">
         <h2 class="calcp-result-title">Resultado da Otimização</h2>
-        ${u?`
+        ${p?`
           <div class="calcp-phase-toggle" role="group" aria-label="Fase de protocolo">
             <button class="calcp-phase-btn${this._phase==="maintenance"?" calcp-phase-btn--active":""}"
               data-phase="maintenance">Manutenção</button>
@@ -107,8 +107,8 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
 
       <!-- Big dose number -->
       <div class="calcp-dose-display">
-        <span class="calcp-dose-value">${i}</span>
-        <span class="calcp-dose-unit">${c}/dia</span>
+        <span class="calcp-dose-value">${o}</span>
+        <span class="calcp-dose-unit">${r}/dia</span>
       </div>
 
       <!-- Validated label -->
@@ -118,9 +118,9 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
       </div>
 
       <!-- Add to protocol button -->
-      <button class="calcp-btn-add${d?" calcp-btn-add--in":""}"
-        id="btn-add-protocol" data-supp-id="${l(e.id)}" data-supp-name="${l(e.name)}">
-        ${d?"✓ No meu Protocolo":"+ Adicionar ao meu Protocolo"}
+      <button class="calcp-btn-add${n?" calcp-btn-add--in":""}"
+        id="btn-add-protocol" data-supp-id="${s(e.id)}" data-supp-name="${s(e.name)}">
+        ${n?"✓ No meu Protocolo":"+ Adicionar ao meu Protocolo"}
       </button>
 
       <hr class="calcp-sep">
@@ -131,16 +131,16 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
 
         <div class="calcp-sci-section">
           <p class="calcp-sci-label">Racional da Dosagem</p>
-          <p class="calcp-sci-text">${l(o||"Dosagem baseada em estudos clínicos controlados.")}</p>
+          <p class="calcp-sci-text">${s(c||"Dosagem baseada em estudos clínicos controlados.")}</p>
         </div>
 
         <div class="calcp-sci-section">
           <p class="calcp-sci-label">Nível de Evidência</p>
           <div class="calcp-progress-row">
-            <span class="calcp-ev-badge" style="background:${r.bg};color:${r.color}">${t}</span>
+            <span class="calcp-ev-badge calcp-ev-badge--${t.toLowerCase()}">${t}</span>
             <div class="calcp-progress-bar" role="progressbar"
               aria-valuenow="${t==="A"?100:t==="B"?65:35}" aria-valuemin="0" aria-valuemax="100">
-              <div class="calcp-progress-fill" style="width:${t==="A"?100:t==="B"?65:35}%;background:${r.color}"></div>
+              <div class="calcp-progress-fill calcp-progress-fill--ev-${t.toLowerCase()}" style="width:${t==="A"?100:t==="B"?65:35}%"></div>
             </div>
           </div>
         </div>
@@ -148,11 +148,11 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
         <div class="calcp-sci-section">
           <p class="calcp-sci-label">Segurança</p>
           <div class="calcp-progress-row">
-            <span class="calcp-sci-pct" style="color:${s>=90?"#22C55E":s>=70?"#F59E0B":"#EF4444"}">${s}/100</span>
+            <span class="calcp-sci-pct" style="color:${i>=90?"var(--ev-a,#34D399)":i>=70?"var(--ev-b,#FBBF24)":"var(--color-error,#EF4444)"}">${i}/100</span>
             <div class="calcp-progress-bar" role="progressbar"
-              aria-valuenow="${s}" aria-valuemin="0" aria-valuemax="100">
+              aria-valuenow="${i}" aria-valuemin="0" aria-valuemax="100">
               <div class="calcp-progress-fill"
-                style="width:${s}%;background:${s>=90?"#22C55E":s>=70?"#F59E0B":"#EF4444"}"></div>
+                style="width:${i}%;background:${i>=90?"var(--ev-a,#34D399)":i>=70?"var(--ev-b,#FBBF24)":"var(--color-error,#EF4444)"}"></div>
             </div>
           </div>
         </div>
@@ -160,10 +160,10 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
         ${e.dosage?.timing?`
           <div class="calcp-sci-section">
             <p class="calcp-sci-label">Timing Recomendado</p>
-            <p class="calcp-timing-text">⏱ ${l(e.dosage.timing)}</p>
+            <p class="calcp-timing-text">⏱ ${s(e.dosage.timing)}</p>
           </div>`:""}
       </div>
-    `}_calculate(){if(!this._selectedSupp){this._calcResult=null;return}const e={weight:this._weight,bodyfat:this._bodyfat,activityLevel:this._activityLevel,objective:this._objective,trainingFrequency:this._activityLevel==="athlete"?6:this._activityLevel==="active"?5:this._activityLevel==="moderate"?3:2};try{const a=B.calculate(this._selectedSupp,e);this._calcResult=a??null}catch{this._calcResult=null}}_refreshResult(){clearTimeout(this._debounce),this._debounce=setTimeout(()=>{this._calculate();const e=this.container.querySelector("#result-card");e&&(e.innerHTML=this._renderResult()),this._attachResultListeners()},80)}_refreshChips(){const e=this.container.querySelector("#supp-list");e&&(e.innerHTML=this._renderChips())}_attachListeners(){this.container.querySelector("#inp-weight")?.addEventListener("input",e=>{const a=parseFloat(e.target.value);!isNaN(a)&&a>=40&&a<=200&&(this._weight=a,this._refreshResult())}),this.container.querySelector("#inp-bodyfat")?.addEventListener("input",e=>{const a=parseFloat(e.target.value);this._bodyfat=isNaN(a)?null:a,this._refreshResult()}),this.container.querySelector("#sel-activity")?.addEventListener("change",e=>{this._activityLevel=e.target.value,this._refreshResult()}),this.container.querySelector("#sel-objective")?.addEventListener("change",e=>{this._objective=e.target.value,this._refreshResult()}),this.container.querySelector("#inp-search")?.addEventListener("input",e=>{this._searchQuery=e.target.value,this._refreshChips(),this._attachChipListeners()}),this._attachChipListeners(),this._attachResultListeners()}_attachChipListeners(){this.container.querySelectorAll("[data-supp-id]").forEach(e=>{e.classList.contains("calcp-chip")&&e.addEventListener("click",()=>{const a=e.dataset.suppId;this._selectedSupp?.id===a?this._selectedSupp=null:this._selectedSupp=this._allSupps.find(t=>t.id===a)??null,this._refreshChips(),this._attachChipListeners(),this._refreshResult()})})}_attachResultListeners(){this.container.querySelectorAll("[data-phase]").forEach(a=>{a.addEventListener("click",()=>{this._phase=a.dataset.phase;const t=this.container.querySelector("#result-card");t&&(t.innerHTML=this._renderResult()),this._attachResultListeners()})});const e=this.container.querySelector("#btn-add-protocol");e&&e.addEventListener("click",()=>{const a=e.dataset.suppId,t=e.dataset.suppName;if((p.stack??[]).some(c=>c.supplementId===a))p.dispatch(f.REMOVE_FROM_STACK,{supplementId:a}),x.emit("toast:show",{message:`${t} removido do protocolo`,type:"info"});else{const c=this._selectedSupp,o=this._calcResult,s=this._phase==="loading"?o?.loading??o?.daily??c?.dosage?.loading??c?.dosage?.maintenance??0:o?.daily??c?.dosage?.maintenance??0,u=c?.dosage?.unit??"g";p.dispatch(f.ADD_TO_STACK,{supplementId:a,name:t,dosage:s,unit:u,frequency:"diário"}),x.emit("toast:show",{message:`✓ ${t} adicionado ao protocolo!`,type:"success"})}const i=this.container.querySelector("#result-card");i&&(i.innerHTML=this._renderResult()),this._attachResultListeners()})}_attachStyles(){if(document.getElementById("calcp-styles"))return;const e=document.createElement("style");e.id="calcp-styles",e.textContent=`
+    `}_calculate(){if(!this._selectedSupp){this._calcResult=null;return}const e={weight:this._weight,bodyfat:this._bodyfat,activityLevel:this._activityLevel,objective:this._objective,trainingFrequency:this._activityLevel==="athlete"?6:this._activityLevel==="active"?5:this._activityLevel==="moderate"?3:2};try{const a=q.calculate(this._selectedSupp,e);this._calcResult=a??null}catch{this._calcResult=null}}_refreshResult(){clearTimeout(this._debounce),this._debounce=setTimeout(()=>{this._calculate();const e=this.container.querySelector("#result-card");e&&(e.innerHTML=this._renderResult()),this._attachResultListeners()},80)}_refreshChips(){const e=this.container.querySelector("#supp-list");e&&(e.innerHTML=this._renderChips())}_attachListeners(){this.container.querySelector("#inp-weight")?.addEventListener("input",e=>{const a=parseFloat(e.target.value);!isNaN(a)&&a>=40&&a<=200&&(this._weight=a,this._refreshResult())}),this.container.querySelector("#inp-bodyfat")?.addEventListener("input",e=>{const a=parseFloat(e.target.value);this._bodyfat=isNaN(a)?null:a,this._refreshResult()}),this.container.querySelector("#sel-activity")?.addEventListener("change",e=>{this._activityLevel=e.target.value,this._refreshResult()}),this.container.querySelector("#sel-objective")?.addEventListener("change",e=>{this._objective=e.target.value,this._refreshResult()}),this.container.querySelector("#inp-search")?.addEventListener("input",e=>{this._searchQuery=e.target.value,this._refreshChips(),this._attachChipListeners()}),this._attachChipListeners(),this._attachResultListeners()}_attachChipListeners(){this.container.querySelectorAll("[data-supp-id]").forEach(e=>{e.classList.contains("calcp-chip")&&e.addEventListener("click",()=>{const a=e.dataset.suppId;this._selectedSupp?.id===a?this._selectedSupp=null:this._selectedSupp=this._allSupps.find(t=>t.id===a)??null,this._refreshChips(),this._attachChipListeners(),this._refreshResult()})})}_attachResultListeners(){this.container.querySelectorAll("[data-phase]").forEach(a=>{a.addEventListener("click",()=>{this._phase=a.dataset.phase;const t=this.container.querySelector("#result-card");t&&(t.innerHTML=this._renderResult()),this._attachResultListeners()})});const e=this.container.querySelector("#btn-add-protocol");e&&e.addEventListener("click",()=>{const a=e.dataset.suppId,t=e.dataset.suppName;if((d.stack??[]).some(c=>c.supplementId===a))d.dispatch(b.REMOVE_FROM_STACK,{supplementId:a}),f.emit("toast:show",{message:`${t} removido do protocolo`,type:"info"});else{const c=this._selectedSupp,i=this._calcResult,p=this._phase==="loading"?i?.loading??i?.daily??c?.dosage?.loading??c?.dosage?.maintenance??0:i?.daily??c?.dosage?.maintenance??0,n=c?.dosage?.unit??"g";d.dispatch(b.ADD_TO_STACK,{supplementId:a,name:t,dosage:p,unit:n,frequency:"diário"}),f.emit("toast:show",{message:`✓ ${t} adicionado ao protocolo!`,type:"success"})}const r=this.container.querySelector("#result-card");r&&(r.innerHTML=this._renderResult()),this._attachResultListeners()})}_attachStyles(){if(document.getElementById("calcp-styles"))return;const e=document.createElement("style");e.id="calcp-styles",e.textContent=`
       /* Root */
       .calcp-root {
         display: flex;
@@ -260,7 +260,7 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
       }
       .calcp-input:focus, .calcp-select:focus {
         border-color: var(--color-brand);
-        box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+        box-shadow: 0 0 0 3px var(--color-brand-muted, rgba(139,92,246,.12));
       }
       .calcp-input::placeholder { color: var(--color-text-muted); }
       .calcp-select {
@@ -356,7 +356,14 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
         padding: 2px 7px;
         border-radius: 5px;
         text-transform: uppercase;
+        border: 1px solid transparent;
       }
+      .calcp-ev-badge--a { color: var(--ev-a, #34D399); background: var(--ev-a-bg, rgba(52,211,153,.12)); border-color: var(--ev-a-border, rgba(52,211,153,.25)); }
+      .calcp-ev-badge--b { color: var(--ev-b, #FBBF24); background: var(--ev-b-bg, rgba(251,191,36,.12)); border-color: var(--ev-b-border, rgba(251,191,36,.25)); }
+      .calcp-ev-badge--c, .calcp-ev-badge--d { color: var(--ev-c, #94A3B8); background: var(--ev-c-bg, rgba(148,163,184,.10)); border-color: var(--ev-c-border, rgba(148,163,184,.20)); }
+      .calcp-progress-fill--ev-a { background: var(--ev-a, #34D399); }
+      .calcp-progress-fill--ev-b { background: var(--ev-b, #FBBF24); }
+      .calcp-progress-fill--ev-c, .calcp-progress-fill--ev-d { background: var(--ev-c, #94A3B8); }
       .calcp-empty-chips {
         font-size: 13px;
         color: var(--color-text-muted);
@@ -467,14 +474,14 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
         gap: 7px;
         font-size: 12px;
         font-weight: 600;
-        color: var(--color-success);
+        color: var(--ev-a, #34D399);
         margin-bottom: 20px;
       }
       .calcp-validated-dot {
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: var(--color-success);
+        background: var(--ev-a, #34D399);
         flex-shrink: 0;
       }
 
@@ -496,11 +503,11 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
       .calcp-btn-add:hover { background: var(--color-brand-hover); }
       .calcp-btn-add:active { transform: scale(.98); }
       .calcp-btn-add--in {
-        background: var(--color-success-bg);
-        color: var(--color-success);
-        border: 1px solid rgba(34,197,94,.25);
+        background: var(--ev-a-bg, rgba(52,211,153,.12));
+        color: var(--ev-a, #34D399);
+        border: 1px solid var(--ev-a-border, rgba(52,211,153,.25));
       }
-      .calcp-btn-add--in:hover { background: rgba(34,197,94,.18); }
+      .calcp-btn-add--in:hover { background: rgba(52,211,153,.18); }
 
       /* Separator */
       .calcp-sep {
@@ -587,4 +594,4 @@ var M=Object.defineProperty;var q=(n,e,a)=>e in n?M(n,e,{enumerable:!0,configura
         .calcp-dose-value { font-size: 48px; }
         .calcp-chips { max-height: 240px; }
       }
-    `,document.head.appendChild(e)}}export{J as default};
+    `,document.head.appendChild(e)}}export{H as default};

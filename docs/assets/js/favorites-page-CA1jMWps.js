@@ -1,4 +1,4 @@
-import{S as d}from"./stack-recommender-BGeZSZCS.js";import{s as l,A as p}from"./main-CYS-UJeT.js";import{E as c}from"./evidence-D5RtUc7g.js";import{e as o}from"./escape-Br5wU8qn.js";const v=()=>{const i=l.favorites;return Array.isArray(i)?i:[]},f=i=>{l.dispatch(p.REMOVE_FAVORITE,{supplementId:i})},u=[{key:"all",label:"Todos"},{key:"bulk",label:"Hipertrofia"},{key:"endurance",label:"Performance"},{key:"general",label:"Saúde Geral"},{key:"cut",label:"Emagrecimento"}];function g(i,e){return e==="all"?!0:(i.targets?.[e]??0)>0}function b(i,e){const a=[...i];if(e==="evidence"){const t={A:0,B:1,C:2};return a.sort((r,n)=>(t[r.evidenceLevel]??3)-(t[n.evidenceLevel]??3))}return e==="az"?a.sort((t,r)=>t.name.localeCompare(r.name)):a}class w{constructor(e){this.container=e,this._activeGoal="all",this._sortKey="evidence",this._unsub=null}mount(){this._injectStyles(),this._unsub=l.subscribe(()=>this._render()),this._render()}unmount(){this._unsub?.(),this.container.innerHTML=""}_getFavoriteSupplements(){return v().map(a=>d.find(t=>t.id===a)).filter(Boolean)}_injectStyles(){if(document.getElementById("fav-page-styles-v3"))return;const e=document.createElement("style");e.id="fav-page-styles-v3",e.textContent=`
+import{S as d}from"./stack-recommender-BKcNh00X.js";import{s as l,A as p}from"./main-5Kzhlj7v.js";import{E as c}from"./evidence-D5RtUc7g.js";import{e as o}from"./escape-Br5wU8qn.js";const v=()=>{const i=l.favorites;return Array.isArray(i)?i:[]},f=i=>{l.dispatch(p.REMOVE_FAVORITE,{supplementId:i})},u=[{key:"all",label:"Todos"},{key:"bulk",label:"Hipertrofia"},{key:"endurance",label:"Performance"},{key:"general",label:"Saúde Geral"},{key:"cut",label:"Emagrecimento"}];function g(i,e){return e==="all"?!0:(i.targets?.[e]??0)>0}function b(i,e){const a=[...i];if(e==="evidence"){const t={A:0,B:1,C:2};return a.sort((r,n)=>(t[r.evidenceLevel]??3)-(t[n.evidenceLevel]??3))}return e==="az"?a.sort((t,r)=>t.name.localeCompare(r.name)):a}class w{constructor(e){this.container=e,this._activeGoal="all",this._sortKey="evidence",this._unsub=null}mount(){this._injectStyles(),this._unsub=l.subscribe(()=>this._render()),this._render()}unmount(){this._unsub?.(),this.container.innerHTML=""}_getFavoriteSupplements(){return v().map(a=>d.find(t=>t.id===a)).filter(Boolean)}_injectStyles(){if(document.getElementById("fav-page-styles-v3"))return;const e=document.createElement("style");e.id="fav-page-styles-v3",e.textContent=`
       .fv-root {
         padding: 0 0 120px;
         min-height: 100%;
@@ -100,7 +100,7 @@ import{S as d}from"./stack-recommender-BGeZSZCS.js";import{s as l,A as p}from"./
       }
       .fv-card:hover {
         border-color: var(--color-brand);
-        box-shadow: 0 4px 20px rgba(124,58,237,0.1);
+        box-shadow: var(--shadow-brand, 0 0 0 1px rgba(139,92,246,0.20), 0 8px 32px -8px rgba(139,92,246,0.40));
       }
       .fv-card-img-wrap {
         position: relative;

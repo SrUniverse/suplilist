@@ -10,7 +10,7 @@ export class VirtualScroller {
    * @param {HTMLElement} container - Div container para a lista
    * @param {Array} items - Array de items
    * @param {Function} renderItem - (item, index) => string (HTML)
-   * @param {Object} options - { itemHeight, bufferSize, scrollElement }
+   * @param {Object} options - { itemHeight, bufferSize, scrollElement, columns, gap }
    */
   constructor(container, items = [], renderItem, options = {}) {
     this.container = container;
@@ -18,9 +18,11 @@ export class VirtualScroller {
     this.renderItem = renderItem;
 
     // Options
-    this.itemHeight = options.itemHeight || 80; // Estimated item height
-    this.bufferSize = options.bufferSize || 5; // Items to render above/below viewport
+    this.itemHeight = options.itemHeight || 80;
+    this.bufferSize = options.bufferSize || 5;
     this.scrollElement = options.scrollElement || window;
+    this.columns = options.columns || 1;  // Grid columns support
+    this.gap = options.gap ?? 12;         // Gap between items in px
 
     // State
     this.visibleStartIndex = 0;
@@ -71,8 +73,14 @@ export class VirtualScroller {
    * Scroll to item index
    */
   scrollToIndex(index) {
-    const scrollTop = Math.max(0, index * this.itemHeight - this.containerHeight / 2);
-    this.scrollElement.scrollTop = scrollTop;
+    const row = Math.floor(index / this.columns);
+    const rowHeight = this.itemHeight + this.gap;
+    const scrollTop = Math.max(0, row * rowHeight - this.containerHeight / 2);
+    if (this.scrollElement === window) {
+      window.scrollTo({ top: scrollTop });
+    } else {
+      this.scrollElement.scrollTop = scrollTop;
+    }
   }
 
   /**
@@ -101,34 +109,53 @@ export class VirtualScroller {
   }
 
   /**
-   * Render visible items
+   * Render visible items — supports multi-column grid layout.
    */
   _render() {
     this._getContainerHeight();
     this._updateVisibleRange();
 
+    const cols = this.columns;
+    const gap = this.gap;
+    const totalRows = Math.ceil(this.items.length / cols);
+    const rowHeight = this.itemHeight + gap;
+
     // Total height (virtual)
-    const totalHeight = this.items.length * this.itemHeight;
+    const totalHeight = totalRows * rowHeight - gap;
     this.listElement.style.height = totalHeight + 'px';
 
-    // Render visible items
+    // Render visible rows
     const html = [];
-    for (let i = this.visibleStartIndex; i <= this.visibleEndIndex; i++) {
-      const item = this.items[i];
-      if (item) {
-        const offsetTop = i * this.itemHeight;
-        const itemHtml = this.renderItem(item, i);
-        html.push(`
-          <div class="virtual-item" data-index="${i}" style="
-            position: absolute;
-            top: ${offsetTop}px;
-            width: 100%;
-            height: ${this.itemHeight}px;
-          ">
-            ${itemHtml}
-          </div>
-        `);
+    const startRow = this.visibleStartIndex;
+    const endRow = this.visibleEndIndex;
+
+    for (let row = startRow; row <= endRow; row++) {
+      const offsetTop = row * rowHeight;
+      const startItem = row * cols;
+      const endItem = Math.min(startItem + cols, this.items.length);
+
+      // Build row items
+      let rowItems = '';
+      for (let i = startItem; i < endItem; i++) {
+        const item = this.items[i];
+        if (item) {
+          rowItems += `<div class="virtual-col" style="flex:1;min-width:0;">${this.renderItem(item, i)}</div>`;
+        }
       }
+
+      html.push(`
+        <div class="virtual-item" data-row="${row}" style="
+          position: absolute;
+          top: ${offsetTop}px;
+          left: 0; right: 0;
+          height: ${this.itemHeight}px;
+          display: flex;
+          gap: ${gap}px;
+          align-items: stretch;
+        ">
+          ${rowItems}
+        </div>
+      `);
     }
 
     this.listElement.innerHTML = html.join('');
@@ -136,7 +163,8 @@ export class VirtualScroller {
   }
 
   /**
-   * Calculate which items are in viewport + buffer
+   * Calculate which rows are in viewport + buffer.
+   * Works in row units when columns > 1.
    */
   _updateVisibleRange() {
     if (this.scrollElement === window) {
@@ -145,16 +173,21 @@ export class VirtualScroller {
       this.scrollTop = this.scrollElement.scrollTop;
     }
 
-    // Calculate visible range
-    this.visibleStartIndex = Math.max(
+    const cols = this.columns;
+    const rowHeight = this.itemHeight + this.gap;
+    const totalRows = Math.ceil(this.items.length / cols);
+
+    const startRow = Math.max(
       0,
-      Math.floor(this.scrollTop / this.itemHeight) - this.bufferSize
+      Math.floor(this.scrollTop / rowHeight) - this.bufferSize
+    );
+    const endRow = Math.min(
+      totalRows - 1,
+      Math.ceil((this.scrollTop + this.containerHeight) / rowHeight) + this.bufferSize
     );
 
-    this.visibleEndIndex = Math.min(
-      this.items.length - 1,
-      Math.ceil((this.scrollTop + this.containerHeight) / this.itemHeight) + this.bufferSize
-    );
+    this.visibleStartIndex = startRow;
+    this.visibleEndIndex = endRow;
   }
 
   /**

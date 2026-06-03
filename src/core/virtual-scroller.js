@@ -139,7 +139,7 @@ export class VirtualScroller {
       for (let i = startItem; i < endItem; i++) {
         const item = this.items[i];
         if (item) {
-          rowItems += `<div class="virtual-col" style="flex:1;min-width:0;">${this.renderItem(item, i)}</div>`;
+          rowItems += `<div class="virtual-col" style="flex:1;min-width:0;display:flex;flex-direction:column;">${this.renderItem(item, i)}</div>`;
         }
       }
 

@@ -132,6 +132,16 @@ export const EVENTS = Object.freeze({
   LIST_FILTER_CHANGED: 'list:filter:changed',
   LIST_ADVANCED_FILTER_APPLIED: 'list:advanced-filter:applied',
 
+  // Authentication
+  AUTH_LOGIN_SUCCESS: 'auth:loginSuccess',
+  AUTH_LOGOUT: 'auth:logout',
+  /**
+   * Emitted by api-client when POST /api/auth/refresh fails.
+   * identity-service listens and clears local session.
+   */
+  AUTH_EXPIRED: 'auth:expired',
+  AUTH_SESSION_REFRESHED: 'auth:sessionRefreshed',
+
   // Settings
   SETTINGS_CHANGED: 'settings:changed',
 

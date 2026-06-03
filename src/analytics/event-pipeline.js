@@ -94,8 +94,14 @@ export class EventPipeline {
    * @param {string} eventName
    * @param {*} payload
    * @returns {Promise<void>}
+   * @throws {TypeError} If eventName is invalid
    */
   async trackEvent(eventName, payload) {
+    // PATCH 1: Validate eventName
+    if (typeof eventName !== 'string' || eventName.trim() === '') {
+      throw new TypeError('eventName must be a non-empty string');
+    }
+
     try {
       // Step 1: Check for PII
       if (containsPII(eventName, payload)) {
@@ -199,8 +205,19 @@ export class EventPipeline {
     } catch (err) {
       logger.error('[EventPipeline] Batch flush failed:', err);
       this.stats.eventsFailed += batch.length;
-      // Re-queue? Decide based on error type
-      throw err;
+
+      // PATCH 2: Re-queue events on transient errors (quota exceeded, network, etc.)
+      // Don't re-queue on validation errors (would retry forever)
+      if (err.name === 'QuotaExceededError' || err.name === 'NetworkError') {
+        logger.warn('[EventPipeline] Re-queueing batch due to transient error');
+        this.#batchBuffer.unshift(...batch);
+
+        // Schedule retry after 5 seconds
+        setTimeout(() => this.#flushBatch(), 5000);
+      } else {
+        // Permanent error, don't re-queue
+        throw err;
+      }
     }
   }
 
@@ -211,7 +228,7 @@ export class EventPipeline {
   getStats() {
     return {
       ...this.stats,
-      sessionId: this.#sessionId?.substring(0, 8) + '...',
+      sessionId: (this.#sessionId?.substring(0, 8) ?? 'not-initialized') + '...',
       bufferSize: this.#batchBuffer.length,
       dedupeCache: this.#seenEventIds.size
     };

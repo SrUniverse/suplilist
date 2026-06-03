@@ -1,4 +1,4 @@
-var b=Object.defineProperty;var m=(o,e,a)=>e in o?b(o,e,{enumerable:!0,configurable:!0,writable:!0,value:a}):o[e]=a;var d=(o,e,a)=>m(o,typeof e!="symbol"?e+"":e,a);import{s as h,A as x,S as g,e as l}from"./main-CqoYzm2q.js";class v{static show(e={}){const a=document.getElementById("premium-checkout-overlay");if(a&&(a.remove(),this._activeOverlay=null),this._activeOverlay)return;const i=e.tier==="elite"?"elite":"pro";this._injectStyles();const t=document.createElement("div");t.id="premium-checkout-overlay",t.setAttribute("role","dialog"),t.setAttribute("aria-modal","true"),t.setAttribute("aria-label","Ativar Plano Premium (Demonstração)"),t.innerHTML=`
+var m=Object.defineProperty;var b=(s,e,a)=>e in s?m(s,e,{enumerable:!0,configurable:!0,writable:!0,value:a}):s[e]=a;var u=(s,e,a)=>b(s,typeof e!="symbol"?e+"":e,a);import{s as h,A as g,S as x,e as d}from"./main-C4yOdEUp.js";class v{static show(e={}){if(this._activeOverlay){console.warn("[CheckoutModal] Modal already open");return}const a=document.getElementById("premium-checkout-overlay");if(a&&(console.warn("[CheckoutModal] Found orphaned overlay, cleaning up"),a.remove()),e&&typeof e!="object")throw new TypeError("options must be an object");const o=["pro","elite"],r=e?.tier;r!==void 0&&!o.includes(r)&&console.warn(`[CheckoutModal] Invalid tier "${r}", defaulting to "pro"`);const c=r==="elite"?"elite":"pro";this._injectStyles();const t=document.createElement("div");t.id="premium-checkout-overlay",t.setAttribute("role","dialog"),t.setAttribute("aria-modal","true"),t.setAttribute("aria-label","Ativar Plano Premium (Demonstração)"),t.innerHTML=`
       <div id="premium-checkout-card">
         <button id="premium-checkout-close" aria-label="Fechar">✕</button>
         
@@ -9,7 +9,7 @@ var b=Object.defineProperty;var m=(o,e,a)=>e in o?b(o,e,{enumerable:!0,configura
         </div>
 
         <div class="checkout-tiers">
-          <div class="checkout-tier-card ${i==="pro"?"active":""}" data-tier="pro">
+          <div class="checkout-tier-card ${c==="pro"?"active":""}" data-tier="pro">
             <div class="tier-radio"></div>
             <div class="tier-info">
               <span class="tier-title">SupliList PRO</span>
@@ -21,7 +21,7 @@ var b=Object.defineProperty;var m=(o,e,a)=>e in o?b(o,e,{enumerable:!0,configura
             </div>
           </div>
 
-          <div class="checkout-tier-card ${i==="elite"?"active":""}" data-tier="elite">
+          <div class="checkout-tier-card ${c==="elite"?"active":""}" data-tier="elite">
             <div class="tier-radio"></div>
             <div class="tier-info">
               <span class="tier-title">SupliList ELITE</span>
@@ -53,7 +53,7 @@ var b=Object.defineProperty;var m=(o,e,a)=>e in o?b(o,e,{enumerable:!0,configura
           🔒 Pagamento simulado 100% offline-first. Nenhuma cobrança real será realizada.
         </div>
       </div>
-    `,document.body.appendChild(t),this._activeOverlay=t,this._attachListeners(t,i)}static dismiss(){this._activeOverlay&&(this._activeOverlay.remove(),this._activeOverlay=null)}static _injectStyles(){if(document.getElementById("premium-checkout-styles"))return;const e=document.createElement("style");e.id="premium-checkout-styles",e.textContent=`
+    `,this._activeOverlay=t,document.body.appendChild(t),this._attachListeners(t,c)}static dismiss(){this._activeOverlay&&(this._activeOverlay.remove(),this._activeOverlay=null)}static _injectStyles(){if(document.getElementById("premium-checkout-styles"))return;const e=document.createElement("style");e.id="premium-checkout-styles",e.textContent=`
       #premium-checkout-overlay {
         position: fixed;
         inset: 0;
@@ -359,4 +359,4 @@ var b=Object.defineProperty;var m=(o,e,a)=>e in o?b(o,e,{enumerable:!0,configura
         color: #4b5563;
         line-height: 1.4;
       }
-    `,document.head.appendChild(e)}static _attachListeners(e,a){let i=a;e.querySelector("#premium-checkout-close").addEventListener("click",()=>{this.dismiss()}),e.addEventListener("click",r=>{r.target===e&&this.dismiss()});const t=e.querySelectorAll(".checkout-tier-card"),c=e.querySelector("#checkout-btn-label");t.forEach(r=>{r.addEventListener("click",()=>{t.forEach(f=>f.classList.remove("active")),r.classList.add("active"),i=r.dataset.tier;const s=i==="elite"?"Elite":"PRO";c&&(c.textContent=`Ativar ${s} (Demo)`)})});const n=e.querySelector("#checkout-submit-btn"),p=e.querySelector("#checkout-status-panel"),u=e.querySelector("#checkout-status-message");n.addEventListener("click",async()=>{n.disabled=!0,p.className="",u.textContent="Ativando plano...",await new Promise(s=>setTimeout(s,1e3)),h.dispatch(x.SET_TIER,{tier:i}),g.setItem("suplilist:tier",i);const r=i==="elite"?"Elite":"Pro";l.emit("toast:show",{message:`Parabéns! Sua assinatura SupliList ${r} foi ativada! 🎉`,type:"success",duration:3500}),l.emit("premium:unlocked",{tier:i}),this.dismiss()})}}d(v,"_activeOverlay",null);export{v as C};
+    `,document.head.appendChild(e)}static _attachListeners(e,a){let o=a;e.querySelector("#premium-checkout-close").addEventListener("click",()=>{this.dismiss()}),e.addEventListener("click",i=>{i.target===e&&this.dismiss()});const r=e.querySelectorAll(".checkout-tier-card"),c=e.querySelector("#checkout-btn-label");r.forEach(i=>{i.addEventListener("click",()=>{r.forEach(f=>f.classList.remove("active")),i.classList.add("active"),o=i.dataset.tier;const n=o==="elite"?"Elite":"PRO";c&&(c.textContent=`Ativar ${n} (Demo)`)})});const t=e.querySelector("#checkout-submit-btn"),l=e.querySelector("#checkout-status-panel"),p=e.querySelector("#checkout-status-message");t.addEventListener("click",async()=>{t.disabled=!0,l.className="",p.textContent="Ativando plano...";try{await new Promise(n=>setTimeout(n,1e3)),h.dispatch(g.SET_TIER,{tier:o});try{x.setItem("suplilist:tier",o)}catch(n){console.error("[CheckoutModal] Failed to persist tier to localStorage:",n)}const i=o==="elite"?"Elite":"Pro";d.emit("toast:show",{message:`Parabéns! Sua assinatura SupliList ${i} foi ativada! 🎉`,type:"success",duration:3500}),d.emit("premium:unlocked",{tier:o}),this.dismiss()}catch(i){console.error("[CheckoutModal] Activation failed:",i),p.textContent="Erro ao ativar plano. Tente novamente.",t.disabled=!1,d.emit("toast:show",{message:"Erro ao ativar plano Premium. Por favor, tente novamente.",type:"error",duration:4e3}),setTimeout(()=>{l.className="status-panel-hidden"},3e3)}})}}u(v,"_activeOverlay",null);export{v as C};

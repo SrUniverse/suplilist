@@ -11,14 +11,31 @@ export class CheckoutModal {
    * @returns {void}
    */
   static show(options = {}) {
+    // PATCH 1: Prevent race condition - check for active overlay first
+    if (this._activeOverlay) {
+      console.warn('[CheckoutModal] Modal already open');
+      return;
+    }
+
+    // Clean up any orphaned overlay in DOM (defensive)
     const stale = document.getElementById('premium-checkout-overlay');
     if (stale) {
+      console.warn('[CheckoutModal] Found orphaned overlay, cleaning up');
       stale.remove();
-      this._activeOverlay = null;
     }
-    if (this._activeOverlay) return; // Prevent duplicates
 
-    const initialTier = options.tier === 'elite' ? 'elite' : 'pro';
+    // PATCH 2: Validate options parameter
+    if (options && typeof options !== 'object') {
+      throw new TypeError('options must be an object');
+    }
+
+    // PATCH 3: Validate tier against closed list
+    const validTiers = ['pro', 'elite'];
+    const tier = options?.tier;
+    if (tier !== undefined && !validTiers.includes(tier)) {
+      console.warn(`[CheckoutModal] Invalid tier "${tier}", defaulting to "pro"`);
+    }
+    const initialTier = tier === 'elite' ? 'elite' : 'pro';
 
     // Inject styles
     this._injectStyles();
@@ -87,8 +104,9 @@ export class CheckoutModal {
       </div>
     `;
 
-    document.body.appendChild(overlay);
+    // PATCH 4: Set _activeOverlay BEFORE appendChild to prevent race condition
     this._activeOverlay = overlay;
+    document.body.appendChild(overlay);
 
     // Attach listeners
     this._attachListeners(overlay, initialTier);
@@ -104,6 +122,11 @@ export class CheckoutModal {
     this._activeOverlay = null;
   }
 
+  /**
+   * Injects CSS styles into document head if not already present.
+   * @private
+   * @returns {void}
+   */
   static _injectStyles() {
     if (document.getElementById('premium-checkout-styles')) return;
 
@@ -420,6 +443,13 @@ export class CheckoutModal {
     document.head.appendChild(style);
   }
 
+  /**
+   * Attaches event listeners to overlay elements for tier selection and activation.
+   * @private
+   * @param {HTMLElement} overlay - The overlay element
+   * @param {string} initialTier - Initially selected tier ('pro' | 'elite')
+   * @returns {void}
+   */
   static _attachListeners(overlay, initialTier) {
     let selectedTier = initialTier;
 
@@ -459,27 +489,53 @@ export class CheckoutModal {
       statusPanel.className = ''; // Remove hidden class to show panel
       statusMsg.textContent = 'Ativando plano...';
 
-      await new Promise(r => setTimeout(r, 1000));
+      // PATCH 5: Add comprehensive error handling for activation flow
+      try {
+        await new Promise(r => setTimeout(r, 1000));
 
-      // Execute Reducer action in stateManager
-      stateManager.dispatch(ACTIONS.SET_TIER, { tier: selectedTier });
+        // Execute Reducer action in stateManager
+        stateManager.dispatch(ACTIONS.SET_TIER, { tier: selectedTier });
 
-      // Save tier to localStorage for persistence across reloads
-      StorageManager.setItem('suplilist:tier', selectedTier);
+        // Save tier to localStorage for persistence across reloads
+        try {
+          StorageManager.setItem('suplilist:tier', selectedTier);
+        } catch (storageError) {
+          console.error('[CheckoutModal] Failed to persist tier to localStorage:', storageError);
+          // Continue anyway - state manager has it, localStorage is cache
+        }
 
-      // Trigger global success toast
-      const planName = selectedTier === 'elite' ? 'Elite' : 'Pro';
-      eventBus.emit('toast:show', {
-        message: `Parabéns! Sua assinatura SupliList ${planName} foi ativada! 🎉`,
-        type: 'success',
-        duration: 3500
-      });
+        // Trigger global success toast
+        const planName = selectedTier === 'elite' ? 'Elite' : 'Pro';
+        eventBus.emit('toast:show', {
+          message: `Parabéns! Sua assinatura SupliList ${planName} foi ativada! 🎉`,
+          type: 'success',
+          duration: 3500
+        });
 
-      // Emit premium event for lifecycle hooks
-      eventBus.emit('premium:unlocked', { tier: selectedTier });
+        // Emit premium event for lifecycle hooks
+        eventBus.emit('premium:unlocked', { tier: selectedTier });
 
-      // Dismiss overlay
-      this.dismiss();
+        // Success - dismiss overlay
+        this.dismiss();
+
+      } catch (error) {
+        // Handle activation failure
+        console.error('[CheckoutModal] Activation failed:', error);
+
+        statusMsg.textContent = 'Erro ao ativar plano. Tente novamente.';
+        submitBtn.disabled = false;
+
+        eventBus.emit('toast:show', {
+          message: 'Erro ao ativar plano Premium. Por favor, tente novamente.',
+          type: 'error',
+          duration: 4000
+        });
+
+        // Auto-hide error panel after 3 seconds
+        setTimeout(() => {
+          statusPanel.className = 'status-panel-hidden';
+        }, 3000);
+      }
     });
   }
 }

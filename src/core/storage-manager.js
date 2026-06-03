@@ -49,8 +49,34 @@ export class StorageManager {
   /**
    * Escreve um valor no armazenamento.
    * Prioridade: IndexedDB → Cookies (sync) → localStorage (fallback)
+   * @param {string} key - Chave de armazenamento (não-vazia, sem caracteres especiais)
+   * @param {*} value - Valor a armazenar (deve ser serializável, não pode ser undefined)
+   * @throws {TypeError} Se key não for string ou value for undefined
+   * @throws {Error} Se key contiver caracteres inválidos ou value não for serializável
    */
   static async setItem(key, value) {
+    // PATCH 1: Validar key
+    if (typeof key !== 'string' || key.trim() === '') {
+      throw new TypeError('key must be a non-empty string');
+    }
+
+    // PATCH 2: Validar caracteres perigosos em key (previne cookie injection)
+    if (/[;\s=]/.test(key)) {
+      throw new Error('key contains invalid characters (;, =, or whitespace)');
+    }
+
+    // PATCH 3: Validar value
+    if (value === undefined) {
+      throw new Error('value cannot be undefined (use null or removeItem instead)');
+    }
+
+    // PATCH 4: Validar serializabilidade (detecta circular reference)
+    try {
+      JSON.stringify(value);
+    } catch (e) {
+      throw new Error(`value is not serializable: ${e.message}`);
+    }
+
     // Tentar IndexedDB primeiro
     if (this._dbReady && this._db) {
       try {
@@ -60,6 +86,9 @@ export class StorageManager {
         return;
       } catch (e) {
         console.warn('[StorageManager] IndexedDB setItem falhou, tentando fallback:', e);
+
+        // PATCH 5: Emitir evento de degradação para UI mostrar warning
+        this._emitStorageDegradedEvent('IndexedDB', e.message);
       }
     }
 
@@ -113,8 +142,27 @@ export class StorageManager {
 
   /**
    * Remove uma chave do armazenamento.
+   * Remove de todas as camadas: IndexedDB, cookies e localStorage.
+   * @param {string} key - Chave a remover
+   * @returns {Promise<void>}
    */
-  static removeItem(key) {
+  static async removeItem(key) {
+    // PATCH 6: Remover de IndexedDB (CRÍTICO - previne vazamento entre sessões)
+    if (this._dbReady && this._db) {
+      try {
+        await new Promise((resolve, reject) => {
+          const transaction = this._db.transaction([this.DB_STORE], 'readwrite');
+          const store = transaction.objectStore(this.DB_STORE);
+          const request = store.delete(key);
+
+          request.onerror = () => reject(request.error);
+          request.onsuccess = () => resolve();
+        });
+      } catch (e) {
+        console.warn('[StorageManager] Failed to remove from IndexedDB:', e);
+      }
+    }
+
     // Remover de cookies
     this._removeCookie(key);
 
@@ -240,11 +288,43 @@ export class StorageManager {
       // Ler arquivo
       const file = await handle.getFile();
       const text = await file.text();
+
+      // PATCH 7: Validar tamanho do arquivo (max 10MB)
+      if (text.length > 10 * 1024 * 1024) {
+        throw new Error('Arquivo muito grande (máximo 10MB)');
+      }
+
       const data = JSON.parse(text);
 
-      // Restaurar dados em IndexedDB
-      if (data.sources?.indexeddb) {
+      // PATCH 8: Validar schema
+      if (!data.version || !data.sources || typeof data.sources !== 'object') {
+        throw new Error('Formato de arquivo inválido');
+      }
+
+      // PATCH 9: Validar version compatibility
+      const currentVersion = '4.0.0';
+      if (data.version !== currentVersion) {
+        throw new Error(`Versão incompatível (esperado ${currentVersion}, recebido ${data.version})`);
+      }
+
+      // PATCH 10: Restaurar dados com validação de keys (previne prototype pollution)
+      if (data.sources?.indexeddb && typeof data.sources.indexeddb === 'object') {
+        const validKeyPrefixes = ['suplilist-state', 'suplilist:', 'sl:'];
+
         for (const [key, value] of Object.entries(data.sources.indexeddb)) {
+          // Proteger contra prototype pollution
+          if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+            console.warn(`[StorageManager] Ignorando key perigosa durante import: ${key}`);
+            continue;
+          }
+
+          // Validar key contra allowlist de prefixos
+          const isValid = validKeyPrefixes.some(prefix => key.startsWith(prefix));
+          if (!isValid) {
+            console.warn(`[StorageManager] Ignorando key não reconhecida durante import: ${key}`);
+            continue;
+          }
+
           await this._setIndexedDB(key, value);
         }
       }
@@ -389,16 +469,23 @@ export class StorageManager {
       const expires = new Date();
       expires.setDate(expires.getDate() + this.COOKIE_DURATION_DAYS);
 
-      // Encodevalue em base64 para evitar caracteres especiais
-      const encoded = btoa(encodeURIComponent(value));
+      // Serializar value se necessário
+      const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+
+      // Encode em base64 para evitar caracteres especiais
+      const encoded = btoa(encodeURIComponent(serialized));
+
+      // PATCH 11: Adicionar Secure flag para HTTPS (previne MITM)
+      const isSecure = typeof window !== 'undefined' && window.location?.protocol === 'https:';
+      const secureFlag = isSecure ? '; Secure' : '';
 
       // Construir cookie
-      const cookie = `${key}=${encoded}; expires=${expires.toUTCString()}; path=${this.COOKIE_PATH}; SameSite=Lax`;
+      const cookie = `${key}=${encoded}; expires=${expires.toUTCString()}; path=${this.COOKIE_PATH}; SameSite=Lax${secureFlag}`;
       document.cookie = cookie;
 
-      // Verificar se cookie foi escrito
+      // PATCH 12: Verificar se cookie foi escrito (comparar serialized)
       const readBack = this._getCookie(key);
-      return readBack === value;
+      return readBack === serialized;
     } catch (e) {
       return false;
     }
@@ -450,6 +537,24 @@ export class StorageManager {
     }
     // Encoding base64 aumenta tamanho em ~33%
     return Math.ceil(value.length * 1.33);
+  }
+
+  /**
+   * Emite evento de degradação de storage para UI mostrar warning.
+   * @private
+   * @param {string} layer - Camada que falhou ('IndexedDB', 'Cookies', 'localStorage')
+   * @param {string} errorMessage - Mensagem de erro
+   */
+  static _emitStorageDegradedEvent(layer, errorMessage) {
+    try {
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('storage:degraded', {
+          detail: { layer, error: errorMessage, timestamp: Date.now() }
+        }));
+      }
+    } catch (e) {
+      // Silenciar erro de emit (não crítico)
+    }
   }
 }
 

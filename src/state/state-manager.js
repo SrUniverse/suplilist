@@ -125,6 +125,28 @@ function reducer(state, action) {
       const sanitized = Object.fromEntries(
         Object.entries(action.payload ?? {}).filter(([k]) => ALLOWED_PROFILE_KEYS.includes(k))
       );
+
+      // PATCH 2: Validate types
+      if (sanitized.weight !== undefined && (typeof sanitized.weight !== 'number' || sanitized.weight <= 0)) {
+        logger.warn('[StateManager] Invalid weight:', sanitized.weight);
+        delete sanitized.weight;
+      }
+      if (sanitized.age !== undefined && (typeof sanitized.age !== 'number' || sanitized.age < 0)) {
+        logger.warn('[StateManager] Invalid age:', sanitized.age);
+        delete sanitized.age;
+      }
+      if (sanitized.budget !== undefined && (typeof sanitized.budget !== 'number' || sanitized.budget < 0)) {
+        logger.warn('[StateManager] Invalid budget:', sanitized.budget);
+        delete sanitized.budget;
+      }
+      if (sanitized.objective !== undefined) {
+        const validObjectives = ['bulk', 'cut', 'strength', 'endurance', 'general'];
+        if (!validObjectives.includes(sanitized.objective)) {
+          logger.warn('[StateManager] Invalid objective:', sanitized.objective);
+          delete sanitized.objective;
+        }
+      }
+
       return {
         ...state,
         user: { ...state.user, ...sanitized }
@@ -141,8 +163,20 @@ function reducer(state, action) {
       };
 
     case ACTIONS.ADD_TO_STACK: {
+      // PATCH 3: Validate payload structure
+      if (!action.payload || typeof action.payload !== 'object') {
+        logger.warn('[StateManager] ADD_TO_STACK requires valid payload object');
+        return state;
+      }
+
       // Suporta ambos os formatos: { id } e { supplementId }
       const itemId = action.payload.supplementId ?? action.payload.id;
+
+      if (typeof itemId !== 'string' || itemId.trim() === '') {
+        logger.warn('[StateManager] ADD_TO_STACK requires supplementId or id');
+        return state;
+      }
+
       const exists = state.stack.some(
         item => (item.supplementId ?? item.id) === itemId
       );
@@ -504,6 +538,15 @@ export class StateManager {
         logger.warn('[StateManager] Invalid action dispatched:', actionOrType);
       }
       return;
+    }
+
+    // PATCH 1: Validate action.type against ACTIONS registry
+    const validActionTypes = Object.values(ACTIONS);
+    if (!validActionTypes.includes(action.type)) {
+      logger.warn(`[StateManager] Unknown action type "${action.type}" - typo or missing from ACTIONS registry?`);
+      if (this._debug) {
+        throw new Error(`Unknown action type: ${action.type}`);
+      }
     }
 
     const prev = this._state;

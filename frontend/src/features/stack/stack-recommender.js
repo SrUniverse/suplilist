@@ -4,8 +4,8 @@
 // Executes 100% locally on the device (Edge AI).
 // ============================================================
 
-import { eventBus } from '../core/event-bus.js';
-import { convertToGrams } from './dosage-converter.js';
+import { eventBus } from '../../core/event-bus.js';
+import { convertToGrams } from '../../ai/dosage-converter.js';
 import { validateUserProfile, sanitizeUserProfile } from './profile-validator.js';
 
 // ─── Supplements Clinical Database ──────────────────────────────────────────

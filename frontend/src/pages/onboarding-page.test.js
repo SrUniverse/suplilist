@@ -15,7 +15,7 @@ vi.mock('../state/state-manager.js', () => ({
   },
 }));
 
-vi.mock('../ai/stack-recommender.js', () => ({
+vi.mock('../features/stack/stack-recommender.js', () => ({
   default: {
     recommend: vi.fn(() => [
       { id: 'creatina-monohidratada', name: 'Creatina Monohidratada', category: 'Força & Performance',
@@ -231,7 +231,7 @@ describe('OnboardingPage', () => {
   });
 
   it('Step 3: empty recommender shows empty state, submit still works', async () => {
-    const recommenderMock = await import('../ai/stack-recommender.js');
+    const recommenderMock = await import('../features/stack/stack-recommender.js');
     recommenderMock.default.recommend.mockReturnValueOnce([]);
     const { eventBus } = await import('../core/event-bus.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');

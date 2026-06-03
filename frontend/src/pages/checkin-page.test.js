@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('../ai/stack-recommender.js', () => ({
+vi.mock('../features/stack/stack-recommender.js', () => ({
   SUPPLEMENTS_DB: [
     { id: '1', name: 'Whey', image: 'whey.jpg' },
     { id: '2', name: 'Creatine', image: 'creatine.jpg' },

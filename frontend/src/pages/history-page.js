@@ -1,5 +1,5 @@
 import { stateManager } from '../state/state-manager.js';
-import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
+import { SUPPLEMENTS_DB } from '../features/stack/stack-recommender.js';
 import { todayISO, offsetISO } from '../utils/date.js';
 import { escapeHtml } from '../utils/escape.js';
 import { CheckoutModal } from '../features/premium/checkout-modal.js';

@@ -702,7 +702,7 @@ export default class ListPage {
       .lp-modal-img-col { display: flex; flex-direction: column; gap: 12px; }
       .lp-modal-img-wrap {
         width: 100%; aspect-ratio: 1/1;
-        background: #1A1A1A; border-radius: 16px;
+        background: var(--color-surface-secondary, #191D25); border-radius: 16px;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden;
       }
@@ -721,26 +721,27 @@ export default class ListPage {
         display: flex; align-items: center; justify-content: space-between; gap: 8px;
       }
       .lp-price-card-left { display: flex; flex-direction: column; gap: 2px; }
-      .lp-price-card--best { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.05); }
+      .lp-price-card--best { border-color: var(--ev-a-border, rgba(52,211,153,0.30)); background: var(--ev-a-bg, rgba(52,211,153,0.08)); }
       .lp-price-card-store { font-size: 11px; color: var(--color-text-muted); font-weight: 600; }
       .lp-price-card-store-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-      .lp-price-best-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(34,197,94,0.15); color: #16a34a; padding: 2px 6px; border-radius: 4px; }
+      .lp-price-best-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--ev-a-bg, rgba(52,211,153,0.12)); color: var(--ev-a, #34D399); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--ev-a-border, rgba(52,211,153,0.25)); }
       .lp-price-card-val { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
       .lp-price-qty { font-size: 11px; color: var(--color-text-muted); margin-top: 1px; }
       .lp-price-saving {
         font-size: 10px; font-weight: 700;
-        background: rgba(34,197,94,0.12); color: #22C55E;
+        background: var(--color-savings-bg, rgba(34,197,94,0.12)); color: var(--color-savings, #22C55E);
+        border: 1px solid rgba(34,197,94,0.25);
         padding: 2px 7px; border-radius: 5px;
       }
       .lp-price-link {
         font-size: 12px; font-weight: 600; color: var(--color-brand);
         background: var(--color-brand-muted);
-        border: 1px solid rgba(124,58,237,0.2);
+        border: 1px solid var(--color-border-brand, rgba(139,92,246,0.25));
         border-radius: 8px; padding: 6px 12px;
         cursor: pointer; text-decoration: none; white-space: nowrap;
         transition: background 0.15s;
       }
-      .lp-price-link:hover { background: rgba(124,58,237,0.2); }
+      .lp-price-link:hover { background: var(--color-brand-muted, rgba(139,92,246,0.20)); }
 
       /* Tabs */
       .lp-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--color-border); }
@@ -770,9 +771,9 @@ export default class ListPage {
       }
       .lp-modal-add-btn:hover { background: var(--color-brand-hover); }
       .lp-modal-add-btn.in-stack {
-        background: var(--color-success-bg);
-        color: var(--color-success);
-        border: 1px solid rgba(34,197,94,0.3);
+        background: var(--ev-a-bg, rgba(52,211,153,0.12));
+        color: var(--ev-a, #34D399);
+        border: 1px solid var(--ev-a-border, rgba(52,211,153,0.25));
       }
     `;
     document.head.appendChild(style);

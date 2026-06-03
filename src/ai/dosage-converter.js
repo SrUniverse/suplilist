@@ -36,7 +36,7 @@ export function convertToGrams(dose, unit, supplementId = null) {
     case 'mcg':
       return dose / 1_000_000;
 
-    case 'UI':
+    case 'UI': {
       if (!supplementId) {
         throw new Error('supplementId is required for UI to grams conversion');
       }
@@ -45,6 +45,7 @@ export function convertToGrams(dose, unit, supplementId = null) {
         throw new Error(`UI to grams conversion not configured for supplement: ${supplementId}`);
       }
       return dose * conversionFactor;
+    }
 
     case 'bi UFC':
       throw new Error('bi UFC (bacterial colony forming units) cannot be converted to grams');

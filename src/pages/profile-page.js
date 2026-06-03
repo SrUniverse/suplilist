@@ -367,7 +367,7 @@ export default class ProfilePage {
           document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(url), 1000);
           eventBus.emit('toast:show', { message: 'Dados exportados!', type: 'success' });
-        } catch (err) {
+        } catch {
           eventBus.emit('toast:show', { message: 'Erro ao exportar dados.', type: 'error' });
         }
       });

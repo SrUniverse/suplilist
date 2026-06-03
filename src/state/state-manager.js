@@ -954,7 +954,7 @@ export class StateManager {
     return this.get(path);
   }
 
-  setState(path, value, options = {}) {
+  setState(path, value, _options = {}) {
     // P3: caminhos arbitrários em dot-notation contornariam o reducer e toda a lógica de negócio.
     // Apenas caminhos mapeados explicitamente são aceitos.
     if (path === 'favorites') {

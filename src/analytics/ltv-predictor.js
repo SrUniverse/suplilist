@@ -105,7 +105,7 @@ export class LTVPredictor {
    * @returns {Promise<Object>} LTVEstimate
    */
   async estimateLTV(userId) {
-    const state = stateManager.getState();
+    const state = stateManager.state;
     const userProfile = state?.user;
 
     if (!userProfile || !userId) {

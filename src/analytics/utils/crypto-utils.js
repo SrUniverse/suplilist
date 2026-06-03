@@ -4,6 +4,7 @@
 // ============================================================
 
 import { logger } from '../../utils/logger.js';
+import { StorageManager } from '../../core/storage-manager.js';
 
 /**
  * Generate an anonymous session ID based on device fingerprint
@@ -23,7 +24,7 @@ export async function generateSessionId() {
       screen.height,                          // Screen height
       screen.colorDepth,                      // Color depth
       new Date().getTimezoneOffset(),         // Timezone
-      localStorage.getItem('suplilist-state-v4')?.substring(0, 20) || 'no-state',  // State hash
+      StorageManager.getItem('suplilist-state-v4')?.substring(0, 20) || 'no-state',  // State hash
     ];
 
     const fingerprint = components.join('|');

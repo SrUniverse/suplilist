@@ -31,14 +31,15 @@ describe('AffiliateEngine.getLinks', () => {
     expect(amazon).toContain('Creatina%20Monoidratada');
   });
 
-  it('Mercado Livre URL contains ML placeholder ID', () => {
+  it('Mercado Livre URL contains slug with Ordenação e Filtro', () => {
     const { mercadolivre } = affiliateEngine.getLinks('Creatina Monoidratada');
-    expect(mercadolivre).toContain('partner_id=SUPLILIST_ML');
+    expect(mercadolivre).toContain('creatina-monoidratada_OrderId_PRICE_ASC');
   });
 
-  it('Shopee URL contains Shopee placeholder ID', () => {
+  it('Shopee URL contains supplement name in query and filters', () => {
     const { shopee } = affiliateEngine.getLinks('Creatina Monoidratada');
-    expect(shopee).toContain('af_id=SUPLILIST_SHOPEE');
+    expect(shopee).toContain('keyword=Creatina%20Monoidratada');
+    expect(shopee).toContain('sortBy=sales');
   });
 
   it('encodes special characters in supplement name correctly', () => {

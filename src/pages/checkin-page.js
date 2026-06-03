@@ -4,12 +4,37 @@ import { todayISO } from '../utils/date.js';
 import { SUPPLEMENTS_DB } from '../ai/stack-recommender.js';
 import { escapeHtml } from '../utils/escape.js';
 
+/**
+ * CheckinPage — Daily supplement adherence tracking
+ *
+ * Shows:
+ * - Header: title + streak counter (fire emoji)
+ * - Progress card: completion bar, count (X/Y done), percentage
+ * - Supplement list: checkboxes for each item in stack
+ * - "Check All" button (if not all done yet)
+ * - Empty state: message + CTA to add supplements
+ *
+ * Integrates with StateManager (stack, checkins), eventBus for realtime updates.
+ * Uses todayISO() to track daily check-ins by date.
+ */
 export default class CheckinPage {
+  /**
+   * Create a new CheckinPage
+   * @param {HTMLElement} container - DOM element to mount the page
+   */
   constructor(container) {
     this.container = container;
     this._internalNavHandler = null;
   }
 
+  /**
+   * Mount the page to the DOM and initialize all listeners.
+   *
+   * Renders main scaffold, attaches click listeners for check-in actions
+   * and internal navigation (data-nav-internal links).
+   *
+   * @returns {void}
+   */
   mount() {
     this._render();
     this._attachListeners();
@@ -24,6 +49,14 @@ export default class CheckinPage {
     this.container.addEventListener('click', this._internalNavHandler);
   }
 
+  /**
+   * Unmount the page and clean up all resources.
+   *
+   * Removes event listeners and clears container HTML.
+   * Safe to call multiple times.
+   *
+   * @returns {void}
+   */
   unmount() {
     if (this._internalNavHandler) {
       this.container.removeEventListener('click', this._internalNavHandler);
@@ -34,10 +67,25 @@ export default class CheckinPage {
 
   // ── Data ─────────────────────────────────────────────────
 
+  /**
+   * Get today's date as ISO string (YYYY-MM-DD).
+   *
+   * @returns {string} ISO date string
+   * @private
+   */
   _getTodayStr() {
     return todayISO();
   }
 
+  /**
+   * Get Set of supplement IDs checked in today.
+   *
+   * Filters stateManager.checkins by today's date and extracts supplementId.
+   * Returns empty Set if no check-ins yet.
+   *
+   * @returns {Set<string>} Set of checked supplement IDs
+   * @private
+   */
   _getCheckedIds() {
     const today = this._getTodayStr();
     return new Set(
@@ -49,6 +97,21 @@ export default class CheckinPage {
 
   // ── Render ────────────────────────────────────────────────
 
+  /**
+   * Render the complete CheckinPage into the container.
+   *
+   * Shows:
+   * - Header: "Check-in Diário" + today's date + streak badge (🔥)
+   * - Progress card (if stack not empty): completion bar, count, percentage
+   * - Supplement list (if stack not empty) or empty state (if no stack)
+   * - "Check All" button (if not all checked yet)
+   *
+   * Streak calculated by stateManager.calculateStreak().
+   * Uses _getCheckedIds() to determine which items are checked today.
+   *
+   * @returns {void}
+   * @private
+   */
   _render() {
     const stack      = stateManager.stack;
     const streak     = stateManager.calculateStreak();
@@ -101,8 +164,8 @@ export default class CheckinPage {
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(124,58,237,0.15);
-            border: 1px solid rgba(124,58,237,0.35);
+            background: var(--color-brand-muted, rgba(139,92,246,0.15));
+            border: 1px solid var(--color-border-brand, rgba(139,92,246,0.35));
             border-radius: 10px;
             padding: 8px 14px;
             flex-shrink: 0;
@@ -145,10 +208,25 @@ export default class CheckinPage {
     `;
   }
 
+  /**
+   * Render progress card with completion bar and text summary.
+   *
+   * Shows:
+   * - Colored bar: gray until all done, then success color
+   * - Text: "X de Y feito(s)" + percentage
+   * - Celebration message if all done
+   *
+   * @param {number} done - Supplements checked today
+   * @param {number} total - Total supplements in stack
+   * @param {number} pct - Percentage complete (0-100)
+   * @param {boolean} allDone - Whether all items are checked
+   * @returns {string} HTML string for progress card
+   * @private
+   */
   _progressCard(done, total, pct, allDone) {
     const barColor = allDone ? 'var(--color-success)' : 'var(--color-brand)';
-    const bgColor  = allDone ? 'rgba(34,197,94,0.08)' : 'var(--color-surface-primary)';
-    const border   = allDone ? '1px solid rgba(34,197,94,0.30)' : '1px solid var(--color-border)';
+    const bgColor  = allDone ? 'var(--ev-a-bg, rgba(52,211,153,0.08))' : 'var(--color-surface-primary)';
+    const border   = allDone ? '1px solid var(--ev-a-border, rgba(52,211,153,0.30))' : '1px solid var(--color-border)';
 
     return `
       <div style="
@@ -204,6 +282,21 @@ export default class CheckinPage {
     `;
   }
 
+  /**
+   * Render list of supplement cards with checkboxes.
+   *
+   * Creates one card per supplement in stack, each with:
+   * - Checkbox (checked state from checkedIds)
+   * - Supplement image, name, dosage/unit
+   * - Click handler to toggle check-in
+   *
+   * Cards rendered via _supplementCard() for each item.
+   *
+   * @param {Object[]} stack - Stack items from stateManager.stack
+   * @param {Set<string>} checkedIds - Set of supplement IDs checked today
+   * @returns {string} HTML string for the list
+   * @private
+   */
   _supplementList(stack, checkedIds) {
     return `
       <section>
@@ -222,6 +315,22 @@ export default class CheckinPage {
     `;
   }
 
+  /**
+   * Render a single supplement card for the checkin list.
+   *
+   * Shows:
+   * - Checkbox (checked state indicates today's check-in)
+   * - Image (from SUPPLEMENTS_DB or placeholder)
+   * - Name, dosage/unit
+   * - Click handler: toggles check-in via _doCheckin()
+   *
+   * Checkbox styled as radio-like button (visual feedback on check-in).
+   *
+   * @param {Object} item - Stack item { supplementId, name, dosage, unit, ... }
+   * @param {boolean} checked - Whether item checked in today
+   * @returns {string} HTML string for the card
+   * @private
+   */
   _supplementCard(item, checked) {
     // Look up the canonical image from SUPPLEMENTS_DB using supplementId.
     // Avoid building a slug from item.name — DB image paths don't always match
@@ -234,14 +343,14 @@ export default class CheckinPage {
     return `
       <div style="
         background: var(--color-surface-primary);
-        border: 1px solid ${checked ? 'rgba(34,197,94,0.35)' : 'var(--color-border)'};
+        border: 1px solid ${checked ? 'var(--ev-a-border, rgba(52,211,153,0.35))' : 'var(--color-border)'};
         border-radius: 14px;
         padding: 14px 16px;
         display: flex;
         align-items: center;
         gap: 14px;
         transition: border-color 0.2s, background 0.2s;
-        ${checked ? 'background: rgba(34,197,94,0.05);' : ''}
+        ${checked ? 'background: var(--ev-a-bg, rgba(52,211,153,0.08));' : ''}
       ">
 
         <!-- Checkbox circle -->
@@ -327,6 +436,15 @@ export default class CheckinPage {
     `;
   }
 
+  /**
+   * Render empty state when user has no supplements in stack.
+   *
+   * Shows message + CTA link to "My Stack" page to add supplements.
+   * Link uses data-nav-internal to trigger internal navigation.
+   *
+   * @returns {string} HTML string for empty state
+   * @private
+   */
   _emptyStack() {
     return `
       <div style="
@@ -366,6 +484,19 @@ export default class CheckinPage {
 
   // ── Listeners ─────────────────────────────────────────────
 
+  /**
+   * Attach event listeners for checkin actions and internal navigation.
+   *
+   * Handles:
+   * - Checkbox clicks on supplement cards: toggles check-in via _doCheckin()
+   * - "Check All" button: marks all supplements as done
+   * - Internal nav links (data-nav-internal): history.pushState + popstate dispatch
+   *
+   * Event delegation on container for efficiency.
+   *
+   * @returns {void}
+   * @private
+   */
   _attachListeners() {
     this.container.querySelectorAll('.btn-checkin-single').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -391,6 +522,20 @@ export default class CheckinPage {
     }
   }
 
+  /**
+   * Record a check-in for a supplement (today) and refresh UI.
+   *
+   * Guards against duplicate check-in (returns early if already done).
+   * Dispatches ADD_CHECKIN action to stateManager with today's date.
+   * Optionally shows success toast via eventBus.
+   * Refreshes page UI via _refresh().
+   *
+   * @param {string} supplementId - ID of supplement to check in
+   * @param {string} name - Supplement name (for toast message)
+   * @param {boolean} [showToast=true] - Whether to show success toast
+   * @returns {void}
+   * @private
+   */
   _doCheckin(supplementId, name, showToast = true) {
     if (this._getCheckedIds().has(supplementId)) return;
     stateManager.dispatch(ACTIONS.ADD_CHECKIN, { supplementId, date: this._getTodayStr() });
@@ -400,6 +545,15 @@ export default class CheckinPage {
     this._refresh();
   }
 
+  /**
+   * Re-render the page and re-attach listeners.
+   *
+   * Called after check-in state changes to reflect updates (new progress, checked counts).
+   * Invokes _render() then _attachListeners() sequentially.
+   *
+   * @returns {void}
+   * @private
+   */
   _refresh() {
     this._render();
     this._attachListeners();

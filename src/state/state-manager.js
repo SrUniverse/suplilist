@@ -8,6 +8,7 @@
 import { eventBus } from '../core/event-bus.js';
 import { todayISO, offsetISO } from '../utils/date.js';
 import { logger } from '../utils/logger.js';
+import { StorageManager } from '../core/storage-manager.js';
 
 export const STATE_VERSION = '4.0.0';
 export const STORAGE_KEY = 'suplilist-state-v4';
@@ -42,7 +43,8 @@ export const ACTIONS = Object.freeze({
   REMOVE_FAVORITE: 'REMOVE_FAVORITE',
   SET_FAVORITES: 'SET_FAVORITES',
   SET_THEME: 'SET_THEME',
-  PRUNE_CHECKINS_TEST: 'PRUNE_CHECKINS_TEST'
+  PRUNE_CHECKINS_TEST: 'PRUNE_CHECKINS_TEST',
+  IMPORT_STACK: 'IMPORT_STACK'
 });
 
 // ─── Initial Application State Shape ─────────────────────────────────────────
@@ -123,6 +125,28 @@ function reducer(state, action) {
       const sanitized = Object.fromEntries(
         Object.entries(action.payload ?? {}).filter(([k]) => ALLOWED_PROFILE_KEYS.includes(k))
       );
+
+      // PATCH 2: Validate types
+      if (sanitized.weight !== undefined && (typeof sanitized.weight !== 'number' || sanitized.weight <= 0)) {
+        logger.warn('[StateManager] Invalid weight:', sanitized.weight);
+        delete sanitized.weight;
+      }
+      if (sanitized.age !== undefined && (typeof sanitized.age !== 'number' || sanitized.age < 0)) {
+        logger.warn('[StateManager] Invalid age:', sanitized.age);
+        delete sanitized.age;
+      }
+      if (sanitized.budget !== undefined && (typeof sanitized.budget !== 'number' || sanitized.budget < 0)) {
+        logger.warn('[StateManager] Invalid budget:', sanitized.budget);
+        delete sanitized.budget;
+      }
+      if (sanitized.objective !== undefined) {
+        const validObjectives = ['bulk', 'cut', 'strength', 'endurance', 'general'];
+        if (!validObjectives.includes(sanitized.objective)) {
+          logger.warn('[StateManager] Invalid objective:', sanitized.objective);
+          delete sanitized.objective;
+        }
+      }
+
       return {
         ...state,
         user: { ...state.user, ...sanitized }
@@ -139,8 +163,20 @@ function reducer(state, action) {
       };
 
     case ACTIONS.ADD_TO_STACK: {
+      // PATCH 3: Validate payload structure
+      if (!action.payload || typeof action.payload !== 'object') {
+        logger.warn('[StateManager] ADD_TO_STACK requires valid payload object');
+        return state;
+      }
+
       // Suporta ambos os formatos: { id } e { supplementId }
       const itemId = action.payload.supplementId ?? action.payload.id;
+
+      if (typeof itemId !== 'string' || itemId.trim() === '') {
+        logger.warn('[StateManager] ADD_TO_STACK requires supplementId or id');
+        return state;
+      }
+
       const exists = state.stack.some(
         item => (item.supplementId ?? item.id) === itemId
       );
@@ -169,6 +205,19 @@ function reducer(state, action) {
       return {
         ...state,
         stack: []
+      };
+
+    case ACTIONS.IMPORT_STACK:
+      return {
+        ...state,
+        stack: (action.payload || []).map(item => {
+          const itemId = item.supplementId ?? item.id;
+          return {
+            ...item,
+            supplementId: itemId,
+            id: itemId
+          };
+        })
       };
 
     case ACTIONS.CLEAR_CHECKINS:
@@ -214,14 +263,15 @@ function reducer(state, action) {
         }
       };
 
-    case ACTIONS.SET_TIER:
-      return {
-        ...state,
-        user: {
-          ...state.user,
-          tier: action.payload.tier
-        }
-      };
+    case ACTIONS.SET_TIER: {
+      if (action.payload == null) return state;
+      const VALID_TIERS = ['free', 'pro', 'elite'];
+      const tier = VALID_TIERS.includes(action.payload?.tier)
+        ? action.payload.tier
+        : state.user.tier;
+      if (tier === state.user.tier) return state;
+      return { ...state, user: { ...state.user, tier } };
+    }
 
     case ACTIONS.SET_ROUTE:
       return {
@@ -310,7 +360,11 @@ function reducer(state, action) {
   }
 }
 
-// ─── StateManager Class ──────────────────────────────────────────────────────
+/**
+ * StateManager v4.0 — Centralized, immutable state management
+ * Redux-inspired singleton with debounced localStorage persistence, undo history, and EventBus integration
+ * Single source of truth for user, stack, checkins, preferences, and UI state
+ */
 export class StateManager {
   static _instance = null;
 
@@ -322,6 +376,11 @@ export class StateManager {
   _debug = false;
   _isPruning = false;
 
+  /**
+   * Create a new StateManager instance (private — use getInstance)
+   * @param {Object} initialState - Initial state shape (usually DEFAULT_STATE)
+   * @private
+   */
   constructor(initialState) {
     this._state = this._deepFreeze(initialState);
     this._initializeState();
@@ -329,7 +388,12 @@ export class StateManager {
   }
 
   /**
-   * Singleton accessor.
+   * Get or create the StateManager singleton
+   * @static
+   * @returns {StateManager} The global state manager instance
+   * @example
+   *   const state = StateManager.getInstance();
+   *   state.dispatch('ADD_TO_STACK', { supplementId: 'whey-1' });
    */
   static getInstance() {
     if (!StateManager._instance) {
@@ -339,58 +403,95 @@ export class StateManager {
   }
 
   /**
-   * Reset instance singleton (for testing isolation).
+   * Reset the singleton instance (testing isolation only)
+   * @static
+   * @returns {void}
    */
   static resetInstance() {
     StateManager._instance = null;
   }
 
+  /**
+   * Get user profile state
+   * @returns {Object} User data: name, email, weight, tier, onboardingComplete, etc.
+   */
   get user() {
     return this._state.user;
   }
 
+  /**
+   * Get user's supplement stack
+   * @returns {Array<Object>} Array of stack items with supplementId, dosage, frequency
+   */
   get stack() {
     return this._state.stack;
   }
 
+  /**
+   * Get all check-in records
+   * @returns {Array<Object>} Array of checkins with supplementId, date, timestamp
+   */
   get checkins() {
     return this._state.checkins;
   }
 
+  /**
+   * Get today's check-ins only
+   * @returns {Array<Object>} Filtered checkins for today's date
+   */
   get todayCheckins() {
     return this.getTodayCheckins();
   }
 
+  /**
+   * Get app preferences
+   * @returns {Object} Theme, language, currency, notification settings
+   */
   get preferences() {
     return this._state.preferences;
   }
 
+  /**
+   * Get transient UI state (not persisted)
+   * @returns {Object} Current route, loading, error, modal, toast
+   */
   get ui() {
     return this._state.ui;
   }
 
+  /**
+   * Get favorite supplement IDs
+   * @returns {Array<string>} Array of supplementId strings
+   */
   get favorites() {
     return this._state.favorites;
   }
 
+  /**
+   * Get AI recommendations cache
+   * @returns {Object} Items, generatedAt timestamp, profileHash
+   */
   get recommendations() {
     return this._state.recommendations;
   }
 
   /**
-   * Expõe o estado completo como getter (retrocompatibilidade).
-   * Usar .get() ou getters específicos para leituras em produção.
+   * Get complete state (read-only for backward compatibility)
+   * For production, prefer specific getters (user, stack, checkins, etc.)
+   * @returns {Object} Full frozen state object
    */
   get state() {
     return this._state;
   }
 
   /**
-   * Selector — computa um slice derivado do estado.
-   * @param {Function} selectorFn - Função pura que recebe o estado e retorna um valor derivado
-   * @returns {*} Resultado da seleção
+   * Selector — compute a derived value from state using a pure function
+   * @param {Function} selectorFn - Pure function that receives state and returns a derived value
+   * @returns {*} The selected value
+   * @throws {TypeError} If selectorFn is not a function
    * @example
-   *   const streak = stateManager.select(s => s.checkins.length);
+   *   const stackSize = stateManager.select(s => s.stack.length);
+   *   const monthlyBudget = stateManager.select(s => s.user.budget);
    */
   select(selectorFn) {
     if (typeof selectorFn !== 'function') {
@@ -400,8 +501,13 @@ export class StateManager {
   }
 
   /**
-   * Get the current state (or a slice of it).
-   * @param {string} [path] - Dot notation path, e.g. 'user.name'
+   * Get current state or a slice using dot notation
+   * @param {?string} path - Dot notation path (e.g., 'user.name', 'stack.0.dosage'). Omit to get full state
+   * @returns {*} The value at the path, or full state if path is null
+   * @example
+   *   stateManager.get() // Full state
+   *   stateManager.get('user.name') // Returns user's name
+   *   stateManager.get('stack') // Returns stack array
    */
   get(path = null) {
     if (!path) return this._state;
@@ -409,7 +515,15 @@ export class StateManager {
   }
 
   /**
-   * Redux-inspired way to change state.
+   * Dispatch an action to change state — Redux-inspired method
+   * Supports two signatures: dispatch(type, payload) or dispatch({ type, payload })
+   * Triggers debounced localStorage persistence, notifies subscribers, emits EventBus events
+   * @param {string|Object} actionOrType - Action type (string) or full action object
+   * @param {*} [payload] - Action payload (ignored if actionOrType is an object)
+   * @returns {void}
+   * @example
+   *   stateManager.dispatch('ADD_TO_STACK', { supplementId: 'whey-1', dosage: 30 });
+   *   stateManager.dispatch({ type: 'SET_USER_PROFILE', payload: { weight: 75 } });
    */
   dispatch(actionOrType, payload = undefined) {
     // #1 FIX: Aceita ambas as assinaturas:
@@ -424,6 +538,15 @@ export class StateManager {
         logger.warn('[StateManager] Invalid action dispatched:', actionOrType);
       }
       return;
+    }
+
+    // PATCH 1: Validate action.type against ACTIONS registry
+    const validActionTypes = Object.values(ACTIONS);
+    if (!validActionTypes.includes(action.type)) {
+      logger.warn(`[StateManager] Unknown action type "${action.type}" - typo or missing from ACTIONS registry?`);
+      if (this._debug) {
+        throw new Error(`Unknown action type: ${action.type}`);
+      }
     }
 
     const prev = this._state;
@@ -468,8 +591,13 @@ export class StateManager {
   }
 
   /**
-   * Reverts to the previous state in history if available.
-   * Returns true if successful, false otherwise.
+   * Undo the last state change (if available)
+   * Reverts to the previous state in history (capped at 20 states)
+   * Persists immediately and notifies all subscribers
+   * @returns {boolean} True if undo succeeded, false if no history available
+   * @example
+   *   stateManager.dispatch('ADD_TO_STACK', { supplementId: 'whey-1' });
+   *   stateManager.undo(); // Reverts the ADD_TO_STACK action
    */
   undo() {
     if (this._history.length === 0) return false;
@@ -482,9 +610,19 @@ export class StateManager {
   }
 
   /**
-   * Subscribe to changes.
-   * Signature 1: subscribe(callback) -> for any change (receives full state)
-   * Signature 2: subscribe(path, callback) -> for slice changes (receives newSliceVal, oldSliceVal)
+   * Subscribe to state changes
+   * Two signatures: subscribe(callback) for global changes, subscribe(path, callback) for slice changes
+   * @param {string|Function} pathOrCallback - Path (dot notation) or callback function
+   * @param {?Function} callback - Callback for path subscribers (newValue, oldValue)
+   * @returns {Function} Unsubscribe function that removes the listener
+   * @example
+   *   // Global listener (fires on any change)
+   *   stateManager.subscribe((state) => console.log('State changed:', state));
+   *
+   *   // Path listener (fires only when 'user.weight' changes)
+   *   stateManager.subscribe('user.weight', (newVal, oldVal) => {
+   *     console.log(`Weight changed from ${oldVal} to ${newVal}`);
+   *   });
    */
   subscribe(pathOrCallback, callback = null) {
     if (typeof pathOrCallback === 'function') {
@@ -541,7 +679,16 @@ export class StateManager {
       try {
         const persistable = { ...this._state };
         delete persistable.ui;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
+        const result = StorageManager.setItem(STORAGE_KEY, JSON.stringify(persistable));
+        // Handle async setItem (IndexedDB) — ignore Promise but catch errors
+        if (result instanceof Promise) {
+          result.catch(error => {
+            logger.error('[StateManager] Failed to persist state (async):', error);
+            if (error.name === 'QuotaExceededError') {
+              this._pruneStorage();
+            }
+          });
+        }
       } catch (error) {
         logger.error('[StateManager] Failed to persist state:', error);
         if (error.name === 'QuotaExceededError') {
@@ -559,7 +706,16 @@ export class StateManager {
     try {
       const persistable = { ...this._state };
       delete persistable.ui; // UI states are transient and should not be persisted
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
+      const result = StorageManager.setItem(STORAGE_KEY, JSON.stringify(persistable));
+      // Handle async setItem (IndexedDB) — ignore Promise but catch errors
+      if (result instanceof Promise) {
+        result.catch(error => {
+          logger.error('[StateManager] Failed to persist state (async):', error);
+          if (error.name === 'QuotaExceededError') {
+            this._pruneStorage();
+          }
+        });
+      }
     } catch (error) {
       logger.error('[StateManager] Failed to persist state:', error);
       if (error.name === 'QuotaExceededError') {
@@ -647,7 +803,7 @@ export class StateManager {
    */
   _initializeState() {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = StorageManager.getItem(STORAGE_KEY);
       if (!stored) {
         this._state = this._deepFreeze(DEFAULT_STATE);
         return DEFAULT_STATE;
@@ -798,7 +954,7 @@ export class StateManager {
     return this.get(path);
   }
 
-  setState(path, value, options = {}) {
+  setState(path, value, _options = {}) {
     // P3: caminhos arbitrários em dot-notation contornariam o reducer e toda a lógica de negócio.
     // Apenas caminhos mapeados explicitamente são aceitos.
     if (path === 'favorites') {

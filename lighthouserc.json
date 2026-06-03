@@ -1,16 +1,14 @@
 {
   "ci": {
     "collect": {
+      "staticDistDir": "./docs",
       "url": [
-        "http://localhost:3000/",
-        "http://localhost:3000/list",
-        "http://localhost:3000/dosage",
-        "http://localhost:3000/favorites"
+        "/",
+        "/list",
+        "/dosage",
+        "/favorites"
       ],
-      "numberOfRuns": 3,
-      "settings": {
-        "configPath": "./lighthouse-config.js"
-      }
+      "numberOfRuns": 3
     },
     "upload": {
       "target": "temporary-public-storage"

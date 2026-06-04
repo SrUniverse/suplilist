@@ -53,14 +53,15 @@ jobs:
         npm run dev -w @suplilist/frontend -- --host 127.0.0.1 &
       env:
         NODE_ENV: test
-        MONGO_URI: mongodb://127.0.0.1:27017/suplilist_test
-        REDIS_URI: redis://127.0.0.1:6379
-        JWT_SECRET: dummy_secret_key_for_testing_purposes
-        FRONTEND_ORIGIN: http://127.0.0.1:3000
         PORT: 5000
+        MONGO_URI: mongodb://127.0.0.1:27017/suplilist_ci
+        REDIS_URI: redis://127.0.0.1:6379
+        JWT_SECRET: super_secret_ci_key_that_must_be_32_chars_long
+        ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+        FRONTEND_ORIGIN: http://127.0.0.1:3000
 
     - name: Wait for server
-      run: npx wait-on http://127.0.0.1:3000 --timeout 60000
+      run: npx wait-on http://127.0.0.1:3000 http://127.0.0.1:5000/health --timeout 60000
 
     - name: Run E2E tests (${{ matrix.browser }} - ${{ matrix.device }})
       run: npx playwright test --project=${{ matrix.browser }}

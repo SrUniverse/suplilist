@@ -8,6 +8,7 @@ const authFile = 'e2e/support/storageState.json';
 // Minimal app state that bypasses onboarding so E2E tests can reach real pages.
 // The app reads this from localStorage key 'suplilist-state-v4'.
 const SEED_STATE = {
+  _version: '4.0.0',
   user: {
     name: 'Tester',
     email: null,

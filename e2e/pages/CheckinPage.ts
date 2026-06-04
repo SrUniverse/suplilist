@@ -10,7 +10,7 @@ export class CheckinPage {
   }
 
   async goto() {
-    await this.page.goto('/'); // Check-in é a home ("/") no roteamento atual (ou /checkin)
+    await this.page.goto('/checkin');
   }
 
   async checkInItem(supplementId: string) {

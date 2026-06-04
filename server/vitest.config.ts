@@ -39,14 +39,13 @@ export default defineConfig({
     hookTimeout: 120_000,
 
     env: {
-      JWT_SECRET: 'dev-jwt-secret-unsafe-change-me',
-      ENCRYPTION_KEY: 'a'.repeat(64),
-      // Provide a non-routable URI so redis.client.ts doesn't receive undefined.
-      // The real ioredis is never instantiated (vi.mock intercepts it), but
-      // having a defined value prevents potential url-parse errors if the mock
-      // is bypassed for any reason.
-      REDIS_URI: 'redis://test-mock:6379',
       NODE_ENV: 'test',
+      PORT: '5000',
+      MONGO_URI: 'mongodb://127.0.0.1:27017/suplilist_unit_test',
+      REDIS_URI: 'redis://127.0.0.1:6379',
+      JWT_SECRET: 'super_secret_ci_key_that_must_be_32_chars_long',
+      ENCRYPTION_KEY: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+      FRONTEND_ORIGIN: 'http://localhost:3000',
     },
   },
 });

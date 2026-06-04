@@ -13,6 +13,7 @@ import '../platform/pwa-handler.js';
 import '../platform/performance-monitor.js';
 import NotificationService from '../features/notifications/notification-service.js';
 import { identityService } from '../platform/identity-service.js';
+import { inject } from '@vercel/analytics';
 
 
 const routes = [
@@ -167,6 +168,9 @@ function applyLandingMode() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Initialize Vercel Web Analytics
+  inject();
+
   // Inicializar IndexedDB (não bloqueia, mas prepara para uso)
   StorageManager.init().catch(e => {
     console.warn('[App] IndexedDB init falhou, usando fallback:', e);

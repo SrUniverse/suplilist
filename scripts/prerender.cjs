@@ -12,7 +12,7 @@ if (!fs.existsSync(INDEX_PATH)) {
 
 // ─── EXTRAIR DADOS DINAMICAMENTE DO MOTOR DE IA ─────────────────────────────────
 console.log('Carregando banco de dados de suplementos da IA...');
-const sourceCode = fs.readFileSync(path.join(__dirname, '../src/ai/stack-recommender.js'), 'utf-8');
+const sourceCode = fs.readFileSync(path.join(__dirname, '../frontend/src/features/stack/stack-recommender.js'), 'utf-8');
 
 // Limpar o código removendo imports e exportações para rodar puramente com eval
 const cleanCode = sourceCode

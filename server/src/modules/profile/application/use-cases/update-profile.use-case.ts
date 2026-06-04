@@ -36,6 +36,7 @@ export class UpdateProfileUseCase {
       avatarStatus: updatedProfile.avatarStatus,
       onboardingState: updatedProfile.onboardingState,
       goals: updatedProfile.goals,
+      biometrics: updatedProfile.biometrics,
       migrationVersion: updatedProfile.migrationVersion,
       createdAt: updatedProfile.createdAt.toISOString(),
       updatedAt: updatedProfile.updatedAt.toISOString(),

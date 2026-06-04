@@ -1,4 +1,4 @@
-import type { AvatarStatus, PublicProfileDTO, PrivateProfileDTO } from '@suplilist/shared';
+import type { AvatarStatus, PublicProfileDTO, PrivateProfileDTO, BiometricsDTO } from '@suplilist/shared';
 
 // Os DTOs de wire vêm do pacote compartilhado (fonte única da verdade do contrato
 // frontend↔backend). A entidade de domínio abaixo permanece local — usa `Date` e
@@ -14,6 +14,7 @@ export interface UserProfile {
   lastName: string | null;
   onboardingState: 'pending' | 'completed';
   goals: string[];
+  biometrics?: BiometricsDTO;
   /**
    * Client-written migration version flag. See PrivateProfileDTO.migrationVersion.
    * `undefined` = migration never ran. `1` = v1 migration complete.
@@ -43,6 +44,7 @@ export class ProfileMapper {
       lastName: profile.lastName,
       onboardingState: profile.onboardingState,
       goals: profile.goals,
+      biometrics: profile.biometrics,
       // Serializa Date → string ISO (formato de wire do contrato compartilhado)
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),

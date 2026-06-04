@@ -11,6 +11,10 @@ export interface IProfileDocument extends Document {
   avatarStatus: AvatarStatus;
   onboardingState: 'pending' | 'completed';
   goals: string[];
+  biometrics?: {
+    weight?: number;
+    biologicalSex?: 'male' | 'female';
+  };
   migrationVersion?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -52,6 +56,10 @@ const profileSchema = new Schema<IProfileDocument>({
   goals: {
     type: [String],
     default: [],
+  },
+  biometrics: {
+    weight: { type: Number, required: false },
+    biologicalSex: { type: String, enum: ['male', 'female'], required: false }
   },
   migrationVersion: {
     type: Number,

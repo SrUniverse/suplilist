@@ -13,6 +13,7 @@ import affiliateEngine from '../../monetization/affiliate-engine.js';
 import ShareService from '../sharing/share-service.js';
 import QRGenerator from '../sharing/qr-generator.js';
 import { stackService } from './stack-service.js';
+import { compareWithRecommended, getStatusColor } from '../calculator/dosage-optimizer.js';
 
 
 // Prices loaded lazily from /data/prices.json
@@ -936,6 +937,21 @@ export class MyStackPage {
       const opacity = isSyncing ? '0.6' : '1';
       const pointerEvents = isSyncing ? 'none' : 'auto';
 
+      const weight = stateManager.user?.weight;
+      const goal = stateManager.user?.objective || 'general';
+      let dosageBadge = '';
+      if (weight && item.dosage) {
+        const comp = compareWithRecommended(item.supplementId, parseFloat(item.dosage), weight, goal);
+        if (comp && comp.status && comp.status !== 'not-recommended' && comp.status !== 'missing') {
+          const color = getStatusColor(comp.status);
+          const icon = comp.status === 'optimal' ? '✅' : '⚠️';
+          dosageBadge = `<div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${color};background:${color}15;padding:2px 6px;border-radius:6px;border:1px solid ${color}30;cursor:help;" title="${escapeHtml(comp.message)}">
+            <span>${icon}</span>
+            <span>${comp.status === 'optimal' ? 'Dose Ideal' : 'Revisar Dose'}</span>
+          </div>`;
+        }
+      }
+
       el.innerHTML = `
         <div class="msp-item-top" style="opacity: ${opacity}; pointer-events: ${pointerEvents}; transition: opacity 200ms;">
           <img class="msp-item-img"
@@ -945,7 +961,10 @@ export class MyStackPage {
           <div class="msp-item-info">
             ${category ? `<p class="msp-item-cat">${category}</p>` : ''}
             <p class="msp-item-name">${escapeHtml(item.name)} ${isSyncing ? '<span style="font-size:11px; font-weight:normal; color:var(--color-text-muted);"> ⟳ Sincronizando...</span>' : ''}</p>
-            <p class="msp-item-dosage">${item.dosage ?? '—'} ${escapeHtml(item.unit ?? 'g')}/dia</p>
+            <div class="msp-item-dosage" style="display:flex;align-items:center;gap:8px;">
+              <span>${item.dosage ?? '—'} ${escapeHtml(item.unit ?? 'g')}/dia</span>
+              ${dosageBadge}
+            </div>
             ${daysLeft !== null ? `<p class="msp-item-days">~${daysLeft} dias restantes</p>` : ''}
           </div>
           <div class="msp-item-right">

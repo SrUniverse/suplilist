@@ -14,6 +14,10 @@ export class MongooseProfileRepository implements IProfileRepository {
       avatarStatus: doc.avatarStatus,
       onboardingState: doc.onboardingState,
       goals: doc.goals,
+      biometrics: doc.biometrics ? {
+        weight: doc.biometrics.weight,
+        biologicalSex: doc.biometrics.biologicalSex
+      } : undefined,
       migrationVersion: doc.migrationVersion,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -43,6 +47,7 @@ export class MongooseProfileRepository implements IProfileRepository {
           avatarStatus: profile.avatarStatus,
           onboardingState: profile.onboardingState,
           goals: profile.goals,
+          biometrics: profile.biometrics,
           migrationVersion: profile.migrationVersion,
         }
       },
@@ -52,10 +57,23 @@ export class MongooseProfileRepository implements IProfileRepository {
   }
 
   async updateWithConcurrency(userId: string, expectedVersion: number, updates: Partial<Profile>): Promise<Profile | null> {
+    const flattenedUpdates: Record<string, any> = { ...updates };
+    
+    // Evitar sobreposição destrutiva do objeto biometrics
+    if (updates.biometrics) {
+      delete flattenedUpdates.biometrics;
+      if (updates.biometrics.weight !== undefined) {
+        flattenedUpdates['biometrics.weight'] = updates.biometrics.weight;
+      }
+      if (updates.biometrics.biologicalSex !== undefined) {
+        flattenedUpdates['biometrics.biologicalSex'] = updates.biometrics.biologicalSex;
+      }
+    }
+
     const doc = await ProfileModel.findOneAndUpdate(
       { userId, __v: expectedVersion },
       { 
-        $set: { ...updates },
+        $set: flattenedUpdates,
         $inc: { __v: 1 }
       },
       { new: true }

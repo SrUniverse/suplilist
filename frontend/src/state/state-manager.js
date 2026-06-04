@@ -66,6 +66,7 @@ export const DEFAULT_STATE = Object.freeze({
     name: null,
     email: null,
     weight: null,         // kg
+    biologicalSex: null,  // 'male' | 'female'
     trainingFrequency: null, // days/week
     trainingAge: null,    // years
     objective: null,      // 'bulk' | 'cut' | 'strength' | 'endurance' | 'general'
@@ -135,7 +136,7 @@ function reducer(state, action) {
     case ACTIONS.SET_USER_PROFILE: {
       // P1: whitelist explícita — impede sobrescrita de tier/onboardingComplete via payload livre
       const ALLOWED_PROFILE_KEYS = [
-        'name', 'email', 'weight', 'height', 'age',
+        'name', 'email', 'weight', 'biologicalSex', 'height', 'age',
         'trainingFrequency', 'trainingAge', 'objective',
         'restrictions', 'budget',
       ];
@@ -147,6 +148,10 @@ function reducer(state, action) {
       if (sanitized.weight !== undefined && (typeof sanitized.weight !== 'number' || sanitized.weight <= 0)) {
         logger.warn('[StateManager] Invalid weight:', sanitized.weight);
         delete sanitized.weight;
+      }
+      if (sanitized.biologicalSex !== undefined && !['male', 'female'].includes(sanitized.biologicalSex)) {
+        logger.warn('[StateManager] Invalid biologicalSex:', sanitized.biologicalSex);
+        delete sanitized.biologicalSex;
       }
       if (sanitized.age !== undefined && (typeof sanitized.age !== 'number' || sanitized.age < 0)) {
         logger.warn('[StateManager] Invalid age:', sanitized.age);

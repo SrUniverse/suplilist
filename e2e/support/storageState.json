@@ -6,7 +6,7 @@
       "localStorage": [
         {
           "name": "suplilist-state-v4",
-          "value": "{\"_version\":\"4.0.0\",\"user\":{\"name\":\"Tester\",\"email\":null,\"weight\":75,\"height\":null,\"age\":null,\"gender\":null,\"activityLevel\":null,\"trainingAge\":null,\"objective\":\"bulk\",\"restrictions\":[],\"budget\":null,\"tier\":\"free\",\"createdAt\":\"2026-06-04T18:02:06.234Z\",\"onboardingComplete\":true,\"isAuthenticated\":false,\"role\":null,\"isMfaEnabled\":false,\"emailVerified\":false,\"purchases\":[]},\"stack\":[],\"checkins\":[],\"favorites\":[],\"ui\":{\"theme\":\"dark\",\"isOffline\":false}}"
+          "value": "{\"_version\":\"4.0.0\",\"user\":{\"name\":\"Tester\",\"email\":null,\"weight\":75,\"height\":null,\"age\":null,\"gender\":null,\"activityLevel\":null,\"trainingAge\":null,\"objective\":\"bulk\",\"restrictions\":[],\"budget\":null,\"tier\":\"free\",\"createdAt\":\"2026-06-04T18:35:05.176Z\",\"onboardingComplete\":true,\"isAuthenticated\":false,\"role\":null,\"isMfaEnabled\":false,\"emailVerified\":false,\"purchases\":[]},\"stack\":[],\"checkins\":[],\"favorites\":[],\"ui\":{\"theme\":\"dark\",\"isOffline\":false}}"
         }
       ]
     }

@@ -10,6 +10,10 @@ export interface Profile {
   avatarStatus: AvatarStatus;
   onboardingState: 'pending' | 'completed';
   goals: string[];
+  biometrics?: {
+    weight?: number;
+    biologicalSex?: 'male' | 'female';
+  };
   migrationVersion?: number;
   createdAt: Date;
   updatedAt: Date;

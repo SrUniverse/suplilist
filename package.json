@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev":           "npm run dev -w @suplilist/frontend",
+    "dev:server":    "docker compose up -d mongodb redis && npm run dev -w @suplilist/server",
     "build":         "npm run build -w @suplilist/frontend",
     "test":          "npm run test -w @suplilist/frontend",
     "test:coverage": "npm run test:coverage -w @suplilist/frontend",

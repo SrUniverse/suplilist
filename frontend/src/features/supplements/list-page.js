@@ -551,8 +551,22 @@ export default class ListPage {
       }
       .lp-card-img {
         width: 100%; height: 100%; object-fit: cover;
-        transition: transform 0.35s ease;
         display: block;
+        opacity: 1;
+        transition: transform 0.35s ease, opacity 0.3s ease;
+      }
+      .lp-card-img.skeleton-loading, .lp-modal-img.skeleton-loading {
+        opacity: 0;
+      }
+      .lp-card-img-wrap, .lp-modal-img-wrap {
+        position: relative;
+        background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-hover) 50%, var(--color-surface-secondary) 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+      }
+      @keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
       }
       /* Savings badge — overlay no topo da imagem */
       .lp-card-savings {
@@ -1159,7 +1173,7 @@ export default class ListPage {
     this._scroller = new VirtualScroller(
       grid,
       this._filtered,
-      (item) => this._renderSupplementCard(item),
+      (item, index) => this._renderSupplementCard(item, index),
       {
         itemHeight: cardHeight,
         bufferSize: 8,
@@ -1193,12 +1207,14 @@ export default class ListPage {
    * @returns {string} HTML string for the card (safe to insert with innerHTML)
    * @private
    */
-  _renderCardHTML(item) {
+  _renderCardHTML(item, index = 0) {
     const favs = getFavoritesFromState();
     const isFav = favs.has(item.id);
     const ev = item.evidenceLevel;
     const desc = item.benefits?.[0] ?? '';
     const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
+    const isAboveFold = index < 8;
+    const loadingAttr = isAboveFold ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"';
 
     const saving = getMaxSaving(item, this._prices);
     const priceInfo = getPriceLabel(item, this._prices);
@@ -1218,11 +1234,12 @@ export default class ListPage {
     return `
       <div class="lp-card" role="listitem" data-id="${item.id}" data-testid="catalog-card-${escapeHtml(item.id)}">
         <div class="lp-card-img-wrap">
-          <img class="lp-card-img"
+          <img class="lp-card-img skeleton-loading"
             src="${escapeHtml(img)}"
             alt="${escapeHtml(item.name)}"
-            loading="lazy"
-            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22/%3E'"
+            ${loadingAttr}
+            onload="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none';"
+            onerror="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none'; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMjIyIi8+PHRleHQgeD0iNTAlIiB5PSI1NSUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1NTUiIGZvbnQtc2l6ZT0iMjgiPvCThIo8L3RleHQ+PC9zdmc+'"
           />
           ${savingsBadge}
           ${evBadge}
@@ -1250,9 +1267,9 @@ export default class ListPage {
     `;
   }
 
-  _renderSupplementCard(item) {
+  _renderSupplementCard(item, index) {
     if (item.isAd) return this._renderSponsoredAdCard();
-    return this._renderCardHTML(item);
+    return this._renderCardHTML(item, index);
   }
 
   /**
@@ -1629,7 +1646,7 @@ let priceCardsHtml = '';
         <div class="lp-modal-top">
           <div class="lp-modal-img-col">
             <div class="lp-modal-img-wrap">
-              <img class="lp-modal-img" src="${img}" alt="${escapeHtml(item.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22 viewBox=%220 0 80 80%22><rect width=%2280%22 height=%2280%22 fill=%22%23222%22/><text x=%2250%25%22 y=%2255%25%22 text-anchor=%22middle%22 fill=%22%23555%22 font-size=%2228%22>💊</text></svg>'" />
+              <img class="lp-modal-img skeleton-loading" src="${img}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async" onload="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none';" onerror="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none'; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiMyMjIiLz48dGV4dCB4PSI1MCUiIHk9IjU1JSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzU1NSIgZm9udC1zaXplPSIyOCI+8JOEijwvdGV4dD48L3N2Zz4='" />
             </div>
             <p class="lp-modal-img-col-name">${escapeHtml(item.name)}</p>
             <p class="lp-modal-img-col-cat">${escapeHtml(item.category ?? '')}</p>

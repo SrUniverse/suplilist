@@ -8,6 +8,14 @@
 
 export type AvatarStatus = 'none' | 'pending_moderation' | 'approved' | 'rejected';
 
+/** Dados biométricos básicos, cruciais para a calculadora de dosagem. */
+export interface BiometricsDTO {
+  /** Peso em quilogramas (kg) */
+  weight?: number;
+  /** Sexo biológico ao nascer (necessário para fórmulas metabólicas/hormonais) */
+  biologicalSex?: 'male' | 'female';
+}
+
 /** Perfil público — projeção segura, sem dados privados. */
 export interface PublicProfileDTO {
   userId: string;
@@ -22,6 +30,7 @@ export interface PrivateProfileDTO extends PublicProfileDTO {
   lastName: string | null;
   onboardingState: 'pending' | 'completed';
   goals: string[];
+  biometrics?: BiometricsDTO;
   createdAt: string;
   updatedAt: string;
   /**
@@ -47,4 +56,5 @@ export interface UpdateProfileRequestDTO {
   displayName?: string;
   onboardingState?: 'pending' | 'completed';
   goals?: string[];
+  biometrics?: BiometricsDTO;
 }

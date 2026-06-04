@@ -188,7 +188,7 @@ export class Nav {
     sidebar.innerHTML = `
       <div class="sb-inner">
         <div class="sb-header">
-          <span class="sb-logo">SupliList</span>
+          <img src="/banner.svg" alt="SupliList" class="sb-logo-img">
           <span class="sb-subtitle">${subtitle}</span>
         </div>
         <div class="sb-nav">
@@ -237,7 +237,7 @@ export class Nav {
     if (!mt) return;
     const themeIcon = Nav._getThemeIcon();
     mt.innerHTML = `
-      <span class="mt-logo">SupliList</span>
+      <img src="/logo.svg" alt="SupliList" class="mt-logo-img">
       <div class="mt-actions">
         <button id="btn-theme-mobile" class="mt-icon-btn" aria-label="Alternar tema">
           ${themeIcon}
@@ -351,15 +351,12 @@ export class Nav {
         margin-bottom: 10px;
         flex-shrink: 0;
       }
-      .sb-logo {
+      .sb-logo-img {
         display: block;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-        font-weight: 800;
-        font-size: 17px;
-        letter-spacing: -0.03em;
-        color: var(--color-brand, #8B5CF6);
-        margin-bottom: 3px;
-        text-decoration: none;
+        width: 100%;
+        max-width: 140px;
+        height: auto;
+        margin-bottom: 6px;
       }
       .sb-subtitle {
         display: block;
@@ -534,12 +531,10 @@ export class Nav {
         justify-content: space-between;
         padding: 0 16px;
       }
-      .mt-logo {
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-        font-weight: 800;
-        font-size: 17px;
-        letter-spacing: -0.03em;
-        color: var(--color-brand, #8B5CF6);
+      .mt-logo-img {
+        display: block;
+        height: 24px;
+        width: auto;
       }
       .mt-actions { display: flex; align-items: center; gap: 4px; }
       .mt-icon-btn {

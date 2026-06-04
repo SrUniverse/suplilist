@@ -1,5 +1,6 @@
 export type { ApiResponse } from './common.js';
-export type { AvatarStatus, PublicProfileDTO, PrivateProfileDTO, UpdateProfileRequestDTO } from './profile.js';
+export type { AvatarStatus, BiometricsDTO, PublicProfileDTO, PrivateProfileDTO, UpdateProfileRequestDTO } from './profile.js';
+export type { DosageStatus, DosageRecommendation } from './dosage.js';
 export type { ActiveSessionDTO } from './session.js';
 export type {
   UserStatus,

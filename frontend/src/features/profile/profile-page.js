@@ -93,6 +93,7 @@ export default class ProfilePage {
       name:      user.displayName || user.name || stateManager.get?.('user.name') || 'Usuário',
       objective: user.objective         || stateManager.user?.objective || 'general',
       weight:    user.weight            || stateManager.user?.weight    || '',
+      biologicalSex: user.biologicalSex || stateManager.user?.biologicalSex || '',
       height:    user.height            || stateManager.user?.height    || '',
       age:       user.age               || stateManager.user?.age       || '',
     };
@@ -477,10 +478,21 @@ export default class ProfilePage {
 
         <!-- 1. DADOS BIOMÉTRICOS -->
         ${cardWrap('Dados Biométricos', `
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
               ${fieldLabel('Peso (kg)')}
               <input id="field-weight" type="number" min="30" max="300" value="${form.weight}" placeholder="—" style="${inputStyle}" />
+            </div>
+            <div>
+              ${fieldLabel('Sexo Biológico')}
+              <div style="position:relative;">
+                <select id="field-biologicalSex" style="${selectStyle}">
+                  <option value="" ${!form.biologicalSex ? 'selected' : ''}>—</option>
+                  <option value="male" ${form.biologicalSex === 'male' ? 'selected' : ''}>Masculino</option>
+                  <option value="female" ${form.biologicalSex === 'female' ? 'selected' : ''}>Feminino</option>
+                </select>
+                <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-secondary);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
             </div>
             <div>
               ${fieldLabel('Altura (cm)')}
@@ -663,23 +675,26 @@ export default class ProfilePage {
     const btnSaveBio = this.container.querySelector('#btn-save-bio');
     if (btnSaveBio) {
       const weightEl    = this.container.querySelector('#field-weight');
+      const sexEl       = this.container.querySelector('#field-biologicalSex');
       const heightEl    = this.container.querySelector('#field-height');
       const ageEl       = this.container.querySelector('#field-age');
       const objectiveEl = this.container.querySelector('#field-objective');
 
       btnSaveBio.addEventListener('click', () => {
         const _num = v => { const n = parseFloat(v); return isNaN(n) ? undefined : n; };
-        this._form.weight    = _num(weightEl.value);
-        this._form.height    = _num(heightEl.value);
-        this._form.age       = _num(ageEl.value);
-        this._form.objective = objectiveEl.value;
+        this._form.weight        = _num(weightEl.value);
+        this._form.biologicalSex = sexEl.value || undefined;
+        this._form.height        = _num(heightEl.value);
+        this._form.age           = _num(ageEl.value);
+        this._form.objective     = objectiveEl.value;
 
         stateManager.dispatch(ACTIONS.SET_USER_PROFILE, {
-          name:      this._form.name,
-          weight:    this._form.weight,
-          height:    this._form.height,
-          age:       this._form.age,
-          objective: this._form.objective,
+          name:          this._form.name,
+          weight:        this._form.weight,
+          biologicalSex: this._form.biologicalSex,
+          height:        this._form.height,
+          age:           this._form.age,
+          objective:     this._form.objective,
         });
 
         eventBus.emit('toast:show', { message: 'Dados biométricos salvos!', type: 'success' });

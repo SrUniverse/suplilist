@@ -4,6 +4,42 @@
  */
 
 /**
+ * Strategy dictionary for supplement dosage rules.
+ * Each function receives (weight, goal) and returns the optimal dosage.
+ */
+const DOSE_RULES = {
+  'creatine': (weight, goal) => {
+    const map = { bulk: 5, cut: 3, strength: 5, endurance: 0, general: 3 };
+    return map[goal] ?? 3;
+  },
+  'whey': (weight, goal) => {
+    const map = { bulk: 2.2, cut: 1.6, strength: 2.0, endurance: 1.4, general: 1.6 };
+    return weight * (map[goal] ?? 1.6);
+  },
+  'bcaa': (weight, goal) => {
+    const map = { bulk: 10, cut: 15, strength: 10, endurance: 15, general: 5 };
+    return map[goal] ?? 5;
+  },
+  'vitamin-d': () => 2000,
+  'magnesium': (weight, goal) => {
+    const map = { bulk: 400, cut: 400, strength: 500, endurance: 500, general: 400 };
+    return map[goal] ?? 400;
+  },
+  'caffeine': (weight, goal) => {
+    const map = { bulk: 200, cut: 200, strength: 300, endurance: 300, general: 100 };
+    return map[goal] ?? 100;
+  },
+  'beta-alanine': (weight, goal) => {
+    const map = { bulk: 0, cut: 3, strength: 0, endurance: 3, general: 0 };
+    return map[goal] ?? 0;
+  },
+  'taurine': (weight, goal) => {
+    const map = { bulk: 3, cut: 3, strength: 3, endurance: 3, general: 2 };
+    return map[goal] ?? 2;
+  }
+};
+
+/**
  * Get recommended dosage for a supplement based on weight and goal
  * Based on scientific evidence and common protocols
  * @param {string} supplementId - Which supplement
@@ -12,70 +48,10 @@
  * @returns {number|null} Recommended daily dosage (grams or units), or null if not supported
  */
 export function getRecommendedDosage(supplementId, weight, goal) {
-  if (!weight || weight <= 0) {
-    return null;
-  }
-
-  const dosages = {
-    creatine: {
-      bulk: 5,      // 5g/day for muscle gain
-      cut: 3,       // 3g/day for cutting (less loading)
-      strength: 5,  // 5g/day for strength
-      endurance: 0, // Not recommended for endurance
-      general: 3,   // 3g/day for general health
-    },
-    whey: {
-      bulk: weight * 2.2,      // 2.2g protein per kg for bulking
-      cut: weight * 1.6,       // 1.6g protein per kg for cutting
-      strength: weight * 2.0,  // 2.0g protein per kg for strength
-      endurance: weight * 1.4, // 1.4g protein per kg for endurance
-      general: weight * 1.6,   // 1.6g protein per kg for general
-    },
-    'bcaa': {
-      bulk: 10,     // 10g for bulking
-      cut: 15,      // 15g for cutting (more amino acids)
-      strength: 10, // 10g for strength
-      endurance: 15, // 15g for endurance (recovery)
-      general: 5,   // 5g optional
-    },
-    'vitamin-d': {
-      bulk: 2000,    // 2000 IU daily (universal)
-      cut: 2000,
-      strength: 2000,
-      endurance: 2000,
-      general: 2000,
-    },
-    'magnesium': {
-      bulk: 400,     // 400mg daily (RDA for men)
-      cut: 400,
-      strength: 500, // 500mg for muscle function
-      endurance: 500, // 500mg for recovery
-      general: 400,
-    },
-    'caffeine': {
-      bulk: 200,     // 200mg pre-workout
-      cut: 200,
-      strength: 300, // 300mg for strength performance
-      endurance: 300, // 300mg for endurance
-      general: 100,  // Optional for general
-    },
-    'beta-alanine': {
-      bulk: 0,       // Not typically used for bulk
-      cut: 3,        // 3g for endurance in cutting
-      strength: 0,   // Not for strength
-      endurance: 3,  // 3g for endurance
-      general: 0,
-    },
-    'taurine': {
-      bulk: 3,       // 3g for recovery
-      cut: 3,
-      strength: 3,
-      endurance: 3,  // 3g for endurance
-      general: 2,
-    },
-  };
-
-  return dosages[supplementId]?.[goal] ?? null;
+  if (!weight || weight <= 0) return null;
+  const rule = DOSE_RULES[supplementId];
+  if (!rule) return null;
+  return rule(weight, goal);
 }
 
 /**

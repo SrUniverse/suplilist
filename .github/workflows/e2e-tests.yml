@@ -44,7 +44,7 @@ jobs:
       run: npm run build -w @suplilist/frontend
 
     - name: Start frontend preview
-      run: npx vite preview --root frontend --port 3000 --host 127.0.0.1 &
+      run: npx serve frontend/dist --listen 3000 --single &
 
     - name: Wait for frontend
       run: npx wait-on http://127.0.0.1:3000 --timeout 60000
@@ -117,10 +117,10 @@ jobs:
       run: npm ci
 
     - name: Build project
-      run: npm run build
+      run: npm run build -w @suplilist/frontend
 
     - name: Start preview server
-      run: npx vite preview --root frontend --port 8080 --host 127.0.0.1 &
+      run: npx serve frontend/dist --listen 8080 --single &
 
     - name: Wait for preview server
       run: npx wait-on http://127.0.0.1:8080 --timeout 30000

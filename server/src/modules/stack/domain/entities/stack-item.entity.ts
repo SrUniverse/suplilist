@@ -1,4 +1,4 @@
-import { TimeOfDay, FrequencyType } from '../../../../../shared/src/stack.js';
+import { TimeOfDay, FrequencyType } from '@suplilist/shared';
 
 export interface StackItem {
   id: string; // Mongoose _id

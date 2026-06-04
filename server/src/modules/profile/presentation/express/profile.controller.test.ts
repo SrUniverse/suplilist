@@ -21,7 +21,7 @@ import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { createApp } from '../../../../app.js';
-import { UserProfileModel } from '../../infrastructure/mongoose/user-profile.model.js';
+import { ProfileModel } from '../../infrastructure/mongoose/profile.model.js';
 
 const app = createApp();
 
@@ -36,7 +36,7 @@ function bearerToken(userId: string): string {
 }
 
 async function seedProfile(userId: string, overrides: Record<string, unknown> = {}) {
-  return UserProfileModel.create({
+  await ProfileModel.create({
     userId: new mongoose.Types.ObjectId(userId),
     displayName: 'Test User',
     firstName: 'John',

@@ -1,5 +1,5 @@
 import { IStackItemRepository } from '../../domain/repositories/stack-item.repository.interface.js';
-import { StackItemDTO } from '../../../../../shared/src/stack.js';
+import { StackItemDTO } from '@suplilist/shared';
 
 export class GetMyStackUseCase {
   constructor(private stackRepo: IStackItemRepository) {}

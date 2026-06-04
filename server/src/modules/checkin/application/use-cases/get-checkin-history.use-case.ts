@@ -1,5 +1,5 @@
 import { ICheckinRepository } from '../../domain/repositories/checkin.repository.interface.js';
-import { GetCheckinHistoryRequestDTO, CheckinHistoryResponseDTO } from '../../../../../shared/src/checkin.js';
+import { GetCheckinHistoryRequestDTO, CheckinHistoryResponseDTO } from '@suplilist/shared';
 
 export class GetCheckinHistoryUseCase {
   constructor(private checkinRepository: ICheckinRepository) {}

@@ -1,5 +1,5 @@
 import { IStackItemRepository } from '../../domain/repositories/stack-item.repository.interface.js';
-import { UpdateStackItemRequestDTO, StackItemDTO } from '../../../../../shared/src/stack.js';
+import { UpdateStackItemRequestDTO, StackItemDTO } from '@suplilist/shared';
 
 export interface UpdateStackItemInput {
   userId: string;
@@ -18,7 +18,7 @@ export class UpdateStackItemUseCase {
     
     if (!updatedItem) {
       // OCC Failed. Let's fetch the current state to return it in the error
-      const currentItem = await this.stackRepo.findById(itemId);
+      const currentItem = await this.stackRepo.findByIdAndUserId(itemId, userId);
       if (!currentItem) {
         throw new Error('item_not_found');
       }

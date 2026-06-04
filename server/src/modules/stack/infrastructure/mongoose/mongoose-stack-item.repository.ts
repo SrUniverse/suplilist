@@ -14,7 +14,7 @@ export class MongooseStackItemRepository implements IStackItemRepository {
       notes: doc.notes,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-      version: doc.__v ?? 0,
+      version: doc.get('__v') as number ?? 0,
     };
   }
 

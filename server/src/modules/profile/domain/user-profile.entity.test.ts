@@ -9,6 +9,8 @@ const base: UserProfile = {
   avatarStatus: 'none',
   firstName: 'Marcos',
   lastName: 'Silva',
+  onboardingState: 'completed',
+  goals: ['muscle_gain'],
   createdAt: new Date('2026-06-03T00:00:00.000Z'),
   updatedAt: new Date('2026-06-03T12:00:00.000Z'),
 };

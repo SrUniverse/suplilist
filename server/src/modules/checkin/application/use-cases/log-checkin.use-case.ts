@@ -1,5 +1,5 @@
 import { ICheckinRepository } from '../../domain/repositories/checkin.repository.interface.js';
-import { LogCheckinRequestDTO, CheckinDTO } from '../../../../../shared/src/checkin.js';
+import { LogCheckinRequestDTO, CheckinDTO } from '@suplilist/shared';
 
 export interface LogCheckinResult {
   data: CheckinDTO;

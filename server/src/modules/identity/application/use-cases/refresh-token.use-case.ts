@@ -42,7 +42,7 @@ export class RefreshTokenUseCase {
       }
 
       // 1. Refresh Token Rotation (RTR): Theft Detection via Blocklist
-      const isRevoked = await this.tokenBlocklistRepo.isRevoked(jti);
+      const isRevoked = await this.tokenBlocklistRepo.isBlocked(jti);
       if (isRevoked) {
         // Minimum viable RTR: if already in blocklist, the session is cloned.
         // In a more complex family implementation, we'd revoke all tokens for this user.
@@ -83,7 +83,7 @@ export class RefreshTokenUseCase {
       const nowSec = Math.floor(Date.now() / 1000);
       const expiresInSec = Math.max(0, exp - nowSec);
       if (expiresInSec > 0) {
-        await this.tokenBlocklistRepo.revokeToken(jti, expiresInSec);
+        await this.tokenBlocklistRepo.block(jti, new Date(exp * 1000));
       }
 
       return {

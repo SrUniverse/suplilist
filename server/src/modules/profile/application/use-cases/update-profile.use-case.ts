@@ -1,5 +1,5 @@
 import { IProfileRepository } from '../../domain/repositories/profile.repository.interface.js';
-import { UpdateProfileRequestDTO, PrivateProfileDTO } from '../../../../../shared/src/profile.js';
+import { UpdateProfileRequestDTO, PrivateProfileDTO } from '@suplilist/shared';
 
 export interface UpdateProfileInput {
   userId: string;

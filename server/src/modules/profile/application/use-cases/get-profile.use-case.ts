@@ -1,5 +1,5 @@
 import { IProfileRepository } from '../../domain/repositories/profile.repository.interface.js';
-import { PrivateProfileDTO } from '../../../../../shared/src/profile.js';
+import { PrivateProfileDTO } from '@suplilist/shared';
 import { Profile } from '../../domain/entities/profile.entity.js';
 
 export interface GetProfileResult {

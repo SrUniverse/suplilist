@@ -17,7 +17,7 @@ export class MongooseProfileRepository implements IProfileRepository {
       migrationVersion: doc.migrationVersion,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-      version: doc.__v ?? 0,
+      version: doc.get('__v') as number ?? 0,
     };
   }
 

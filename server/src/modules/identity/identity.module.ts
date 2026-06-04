@@ -4,6 +4,7 @@ import { MongooseProfileRepository } from '../profile/infrastructure/mongoose/mo
 import { RedisTokenBlocklist } from '../../shared/infrastructure/security/redis-token-blocklist.js';
 import { MongooseUnitOfWork } from '../../shared/infrastructure/mongoose/mongoose-unit-of-work.js';
 import { eventBus } from '../../shared/infrastructure/event-bus/in-memory-event-bus.js';
+import { MongooseRefreshTokenRepository } from './infrastructure/mongoose/mongoose-refresh-token.repository.js';
 
 import { RegisterUseCase } from './application/use-cases/register.use-case.js';
 import { LoginUseCase } from './application/use-cases/login.use-case.js';
@@ -23,6 +24,7 @@ export function initializeIdentityModule(): Router {
   const userIdentityRepository = new MongooseUserIdentityRepository();
   const profileRepository = new MongooseProfileRepository();
   const tokenBlocklistRepository = new RedisTokenBlocklist(); // Redis backed blocklist
+  const refreshTokenRepository = new MongooseRefreshTokenRepository();
   const unitOfWork = new MongooseUnitOfWork();
 
   // 2. Instantiate Use Cases (Application Services)
@@ -30,7 +32,7 @@ export function initializeIdentityModule(): Router {
   const loginUseCase = new LoginUseCase(userIdentityRepository, unitOfWork);
   const refreshTokenUseCase = new RefreshTokenUseCase(userIdentityRepository, tokenBlocklistRepository, unitOfWork);
   const logoutUseCase = new LogoutUseCase(tokenBlocklistRepository, unitOfWork);
-  const deleteAccountUseCase = new DeleteAccountUseCase(userIdentityRepository, tokenBlocklistRepository, unitOfWork);
+  const deleteAccountUseCase = new DeleteAccountUseCase(userIdentityRepository, refreshTokenRepository, tokenBlocklistRepository, unitOfWork);
   const cancelDeletionUseCase = new CancelDeletionUseCase(userIdentityRepository, unitOfWork);
 
   // 3. Instantiate Controller (Presentation Layer)

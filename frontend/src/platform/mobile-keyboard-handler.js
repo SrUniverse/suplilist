@@ -111,8 +111,8 @@ export class MobileKeyboardHandler {
 // Auto-init when module loads
 const handler = new MobileKeyboardHandler();
 if (typeof window !== 'undefined') {
-  // Only init on mobile devices
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  // Only init on mobile devices or if forced by tests
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.FORCE_MOBILE_KEYBOARD;
   if (isMobile) {
     handler.init();
   }

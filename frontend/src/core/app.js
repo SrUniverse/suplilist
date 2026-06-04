@@ -13,6 +13,7 @@ import '../platform/pwa-handler.js';
 import '../platform/performance-monitor.js';
 import NotificationService from '../features/notifications/notification-service.js';
 import { identityService } from '../platform/identity-service.js';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 
 const routes = [
@@ -217,6 +218,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   router.start();
+
+  // Initialize Vercel Speed Insights for performance monitoring
+  const speedInsights = injectSpeedInsights({
+    debug: import.meta.env.DEV,
+    route: window.location.pathname
+  });
+
+  // Update Speed Insights route on navigation
+  if (speedInsights) {
+    window.addEventListener('popstate', () => {
+      speedInsights.setRoute(window.location.pathname);
+    });
+  }
 
   // Initialize Analytics Engine (captures events from EventBus)
   analyticsEngine.init().catch((err) => {

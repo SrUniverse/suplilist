@@ -70,7 +70,6 @@ export default defineConfig({
     })
   ],
   build: {
-    outDir: '../docs',
     sourcemap: false,
     target: 'es2020', // Suporta syntax moderna nativa, minificando e reduzindo o peso do JS
     minify: 'esbuild', // Garante que o ESBuild otimize as rotas dinâmicas a fundo

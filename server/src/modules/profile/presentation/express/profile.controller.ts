@@ -9,6 +9,8 @@ export const UpdateProfileSchema = z.object({
   displayName: z.string().optional(),
   onboardingState: z.enum(['pending', 'completed']).optional(),
   goals: z.array(z.string()).optional(),
+  weight: z.number().optional(),
+  biologicalSex: z.enum(['male', 'female']).optional(),
   biometrics: z.object({
     weight: z.number().min(30).max(300).optional(),
     biologicalSex: z.enum(['male', 'female']).optional(),

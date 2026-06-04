@@ -79,6 +79,7 @@ export const EVENTS = Object.freeze({
   SYNC_QUEUE_UPDATED: 'sync:queue:updated',
 
   // UI
+  UI_ONLINE: 'ui:online',
   UI_OFFLINE: 'ui:offline',
   TOAST_REQUESTED: 'ui:toastRequested',
   TOAST_SHOW: 'toast:show',

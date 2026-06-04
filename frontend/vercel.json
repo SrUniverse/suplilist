@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://suplilist-backend.onrender.com/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "https://suplilist-backend.onrender.com/api/$1"
     }
   ],
   "headers": [

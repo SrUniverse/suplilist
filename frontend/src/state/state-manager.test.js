@@ -4,13 +4,13 @@ import { eventBus } from '../core/event-bus.js';
 
 vi.mock('../platform/storage-manager.js', () => ({
   StorageManager: {
-    init: vi.fn(),
-    setItem: vi.fn((key, val) => {
+    init: vi.fn(async () => {}),
+    setItem: vi.fn(async (key, val) => {
       localStorage.setItem(key, val);
       return true;
     }),
-    getItem: vi.fn((key) => localStorage.getItem(key)),
-    removeItem: vi.fn((key) => localStorage.removeItem(key))
+    getItem: vi.fn(async (key) => localStorage.getItem(key)),
+    removeItem: vi.fn(async (key) => localStorage.removeItem(key))
   }
 }));
 

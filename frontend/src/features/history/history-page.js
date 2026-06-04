@@ -600,21 +600,40 @@ export default class HistoryPage {
     const db = supMap[ck.supplementId || ''];
     const name = db?.name || ck.supplementId || 'Desconhecido';
     const cat = db?.category || '';
-    const img = db?.image || '';
+    const img = db?.image || `/assets/${(ck.supplementId || '').replace(/-/g, '_')}.png`;
+    const ev = db?.evidenceLevel;
 
-    const dStr = ck.date ? new Date(ck.date + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) : '—';
+    const dStr = ck.date
+      ? new Date(ck.date + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+      : '—';
+
+    const evBadge = ev
+      ? `<span class="ev-badge ev-badge--${String(ev).toLowerCase()}">${escapeHtml(String(ev))}</span>`
+      : '';
+
+    const pendingBadge = ck.isPending
+      ? `<span title="Aguardando conexão..." style="font-size:13px;">☁️</span>`
+      : '';
 
     return `
-      <div class="hp-sup-card" style="padding: 12px; display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; background: var(--color-surface-primary); border: 1px solid var(--color-border); border-radius: 12px;">
-         ${img ? `<img src="${img}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" />` : `<div style="width:44px; height:44px; border-radius:8px; background:var(--color-surface-secondary); display:flex; align-items:center; justify-content:center; font-size:18px;">💊</div>`}
-         <div style="flex:1; min-width:0;">
-           <div class="hp-sup-name" style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
-           <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
-              ${cat ? `<span class="hp-badge-cat" style="font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:var(--color-brand-muted); color:var(--color-brand); text-transform:uppercase;">${escapeHtml(cat)}</span>` : ''}
-              <span style="font-size:12px; color:var(--color-text-muted); font-weight:600;">${dStr}</span>
-              ${ck.isPending ? '<span style="font-size:14px; margin-left: 4px;" title="Aguardando conexão...">☁️</span>' : ''}
-           </div>
-         </div>
+      <div class="hp-sup-card">
+        <div class="hp-sup-header">
+          <img class="hp-sup-img"
+            src="${escapeHtml(img)}"
+            alt="${escapeHtml(name)}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+          />
+          <div class="hp-sup-img-placeholder" style="display:none">💊</div>
+          <div class="hp-sup-info">
+            <div class="hp-sup-name">${escapeHtml(name)}</div>
+            <div class="hp-sup-meta">
+              ${cat ? `<span class="hp-badge-cat">${escapeHtml(cat)}</span>` : ''}
+              ${evBadge}
+              <span class="hp-sup-range">${dStr}</span>
+              ${pendingBadge}
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }

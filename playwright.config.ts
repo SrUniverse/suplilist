@@ -72,6 +72,8 @@ export default defineConfig({
     // },
   ],
 
+  reporter: process.env.CI ? [['html'], ['list']] : 'html',
+
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1',
     url: 'http://127.0.0.1:3000',

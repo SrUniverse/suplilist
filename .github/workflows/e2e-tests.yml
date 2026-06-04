@@ -25,16 +25,6 @@ jobs:
           - project: Mobile Safari
             slug: mobile-safari
 
-    services:
-      mongodb:
-        image: mongo:7.0
-        ports:
-          - 27017:27017
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-
     steps:
     - uses: actions/checkout@v4
 
@@ -50,34 +40,14 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps
 
-    - name: Build project
-      run: |
-        npm run build -w @suplilist/shared
-        npm run build -w @suplilist/server
-        npm run build -w @suplilist/frontend
+    - name: Build frontend
+      run: npm run build -w @suplilist/frontend
 
-    - name: Start services
-      run: |
-        npm start -w @suplilist/server &
-        npm run dev -w @suplilist/frontend -- --host 127.0.0.1 &
-      env:
-        NODE_ENV: test
-        PORT: 5000
-        MONGO_URI: mongodb://127.0.0.1:27017/suplilist_ci
-        REDIS_URI: redis://127.0.0.1:6379
-        JWT_SECRET: super_secret_ci_key_that_must_be_32_chars_long
-        ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-        FRONTEND_ORIGIN: http://127.0.0.1:3000
+    - name: Start frontend preview
+      run: npx vite preview --root frontend --port 3000 --host 127.0.0.1 &
 
-    - name: Wait for services
-      run: npx wait-on http://127.0.0.1:3000 http://127.0.0.1:5000/health --timeout 60000
-
-    - name: Seed test user
-      run: |
-        curl -sf -X POST http://127.0.0.1:5000/api/auth/register \
-          -H "Content-Type: application/json" \
-          -H "X-SupliList-Client: 1" \
-          -d '{"email":"testuser@example.com","password":"password123"}' || true
+    - name: Wait for frontend
+      run: npx wait-on http://127.0.0.1:3000 --timeout 60000
 
     - name: Run E2E tests (${{ matrix.project }})
       run: npx playwright test --project="${{ matrix.project }}"

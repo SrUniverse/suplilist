@@ -192,27 +192,29 @@ function reducer(state, action) {
       }
 
       const { id, supplementId } = action.payload;
+      const finalId = id || supplementId;
 
-      if (!id || typeof id !== 'string' || id.trim() === '') {
-        logger.warn('[StateManager] ADD_TO_STACK requires an id');
+      if (!finalId || typeof finalId !== 'string' || finalId.trim() === '') {
+        logger.warn('[StateManager] ADD_TO_STACK requires an id or supplementId');
         return state;
       }
 
       // Prevent duplicates based on supplementId
-      const exists = state.stack.some(item => item.supplementId === supplementId);
+      const targetId = supplementId || id;
+      const exists = state.stack.some(item => (item.supplementId || item.id) === targetId);
       if (exists) return state;
 
       return {
         ...state,
-        stack: [...state.stack, action.payload]
+        stack: [...state.stack, { ...action.payload, id: finalId, supplementId: targetId }]
       };
     }
 
     case ACTIONS.REMOVE_FROM_STACK: {
-      const idToRemove = action.payload.id;
+      const idToRemove = action.payload.supplementId ?? action.payload.id;
       return {
         ...state,
-        stack: state.stack.filter(item => item.id !== idToRemove)
+        stack: state.stack.filter(item => (item.supplementId ?? item.id) !== idToRemove)
       };
     }
 
@@ -240,7 +242,11 @@ function reducer(state, action) {
     case ACTIONS.IMPORT_STACK:
       return {
         ...state,
-        stack: action.payload || []
+        stack: (action.payload || []).map(item => ({
+          ...item,
+          id: item.supplementId ?? item.id,
+          supplementId: item.supplementId ?? item.id
+        }))
       };
 
     case ACTIONS.CLEAR_CHECKINS:

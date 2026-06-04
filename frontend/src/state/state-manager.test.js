@@ -10,6 +10,7 @@ vi.mock('../platform/storage-manager.js', () => ({
       return true;
     }),
     getItem: vi.fn(async (key) => localStorage.getItem(key)),
+    getItemSync: vi.fn((key) => localStorage.getItem(key)),
     removeItem: vi.fn(async (key) => localStorage.removeItem(key))
   }
 }));
@@ -297,12 +298,15 @@ describe('StateManager v4.0', () => {
     const sm = createTestSM();
     const before = sm.stack.length;
 
-    sm.dispatch(ACTIONS.ADD_TO_STACK, {
-      supplementId: 'test-9999',
-      name: 'Test Supplement',
-      dosage: 5,
-      unit: 'g',
-      quantity: 0
+    sm.dispatch({
+      type: ACTIONS.ADD_TO_STACK, 
+      payload: {
+        supplementId: 'test-9999',
+        name: 'Test Supplement',
+        dosage: 5,
+        unit: 'g',
+        quantity: 0
+      }
     });
     expect(sm.stack.length).toBe(before + 1);
 

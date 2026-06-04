@@ -48,12 +48,16 @@ export const ACTIONS = Object.freeze({
   // Identity — populated by identity-service after successful API login/logout
   AUTH_LOGIN: 'AUTH_LOGIN',
   AUTH_LOGOUT: 'AUTH_LOGOUT',
+  SET_OWNER_ID: 'SET_OWNER_ID',
+  // Network state
+  SET_OFFLINE_MODE: 'SET_OFFLINE_MODE',
 });
 
 // ─── Initial Application State Shape ─────────────────────────────────────────
 export const DEFAULT_STATE = Object.freeze({
   _version: STATE_VERSION,
   _lastUpdated: null,
+  _ownerId: null,
 
   // User profile
   user: {
@@ -75,6 +79,8 @@ export const DEFAULT_STATE = Object.freeze({
     role: null,           // 'user' | 'admin' — from UserIdentityDTO
     isMfaEnabled: false,
     emailVerified: false,
+    // Purchase tracking for refill alerts
+    purchases: [],        // Array<{supplementId, quantity, dailyConsumption, price, source, purchasedAt, status}>
   },
 
   // User's personal stack
@@ -115,7 +121,8 @@ export const DEFAULT_STATE = Object.freeze({
     loading: false,
     error: null,
     modal: null,          // { type, props }
-    toast: null           // { message, type, duration }
+    toast: null,          // { message, type, duration }
+    isOffline: false      // Network connectivity state
   }
 });
 
@@ -304,6 +311,15 @@ function reducer(state, action) {
         }
       };
 
+    case ACTIONS.SET_OFFLINE_MODE:
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          isOffline: action.payload?.isOffline ?? false
+        }
+      };
+
     case ACTIONS.ADD_FAVORITE:
       if (state.favorites.includes(action.payload.supplementId)) return state;
       return {
@@ -365,20 +381,27 @@ function reducer(state, action) {
     }
 
     // ── Identity ─────────────────────────────────────────────────────────────
-    // Payload shape matches UserIdentityDTO from @suplilist/shared.
+    // Payload is the merged result of JWT claims + GET /api/profile/me.
     // accessToken is intentionally absent — it lives in api-client's closure.
+    // displayName/avatarUrl come from the profile fetch inside login().
     case ACTIONS.AUTH_LOGIN: {
-      const { id, email, role, isMfaEnabled, emailVerified } = action.payload;
+      const {
+        id, email, role, isMfaEnabled, emailVerified,
+        displayName, avatarUrl, avatarStatus,
+      } = action.payload;
       return {
         ...state,
         user: {
           ...state.user,
           id: id ?? state.user.id,
           email: email ?? state.user.email,
+          name: displayName ?? state.user.name,
           role: role ?? state.user.role,
           isMfaEnabled: isMfaEnabled ?? false,
           emailVerified: emailVerified ?? false,
           isAuthenticated: true,
+          avatarUrl: avatarUrl ?? state.user.avatarUrl ?? null,
+          avatarStatus: avatarStatus ?? state.user.avatarStatus ?? 'none',
         },
       };
     }
@@ -394,6 +417,12 @@ function reducer(state, action) {
           emailVerified: false,
           // Keep local profile data (name, weight, etc.) — user can log back in
         },
+      };
+
+    case ACTIONS.SET_OWNER_ID:
+      return {
+        ...state,
+        _ownerId: action.payload,
       };
 
     default:

@@ -10,6 +10,13 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  // 1. Dê mais tempo para a nuvem pensar
+  timeout: process.env.CI ? 60000 : 30000,
+  
+  expect: {
+    timeout: process.env.CI ? 15000 : 5000,
+  },
+
   testDir: './e2e',
   /* Run tests in files in parallel */
   fullyParallel: true,

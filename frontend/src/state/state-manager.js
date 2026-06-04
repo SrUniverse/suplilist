@@ -29,6 +29,7 @@ export const ACTIONS = Object.freeze({
   REMOVE_FROM_STACK: 'REMOVE_FROM_STACK',
   UPDATE_STACK_ITEM: 'UPDATE_STACK_ITEM',       // #2 FIX: antes ausente do registro
   SET_STACK_QUANTITY: 'SET_STACK_QUANTITY',     // #2 FIX: antes ausente do registro
+  RESTORE_STACK_ITEM_AT_INDEX: 'RESTORE_STACK_ITEM_AT_INDEX',
   CLEAR_STACK: 'CLEAR_STACK',
   CLEAR_CHECKINS: 'CLEAR_CHECKINS',
   ADD_CHECKIN: 'ADD_CHECKIN',
@@ -216,6 +217,21 @@ function reducer(state, action) {
           (item.supplementId ?? item.id) !== action.payload.supplementId
         )
       };
+
+    case ACTIONS.RESTORE_STACK_ITEM_AT_INDEX: {
+      const { item, index } = action.payload;
+      if (!item) return state;
+      const newStack = [...state.stack];
+      // Prevent duplicates if network revived late
+      const exists = newStack.some(i => (i.supplementId ?? i.id) === (item.supplementId ?? item.id));
+      if (!exists) {
+        newStack.splice(index, 0, item);
+      }
+      return {
+        ...state,
+        stack: newStack
+      };
+    }
 
     case ACTIONS.CLEAR_STACK:
       return {

@@ -3,8 +3,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
-import { IRefreshTokenRepository } from '../../repositories/refresh-token.repository.js';
-import { RefreshToken } from '../../domain/refresh-token.entity.js';
+import { RedisTokenBlocklist } from '../../../../shared/infrastructure/security/redis-token-blocklist.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
 
 const loginInputSchema = z.object({
@@ -26,7 +25,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
 export class LoginUseCase {
   constructor(
     private userIdentityRepo: IUserIdentityRepository,
-    private refreshTokenRepo: IRefreshTokenRepository,
     private uow: IUnitOfWork
   ) {}
 
@@ -80,47 +78,33 @@ export class LoginUseCase {
       }
 
       // 5. Generate Sessions (Tokens)
-      const jwtId = crypto.randomUUID(); // jti
+      const accessJti = crypto.randomUUID(); 
       const accessToken = jwt.sign(
         {
           sub: user.id,
-          jti: jwtId,
-          role: user.role, // Populate the static role from the user identity document
+          jti: accessJti,
+          role: user.role,
           status: user.status,
         },
         JWT_SECRET,
         { expiresIn: '15m' }
       );
 
-      // Generate opaque refresh token
-      const opaqueRefreshToken = crypto.randomBytes(40).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(opaqueRefreshToken).digest('hex');
-      const family = crypto.randomUUID();
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiration
-
-      const newSession: RefreshToken = {
-        id: '', // Mongoose generated
-        userId: user.id,
-        tokenHash,
-        family,
-        replacedBy: null,
-        userAgent: validatedInput.userAgent,
-        ipAddress: validatedInput.ipAddress,
-        deviceLabel: validatedInput.deviceLabel,
-        issuedAt: new Date(),
-        expiresAt,
-        revokedAt: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      await this.refreshTokenRepo.save(newSession);
+      // Generate stateless JWT refresh token
+      const refreshJti = crypto.randomUUID();
+      const refreshToken = jwt.sign(
+        {
+          sub: user.id,
+          jti: refreshJti,
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
 
       return {
         status: 'success',
         accessToken,
-        refreshToken: opaqueRefreshToken,
+        refreshToken,
       };
     });
   }

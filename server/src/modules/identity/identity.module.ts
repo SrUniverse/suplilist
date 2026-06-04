@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { MongooseUserIdentityRepository } from './infrastructure/mongoose/mongoose-user-identity.repository.js';
-import { MongooseRefreshTokenRepository } from './infrastructure/mongoose/mongoose-refresh-token.repository.js';
+import { MongooseProfileRepository } from '../profile/infrastructure/mongoose/mongoose-profile.repository.js';
 import { RedisTokenBlocklist } from '../../shared/infrastructure/security/redis-token-blocklist.js';
 import { MongooseUnitOfWork } from '../../shared/infrastructure/mongoose/mongoose-unit-of-work.js';
 import { eventBus } from '../../shared/infrastructure/event-bus/in-memory-event-bus.js';
@@ -21,16 +21,16 @@ export function initializeIdentityModule(): Router {
 
   // 1. Instantiate Infrastructure Adapters (State-free Singletons)
   const userIdentityRepository = new MongooseUserIdentityRepository();
-  const refreshTokenRepository = new MongooseRefreshTokenRepository();
+  const profileRepository = new MongooseProfileRepository();
   const tokenBlocklistRepository = new RedisTokenBlocklist(); // Redis backed blocklist
   const unitOfWork = new MongooseUnitOfWork();
 
   // 2. Instantiate Use Cases (Application Services)
-  const registerUseCase = new RegisterUseCase(userIdentityRepository, unitOfWork, eventBus);
-  const loginUseCase = new LoginUseCase(userIdentityRepository, refreshTokenRepository, unitOfWork);
-  const refreshTokenUseCase = new RefreshTokenUseCase(userIdentityRepository, refreshTokenRepository, unitOfWork);
-  const logoutUseCase = new LogoutUseCase(refreshTokenRepository, tokenBlocklistRepository, unitOfWork);
-  const deleteAccountUseCase = new DeleteAccountUseCase(userIdentityRepository, refreshTokenRepository, tokenBlocklistRepository, unitOfWork);
+  const registerUseCase = new RegisterUseCase(userIdentityRepository, profileRepository, unitOfWork, eventBus);
+  const loginUseCase = new LoginUseCase(userIdentityRepository, unitOfWork);
+  const refreshTokenUseCase = new RefreshTokenUseCase(userIdentityRepository, tokenBlocklistRepository, unitOfWork);
+  const logoutUseCase = new LogoutUseCase(tokenBlocklistRepository, unitOfWork);
+  const deleteAccountUseCase = new DeleteAccountUseCase(userIdentityRepository, tokenBlocklistRepository, unitOfWork);
   const cancelDeletionUseCase = new CancelDeletionUseCase(userIdentityRepository, unitOfWork);
 
   // 3. Instantiate Controller (Presentation Layer)

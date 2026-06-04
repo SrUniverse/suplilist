@@ -238,4 +238,126 @@ describe('PATCH /api/profile/me', () => {
     expect(res.status).toBeGreaterThanOrEqual(400);
     expect(res.status).toBeLessThan(500);
   });
+
+  it('silently ignores migrationVersion — must not leak into generic update DTO', async () => {
+    if (!mongoReady()) return;
+    await seedProfile(VALID_USER_ID);
+
+    const res = await request(app)
+      .patch('/api/profile/me')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      // migrationVersion must be stripped by Zod (unknown key) — not persisted
+      .send({ displayName: 'Test User', migrationVersion: 1 });
+
+    expect(res.status).toBe(200);
+    // The generic update endpoint must never return migrationVersion
+    expect(res.body.data.migrationVersion).toBeUndefined();
+  });
+});
+
+// ── PATCH /api/profile/me/migration-sync ──────────────────────────────────────
+
+describe('PATCH /api/profile/me/migration-sync', () => {
+  it('returns 401 when Authorization header is absent', async () => {
+    if (!mongoReady()) return;
+    const res = await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: 1 });
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 403 when X-SupliList-Client header is missing — CSRF guard', async () => {
+    if (!mongoReady()) return;
+    const res = await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .send({ migrationVersion: 1 });
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe('csrf_protection_triggered');
+  });
+
+  it('returns 404 when the user has no profile yet', async () => {
+    if (!mongoReady()) return;
+    const ghostId = new mongoose.Types.ObjectId().toHexString();
+    const res = await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(ghostId)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: 1 });
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('profile_not_found');
+  });
+
+  it('persists migrationVersion and reflects it in the response DTO', async () => {
+    if (!mongoReady()) return;
+    await seedProfile(VALID_USER_ID);
+
+    const res = await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: 1 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.migrationVersion).toBe(1);
+  });
+
+  it('is idempotent — sending the same version twice returns 200 both times', async () => {
+    if (!mongoReady()) return;
+    await seedProfile(VALID_USER_ID);
+
+    await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: 1 });
+
+    const second = await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: 1 });
+
+    expect(second.status).toBe(200);
+    expect(second.body.data.migrationVersion).toBe(1);
+  });
+
+  it('never regresses migrationVersion — sending v1 after v2 must not overwrite', async () => {
+    if (!mongoReady()) return;
+    await seedProfile(VALID_USER_ID);
+
+    // Advance to version 2
+    await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: 2 });
+
+    // Attempt to regress to version 1 (stale/re-sending client)
+    const regress = await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: 1 });
+
+    expect(regress.status).toBe(200);
+    // Server preserves v2 — the monotonic invariant holds
+    expect(regress.body.data.migrationVersion).toBe(2);
+  });
+
+  it('returns 4xx when migrationVersion is not a positive integer', async () => {
+    if (!mongoReady()) return;
+    await seedProfile(VALID_USER_ID);
+
+    const res = await request(app)
+      .patch('/api/profile/me/migration-sync')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ migrationVersion: -1 });
+
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+  });
 });

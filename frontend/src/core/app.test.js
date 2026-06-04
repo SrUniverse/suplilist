@@ -69,6 +69,33 @@ vi.mock('../platform/mobile-utilities.js', () => ({}));
 vi.mock('../platform/pwa-handler.js', () => ({}));
 vi.mock('../platform/performance-monitor.js', () => ({}));
 
+vi.mock('../platform/offline-handler.js', () => ({
+  OfflineHandler: vi.fn(function() {
+    this.init = vi.fn();
+  })
+}));
+
+vi.mock('../platform/sync-queue.js', () => ({
+  syncQueue: {
+    init: vi.fn().mockResolvedValue(undefined),
+    sync: vi.fn().mockResolvedValue({ synced: 0, failed: 0 }),
+  }
+}));
+
+vi.mock('../platform/identity-service.js', () => ({
+  identityService: {
+    initializeSession: vi.fn().mockResolvedValue(undefined),
+  }
+}));
+
+vi.mock('../features/notifications/notification-service.js', () => ({
+  default: vi.fn(function() {
+    this.checkAndTriggerDailyReminder = vi.fn();
+    this.checkAndTriggerLowStockAlerts = vi.fn();
+    this.checkAndTriggerStreakMilestones = vi.fn();
+  })
+}));
+
 import './app.js';
 
 describe('App Initialization', () => {
@@ -136,12 +163,14 @@ describe('App Initialization', () => {
     toastContainer.id = 'toast-container';
     document.body.appendChild(toastContainer);
 
-    // Setup service worker
-    window.navigator = {
+    // Setup service worker — use vi.stubGlobal so vi.unstubAllGlobals() in afterEach
+    // cleans up automatically and doesn't leak onLine state to other test workers.
+    vi.stubGlobal('navigator', {
+      onLine: true,
       serviceWorker: {
         addEventListener: vi.fn()
       }
-    };
+    });
 
     mockDOMContentLoaded = new Event('DOMContentLoaded');
   });

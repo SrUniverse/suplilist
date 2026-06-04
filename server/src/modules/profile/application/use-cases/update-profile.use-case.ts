@@ -1,53 +1,47 @@
-import { z } from 'zod';
-import { IUserProfileRepository } from '../../repositories/user-profile.repository.js';
-import { PrivateProfileDTO, ProfileMapper } from '../../domain/user-profile.entity.js';
-import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
+import { IProfileRepository } from '../../domain/repositories/profile.repository.interface.js';
+import { UpdateProfileRequestDTO, PrivateProfileDTO } from '../../../../../shared/src/profile.js';
 
-const updateProfileInputSchema = z.object({
-  displayName: z.string().min(1, 'Display name is required').max(50, 'Display name cannot exceed 50 characters').trim(),
-  firstName: z.string().max(50, 'First name cannot exceed 50 characters').nullable().optional(),
-  lastName: z.string().max(50, 'Last name cannot exceed 50 characters').nullable().optional(),
-});
+export interface UpdateProfileInput {
+  userId: string;
+  expectedVersion: number;
+  data: UpdateProfileRequestDTO;
+}
 
-export type UpdateProfileInput = z.infer<typeof updateProfileInputSchema>;
+export interface UpdateProfileResult {
+  profile: PrivateProfileDTO;
+  version: number;
+}
 
 export class UpdateProfileUseCase {
-  constructor(
-    private profileRepo: IUserProfileRepository,
-    private uow: IUnitOfWork
-  ) {}
+  constructor(private profileRepo: IProfileRepository) {}
 
-  async execute(userId: string, input: UpdateProfileInput): Promise<PrivateProfileDTO> {
-    const validatedInput = updateProfileInputSchema.parse(input);
+  async execute(input: UpdateProfileInput): Promise<UpdateProfileResult> {
+    const { userId, expectedVersion, data } = input;
 
-    return this.uow.runInTransaction(async () => {
-      // 1. Fetch current profile including private fields
-      let profile = await this.profileRepo.findPrivateByUserId(userId);
-      
-      if (!profile) {
-        // If profile doesn't exist, create it (e.g. first edit after signup)
-        profile = {
-          userId,
-          displayName: validatedInput.displayName,
-          avatarUrl: null,
-          avatarStatus: 'none',
-          firstName: validatedInput.firstName || null,
-          lastName: validatedInput.lastName || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-      } else {
-        // Update fields
-        profile.displayName = validatedInput.displayName;
-        if (validatedInput.firstName !== undefined) profile.firstName = validatedInput.firstName;
-        if (validatedInput.lastName !== undefined) profile.lastName = validatedInput.lastName;
-      }
+    // Use repository method that encapsulates the optimistic concurrency logic
+    const updatedProfile = await this.profileRepo.updateWithConcurrency(userId, expectedVersion, data);
+    
+    if (!updatedProfile) {
+      // If it returns null, it means either the user doesn't exist OR the version mismatched.
+      // In a real scenario, we might want to disambiguate. But for OCC, it's 412.
+      throw new Error('precondition_failed');
+    }
 
-      // 2. Persist profile alterations
-      const savedProfile = await this.profileRepo.save(profile);
+    const dto: PrivateProfileDTO = {
+      userId: updatedProfile.userId,
+      firstName: updatedProfile.firstName,
+      lastName: updatedProfile.lastName,
+      displayName: updatedProfile.displayName,
+      avatarUrl: updatedProfile.avatarUrl,
+      avatarStatus: updatedProfile.avatarStatus,
+      onboardingState: updatedProfile.onboardingState,
+      goals: updatedProfile.goals,
+      migrationVersion: updatedProfile.migrationVersion,
+      createdAt: updatedProfile.createdAt.toISOString(),
+      updatedAt: updatedProfile.updatedAt.toISOString(),
+    };
 
-      return ProfileMapper.toPrivate(savedProfile);
-    });
+    return { profile: dto, version: updatedProfile.version };
   }
 }
 export default UpdateProfileUseCase;

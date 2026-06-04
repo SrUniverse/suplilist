@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import bcrypt from 'bcrypt';
 import { UserStatus, UserRole } from '../../domain/user-identity.entity.js';
 
 export interface IOAuthProviderDocument {
@@ -155,6 +156,18 @@ userIdentitySchema.index(
 
 // Índice composto otimizado estritamente para o loop de paginação do Purge Job
 userIdentitySchema.index({ status: 1, deletedAt: 1, purgeFailed: 1, _id: 1 });
+
+// Bcrypt Hashing Hook
+userIdentitySchema.pre('save', async function(next) {
+  if (!this.isModified('passwordHash') || !this.passwordHash) return next();
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
+    next();
+  } catch (err: any) {
+    next(err);
+  }
+});
 
 export const UserIdentityModel = mongoose.model<IUserIdentityDocument>('UserIdentity', userIdentitySchema);
 export default UserIdentityModel;

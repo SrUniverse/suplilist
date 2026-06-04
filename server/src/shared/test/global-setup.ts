@@ -36,7 +36,7 @@ function isBinaryCached(): boolean {
   try {
     if (!existsSync(MONGOMS_CACHE)) return false;
     const entries = readdirSync(MONGOMS_CACHE, { withFileTypes: true });
-    return entries.some(e => e.isDirectory());
+    return entries.some(e => e.isDirectory() || e.isFile() && (e.name.endsWith('.exe') || e.name.startsWith('mongod')));
   } catch {
     return false;
   }

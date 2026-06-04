@@ -8,6 +8,11 @@ export interface IUserProfileDocument extends Document {
   avatarStatus: AvatarStatus;
   firstName: string | null;
   lastName: string | null;
+  /**
+   * Client-written migration version. Excluded from default projections (select: false)
+   * because it is an operational flag, not a user-visible profile field.
+   */
+  migrationVersion?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,7 +52,16 @@ const userProfileSchema = new Schema<IUserProfileDocument>({
     default: null,
     select: false,
     trim: true,
-  }
+  },
+  /**
+   * Migration version flag. select: false — only loaded when explicitly requested.
+   * Avoids polluting every profile query with an operational field.
+   */
+  migrationVersion: {
+    type: Number,
+    default: undefined,
+    select: false,
+  },
 }, {
   timestamps: true,
   collection: 'users_profile'

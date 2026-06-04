@@ -3,6 +3,8 @@ import { eventBus } from '../../core/event-bus.js';
 import { todayISO } from '../../utils/date.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { escapeHtml } from '../../utils/escape.js';
+import { syncQueue } from '../../platform/sync-queue.js';
+import { checkinService } from './checkin-service.js';
 
 /**
  * CheckinPage — Daily supplement adherence tracking
@@ -47,6 +49,10 @@ export default class CheckinPage {
       window.dispatchEvent(new PopStateEvent('popstate'));
     };
     this.container.addEventListener('click', this._internalNavHandler);
+
+    this._syncUpdatedHandler = () => this._refresh();
+    eventBus.on('sync:queue:updated', this._syncUpdatedHandler);
+    eventBus.on('sync:queue:emptied', this._syncUpdatedHandler);
   }
 
   /**
@@ -61,6 +67,10 @@ export default class CheckinPage {
     if (this._internalNavHandler) {
       this.container.removeEventListener('click', this._internalNavHandler);
       this._internalNavHandler = null;
+    }
+    if (this._syncUpdatedHandler) {
+      eventBus.off('sync:queue:updated', this._syncUpdatedHandler);
+      eventBus.off('sync:queue:emptied', this._syncUpdatedHandler);
     }
     this.container.innerHTML = '';
   }
@@ -88,11 +98,19 @@ export default class CheckinPage {
    */
   _getCheckedIds() {
     const today = this._getTodayStr();
-    return new Set(
-      stateManager.checkins
-        .filter(c => c.date === today)
-        .map(c => c.supplementId)
-    );
+    
+    // 1. Check-ins confirmados do servidor (ou memória final)
+    const confirmed = stateManager.checkins
+      .filter(c => c.date === today)
+      .map(c => c.supplementId);
+      
+    // 2. Check-ins pendentes na SyncQueue local
+    const pending = syncQueue.getPendingItems()
+      .filter(c => c.date === today)
+      .map(c => c.supplementId);
+
+    // Merge e Deduplicação (O usuário enxerga a união de ambos)
+    return new Set([...confirmed, ...pending]);
   }
 
   // ── Render ────────────────────────────────────────────────
@@ -507,17 +525,25 @@ export default class CheckinPage {
 
     const allBtn = this.container.querySelector('#btn-checkin-all');
     if (allBtn) {
-      allBtn.addEventListener('click', () => {
+      allBtn.addEventListener('click', async () => {
+        allBtn.disabled = true;
         const checkedIds = this._getCheckedIds();
-        const today = this._getTodayStr();
-        // Batch all dispatches without individual re-renders, then refresh once
-        stateManager.stack.forEach(item => {
-          if (!checkedIds.has(item.supplementId)) {
-            stateManager.dispatch(ACTIONS.ADD_CHECKIN, { supplementId: item.supplementId, date: today });
-          }
-        });
-        this._refresh();
-        eventBus.emit('toast:show', { message: '🎉 Check-in completo!', type: 'success' });
+        
+        const pendingItems = stateManager.stack.filter(item => !checkedIds.has(item.supplementId));
+        if (pendingItems.length > 0) {
+          // Otimismo Visual: Enganar a UI antes do serviço terminar
+          const temporarySet = new Set(checkedIds);
+          pendingItems.forEach(i => temporarySet.add(i.supplementId));
+          // Hooking provisório no _getCheckedIds só para o refresh imediato
+          this._getCheckedIds = () => temporarySet;
+          this._refresh();
+
+          await checkinService.logMultiple(pendingItems);
+          
+          // Devolve a função original (a fonte da verdade fará o resto)
+          delete this._getCheckedIds; 
+          this._refresh();
+        }
       });
     }
   }
@@ -527,6 +553,7 @@ export default class CheckinPage {
    *
    * Guards against duplicate check-in (returns early if already done).
    * Dispatches ADD_CHECKIN action to stateManager with today's date.
+   * Se offline, enfileira para sincronização posterior.
    * Optionally shows success toast via eventBus.
    * Refreshes page UI via _refresh().
    *
@@ -536,12 +563,21 @@ export default class CheckinPage {
    * @returns {void}
    * @private
    */
-  _doCheckin(supplementId, name, showToast = true) {
+  async _doCheckin(supplementId, name) {
     if (this._getCheckedIds().has(supplementId)) return;
-    stateManager.dispatch(ACTIONS.ADD_CHECKIN, { supplementId, date: this._getTodayStr() });
-    if (showToast) {
-      eventBus.emit('toast:show', { message: `✅ ${name} marcado!`, type: 'success' });
-    }
+
+    // Otimismo Visual Instantâneo
+    const originalGetter = this._getCheckedIds;
+    const tempSet = new Set(originalGetter.call(this));
+    tempSet.add(supplementId);
+    this._getCheckedIds = () => tempSet;
+    this._refresh(); // Atualiza DOM (Barra e Checkbox enchem no instante 0ms)
+
+    // Delega complexidade para o Serviço
+    await checkinService.logCheckin(supplementId, name);
+
+    // Restaura fonte da verdade e sincroniza com o state/queue real
+    delete this._getCheckedIds;
     this._refresh();
   }
 

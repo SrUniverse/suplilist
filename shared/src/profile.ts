@@ -20,6 +20,31 @@ export interface PublicProfileDTO {
 export interface PrivateProfileDTO extends PublicProfileDTO {
   firstName: string | null;
   lastName: string | null;
+  onboardingState: 'pending' | 'completed';
+  goals: string[];
   createdAt: string;
   updatedAt: string;
+  /**
+   * Monotonic counter that the MigrationService writes after successfully
+   * uploading all local IndexedDB data to the backend.
+   *
+   * `undefined` → migration never ran (legacy user or new user with no local data).
+   * `1`         → v1 migration complete (stack + favorites + checkins uploaded).
+   *
+   * The frontend checks this field in `initializeSession()` to skip re-migration
+   * on subsequent logins — even if the user cleared their localStorage.
+   *
+   * The backend accepts but never auto-increments this field; only the
+   * MigrationService on the client may write it via PATCH /api/profile/me.
+   */
+  migrationVersion?: number;
+}
+
+/** Payload para atualizar o perfil. A versão de concorrência não viaja aqui, mas no header If-Match. */
+export interface UpdateProfileRequestDTO {
+  firstName?: string | null;
+  lastName?: string | null;
+  displayName?: string;
+  onboardingState?: 'pending' | 'completed';
+  goals?: string[];
 }

@@ -67,6 +67,18 @@ beforeAll(async () => {
   }
   // Each worker gets its own Mongoose connection to the shared replica set.
   await mongoose.connect(uri);
+
+  // Ensure all collections exist beforehand to prevent MongoDB transaction WriteConflict/creation errors.
+  const modelNames = mongoose.modelNames();
+  await Promise.all(
+    modelNames.map(async (name) => {
+      try {
+        await mongoose.model(name).createCollection();
+      } catch (err) {
+        // Ignore if collection already exists
+      }
+    })
+  );
 });
 
 afterEach(async () => {

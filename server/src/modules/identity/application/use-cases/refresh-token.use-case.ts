@@ -2,15 +2,11 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
-import { IRefreshTokenRepository } from '../../repositories/refresh-token.repository.js';
-import { RefreshToken } from '../../domain/refresh-token.entity.js';
+import { RedisTokenBlocklist } from '../../../../shared/infrastructure/security/redis-token-blocklist.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
 
 const refreshTokenInputSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
-  userAgent: z.string().default('unknown'),
-  ipAddress: z.string().default('unknown'),
-  deviceLabel: z.string().nullable().default(null),
 });
 
 export type RefreshTokenInput = z.infer<typeof refreshTokenInputSchema>;
@@ -25,73 +21,47 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
 export class RefreshTokenUseCase {
   constructor(
     private userIdentityRepo: IUserIdentityRepository,
-    private refreshTokenRepo: IRefreshTokenRepository,
+    private tokenBlocklistRepo: RedisTokenBlocklist,
     private uow: IUnitOfWork
   ) {}
 
   async execute(input: RefreshTokenInput): Promise<RefreshTokenResult> {
     const validatedInput = refreshTokenInputSchema.parse(input);
-    const tokenHash = crypto.createHash('sha256').update(validatedInput.refreshToken).digest('hex');
 
     return this.uow.runInTransaction(async () => {
-      // 1. Find the refresh token in the repository
-      const session = await this.refreshTokenRepo.findByTokenHash(tokenHash);
-      if (!session) {
+      let decoded: any;
+      try {
+        decoded = jwt.verify(validatedInput.refreshToken, JWT_SECRET);
+      } catch (err) {
         throw new Error('invalid_refresh_token');
       }
 
-      // 2. Token Theft Detection
-      if (session.revokedAt) {
-        await this.refreshTokenRepo.revokeFamily(session.family);
-        throw new Error('token_theft_detected');
+      const { sub: userId, jti, exp } = decoded;
+      if (!userId || !jti || !exp) {
+        throw new Error('invalid_refresh_token');
       }
 
-      // 3. Check Expiration
-      if (session.expiresAt < new Date()) {
-        throw new Error('refresh_token_expired');
+      // 1. Refresh Token Rotation (RTR): Theft Detection via Blocklist
+      const isRevoked = await this.tokenBlocklistRepo.isRevoked(jti);
+      if (isRevoked) {
+        // Minimum viable RTR: if already in blocklist, the session is cloned.
+        // In a more complex family implementation, we'd revoke all tokens for this user.
+        // For now, we simply reject the rotation.
+        throw new Error('invalid_refresh_token');
       }
 
-      // 4. Retrieve user and verify account status
-      const user = await this.userIdentityRepo.findById(session.userId);
+      // 2. Retrieve user and verify account status
+      const user = await this.userIdentityRepo.findById(userId);
       if (!user || user.status === 'deleted' || user.status === 'suspended') {
         throw new Error('user_inactive');
       }
 
-      // 5. Generate a new session (Rotation)
-      const newOpaqueToken = crypto.randomBytes(40).toString('hex');
-      const newTokenHash = crypto.createHash('sha256').update(newOpaqueToken).digest('hex');
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7); // Extended for another 7 days
-
-      const newSession: RefreshToken = {
-        id: '', // Mongoose generated
-        userId: user.id,
-        tokenHash: newTokenHash,
-        family: session.family,
-        replacedBy: null,
-        userAgent: validatedInput.userAgent,
-        ipAddress: validatedInput.ipAddress,
-        deviceLabel: validatedInput.deviceLabel,
-        issuedAt: new Date(),
-        expiresAt,
-        revokedAt: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      const savedNewSession = await this.refreshTokenRepo.save(newSession);
-
-      // 6. Invalidate old token
-      session.revokedAt = new Date();
-      session.replacedBy = savedNewSession.id;
-      await this.refreshTokenRepo.save(session);
-
-      // 7. Generate a new JWT access token with the user's role
-      const jwtId = crypto.randomUUID();
+      // 3. Generate a new session (Rotation)
+      const accessJti = crypto.randomUUID();
       const accessToken = jwt.sign(
         {
           sub: user.id,
-          jti: jwtId,
+          jti: accessJti,
           role: user.role, // Embed the user role
           status: user.status,
         },
@@ -99,9 +69,26 @@ export class RefreshTokenUseCase {
         { expiresIn: '15m' }
       );
 
+      const newRefreshJti = crypto.randomUUID();
+      const newRefreshToken = jwt.sign(
+        {
+          sub: user.id,
+          jti: newRefreshJti,
+        },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      // 4. Invalidate old token (Memory Bomb logic for OOM prevention)
+      const nowSec = Math.floor(Date.now() / 1000);
+      const expiresInSec = Math.max(0, exp - nowSec);
+      if (expiresInSec > 0) {
+        await this.tokenBlocklistRepo.revokeToken(jti, expiresInSec);
+      }
+
       return {
         accessToken,
-        refreshToken: newOpaqueToken,
+        refreshToken: newRefreshToken,
       };
     });
   }

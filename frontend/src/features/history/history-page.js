@@ -1,9 +1,12 @@
 import { stateManager } from '../../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
+globalThis.__SUPPLEMENTS_DB_MOCK = SUPPLEMENTS_DB;
 import { todayISO, offsetISO } from '../../utils/date.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
-import { eventBus } from '../../core/event-bus.js';
+import { eventBus, EVENTS } from '../../core/event-bus.js';
+import { VirtualScroller } from '../../core/virtual-scroller.js';
+import { historyService } from './history-service.js';
 import { logger } from '../../utils/logger.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -59,42 +62,58 @@ const estimateDailyCost = (stack, supMap) => {
  * Integrates with StateManager (checkins, stack), SUPPLEMENTS_DB for details.
  */
 export default class HistoryPage {
-  /**
-   * Create a new HistoryPage
-   * @param {HTMLElement} container - DOM element to mount the page
-   */
   constructor(container) {
     this.container = container;
-    this._unsubscribe = null;
     this._searchQuery = '';
     this._activeCategory = 'Todos';
-    this._expandedCards = new Set();
+    this._isMounted = false;
+    this._scaffoldCreated = false;
+    this._scroller = null;
+    this._sentinel = null;
+    this._stalled = false;
+    this._unsubscribeOffline = null;
+    this._unsubOnline = null;
+    this._unsubSync = null;
   }
 
-  /**
-   * Mount the page to the DOM and initialize subscriptions.
-   *
-   * Injects CSS, renders main scaffold, subscribes to state changes
-   * for live updates when checkins/stack change.
-   *
-   * @returns {void}
-   */
-  mount() {
+  async mount() {
+    this._isMounted = true;
     this._injectStyles();
-    this._render();
-    this._unsubscribe = stateManager.subscribe(() => this._render());
+    this._renderScaffold();
+    this._setupScroller();
+    this._setupSentinel();
+
+    await this._loadFirstPage();
+
+    this._unsubscribeState = stateManager.subscribe(() => {
+      if (this._isMounted) this._renderScaffold();
+    });
+
+    this._syncOfflineState(stateManager.get('ui.isOffline'));
+    this._unsubscribeOffline = stateManager.subscribe('ui.isOffline', (isOffline) => {
+      if (!this._isMounted) return;
+      this._syncOfflineState(isOffline);
+    });
+
+    this._unsubOnline = eventBus.on(EVENTS.APP_ONLINE, () => {
+      if (this._isMounted && this._stalled) this._resumeAfterStall();
+    });
+
+    this._unsubSync = eventBus.on('sync:queue:emptied', () => {
+      if (this._isMounted) {
+        this._loadFirstPage();
+      }
+    });
   }
 
-  /**
-   * Unmount the page and clean up all resources.
-   *
-   * Unsubscribes from state manager.
-   * Safe to call multiple times.
-   *
-   * @returns {void}
-   */
-  unmount() {
-    this._unsubscribe?.();
+    this._isMounted = false;
+    this._unsubscribeState?.();
+    this._unsubscribeOffline?.();
+    this._unsubOnline?.();
+    this._unsubSync?.();
+    this._sentinel?.disconnect();
+    this._scroller?.unmount();
+    historyService.reset();
   }
 
   // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -420,30 +439,27 @@ export default class HistoryPage {
    * @returns {void}
    * @private
    */
-  _render() {
+
+  _renderScaffold() {
     const state = stateManager.state;
     const checkins = state.checkins || [];
     const stack = state.stack || [];
     const supMap = buildSupMap();
 
-    // ── Stats ──────────────────────────────────────────────────────────────────
     const today = todayISO();
     const daysInRange = 30;
     const daysSet = new Set(checkins.map(c => c.date).filter(Boolean));
     const totalCycles = daysSet.size;
 
-    // Days with checkin in last 30 days
     let daysWithCheckin = 0;
     for (let i = 0; i < daysInRange; i++) {
       if (daysSet.has(offsetISO(i))) daysWithCheckin++;
     }
     const adherencePct = daysInRange > 0 ? Math.round((daysWithCheckin / daysInRange) * 100) : 0;
 
-    // Investment: daily cost × days registered
     const dailyCost = estimateDailyCost(stack, supMap);
     const investTotal = (dailyCost * totalCycles).toFixed(2).replace('.', ',');
 
-    // ── Last 7 days calendar ──────────────────────────────────────────────────
     const DAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     const calDays = [];
     for (let i = 6; i >= 0; i--) {
@@ -458,64 +474,6 @@ export default class HistoryPage {
       });
     }
 
-    // ── Group checkins by supplementId ────────────────────────────────────────
-    const bySupp = {};
-    for (const ck of checkins) {
-      const sid = ck.supplementId || 'unknown';
-      if (!bySupp[sid]) bySupp[sid] = [];
-      bySupp[sid].push(ck.date || '');
-    }
-
-    // Build display entries
-    let entries = Object.entries(bySupp).map(([sid, dates]) => {
-      const db = supMap[sid];
-      const sortedDates = [...new Set(dates)].filter(Boolean).sort();
-      const firstDate = sortedDates[0] || '';
-      const lastDate = sortedDates[sortedDates.length - 1] || '';
-      const totalDays = sortedDates.length;
-
-      // Adherence: days with checkin / days since first checkin (or 30, whichever smaller)
-      const daysSinceFirst = firstDate ? Math.max(1, Math.ceil((new Date(today + 'T12:00:00') - new Date(firstDate + 'T12:00:00')) / 86400000) + 1) : 1;
-      const windowDays = Math.min(daysSinceFirst, 30);
-      const adPct = Math.round((totalDays / windowDays) * 100);
-
-      return {
-        sid,
-        name: db?.name || sid,
-        category: db?.category || '',
-        image: db?.image || null,
-        firstDate,
-        lastDate,
-        totalDays,
-        totalPossible: windowDays,
-        adPct,
-        dates: sortedDates.reverse(), // newest first
-        lastCheckin: lastDate
-      };
-    });
-
-    // Sort by most recent checkin
-    entries.sort((a, b) => b.lastCheckin.localeCompare(a.lastCheckin));
-
-    // Apply search filter
-    const q = this._searchQuery.toLowerCase().trim();
-    if (q) entries = entries.filter(e => e.name.toLowerCase().includes(q) || e.category.toLowerCase().includes(q));
-
-    // Apply category filter
-    if (this._activeCategory !== 'Todos') {
-      const chip = this._activeCategory.toLowerCase();
-      entries = entries.filter(e => {
-        const ec = (e.category || '').toLowerCase();
-        if (ec === chip) return true;
-        // 'Saúde Geral' catches cardiovascular, intestinal, articular & pele, queima de gordura
-        if (chip === 'saúde geral') return ['saúde cardiovascular','saúde articular & pele','saúde intestinal','queima de gordura & recovery'].includes(ec);
-        // 'Cognição & Neuroproteção' also catches 'Energéticos & Foco'
-        if (chip === 'cognição & neuroproteção') return ec === 'energéticos & foco';
-        return false;
-      });
-    }
-
-    // ── Build HTML ────────────────────────────────────────────────────────────
     const statsHtml = `
       <div class="hp-stats">
         <div class="hp-stat-card">
@@ -585,94 +543,178 @@ export default class HistoryPage {
       </div>
     `;
 
-    let listHtml;
-    if (checkins.length === 0) {
-      listHtml = `
-        <div class="hp-empty">
-          <div class="hp-empty-icon">📋</div>
-          <div class="hp-empty-title">Nenhum check-in registrado ainda</div>
-          <div class="hp-empty-sub">Registre seus suplementos diários para acompanhar sua constância.</div>
-          <button class="hp-cta-btn" id="hp-cta-checkin">Fazer Check-in Agora</button>
-        </div>
-      `;
-    } else if (entries.length === 0) {
-      listHtml = `
-        <div class="hp-empty">
-          <div class="hp-empty-icon">🔍</div>
-          <div class="hp-empty-title">Nenhum resultado</div>
-          <div class="hp-empty-sub">Tente outro nome ou categoria.</div>
-        </div>
-      `;
-    } else {
-      const cardsHtml = entries.map(e => {
-        const isExpanded = this._expandedCards.has(e.sid);
-        const adClass = e.adPct >= 80 ? 'green' : e.adPct >= 60 ? 'yellow' : 'red';
-        const firstLabel = e.firstDate ? formatMonthYear(e.firstDate) : '—';
-        const lastLabel = e.lastDate === today ? 'Presente' : (e.lastDate ? formatMonthYear(e.lastDate) : '—');
-        const imgHtml = e.image
-          ? `<img class="hp-sup-img" src="${e.image}" alt="${escapeHtml(e.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          : '';
-        const placeholderHtml = `<div class="hp-sup-img-placeholder" ${e.image ? 'style="display:none"' : ''}>💊</div>`;
-
-        const logsHtml = e.dates.map(d => {
-          const [yr, mo, dy] = d.split('-');
-          const label = new Date(parseInt(yr), parseInt(mo) - 1, parseInt(dy))
-            .toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-          return `<div class="hp-log-date">${label}</div>`;
-        }).join('');
-
-        return `
-          <div class="hp-sup-card" data-sid="${escapeHtml(e.sid)}">
-            <div class="hp-sup-header" data-toggle="${escapeHtml(e.sid)}">
-              ${imgHtml}${placeholderHtml}
-              <div class="hp-sup-info">
-                <div class="hp-sup-name">${escapeHtml(e.name)}</div>
-                <div class="hp-sup-meta">
-                  ${e.category ? `<span class="hp-badge-cat">${escapeHtml(e.category)}</span>` : ''}
-                  <span class="hp-sup-range">${firstLabel} → ${lastLabel}</span>
-                </div>
-                <div style="margin-top:4px;">
-                  <span class="hp-adherence ${adClass}">${e.adPct}% adesão</span>
-                  <span style="font-size:12px;color:var(--color-text-muted);"> (${e.totalDays}/${e.totalPossible} dias)</span>
-                </div>
-              </div>
-              <button class="hp-expand-btn" data-toggle="${escapeHtml(e.sid)}">${isExpanded ? 'Fechar ▲' : 'Ver Logs ▼'}</button>
-            </div>
-            <div class="hp-logs-panel ${isExpanded ? 'open' : ''}" id="hp-logs-${escapeHtml(e.sid)}">
-              <div style="font-size:12px;color:var(--color-text-muted);margin-bottom:2px;">${e.totalDays} check-in${e.totalDays !== 1 ? 's' : ''} registrado${e.totalDays !== 1 ? 's' : ''}</div>
-              ${logsHtml}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      listHtml = `
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div class="hp-section-title">${entries.length} suplemento${entries.length !== 1 ? 's' : ''} com histórico</div>
-          ${cardsHtml}
-        </div>
-      `;
-    }
-
     const userTier = state.user?.tier ?? 'free';
     const isFree = userTier === 'free';
 
-    this.container.innerHTML = `
-      <div class="hp-root">
-        <header>
-          <h1 style="font-size:24px;font-weight:800;margin:0 0 4px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--color-text-primary);">Histórico</h1>
-          <p style="color:var(--color-text-secondary);font-size:14px;margin:0;">Acompanhe sua constância de suplementação.</p>
-        </header>
-        ${statsHtml}
-        ${calendarHtml}
-        ${!isFree ? this._renderAdvancedAnalyticsDashboard(checkins, stack, supMap) : ''}
-        ${searchHtml}
-        ${listHtml}
-        ${isFree ? this._renderPremiumLockCard() : ''}
+    if (!this._scaffoldCreated) {
+      this.container.innerHTML = `
+        <div class="hp-root">
+          <header>
+            <h1 style="font-size:24px;font-weight:800;margin:0 0 4px;font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--color-text-primary);">Histórico</h1>
+            <p style="color:var(--color-text-secondary);font-size:14px;margin:0;">Acompanhe sua constância de suplementação.</p>
+          </header>
+          <div id="hp-stats-container">${statsHtml}</div>
+          <div id="hp-calendar-container">${calendarHtml}</div>
+          ${!isFree ? `<div id="hp-premium-container">${this._renderAdvancedAnalyticsDashboard(checkins, stack, supMap)}</div>` : '<div id="hp-premium-container"></div>'}
+          <div id="hp-search-container">${searchHtml}</div>
+          
+          <div class="hp-section-title" style="margin-top: 20px;">Timeline de Registros</div>
+          <div id="hp-scroller-container" style="position: relative; min-height: 200px; margin-top: 10px;"></div>
+          <div id="hp-sentinel" style="height: 1px;"></div>
+          <div id="hp-status-banner" style="text-align:center; padding: 20px; color: var(--color-text-muted); font-size: 13px;"></div>
+          
+          ${isFree ? this._renderPremiumLockCard() : ''}
+        </div>
+      `;
+      this._scaffoldCreated = true;
+      this._attachListeners();
+    } else {
+       const statsEl = this.container.querySelector('#hp-stats-container');
+       if (statsEl) statsEl.innerHTML = statsHtml;
+       
+       const calEl = this.container.querySelector('#hp-calendar-container');
+       if (calEl) calEl.innerHTML = calendarHtml;
+       
+       const premEl = this.container.querySelector('#hp-premium-container');
+       if (premEl && !isFree) {
+         premEl.innerHTML = this._renderAdvancedAnalyticsDashboard(checkins, stack, supMap);
+       }
+    }
+  }
+
+  _setupScroller() {
+    const scrollerContainer = this.container.querySelector('#hp-scroller-container');
+    if (!scrollerContainer) return;
+
+    this._scroller = new VirtualScroller(
+      scrollerContainer,
+      [],
+      (item, index) => this._renderCheckinItem(item, index),
+      { itemHeight: 84, bufferSize: 5 }
+    );
+    this._scroller.mount();
+  }
+
+  _renderCheckinItem(ck, index) {
+    const supMap = buildSupMap();
+    const db = supMap[ck.supplementId || ''];
+    const name = db?.name || ck.supplementId || 'Desconhecido';
+    const cat = db?.category || '';
+    const img = db?.image || '';
+
+    const dStr = ck.date ? new Date(ck.date + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) : '—';
+
+    return `
+      <div class="hp-sup-card" style="padding: 12px; display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; background: var(--color-surface-primary); border: 1px solid var(--color-border); border-radius: 12px;">
+         ${img ? `<img src="${img}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" />` : `<div style="width:44px; height:44px; border-radius:8px; background:var(--color-surface-secondary); display:flex; align-items:center; justify-content:center; font-size:18px;">💊</div>`}
+         <div style="flex:1; min-width:0;">
+           <div class="hp-sup-name" style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
+           <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+              ${cat ? `<span class="hp-badge-cat" style="font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:var(--color-brand-muted); color:var(--color-brand); text-transform:uppercase;">${escapeHtml(cat)}</span>` : ''}
+              <span style="font-size:12px; color:var(--color-text-muted); font-weight:600;">${dStr}</span>
+              ${ck.isPending ? '<span style="font-size:14px; margin-left: 4px;" title="Aguardando conexão...">☁️</span>' : ''}
+           </div>
+         </div>
       </div>
     `;
+  }
 
-    this._attachListeners();
+  _setupSentinel() {
+    const sentinelEl = this.container.querySelector('#hp-sentinel');
+    if (!sentinelEl) return;
+
+    this._sentinel = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        this._onScrollEnd();
+      }
+    }, { rootMargin: '200px' });
+
+    this._sentinel.observe(sentinelEl);
+  }
+
+  async _loadFirstPage() {
+    this._renderStatus('Carregando...', true);
+    historyService.reset();
+    try {
+      const { items, hasMore } = await historyService.loadMore();
+      if (items.length === 0) {
+        this._renderStatus('Nenhum registro encontrado.', false);
+      } else {
+        this._scroller.updateItems(historyService.getItems());
+        if (!hasMore) {
+          this._sentinel?.disconnect();
+          this._renderStatus('Histórico completo.', false);
+        } else {
+          this._renderStatus('', false);
+        }
+      }
+    } catch (err) {
+      if (err.status === 503 || err.error === 'offline') {
+        this._stalled = true;
+        this._sentinel?.disconnect();
+        this._renderStatus('Sem conexão — aguardando rede para carregar mais.', false);
+      }
+    }
+  }
+
+  async _onScrollEnd() {
+    if (!historyService.hasMore || historyService.isLoading) return;
+    
+    this._renderStatus('Carregando mais...', true);
+    try {
+      const { hasMore } = await historyService.loadMore();
+      this._scroller.updateItems(historyService.getItems());
+      if (!hasMore) {
+        this._sentinel?.disconnect();
+        this._renderStatus('Histórico completo.', false);
+      } else {
+        this._renderStatus('', false);
+      }
+    } catch (err) {
+      if (err.status === 503 || err.error === 'offline') {
+        this._stalled = true;
+        this._sentinel?.disconnect();
+        this._renderStatus('Sem conexão — aguardando rede para carregar mais.', false);
+      }
+    }
+  }
+
+  _renderStatus(msg, isSpinner = false) {
+    const banner = this.container.querySelector('#hp-status-banner');
+    if (!banner) return;
+    if (!msg) {
+      banner.style.display = 'none';
+      return;
+    }
+    banner.style.display = 'block';
+    banner.innerHTML = isSpinner ? `<span style="opacity:0.7">⌛ ${msg}</span>` : escapeHtml(msg);
+  }
+
+  _syncOfflineState(isOffline) {
+    // Contract implementation for UI lockdown
+    if (isOffline) {
+      if (!this._stalled) {
+         this._renderStatus('Modo Offline — histórico da sessão atual.', false);
+      }
+    } else {
+      if (this._stalled) {
+         this._resumeAfterStall();
+      }
+    }
+  }
+
+  async _resumeAfterStall() {
+    this._stalled = false;
+    this._renderStatus('Reconectado. Retomando...', true);
+    
+    // Resume intersection observer if we still have more data
+    if (historyService.hasMore) {
+      const sentinelEl = this.container.querySelector('#hp-sentinel');
+      if (sentinelEl) this._sentinel?.observe(sentinelEl);
+      await this._onScrollEnd();
+    } else {
+      this._renderStatus('Histórico completo.', false);
+    }
   }
 
   // ─── Event listeners ─────────────────────────────────────────────────────────
@@ -702,30 +744,24 @@ export default class HistoryPage {
       }
       searchEl.addEventListener('input', (e) => {
         this._searchQuery = e.target.value;
-        this._render();
+        historyService.setFilters({ query: this._searchQuery });
+        this._loadFirstPage();
+        this._renderScaffold();
       });
     }
 
-    // Category chips
-    this.container.querySelectorAll('.hp-chip').forEach(btn => {
+    const allChips = this.container.querySelectorAll('.hp-chip');
+    allChips.forEach(btn => {
       btn.addEventListener('click', () => {
         this._activeCategory = btn.dataset.cat;
-        this._render();
-      });
-    });
+        
+        // Manual DOM update for chips since we don't re-render the whole scaffold
+        allChips.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
 
-    // Toggle log panels
-    this.container.querySelectorAll('[data-toggle]').forEach(el => {
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const sid = el.dataset.toggle;
-        if (!sid) return;
-        if (this._expandedCards.has(sid)) {
-          this._expandedCards.delete(sid);
-        } else {
-          this._expandedCards.add(sid);
-        }
-        this._render();
+        historyService.setFilters({ category: this._activeCategory });
+        this._loadFirstPage();
+        this._renderScaffold();
       });
     });
 

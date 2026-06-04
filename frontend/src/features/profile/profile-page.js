@@ -2,6 +2,11 @@ import { stateManager, ACTIONS, STORAGE_KEYS } from '../../state/state-manager.j
 import { eventBus } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { StorageManager } from '../../platform/storage-manager.js';
+import { getAdherenceOverview, getTopSupplements, calculateAdherence, renderAdherenceChart } from '../analytics/adherence-tracker.js';
+import { getRefillAlerts, getAlertMessage, getAlertColor } from './refill-alerts.js';
+import { optimizeStack } from '../stack/stack-optimizer.js';
+import { generateTimeline } from '../progress/before-after-tracker.js';
+import { profileService } from './profile-service.js';
 
 const OBJECTIVES = [
   { value: 'bulk',      label: 'Bulk',       desc: 'Ganho de Massa' },
@@ -45,22 +50,160 @@ export default class ProfilePage {
     this.container = container;
     this._form = {};
     this._editingName = false;
+    /** @type {boolean} Guard contra mutações de DOM pós-desmontagem. */
+    this._isMounted = false;
+    /**
+     * Referência local ao último perfil carregado do servidor.
+     * Limpa em unmount() para evitar flash de cache antigo em re-mounts.
+     * @type {object | null}
+     */
+    this._userData = null;
+    /**
+     * Unsubscribe da assinatura reativa de ui.isOffline.
+     * Chamado em unmount() para desativar a bomba de memory leak.
+     * @type {Function | null}
+     */
+    this._unsubscribeOffline = null;
   }
 
-  mount() {
-    const user = stateManager.user || {};
+  async mount() {
+    this._isMounted = true;
+    this._userData = null;
+
+    // Exibir skeleton enquanto aguarda o fetch do perfil do servidor.
+    // O profileService.getProfile() possui deduplicação nativa via #fetchPromise —
+    // se identityService.login() já chamou GET /api/profile/me, apenas 1 request sai.
+    this._renderSkeleton();
+
+    try {
+      const profile = await profileService.getProfile();
+
+      // Guard: o router pode ter navegado para outra página enquanto o fetch estava em voo.
+      if (!this._isMounted) return;
+
+      this._userData = profile;
+    } catch (_err) {
+      // Perfil indisponível (offline, 401, etc.) — usar estado local como fallback.
+      if (!this._isMounted) return;
+    }
+
+    const user = this._userData || stateManager.user || {};
     this._form = {
-      name:              user.name              || 'Usuário',
-      objective:         user.objective         || 'general',
-      weight:            user.weight            || '',
-      height:            user.height            || '',
-      age:               user.age               || '',
+      name:      user.displayName || user.name || stateManager.get?.('user.name') || 'Usuário',
+      objective: user.objective         || stateManager.user?.objective || 'general',
+      weight:    user.weight            || stateManager.user?.weight    || '',
+      height:    user.height            || stateManager.user?.height    || '',
+      age:       user.age               || stateManager.user?.age       || '',
     };
     this._render();
     this._attachListeners();
+
+    // Sincronizar estado de rede imediatamente e inscrever para mudanças futuras.
+    // stateManager.subscribe('ui.isOffline', cb) usa assinatura por caminho:
+    // o callback recebe (newValue, oldValue) — não o estado completo.
+    this._syncOfflineState(stateManager.get('ui.isOffline'));
+    this._unsubscribeOffline = stateManager.subscribe('ui.isOffline', (isOffline) => {
+      if (!this._isMounted) return;
+      this._syncOfflineState(isOffline);
+    });
   }
 
-  unmount() {}
+  unmount() {
+    this._isMounted = false;
+    // Limpar referência local para evitar flash de cache antigo em re-mount rápido.
+    this._userData = null;
+    // Desarmar a bomba de memory leak: cancelar a assinatura reativa de rede.
+    if (this._unsubscribeOffline) {
+      this._unsubscribeOffline();
+      this._unsubscribeOffline = null;
+    }
+  }
+
+  /**
+   * Sincroniza o estado visual dos controles de escrita com o estado de rede.
+   *
+   * Implementação de referência do contrato do OfflineHandler.
+   * Componentes com controles de mutação devem implementar este padrão:
+   *   1. Chamar _syncOfflineState(stateManager.get('ui.isOffline')) no mount()
+   *   2. Subscrever stateManager.subscribe('ui.isOffline', ...)
+   *   3. Cancelar a subscrição no unmount()
+   *
+   * @param {boolean} isOffline
+   */
+  _syncOfflineState(isOffline) {
+    // Botão de salvar biometria
+    const btnSaveBio = this.container.querySelector('#btn-save-bio');
+    if (btnSaveBio) {
+      btnSaveBio.disabled    = isOffline;
+      btnSaveBio.textContent = isOffline ? 'Indisponível Offline' : 'Salvar';
+      btnSaveBio.style.opacity = isOffline ? '0.5' : '1';
+    }
+
+    // Botão de confirmar edição de nome
+    const btnNameConfirm = this.container.querySelector('#btn-name-confirm');
+    if (btnNameConfirm) {
+      btnNameConfirm.disabled  = isOffline;
+      btnNameConfirm.style.opacity = isOffline ? '0.5' : '1';
+    }
+  }
+
+  /**
+   * Renderiza um skeleton de carregamento enquanto aguarda profileService.getProfile().
+   * Usa inline styles para ser independente de classes CSS externas.
+   */
+  _renderSkeleton() {
+    this.container.innerHTML = `
+      <div style="
+        padding: 24px 16px 60px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 600px;
+        margin: 0 auto;
+      ">
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          padding: 24px 0 8px;
+        ">
+          <div style="
+            width: 72px; height: 72px; border-radius: 50%;
+            background: var(--color-surface-secondary);
+            animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
+          "></div>
+          <div style="
+            width: 120px; height: 22px; border-radius: 8px;
+            background: var(--color-surface-secondary);
+            animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
+          "></div>
+        </div>
+        <div style="
+          background: var(--color-surface-primary);
+          border: 1px solid var(--color-border);
+          border-radius: 16px;
+          padding: 20px;
+          height: 160px;
+          animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
+        "></div>
+        <div style="
+          background: var(--color-surface-primary);
+          border: 1px solid var(--color-border);
+          border-radius: 16px;
+          padding: 20px;
+          height: 80px;
+          animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
+        "></div>
+      </div>
+      <style>
+        @keyframes profile-skeleton-pulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.4; }
+        }
+      </style>
+    `;
+  }
 
   _getObjectiveLabel() {
     const obj = OBJECTIVES.find(o => o.value === this._form.objective);
@@ -69,6 +212,221 @@ export default class ProfilePage {
 
   _getInitial() {
     return (this._form.name || 'U').trim()[0].toUpperCase();
+  }
+
+  _renderAdherenceSection() {
+    const checkins = stateManager.checkins || [];
+    if (checkins.length === 0) {
+      return cardWrap('Sua Aderência 📊', `
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          Comece a marcar seus suplementos para ver sua aderência!
+        </p>
+      `);
+    }
+
+    const overview = getAdherenceOverview(checkins);
+    const topSupplements = overview.topSupplements.slice(0, 5);
+
+    const percentageColor = overview.averageAdherence >= 80 ? 'var(--color-success)' :
+                           overview.averageAdherence >= 60 ? 'var(--color-warning)' :
+                           'var(--color-error)';
+
+    return cardWrap('Sua Aderência 📊', `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+        <div>
+          <div style="font-size:24px;font-weight:800;color:${percentageColor};">${overview.averageAdherence}%</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">Aderência média (30 dias)</div>
+        </div>
+        <div style="font-size:13px;color:var(--color-text-secondary);text-align:right;line-height:1.6;">
+          ${overview.message}
+        </div>
+      </div>
+
+      ${topSupplements.length > 0 ? `
+        <div style="border-top:1px solid var(--color-border);padding-top:12px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:8px;">Top Suplementos</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${topSupplements.map(supp => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+                <span style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(supp.supplementId)}</span>
+                <span style="font-size:13px;font-weight:700;color:var(--color-brand);">${supp.percentage}%</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+    `);
+  }
+
+  _renderRefillAlertsSection() {
+    const purchases = stateManager.user?.purchases || [];
+    const alerts = getRefillAlerts(purchases);
+
+    if (alerts.length === 0) {
+      return cardWrap('Reposição de Suplementos 📦', `
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          Nenhum alerta de reposição. Todos seus suplementos estão ok! ✅
+        </p>
+      `);
+    }
+
+    return cardWrap('Reposição de Suplementos 📦', `
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${alerts.slice(0, 5).map(alert => `
+          <div style="
+            border-left:3px solid ${getAlertColor(alert.alertLevel)};
+            padding:12px;
+            background:${alert.alertLevel === 'critical' ? 'rgba(239,68,68,0.05)' : 'rgba(59,130,246,0.05)'};
+            border-radius:8px;
+          ">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <span style="font-size:13px;font-weight:700;color:var(--color-text-primary);">
+                ${escapeHtml(alert.supplementId)}
+              </span>
+              <span style="font-size:12px;font-weight:700;color:${getAlertColor(alert.alertLevel)};">
+                ${alert.daysRemaining} dia${alert.daysRemaining !== 1 ? 's' : ''}
+              </span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-secondary);">
+              ${getAlertMessage(alert.alertLevel, alert.daysRemaining)}
+            </div>
+            ${alert.price ? `
+              <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:6px;">
+                Última compra: R$ ${alert.price.toFixed(2)}${alert.source ? ' em ' + escapeHtml(alert.source) : ''}
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `);
+  }
+
+  _renderStackOptimizerSection() {
+    const stack = stateManager.stack || [];
+    if (stack.length === 0) {
+      return cardWrap('Otimizador de Stack', `
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          Adicione suplementos ao seu stack para ver análise de otimização.
+        </p>
+      `);
+    }
+
+    const purchases = stateManager.user?.purchases || [];
+    const goal = this._form.objective || 'general';
+    const result = optimizeStack(stack, purchases, goal);
+
+    const redundancyHtml = result.redundancies.length > 0 ? `
+      <div style="border-top:1px solid var(--color-border);padding-top:12px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-error);margin-bottom:8px;">Redundancias</div>
+        ${result.redundancies.map(r => `
+          <div style="font-size:13px;color:var(--color-text-secondary);padding:6px 0;border-bottom:1px solid var(--color-border);">
+            ${escapeHtml(r.message)}
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    const priorityGapsHtml = result.priorityGaps.length > 0 ? `
+      <div style="border-top:1px solid var(--color-border);padding-top:12px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-brand);margin-bottom:8px;">Adicionar para ${escapeHtml(goal)}</div>
+        ${result.priorityGaps.slice(0, 3).map(g => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
+            <span style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(g.name)}</span>
+            <span style="font-size:12px;color:var(--color-text-secondary);">~R$ ${g.cost}/mes</span>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    const suggestionGapsHtml = result.suggestionGaps.length > 0 ? `
+      <div style="border-top:1px solid var(--color-border);padding-top:12px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:8px;">Sugestoes opcionais</div>
+        ${result.suggestionGaps.slice(0, 2).map(g => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+            <span style="font-size:12px;color:var(--color-text-secondary);">${escapeHtml(g.name)}</span>
+            <span style="font-size:11px;color:var(--color-text-tertiary);">~R$ ${g.cost}/mes</span>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    const savingsHtml = result.savingsPotential > 0 ? `
+      <div style="background:rgba(34,197,94,0.08);border-radius:8px;padding:10px 12px;">
+        <span style="font-size:13px;color:var(--color-success);font-weight:700;">
+          Economia potencial: R$ ${result.savingsPotential.toFixed(2)}/mes
+        </span>
+      </div>
+    ` : '';
+
+    return cardWrap('Otimizador de Stack', `
+      ${savingsHtml}
+      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;">${escapeHtml(result.recommendation)}</div>
+      ${redundancyHtml}
+      ${priorityGapsHtml}
+      ${suggestionGapsHtml}
+    `);
+  }
+
+  _renderProgressSection() {
+    const progress = stateManager.user?.progressRecords || [];
+
+    if (progress.length === 0) {
+      return cardWrap('Progresso Before/After', `
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          Nenhum registro de progresso ainda. Adicione seu primeiro before/after no checkin.
+        </p>
+      `);
+    }
+
+    const timeline = generateTimeline(progress);
+    if (timeline.length === 0) {
+      return cardWrap('Progresso Before/After', `
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          Registre pelo menos 2 medicoes para ver sua evolucao.
+        </p>
+      `);
+    }
+
+    const latest = timeline[timeline.length - 1];
+    const { transformation } = latest;
+
+    if (!transformation) {
+      return cardWrap('Progresso Before/After', `
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          Nao foi possivel calcular a transformacao. Verifique os dados dos registros.
+        </p>
+      `);
+    }
+
+    const changeColor = (v) => v > 0 ? 'var(--color-success)' : v < 0 ? 'var(--color-error)' : 'var(--color-text-secondary)';
+    const sign = (v) => v > 0 ? '+' : '';
+
+    return cardWrap('Progresso Before/After', `
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:4px;">Periodo</div>
+          <div style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(latest.from)} → ${escapeHtml(latest.to)}</div>
+        </div>
+        <div style="font-size:11px;color:var(--color-text-tertiary);">${latest.duration}d</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;border-top:1px solid var(--color-border);padding-top:12px;">
+        <div style="text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:${changeColor(transformation.weightChange)};">${sign(transformation.weightChange)}${(transformation.weightChange ?? 0).toFixed(1)}kg</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">Peso</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:${changeColor(transformation.chestChange)};">${sign(transformation.chestChange)}${(transformation.chestChange ?? 0).toFixed(1)}cm</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">Peito</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:18px;font-weight:800;color:${changeColor(-(transformation.waistChange ?? 0))};">${sign(-(transformation.waistChange ?? 0))}${(-(transformation.waistChange ?? 0)).toFixed(1)}cm</div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">Cintura</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);border-top:1px solid var(--color-border);padding-top:10px;">
+        ${escapeHtml(transformation.summary)}
+      </div>
+    `);
   }
 
   _render() {
@@ -178,7 +536,19 @@ export default class ProfilePage {
           </div>
         `)}
 
-        <!-- 3. DADOS & PRIVACIDADE -->
+        <!-- 3. SUA ADERÊNCIA (Premium Feature) -->
+        ${this._renderAdherenceSection()}
+
+        <!-- 3B. ALERTAS DE REPOSIÇÃO (Premium Feature) -->
+        ${this._renderRefillAlertsSection()}
+
+        <!-- 3C. OTIMIZADOR DE STACK -->
+        ${this._renderStackOptimizerSection()}
+
+        <!-- 3D. PROGRESSO BEFORE/AFTER -->
+        ${this._renderProgressSection()}
+
+        <!-- 4. DADOS & PRIVACIDADE -->
         ${cardWrap('Dados & Privacidade', `
           <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
             Seus dados ficam 100% no seu dispositivo. Nunca enviamos nada para servidores.

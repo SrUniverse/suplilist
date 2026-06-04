@@ -1193,11 +1193,7 @@ export default class ListPage {
    * @returns {string} HTML string for the card (safe to insert with innerHTML)
    * @private
    */
-  _renderSupplementCard(item) {
-    if (item.isAd) {
-      return this._renderSponsoredAdCard();
-    }
-    const stack = stateManager.stack ?? [];
+  _renderCardHTML(item) {
     const favs = getFavoritesFromState();
     const isFav = favs.has(item.id);
     const ev = item.evidenceLevel;
@@ -1252,6 +1248,11 @@ export default class ListPage {
         </div>
       </div>
     `;
+  }
+
+  _renderSupplementCard(item) {
+    if (item.isAd) return this._renderSponsoredAdCard();
+    return this._renderCardHTML(item);
   }
 
   /**
@@ -1347,68 +1348,11 @@ export default class ListPage {
    */
   _buildFragment(from, to) {
     const frag = document.createDocumentFragment();
-    const stack = stateManager.stack ?? [];
-    const favs = getFavoritesFromState();
+    const wrapper = document.createElement('div');
 
     this._filtered.slice(from, to).forEach(item => {
-      const isFav = favs.has(item.id);
-      const ev = item.evidenceLevel;
-      const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
-      const desc = item.benefits?.[0] ?? '';
-      const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
-
-      const saving = getMaxSaving(item, this._prices);
-      const priceInfo = getPriceLabel(item, this._prices);
-      const doseStr = getDosePrice(item, this._prices);
-
-      let topBadge = '';
-      if (saving) {
-        // P4: escapeHtml em saving (número, mas pode ser string de priceData externo)
-        topBadge = `<div class="lp-card-top-badge" style="background:rgba(34,197,94,0.10);color:#22C55E;">
-          ECONOMIZE R$ ${escapeHtml(String(saving))} NA AMAZON
-        </div>`;
-      } else if (item.category) {
-        // P4: escapeHtml em category
-        topBadge = `<div class="lp-card-top-badge" style="background:var(--color-brand-muted);color:var(--color-brand);">
-          ${escapeHtml(item.category)}
-        </div>`;
-      }
-
-      const div = document.createElement('div');
-      div.className = 'lp-card';
-      div.role = 'listitem';
-      div.dataset.id = item.id;
-      div.innerHTML = `
-        ${topBadge}
-        <div class="lp-card-img-wrap">
-          <img class="lp-card-img"
-            src="${escapeHtml(img)}"
-            alt="${escapeHtml(item.name)}"
-            loading="lazy"
-            importance="auto"
-            onerror="this.style.display='none'"
-          />
-          ${ev ? `<span class="lp-card-ev-badge" style="background:${evStyle.bg};color:${evStyle.color};">EV. ${escapeHtml(String(ev))}</span>` : ''}
-        </div>
-        <div class="lp-card-info">
-          <p class="lp-card-name">${escapeHtml(item.name)}</p>
-          <p class="lp-card-cat">${escapeHtml(item.category ?? '')}</p>
-          ${desc ? `<p class="lp-card-desc">${escapeHtml(desc)}</p>` : ''}
-          <div class="lp-card-price-row">
-            <span class="lp-card-price">${formatPrice(priceInfo.price)}</span>
-            <span class="lp-card-dose">${doseStr}</span>
-          </div>
-          <div class="lp-card-actions">
-            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button" data-testid="catalog-fav-btn-${escapeHtml(item.id)}">
-              ${isFav ? '♥' : '♡'}
-            </button>
-            <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${item.id}" type="button">
-              VER PREÇOS →
-            </button>
-          </div>
-        </div>
-      `;
-      frag.appendChild(div);
+      wrapper.innerHTML = this._renderCardHTML(item);
+      frag.appendChild(wrapper.firstElementChild);
     });
     return frag;
   }

@@ -74,6 +74,8 @@ export const EVENTS = Object.freeze({
   SYNC_STARTED: 'sync:started',
   SYNC_COMPLETED: 'sync:completed',
   SYNC_FAILED: 'sync:failed',
+  SYNC_SUBSCRIPTION: 'sync:subscription',
+  SYNC_QUEUE_EMPTIED: 'sync:queue:emptied',
 
   // UI
   TOAST_REQUESTED: 'ui:toastRequested',

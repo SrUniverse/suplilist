@@ -1,7 +1,11 @@
 import { test as base } from '@playwright/test';
 import { connectTestDB, clearTestDB } from './support/db';
 
-export const test = base.extend({
+type MyFixtures = {
+  dbState: void;
+};
+
+export const test = base.extend<MyFixtures>({
   // Ao definir esta fixture como automática, ela roda sem precisarmos chamá-la explicitamente
   dbState: [async ({}, use, testInfo) => {
     const workerIndex = testInfo.workerIndex.toString();

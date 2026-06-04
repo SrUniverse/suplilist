@@ -1,5 +1,5 @@
 import { IStackItemRepository } from '../../domain/repositories/stack-item.repository.interface.js';
-import { CreateStackItemRequestDTO, StackItemDTO } from '../../../../../shared/src/stack.js';
+import { CreateStackItemRequestDTO, StackItemDTO } from '@suplilist/shared';
 import { StackItem } from '../../domain/entities/stack-item.entity.js';
 
 export interface AddItemToStackInput {

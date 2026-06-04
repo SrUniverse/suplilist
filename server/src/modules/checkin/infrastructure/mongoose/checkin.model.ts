@@ -1,9 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface ICheckinDocument extends Document {
+export interface ICheckinDocument extends Document<string> {
   _id: string; // Override ObjectId with UUIDv4 String
   userId: string;
   supplementId: string;
+  clientId?: string; // Offline-first idempotency key
   dose: number;
   checkedAt: Date;
   createdAt: Date;
@@ -22,6 +23,11 @@ const checkinSchema = new Schema<ICheckinDocument>({
   supplementId: {
     type: String,
     required: true,
+  },
+  clientId: {
+    type: String,
+    required: false,
+    index: true, // often queried to avoid duplicates
   },
   dose: {
     type: Number,

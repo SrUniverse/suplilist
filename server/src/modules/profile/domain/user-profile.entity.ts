@@ -12,6 +12,8 @@ export interface UserProfile {
   avatarStatus: AvatarStatus;
   firstName: string | null;
   lastName: string | null;
+  onboardingState: 'pending' | 'completed';
+  goals: string[];
   /**
    * Client-written migration version flag. See PrivateProfileDTO.migrationVersion.
    * `undefined` = migration never ran. `1` = v1 migration complete.
@@ -39,6 +41,8 @@ export class ProfileMapper {
       avatarStatus: profile.avatarStatus,
       firstName: profile.firstName,
       lastName: profile.lastName,
+      onboardingState: profile.onboardingState,
+      goals: profile.goals,
       // Serializa Date → string ISO (formato de wire do contrato compartilhado)
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),

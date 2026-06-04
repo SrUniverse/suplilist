@@ -40,7 +40,7 @@ export class LogoutUseCase {
       
       // If the token hasn't expired yet, block it until it does expire naturally
       if (expiresInSec > 0) {
-        await this.tokenBlocklistRepo.revokeToken(jti, expiresInSec);
+        await this.tokenBlocklistRepo.block(jti, new Date(exp * 1000));
       }
     });
   }

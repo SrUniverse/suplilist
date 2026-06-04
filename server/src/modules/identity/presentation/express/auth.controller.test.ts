@@ -20,7 +20,7 @@
  *    before the binary is cached). All tests pass in CI where the binary is
  *    downloaded once and cached by the actions/cache step.
  */
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -28,7 +28,7 @@ import mongoose from 'mongoose';
 import { createApp } from '../../../../app.js';
 import { UserIdentityModel } from '../../infrastructure/mongoose/user-identity.model.js';
 import { RefreshTokenModel } from '../../infrastructure/mongoose/refresh-token.model.js';
-import { UserProfileModel } from '../../../profile/infrastructure/mongoose/user-profile.model.js';
+import { ProfileModel } from '../../../profile/infrastructure/mongoose/profile.model.js';
 
 const app = createApp();
 
@@ -366,7 +366,7 @@ describe('POST /api/auth/logout', () => {
     const decoded = jwt.decode(login.accessToken!) as { sub: string };
 
     // Seed a profile so /api/profile/me returns 200 if auth passes
-    await UserProfileModel.create({
+    await ProfileModel.create({
       userId: new mongoose.Types.ObjectId(decoded.sub),
       displayName: 'Logout Test User',
       firstName: null,

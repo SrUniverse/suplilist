@@ -20,6 +20,8 @@ export class CreateProfileOnUserRegisteredListener implements IEventListener<Use
       avatarStatus: 'none',
       firstName: null,
       lastName: null,
+      onboardingState: 'pending',
+      goals: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };

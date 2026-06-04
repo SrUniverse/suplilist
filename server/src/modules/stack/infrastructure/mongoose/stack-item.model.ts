@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { TimeOfDay, FrequencyType } from '../../../../../shared/src/stack.js';
+import { TimeOfDay, FrequencyType } from '@suplilist/shared';
 
 export interface IStackItemDocument extends Document {
   userId: string;

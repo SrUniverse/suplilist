@@ -11,6 +11,7 @@ import '../platform/mobile-keyboard-handler.js';
 import '../platform/mobile-utilities.js';
 import '../platform/pwa-handler.js';
 import '../platform/performance-monitor.js';
+import '../platform/speed-insights.js';
 import NotificationService from '../features/notifications/notification-service.js';
 import { identityService } from '../platform/identity-service.js';
 

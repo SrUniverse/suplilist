@@ -9,7 +9,7 @@
  * 5. Verify IndexedDB queue is cleared
  */
 
-import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { test, expect, Page, BrowserContext } from './test';
 
 test.describe('Offline Sync & Background Sync', () => {
   let page: Page;

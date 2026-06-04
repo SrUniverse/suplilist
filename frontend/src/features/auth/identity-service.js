@@ -83,7 +83,7 @@ function decodeJwtPayload(token) {
     const normalized = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(atob(normalized));
   } catch (err) {
-    throw new Error(`[IdentityService] Malformed JWT: ${err.message}`);
+    throw new Error(`[IdentityService] Malformed JWT: ${err.message}`, { cause: err });
   }
 }
 

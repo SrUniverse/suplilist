@@ -1,4 +1,4 @@
-import { test, expect, Page, Browser, BrowserContext } from '@playwright/test';
+import { test, expect, Page, Browser, BrowserContext } from './test';
 
 /**
  * Mobile UX E2E Tests

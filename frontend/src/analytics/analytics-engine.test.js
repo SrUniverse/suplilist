@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { analyticsEngine, AnalyticsEngine } from './analytics-engine.js';
+import { _analyticsEngine, AnalyticsEngine } from './analytics-engine.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 import { eventPipeline } from './event-pipeline.js';
 import { sessionManager } from './session-tracker.js';
@@ -7,7 +7,7 @@ import { metricsAggregator } from './metrics-aggregator.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
 import { funnelEngine } from './funnel-engine.js';
 import { logger } from '../utils/logger.js';
-import { StorageManager } from '../platform/storage-manager.js';
+import { StorageManager as _StorageManager } from '../platform/storage-manager.js';
 
 // Mock all internal subsystems
 vi.mock('../core/event-bus.js', async (importOriginal) => {
@@ -303,7 +303,7 @@ describe('AnalyticsEngine — Orchestrator Suite', () => {
     await engine.init();
 
     if (typeof window !== 'undefined' && window.analyticsAPI) {
-      const clearSpy = vi.spyOn(logger, 'clearBuffers');
+      const _clearSpy = vi.spyOn(logger, 'clearBuffers');
 
       // Extract token from console logs (logged during init)
       // In real usage, token is visible in console

@@ -106,6 +106,7 @@ export default class HistoryPage {
     });
   }
 
+  unmount() {
     this._isMounted = false;
     this._unsubscribeState?.();
     this._unsubscribeOffline?.();

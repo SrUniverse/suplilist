@@ -195,7 +195,7 @@ describe('MyStackPage — User Personal Stack', () => {
       expect(stateManager.dispatch).toHaveBeenCalledWith(
         'UPDATE_STACK_ITEM',
         expect.objectContaining({
-          supplementId: '1',
+          id: '1',
           dosage: 50
         })
       );
@@ -215,7 +215,7 @@ describe('MyStackPage — User Personal Stack', () => {
       expect(stateManager.dispatch).toHaveBeenCalledWith(
         'REMOVE_FROM_STACK',
         expect.objectContaining({
-          supplementId: '1'
+          id: '1'
         })
       );
     }

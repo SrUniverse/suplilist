@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const DOCS_DIR = path.join(__dirname, '../docs');
+const DOCS_DIR = path.join(__dirname, '../frontend/dist');
 const INDEX_PATH = path.join(DOCS_DIR, 'index.html');
-const SITEMAP_PATH = path.join(DOCS_DIR, 'sitemap.xml'); // no build, fica em docs/
+const SITEMAP_PATH = path.join(DOCS_DIR, 'sitemap.xml'); // no build, fica em dist/
 
 if (!fs.existsSync(INDEX_PATH)) {
-  console.error('Erro: docs/index.html não encontrado! Certifique-se de rodar "npm run build" primeiro.');
+  console.error('Erro: dist/index.html não encontrado! Certifique-se de rodar "npm run build" primeiro.');
   process.exit(1);
 }
 

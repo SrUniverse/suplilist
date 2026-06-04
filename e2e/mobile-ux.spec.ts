@@ -143,14 +143,12 @@ test.describe('Mobile UX - Touch Feedback @mobile', () => {
 test.describe('Mobile UX - Keyboard Handling @mobile', () => {
   test('Should scroll input into view above keyboard', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 300 });
-    await page.goto('http://127.0.0.1:3000/dosage');
-
     // Force keyboard handler initialization for desktop browser test runner
-    await page.evaluate(async () => {
-      const modulePath = '/src/core/mobile-keyboard-handler.js';
-      const { default: handler } = await import(modulePath as any);
-      handler.init();
+    await page.addInitScript(() => {
+      (window as any).FORCE_MOBILE_KEYBOARD = true;
     });
+
+    await page.goto('http://127.0.0.1:3000/dosage');
 
     // Reset scroll position to top
     await page.evaluate(() => {

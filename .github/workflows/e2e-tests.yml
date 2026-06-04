@@ -52,12 +52,13 @@ jobs:
         echo "PORT=5000" >> ./server/.env
         echo "MONGO_URI=mongodb://127.0.0.1:27017/suplilist-test" >> ./server/.env
         echo "JWT_SECRET=super-secret-test-key-123" >> ./server/.env
+        echo "FRONTEND_ORIGIN=http://127.0.0.1:3000" >> ./server/.env
 
     - name: Start Backend, MongoDB & Redis
       run: docker compose up -d
 
     - name: Wait for Backend
-      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000
+      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs && exit 1)
 
     - name: Start frontend preview
       run: npx serve frontend/dist --listen 3000 --single &
@@ -108,12 +109,13 @@ jobs:
         echo "PORT=5000" >> ./server/.env
         echo "MONGO_URI=mongodb://127.0.0.1:27017/suplilist-test" >> ./server/.env
         echo "JWT_SECRET=super-secret-test-key-123" >> ./server/.env
+        echo "FRONTEND_ORIGIN=http://127.0.0.1:3000" >> ./server/.env
 
     - name: Start Backend, MongoDB & Redis
       run: docker compose up -d
 
     - name: Wait for Backend
-      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000
+      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs && exit 1)
 
     - name: Start frontend preview
       run: npx serve frontend/dist --listen 3000 --single &

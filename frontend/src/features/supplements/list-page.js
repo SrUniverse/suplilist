@@ -45,14 +45,15 @@ function isProductUrl(url) {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const CATEGORIES = ['Todos', 'Performance', 'Proteínas', 'Vitaminas', 'Adaptógenos', 'Hormônios', 'Cognição', 'Antioxidantes', 'Sono', 'Saúde Geral'];
-const OBJECTIVES = ['Hipertrofia', 'Saúde Geral', 'Longevidade', 'Performance', 'Foco'];
+const OBJECTIVES = ['Hipertrofia', 'Saúde Geral', 'Longevidade', 'Performance', 'Foco', 'Emagrecimento'];
 
 const OBJECTIVE_KEY_MAP = {
-  'Hipertrofia': 'bulk',
-  'Saúde Geral': 'general',
-  'Longevidade': 'general',
-  'Performance': 'endurance',
-  'Foco': 'endurance',
+  'Hipertrofia':   'bulk',
+  'Saúde Geral':   'general',
+  'Longevidade':   'general',
+  'Performance':   'endurance',
+  'Foco':          'endurance',
+  'Emagrecimento': 'cut',
 };
 
 const PAGE_SIZE = CONST_PAGE_SIZE;
@@ -272,7 +273,15 @@ export default class ListPage {
       .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then(data => {
         this._prices = data;
-        this._renderGrid(); // re-render cards with real prices
+        // Patch prices in-place to avoid destroying/recreating the VirtualScroller.
+        // Only do a full re-render when the price filter is active (it changes which
+        // items are visible) or when there are no cards rendered yet.
+        if (this._maxPriceFilter < 300) {
+          this._applyFilters();
+          this._renderGrid();
+        } else {
+          this._patchCardPrices();
+        }
       })
       .catch(err => {
         if (err.name !== 'AbortError') {
@@ -830,7 +839,7 @@ export default class ListPage {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                 </svg>
-                <input id="lp-search" type="search" placeholder="Buscar suplemento..." autocomplete="off" />
+                <input id="lp-search" data-testid="catalog-search" type="search" placeholder="Buscar suplemento..." autocomplete="off" />
               </div>
               <button id="lp-adv-filters-btn" class="lp-chip" style="margin: 0; padding: 10px 14px; display: flex; align-items: center; gap: 6px; background: transparent; border: 1.5px solid var(--color-border-strong); height: 40px; border-radius: 12px; cursor: pointer; color: var(--color-text-primary); transition: all 150ms ease; font-size: 13px; font-weight: 600;">
                 <span>⚙️</span> Filtros
@@ -858,10 +867,10 @@ export default class ListPage {
             <div>
               <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; color: var(--color-text-muted); display: block; margin-bottom: 8px;">Nível de Evidência Científica</span>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button class="lp-chip lp-evidence-filter" data-evidence="A">Grau A (Forte)</button>
-                <button class="lp-chip lp-evidence-filter" data-evidence="B">Grau B (Moderado)</button>
-                <button class="lp-chip lp-evidence-filter" data-evidence="C">Grau C (Fraco)</button>
-                <button class="lp-chip lp-evidence-filter" data-evidence="D">Grau D (Anedótico)</button>
+                <button class="lp-chip lp-evidence-filter" data-evidence="A" aria-pressed="false">Grau A (Forte)</button>
+                <button class="lp-chip lp-evidence-filter" data-evidence="B" aria-pressed="false">Grau B (Moderado)</button>
+                <button class="lp-chip lp-evidence-filter" data-evidence="C" aria-pressed="false">Grau C (Fraco)</button>
+                <button class="lp-chip lp-evidence-filter" data-evidence="D" aria-pressed="false">Grau D (Anedótico)</button>
               </div>
             </div>
 
@@ -878,13 +887,13 @@ export default class ListPage {
             <div>
               <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; color: var(--color-text-muted); display: block; margin-bottom: 8px;">Benefícios e Objetivos</span>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="lp-benefits-container">
-                <button class="lp-chip lp-benefit-filter" data-benefit="Foco">🧠 Foco</button>
-                <button class="lp-chip lp-benefit-filter" data-benefit="Sono">🌙 Sono</button>
-                <button class="lp-chip lp-benefit-filter" data-benefit="Hipertrofia">💪 Hipertrofia</button>
-                <button class="lp-chip lp-benefit-filter" data-benefit="Imunidade">🛡️ Imunidade</button>
-                <button class="lp-chip lp-benefit-filter" data-benefit="Longevidade">⏳ Longevidade</button>
-                <button class="lp-chip lp-benefit-filter" data-benefit="Disposição">⚡ Energia</button>
-                <button class="lp-chip lp-benefit-filter" data-benefit="Articulações">🦴 Articulações</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Foco" aria-pressed="false">🧠 Foco</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Sono" aria-pressed="false">🌙 Sono</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Hipertrofia" aria-pressed="false">💪 Hipertrofia</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Imunidade" aria-pressed="false">🛡️ Imunidade</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Longevidade" aria-pressed="false">⏳ Longevidade</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Disposição" aria-pressed="false">⚡ Energia</button>
+                <button class="lp-chip lp-benefit-filter" data-benefit="Articulações" aria-pressed="false">🦴 Articulações</button>
               </div>
             </div>
           </div>
@@ -949,13 +958,13 @@ export default class ListPage {
           <div class="lp-filter-row-wrap">
             <div class="lp-filter-row" id="lp-cat-row">
               <span class="lp-filter-label">Categoria</span>
-              ${CATEGORIES.map(c => `<button class="lp-chip${c === 'Todos' ? ' active' : ''}" data-cat="${c}">${c}</button>`).join('')}
+              ${CATEGORIES.map(c => `<button class="lp-chip${c === 'Todos' ? ' active' : ''}" data-cat="${c}" aria-pressed="${c === 'Todos' ? 'true' : 'false'}">${c}</button>`).join('')}
             </div>
           </div>
           <div class="lp-filter-row-wrap">
             <div class="lp-filter-row" id="lp-obj-row">
               <span class="lp-filter-label">Objetivo</span>
-              ${OBJECTIVES.map(o => `<button class="lp-chip" data-obj="${o}">${o}</button>`).join('')}
+              ${OBJECTIVES.map(o => `<button class="lp-chip" data-obj="${o}" aria-pressed="false">${o}</button>`).join('')}
             </div>
           </div>
         </div>
@@ -1056,7 +1065,7 @@ export default class ListPage {
     if (this._maxPriceFilter < 300) {
       results = results.filter(s => {
         const pInfo = this._prices?.[s.id];
-        const price = pInfo ? parseFloat(pInfo.shopee?.price || pInfo.amazon?.price || pInfo.mercado_livre?.price || 0) : 0;
+        const price = pInfo ? parseFloat(pInfo.shopee?.price || pInfo.amazon?.price || pInfo.mercadolivre?.price || 0) : 0;
         const checkPrice = price > 0 ? price : (s.estimatedMonthlyCost || 0);
         return checkPrice <= this._maxPriceFilter;
       });
@@ -1211,7 +1220,7 @@ export default class ListPage {
       : '';
 
     return `
-      <div class="lp-card" role="listitem" data-id="${item.id}">
+      <div class="lp-card" role="listitem" data-id="${item.id}" data-testid="catalog-card-${escapeHtml(item.id)}">
         <div class="lp-card-img-wrap">
           <img class="lp-card-img"
             src="${escapeHtml(img)}"
@@ -1233,7 +1242,7 @@ export default class ListPage {
             <span class="lp-card-dose">${doseStr}</span>
           </div>
           <div class="lp-card-actions">
-            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button">
+            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button" data-testid="catalog-fav-btn-${escapeHtml(item.id)}">
               ${isFav ? '♥' : '♡'}
             </button>
             <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${item.id}" type="button">
@@ -1390,7 +1399,7 @@ export default class ListPage {
             <span class="lp-card-dose">${doseStr}</span>
           </div>
           <div class="lp-card-actions">
-            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button">
+            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button" data-testid="catalog-fav-btn-${escapeHtml(item.id)}">
               ${isFav ? '♥' : '♡'}
             </button>
             <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${item.id}" type="button">
@@ -1478,6 +1487,50 @@ export default class ListPage {
         addBtn.textContent = inStack ? '✓ Já no Stack' : '+ Adicionar ao Stack';
       }
     }
+  }
+
+  /**
+   * Patch price text on all currently rendered cards without rebuilding the VirtualScroller.
+   *
+   * Called after prices.json loads when no price filter is active. Finds every .lp-card
+   * in the DOM, looks up real pricing via getPriceLabel / getDosePrice, and updates
+   * .lp-card-price and .lp-card-dose in-place. Cards without a matching supplement
+   * (e.g., the sponsored ad card) are skipped safely.
+   *
+   * @returns {void}
+   * @private
+   */
+  _patchCardPrices() {
+    this.container.querySelectorAll('.lp-card[data-id]').forEach(card => {
+      const id = card.dataset.id;
+      const item = this._allItems.find(s => s.id === id);
+      if (!item) return;
+
+      const priceEl = card.querySelector('.lp-card-price');
+      const doseEl = card.querySelector('.lp-card-dose');
+
+      if (priceEl) {
+        const priceInfo = getPriceLabel(item, this._prices);
+        priceEl.textContent = formatPrice(priceInfo.price);
+      }
+      if (doseEl) {
+        doseEl.textContent = getDosePrice(item, this._prices);
+      }
+
+      const saving = getMaxSaving(item, this._prices);
+      const savingsEl = card.querySelector('.lp-card-savings');
+      if (saving && !savingsEl) {
+        const imgWrap = card.querySelector('.lp-card-img-wrap');
+        if (imgWrap) {
+          const badge = document.createElement('span');
+          badge.className = 'lp-card-savings';
+          badge.textContent = `ECONOMIZE R$ ${saving}`;
+          imgWrap.prepend(badge);
+        }
+      } else if (!saving && savingsEl) {
+        savingsEl.remove();
+      }
+    });
   }
 
   // ─── Scroll Lock Stack ────────────────────────────────────────────────────────────────
@@ -1632,7 +1685,7 @@ export default class ListPage {
         <div class="lp-modal-top">
           <div class="lp-modal-img-col">
             <div class="lp-modal-img-wrap">
-              <img class="lp-modal-img" src="${img}" alt="${escapeHtml(item.name)}" onerror="this.style.display='none'" />
+              <img class="lp-modal-img" src="${img}" alt="${escapeHtml(item.name)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22 viewBox=%220 0 80 80%22><rect width=%2280%22 height=%2280%22 fill=%22%23222%22/><text x=%2250%25%22 y=%2255%25%22 text-anchor=%22middle%22 fill=%22%23555%22 font-size=%2228%22>💊</text></svg>'" />
             </div>
             <p class="lp-modal-img-col-name">${escapeHtml(item.name)}</p>
             <p class="lp-modal-img-col-cat">${escapeHtml(item.category ?? '')}</p>
@@ -1682,14 +1735,26 @@ export default class ListPage {
     // Lock scroll using stack (prevents conflicts during navigation)
     this._pushScrollLock('modal'); // fallback
 
-    // Tab switching
-    overlay.querySelectorAll('.lp-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        overlay.querySelectorAll('.lp-tab').forEach(t => t.classList.remove('active'));
-        overlay.querySelectorAll('.lp-tab-pane').forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        const pane = overlay.querySelector(`#lp-tab-${tab.dataset.tab}`);
-        if (pane) pane.classList.add('active');
+    // Tab switching — click and Left/Right arrow keyboard navigation
+    const tabs = [...overlay.querySelectorAll('.lp-tab')];
+    const activateTab = (tab) => {
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); t.tabIndex = -1; });
+      overlay.querySelectorAll('.lp-tab-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      tab.tabIndex = 0;
+      tab.focus();
+      const pane = overlay.querySelector(`#lp-tab-${tab.dataset.tab}`);
+      if (pane) pane.classList.add('active');
+    };
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-selected', tab.classList.contains('active') ? 'true' : 'false');
+      tab.tabIndex = tab.classList.contains('active') ? 0 : -1;
+      tab.addEventListener('click', () => activateTab(tab));
+      tab.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight') { e.preventDefault(); activateTab(tabs[(i + 1) % tabs.length]); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); activateTab(tabs[(i - 1 + tabs.length) % tabs.length]); }
       });
     });
 
@@ -1863,11 +1928,15 @@ export default class ListPage {
         if (evChip) {
           const evidence = evChip.dataset.evidence;
           const isActive = evChip.classList.contains('active');
-          advPanel.querySelectorAll('.lp-evidence-filter').forEach(c => c.classList.remove('active'));
+          advPanel.querySelectorAll('.lp-evidence-filter').forEach(c => {
+            c.classList.remove('active');
+            c.setAttribute('aria-pressed', 'false');
+          });
           if (isActive) {
             this._evidenceFilter = '';
           } else {
             evChip.classList.add('active');
+            evChip.setAttribute('aria-pressed', 'true');
             this._evidenceFilter = evidence;
           }
           this._applyFilters();
@@ -1882,9 +1951,11 @@ export default class ListPage {
           if (this._benefitsFilter.has(benefit)) {
             this._benefitsFilter.delete(benefit);
             benefitChip.classList.remove('active');
+            benefitChip.setAttribute('aria-pressed', 'false');
           } else {
             this._benefitsFilter.add(benefit);
             benefitChip.classList.add('active');
+            benefitChip.setAttribute('aria-pressed', 'true');
           }
           this._applyFilters();
           this._renderGrid();
@@ -1923,8 +1994,12 @@ export default class ListPage {
       catRow.addEventListener('click', e => {
         const btn = e.target.closest('[data-cat]');
         if (!btn) return;
-        catRow.querySelectorAll('.lp-chip').forEach(c => c.classList.remove('active'));
+        catRow.querySelectorAll('.lp-chip').forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         this._category = btn.dataset.cat;
         this._applyFilters();
         this._renderGrid();
@@ -1938,9 +2013,13 @@ export default class ListPage {
         const btn = e.target.closest('[data-obj]');
         if (!btn) return;
         const isActive = btn.classList.contains('active');
-        objRow.querySelectorAll('.lp-chip').forEach(c => c.classList.remove('active'));
+        objRow.querySelectorAll('.lp-chip').forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-pressed', 'false');
+        });
         if (!isActive) {
           btn.classList.add('active');
+          btn.setAttribute('aria-pressed', 'true');
           this._objective = btn.dataset.obj;
         } else {
           this._objective = '';

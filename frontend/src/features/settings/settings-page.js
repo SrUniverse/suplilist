@@ -4,6 +4,7 @@ import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { settingsService } from './settings-service.js';
 import NotificationService from '../notifications/notification-service.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
+import { logger } from '../../utils/logger.js';
 
 export default class SettingsPage {
   constructor(container, params) {

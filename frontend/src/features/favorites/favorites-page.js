@@ -332,7 +332,8 @@ export default class FavoritesPage {
             <div class="fv-chips" role="group" aria-label="Filtrar por objetivo">
               ${GOAL_FILTERS.map(f => `
                 <button class="fv-chip${this._activeGoal === f.key ? ' active' : ''}"
-                  data-goal="${f.key}" type="button">
+                  data-goal="${f.key}" type="button"
+                  aria-pressed="${this._activeGoal === f.key ? 'true' : 'false'}">
                   ${f.label}
                 </button>`).join('')}
             </div>
@@ -373,7 +374,7 @@ export default class FavoritesPage {
     const priceStr = monthlyPrice ? `R$ ${monthlyPrice}` : null;
 
     return `
-      <article class="fv-card" data-id="${escapeHtml(s.id)}">
+      <article class="fv-card" data-id="${escapeHtml(s.id)}" data-testid="fav-card-${escapeHtml(s.id)}">
         <div class="fv-card-img-wrap">
           <img class="fv-card-img"
             src="${escapeHtml(imgSrc)}" alt="${escapeHtml(s.name)}"
@@ -381,7 +382,7 @@ export default class FavoritesPage {
             onerror="this.style.opacity='0'"
           />
           <button class="fv-card-fav-btn" data-action="remove-fav" data-id="${escapeHtml(s.id)}"
-            aria-label="Remover dos favoritos" type="button">♥</button>
+            aria-label="Remover dos favoritos" type="button" data-testid="fav-remove-btn-${escapeHtml(s.id)}">♥</button>
         </div>
         <div class="fv-card-body">
           <div class="fv-card-badges">
@@ -434,10 +435,13 @@ export default class FavoritesPage {
         return;
       }
 
-      // Go to list (Detalhes / Ver Preços)
+      // Go to list (Detalhes / Ver Preços) — pré-filtra pelo nome do suplemento
       const goList = e.target.closest('[data-action="go-list"]');
       if (goList) {
-        window.history.pushState(null, null, '/list');
+        const card = goList.closest('[data-id]');
+        const supp = SUPPLEMENTS_DB.find(s => s.id === card?.dataset?.id);
+        const path = supp ? `/list?q=${encodeURIComponent(supp.name)}` : '/list';
+        window.history.pushState(null, null, path);
         window.dispatchEvent(new PopStateEvent('popstate'));
         return;
       }

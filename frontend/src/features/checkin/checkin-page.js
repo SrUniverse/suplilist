@@ -207,7 +207,7 @@ export default class CheckinPage {
 
         <!-- CHECK ALL BUTTON -->
         ${total > 0 && !allDone ? `
-          <button id="btn-checkin-all" style="
+          <button id="btn-checkin-all" data-testid="checkin-all-btn" style="
             width: 100%;
             background: var(--color-brand);
             color: #fff;
@@ -359,7 +359,7 @@ export default class CheckinPage {
     const timing = item.timing || '';
 
     return `
-      <div style="
+      <div data-testid="checkin-item-${escapeHtml(item.supplementId)}" style="
         background: var(--color-surface-primary);
         border: 1px solid ${checked ? 'var(--ev-a-border, rgba(52,211,153,0.35))' : 'var(--color-border)'};
         border-radius: 14px;
@@ -402,7 +402,7 @@ export default class CheckinPage {
             background: var(--color-surface-secondary);
             flex-shrink: 0;
           "
-          onerror="this.style.display='none'"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22><rect width=%2240%22 height=%2240%22 fill=%22%23222%22 rx=%228%22/><text x=%2250%25%22 y=%2257%25%22 text-anchor=%22middle%22 fill=%22%23555%22 font-size=%2218%22>💊</text></svg>'"
         />
 
         <!-- Info -->
@@ -423,7 +423,7 @@ export default class CheckinPage {
 
         <!-- Action -->
         ${checked
-          ? `<span style="
+          ? `<span data-testid="checkin-done-${escapeHtml(item.supplementId)}" style="
               font-size: 12px;
               color: var(--color-success);
               font-weight: 700;
@@ -434,6 +434,7 @@ export default class CheckinPage {
               class="btn-checkin-single"
               data-id="${escapeHtml(item.supplementId)}"
               data-name="${escapeHtml(item.name)}"
+              data-testid="checkin-btn-${escapeHtml(item.supplementId)}"
               style="
                 background: var(--color-brand-muted);
                 color: var(--color-brand);

@@ -67,7 +67,7 @@ export default class LoginPage {
 
   _render() {
     const errorHtml = this._errorMessage
-      ? `<div class="onboarding-error" role="alert">${escapeHtml(this._errorMessage)}</div>`
+      ? `<div class="onboarding-error" data-testid="login-error" role="alert">${escapeHtml(this._errorMessage)}</div>`
       : '';
 
     this.container.innerHTML = `
@@ -79,6 +79,7 @@ export default class LoginPage {
           <form class="login-form" novalidate>
             <input
               id="login-email"
+              data-testid="login-email"
               class="onboarding-input"
               type="email"
               name="email"
@@ -88,6 +89,7 @@ export default class LoginPage {
             />
             <input
               id="login-password"
+              data-testid="login-password"
               class="onboarding-input"
               type="password"
               name="password"
@@ -99,6 +101,7 @@ export default class LoginPage {
             <div class="onboarding-actions" style="margin-top:1.75rem">
               <button
                 id="login-submit"
+                data-testid="login-submit"
                 type="submit"
                 class="onboarding-btn-next"
                 ${this._isLoading ? 'disabled' : ''}
@@ -216,6 +219,7 @@ export default class LoginPage {
     }
     el = document.createElement('div');
     el.className = 'onboarding-error';
+    el.setAttribute('data-testid', 'login-error');
     el.setAttribute('role', 'alert');
     el.textContent = message;
     const form = this.container.querySelector('.login-form');

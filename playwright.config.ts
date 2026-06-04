@@ -37,28 +37,35 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+
     // Mobile devices
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: { ...devices['Pixel 5'], storageState: 'e2e/support/storageState.json' },
+      dependencies: ['setup'],
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: { ...devices['iPhone 12'], storageState: 'e2e/support/storageState.json' },
+      dependencies: ['setup'],
     },
 
     // Desktop browsers
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], storageState: 'e2e/support/storageState.json' },
+      dependencies: ['setup'],
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { ...devices['Desktop Firefox'], storageState: 'e2e/support/storageState.json' },
+      dependencies: ['setup'],
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { ...devices['Desktop Safari'], storageState: 'e2e/support/storageState.json' },
+      dependencies: ['setup'],
     },
 
     /* Test against brand browsers */
@@ -75,7 +82,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['html'], ['list']] : 'html',
 
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1',
+    command: 'npm run dev',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: true,
   },

@@ -42,10 +42,18 @@ import { migrationService } from './migration-service.js';
 
 /** API paths — single source of truth to avoid magic strings. */
 const API = Object.freeze({
-  LOGIN:   '/api/auth/login',
-  LOGOUT:  '/api/auth/logout',
-  PROFILE: '/api/profile/me',
+  REGISTER: '/api/auth/register',
+  LOGIN:    '/api/auth/login',
+  LOGOUT:   '/api/auth/logout',
+  PROFILE:  '/api/profile/me',
 });
+
+/**
+ * localStorage key for the zombie session guard.
+ * Written before logout network call; cleared on success; checked on boot.
+ * Prevents silent session restoration if logout fails while offline.
+ */
+export const PENDING_LOGOUT_KEY = 'suplilist:pendingLogout';
 
 /** Routes used for forced navigation — keep in sync with router config. */
 const ROUTE = Object.freeze({
@@ -144,6 +152,18 @@ class IdentityService {
     // both call initializeSession() in the same tick.
     if (this.#initPromise) return this.#initPromise;
 
+    // Zombie session guard: a previous logout declared intent but didn't complete.
+    // The HttpOnly refresh cookie may still be valid — do NOT restore the session.
+    try {
+      if (localStorage.getItem(PENDING_LOGOUT_KEY)) {
+        logger.info('[IdentityService] Pending logout detected — skipping session restore.');
+        localStorage.removeItem(PENDING_LOGOUT_KEY);
+        this.#initSettled = true;
+        this.#initPromise = Promise.resolve(false);
+        return this.#initPromise;
+      }
+    } catch { /* localStorage unavailable — proceed normally */ }
+
     logger.info('[IdentityService] Probing session on cold start…');
     this.#initSettled = false;
 
@@ -207,6 +227,24 @@ class IdentityService {
    *   if (err instanceof ApiError && err.status === 401) showInvalidCredentials();
    * }
    */
+  /**
+   * Create a new user account.
+   *
+   * The server returns status 'pending_verification' — the user must confirm
+   * their email before logging in. No access token is issued at this stage.
+   *
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<{ userId: string, email: string }>}
+   * @throws {ApiError} On validation errors or duplicate email (status 499).
+   */
+  async register(email, password) {
+    return apiFetch(API.REGISTER, {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
   async login(email, password) {
     /**
      * @type {AuthResponseDTO}
@@ -250,10 +288,26 @@ class IdentityService {
    * @returns {Promise<void>}
    */
   async logout() {
+    // Declare logout intent BEFORE the network call (zombie session guard).
+    // If the process dies or the call fails while offline, the HttpOnly refresh
+    // cookie may still be alive. On next boot, initializeSession() detects this
+    // flag and skips session restoration so the user stays logged out.
+    try {
+      localStorage.setItem(PENDING_LOGOUT_KEY, '1');
+    } catch {
+      logger.warn('[IdentityService] Could not set pending logout flag.');
+    }
+
     // 1. Notify the server — best-effort (don't block local cleanup on failure)
-    apiFetch(API.LOGOUT, { method: 'POST' }).catch(err => {
-      logger.warn('[IdentityService] Server logout request failed (proceeding anyway):', err.error ?? err.message);
-    });
+    apiFetch(API.LOGOUT, { method: 'POST' })
+      .then(() => {
+        // Server invalidated the cookie — safe to clear the guard flag.
+        try { localStorage.removeItem(PENDING_LOGOUT_KEY); } catch { /* ignore */ }
+      })
+      .catch(err => {
+        // Flag stays — initializeSession() will handle it on next boot.
+        logger.warn('[IdentityService] Server logout failed; pending flag preserved:', err.error ?? err.message);
+      });
 
     this.#commitLogout();
     logger.info('[IdentityService] User logged out.');

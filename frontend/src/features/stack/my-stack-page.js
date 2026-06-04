@@ -769,7 +769,7 @@ export class MyStackPage {
                 <button class="msp-btn-share" id="msp-share-stack">
                   <span>🔗</span> Compartilhar
                 </button>
-                <button class="msp-btn-add" id="msp-open-modal">
+                <button class="msp-btn-add" id="msp-open-modal" data-testid="stack-add-btn">
                   <span>+</span> Adicionar Suplemento
                 </button>
               </div>
@@ -905,7 +905,7 @@ export class MyStackPage {
 
     if (!stack.length) {
       list.innerHTML = `
-        <div class="msp-empty">
+        <div class="msp-empty" data-testid="stack-empty-state">
           <div class="msp-empty-icon">📭</div>
           <p class="msp-empty-title">Seu stack está vazio</p>
           <p class="msp-empty-desc">Adicione os suplementos que você está tomando para acompanhar seu protocolo.</p>
@@ -926,6 +926,7 @@ export class MyStackPage {
       const el = document.createElement('div');
       el.className = 'msp-item';
       el.dataset.itemId = itemId;
+      el.dataset.testid = `stack-item-${itemId}`;
       const dbEntry = SUPPLEMENTS_DB.find(s => s.id === itemId);
       const category = dbEntry?.category ?? '';
       const desc = dbEntry?.benefits?.[0] ?? '';
@@ -950,8 +951,8 @@ export class MyStackPage {
           <div class="msp-item-right">
             ${badge}
             <div class="msp-item-actions">
-              <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${escapeHtml(item.name)}" title="Editar" ${isSyncing ? 'disabled' : ''}>✏️</button>
-              <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${escapeHtml(item.name)}" title="Remover" ${isSyncing ? 'disabled' : ''}>🗑️</button>
+              <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${escapeHtml(item.name)}" title="Editar" ${isSyncing ? 'disabled' : ''} data-testid="stack-edit-btn-${escapeHtml(itemId)}">✏️</button>
+              <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${escapeHtml(item.name)}" title="Remover" ${isSyncing ? 'disabled' : ''} data-testid="stack-remove-btn-${escapeHtml(itemId)}">🗑️</button>
               <a class="msp-btn-reorder"
                  href="${affLinks.amazon}"
                  target="_blank"
@@ -1219,7 +1220,7 @@ export class MyStackPage {
 
         <div class="msp-modal-field">
           <label class="msp-modal-label" for="msp-modal-search">Buscar suplemento</label>
-          <input type="search" id="msp-modal-search" class="msp-input"
+          <input type="search" id="msp-modal-search" data-testid="stack-modal-search" class="msp-input"
             placeholder="Digite o nome…" autocomplete="off">
           <div id="msp-modal-results" class="msp-search-results" style="display:none"></div>
         </div>
@@ -1243,7 +1244,7 @@ export class MyStackPage {
           <input type="number" id="msp-modal-qty" class="msp-input" min="0" placeholder="Ex: 250">
         </div>
 
-        <button class="msp-modal-submit" id="msp-modal-submit">Adicionar ao Stack</button>
+        <button class="msp-modal-submit" id="msp-modal-submit" data-testid="stack-modal-submit">Adicionar ao Stack</button>
       </div>
     `;
 
@@ -1281,7 +1282,8 @@ export class MyStackPage {
             data-name="${escapeHtml(s.name)}"
             data-unit="${escapeHtml(s.dosage?.unit ?? 'g')}"
             data-dosage="${s.dosage?.maintenance ?? 5}"
-            data-img="${escapeHtml(s.image ?? '')}">
+            data-img="${escapeHtml(s.image ?? '')}"
+            data-testid="stack-modal-result-${escapeHtml(s.id)}">
             <img class="msp-result-img" src="${escapeHtml(s.image ?? '')}"
               alt="${escapeHtml(s.name)}"
               onerror="this.style.display='none'">

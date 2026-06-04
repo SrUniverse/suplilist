@@ -7,6 +7,7 @@ import { getRefillAlerts, getAlertMessage, getAlertColor } from './refill-alerts
 import { optimizeStack } from '../stack/stack-optimizer.js';
 import { generateTimeline } from '../progress/before-after-tracker.js';
 import { profileService } from './profile-service.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 
 const OBJECTIVES = [
   { value: 'bulk',      label: 'Bulk',       desc: 'Ganho de Massa' },
@@ -248,7 +249,7 @@ export default class ProfilePage {
           <div style="display:flex;flex-direction:column;gap:8px;">
             ${topSupplements.map(supp => `
               <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
-                <span style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(supp.supplementId)}</span>
+                <span style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(SUPPLEMENTS_DB.find(s => s.id === supp.supplementId)?.name ?? supp.supplementId)}</span>
                 <span style="font-size:13px;font-weight:700;color:var(--color-brand);">${supp.percentage}%</span>
               </div>
             `).join('')}

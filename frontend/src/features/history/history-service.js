@@ -1,5 +1,6 @@
 import { stateManager } from '../../state/state-manager.js';
 import { syncQueue } from '../../platform/sync-queue.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 
 /**
  * HistoryService
@@ -65,7 +66,7 @@ export class HistoryService {
         
         // Mock de JOIN (na vida real, o SQL faria isso)
         // Para mockar o filtro por texto e categoria, precisamos do supMap local
-        const SUP_DB = globalThis.__SUPPLEMENTS_DB_MOCK || [];
+        const SUP_DB = SUPPLEMENTS_DB;
         allCheckins = allCheckins.filter(ck => {
           const dbItem = SUP_DB.find(s => s.id === ck.supplementId);
           if (!dbItem) return true; // Se não achar no db, mantém por segurança ou skip

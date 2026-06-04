@@ -31,6 +31,10 @@ vi.mock('../../core/event-bus.js', () => ({
   EVENTS: { ROUTER_NAVIGATE: 'router:navigate' }
 }));
 
+vi.mock('../../platform/identity-service.js', () => ({
+  identityService: { register: vi.fn(() => Promise.resolve({ userId: 'u1', email: 'test@test.com' })) },
+}));
+
 
 function makeContainer() {
   const dom = new JSDOM('<!DOCTYPE html><div id="app"></div>');
@@ -167,8 +171,7 @@ describe('OnboardingPage', () => {
     expect(page.data.selectedIds.has('creatina-monohidratada')).toBe(false);
   });
 
-  it('Step 3: submit dispatches SET_USER_PROFILE with name and objective', async () => {
-    const { stateManager, ACTIONS } = await import('../../state/state-manager.js');
+  it('Step 3: next advances to step 4 (account creation)', async () => {
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;
@@ -179,17 +182,33 @@ describe('OnboardingPage', () => {
     ];
     page._render();
     container.querySelector('.onboarding-btn-next').click();
+    expect(page.step).toBe(4);
+    expect(container.innerHTML).toContain('Crie sua conta');
+  });
+
+  it('Step 4: skip dispatches SET_USER_PROFILE with name and objective', async () => {
+    const { stateManager, ACTIONS } = await import('../../state/state-manager.js');
+    const { default: OnboardingPage } = await import('./onboarding-page.js');
+    const page = new OnboardingPage(container);
+    page.step = 4;
+    page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set(['creatina-monohidratada']) };
+    page._suggestions = [
+      { id: 'creatina-monohidratada', name: 'Creatina Monohidratada', category: 'Força & Performance',
+        dosage: { daily: 5, unit: 'g' }, evidenceLevel: 'A', priority: 'HIGH' },
+    ];
+    page._render();
+    container.querySelector('[data-action="skip-register"]').click();
     expect(stateManager.dispatch).toHaveBeenCalledWith(ACTIONS.SET_USER_PROFILE, {
       name: 'Lucas',
       objective: 'bulk',
     });
   });
 
-  it('Step 3: submit dispatches ADD_TO_STACK for each selected supplement', async () => {
+  it('Step 4: skip dispatches ADD_TO_STACK for each selected supplement', async () => {
     const { stateManager, ACTIONS } = await import('../../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
-    page.step = 3;
+    page.step = 4;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set(['creatina-monohidratada', 'whey-protein']) };
     page._suggestions = [
       { id: 'creatina-monohidratada', name: 'Creatina Monohidratada', category: 'Força & Performance',
@@ -198,7 +217,7 @@ describe('OnboardingPage', () => {
         dosage: { daily: 30, unit: 'g' }, evidenceLevel: 'A', priority: 'HIGH' },
     ];
     page._render();
-    container.querySelector('.onboarding-btn-next').click();
+    container.querySelector('[data-action="skip-register"]').click();
     expect(stateManager.dispatch).toHaveBeenCalledWith(ACTIONS.ADD_TO_STACK, {
       supplementId: 'creatina-monohidratada', name: 'Creatina Monohidratada', dosage: 5, unit: 'g',
     });
@@ -207,41 +226,44 @@ describe('OnboardingPage', () => {
     });
   });
 
-  it('Step 3: submit dispatches COMPLETE_ONBOARDING', async () => {
+  it('Step 4: skip dispatches COMPLETE_ONBOARDING', async () => {
     const { stateManager, ACTIONS } = await import('../../state/state-manager.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
-    page.step = 3;
+    page.step = 4;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set() };
     page._suggestions = [];
     page._render();
-    container.querySelector('.onboarding-btn-next').click();
+    container.querySelector('[data-action="skip-register"]').click();
     expect(stateManager.dispatch).toHaveBeenCalledWith(ACTIONS.COMPLETE_ONBOARDING);
   });
 
-  it('Step 3: submit navigates to /my-stack', async () => {
+  it('Step 4: skip navigates to /my-stack', async () => {
     const { eventBus } = await import('../../core/event-bus.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
-    page.step = 3;
+    page.step = 4;
     page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set() };
     page._suggestions = [];
     page._render();
-    container.querySelector('.onboarding-btn-next').click();
+    container.querySelector('[data-action="skip-register"]').click();
     expect(eventBus.emit).toHaveBeenCalledWith('router:navigate', { path: '/my-stack' });
   });
 
-  it('Step 3: empty recommender shows empty state, submit still works', async () => {
+  it('Step 3: empty recommender shows empty state, step 4 skip still works', async () => {
     const recommenderMock = await import('../stack/stack-recommender.js');
     recommenderMock.default.recommend.mockReturnValueOnce([]);
     const { eventBus } = await import('../../core/event-bus.js');
     const { default: OnboardingPage } = await import('./onboarding-page.js');
     const page = new OnboardingPage(container);
     page.step = 3;
-    page.data.goal = 'bulk';
+    page.data = { name: 'Lucas', goal: 'bulk', selectedIds: new Set() };
     page._render();
     expect(container.innerHTML).toContain('Nenhuma sugestão encontrada');
+    // Advance to step 4, then skip
     container.querySelector('.onboarding-btn-next').click();
+    expect(page.step).toBe(4);
+    container.querySelector('[data-action="skip-register"]').click();
     expect(eventBus.emit).toHaveBeenCalledWith('router:navigate', { path: '/my-stack' });
   });
 });

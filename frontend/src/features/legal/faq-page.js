@@ -10,7 +10,7 @@ const FAQ_DATA = [
       },
       {
         q: 'Preciso criar uma conta?',
-        a: 'Não. O SupliList não tem sistema de login. Tudo funciona localmente no seu dispositivo, sem nenhum cadastro.',
+        a: 'Não é obrigatório. O SupliList funciona completamente offline e sem cadastro — seu stack, check-ins e histórico ficam salvos localmente no dispositivo. Criar uma conta (opcional) permite sincronizar seus dados entre dispositivos e fazer backup na nuvem.',
       },
       {
         q: 'Funciona sem internet?',
@@ -56,7 +56,7 @@ const FAQ_DATA = [
       {
         q: 'Meus dados são seguros?',
         aHtml:
-          'Sim. Toda a sua informação (stack, check-ins, perfil) fica armazenada exclusivamente no localStorage do seu navegador. Não possuímos servidores, não coletamos dados pessoais e não temos acesso a nenhuma informação sua. Consulte nossa <a class="faq-link" data-href="/legal?doc=privacidade">Política de Privacidade</a>.',
+          'Sim. Se você usar sem conta, toda a informação (stack, check-ins, perfil) fica salva exclusivamente no seu dispositivo via localStorage — sem servidores. Se criar uma conta, seus dados são transmitidos via HTTPS e armazenados com criptografia. Nunca vendemos nem compartilhamos seus dados. Consulte nossa <a class="faq-link" data-href="/legal?doc=privacidade">Política de Privacidade</a>.',
       },
       {
         q: 'Como faço backup dos meus dados?',

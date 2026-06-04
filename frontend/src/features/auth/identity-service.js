@@ -1,4 +1,9 @@
 /**
+ * @deprecated Use `platform/identity-service.js` instead.
+ * This file is kept only for its unit tests. Do not import it in application code.
+ * All features (register, login, logout, initializeSession, PENDING_LOGOUT_KEY)
+ * have been merged into `platform/identity-service.js`.
+ *
  * identity-service.js — Repository for Identity/Auth operations.
  *
  * Sits between the UI and api-client. Responsibilities:

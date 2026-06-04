@@ -7,7 +7,7 @@ const TABS = [
 
 const DOC_TO_INDEX = { termos: 0, privacidade: 1, medico: 2, afiliados: 3 };
 
-const LAST_UPDATED = '<p class="lg-updated">Última atualização: Junho de 2026 (Sprint 23 Analytics)</p>';
+const LAST_UPDATED = '<p class="lg-updated">Última atualização: Junho de 2026</p>';
 
 const TAB_CONTENTS = [
   // 0 — Termos de Uso

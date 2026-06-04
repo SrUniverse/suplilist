@@ -74,21 +74,21 @@ export default class CalculatorPage {
 
               <div class="calcp-field">
                 <label class="calcp-label" for="inp-weight">Peso (kg)</label>
-                <input id="inp-weight" class="calcp-input" type="number"
+                <input id="inp-weight" data-testid="calc-weight" class="calcp-input" type="number"
                   min="40" max="200" step="1" value="${this._weight}"
                   aria-label="Peso em quilogramas">
               </div>
 
               <div class="calcp-field">
                 <label class="calcp-label" for="inp-bodyfat">Gordura Corporal (%) <span class="calcp-optional">opcional</span></label>
-                <input id="inp-bodyfat" class="calcp-input" type="number"
+                <input id="inp-bodyfat" data-testid="calc-bodyfat" class="calcp-input" type="number"
                   min="5" max="50" step="0.5" value="${this._bodyfat ?? ''}"
                   placeholder="ex: 18" aria-label="Percentual de gordura corporal">
               </div>
 
               <div class="calcp-field">
                 <label class="calcp-label" for="sel-activity">Nível de Atividade</label>
-                <select id="sel-activity" class="calcp-select" aria-label="Nível de atividade">
+                <select id="sel-activity" data-testid="calc-activity" class="calcp-select" aria-label="Nível de atividade">
                   ${ACTIVITY_LEVELS.map(a => `
                     <option value="${a.value}"${this._activityLevel === a.value ? ' selected' : ''}>${a.label}</option>
                   `).join('')}
@@ -97,7 +97,7 @@ export default class CalculatorPage {
 
               <div class="calcp-field">
                 <label class="calcp-label" for="sel-objective">Objetivo</label>
-                <select id="sel-objective" class="calcp-select" aria-label="Objetivo principal">
+                <select id="sel-objective" data-testid="calc-objective" class="calcp-select" aria-label="Objetivo principal">
                   ${OBJECTIVES.map(o => `
                     <option value="${o.value}"${this._objective === o.value ? ' selected' : ''}>${o.label}</option>
                   `).join('')}
@@ -111,7 +111,7 @@ export default class CalculatorPage {
 
               <div class="calcp-search-wrap">
                 <span class="calcp-search-icon" aria-hidden="true">🔍</span>
-                <input id="inp-search" class="calcp-search" type="search"
+                <input id="inp-search" data-testid="calc-search" class="calcp-search" type="search"
                   placeholder="Buscar suplemento..."
                   value="${this._searchQuery}"
                   aria-label="Buscar suplemento">
@@ -161,7 +161,7 @@ export default class CalculatorPage {
       return `
         <button class="calcp-chip${active ? ' calcp-chip--active' : ''}"
           role="option" aria-selected="${active}"
-          data-supp-id="${escapeHtml(s.id)}" title="${escapeHtml(s.name)}">
+          data-supp-id="${escapeHtml(s.id)}" title="${escapeHtml(s.name)}" data-testid="calc-chip-${escapeHtml(s.id)}">
           <span class="calcp-chip-name">${escapeHtml(s.name)}</span>
           <span class="calcp-chip-cat">${escapeHtml(s.category ?? '')}</span>
           <span class="calcp-ev-badge calcp-ev-badge--${ev.toLowerCase()}">${ev}</span>
@@ -218,7 +218,7 @@ export default class CalculatorPage {
 
       <!-- Big dose number -->
       <div class="calcp-dose-display">
-        <span class="calcp-dose-value">${doseValue}</span>
+        <span class="calcp-dose-value" data-testid="calc-result-value">${doseValue}</span>
         <span class="calcp-dose-unit">${doseUnit}/dia</span>
       </div>
 
@@ -230,7 +230,7 @@ export default class CalculatorPage {
 
       <!-- Add to protocol button -->
       <button class="calcp-btn-add${inStack ? ' calcp-btn-add--in' : ''}"
-        id="btn-add-protocol" data-supp-id="${escapeHtml(supp.id)}" data-supp-name="${escapeHtml(supp.name)}">
+        id="btn-add-protocol" data-supp-id="${escapeHtml(supp.id)}" data-supp-name="${escapeHtml(supp.name)}" data-testid="calc-add-protocol">
         ${inStack ? '✓ No meu Protocolo' : '+ Adicionar ao meu Protocolo'}
       </button>
 

@@ -13,8 +13,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
-        device: ['desktop', 'mobile']
+        include:
+          - project: chromium
+            slug: chromium
+          - project: firefox
+            slug: firefox
+          - project: webkit
+            slug: webkit
+          - project: Mobile Chrome
+            slug: mobile-chrome
+          - project: Mobile Safari
+            slug: mobile-safari
 
     services:
       mongodb:
@@ -60,26 +69,31 @@ jobs:
         ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
         FRONTEND_ORIGIN: http://127.0.0.1:3000
 
-    - name: Wait for server
+    - name: Wait for services
       run: npx wait-on http://127.0.0.1:3000 http://127.0.0.1:5000/health --timeout 60000
 
-    - name: Run E2E tests (${{ matrix.browser }} - ${{ matrix.device }})
-      run: npx playwright test --project=${{ matrix.browser }}
-      env:
-        DEVICE_TYPE: ${{ matrix.device }}
+    - name: Seed test user
+      run: |
+        curl -sf -X POST http://127.0.0.1:5000/api/auth/register \
+          -H "Content-Type: application/json" \
+          -H "X-SupliList-Client: 1" \
+          -d '{"email":"testuser@example.com","password":"password123"}' || true
+
+    - name: Run E2E tests (${{ matrix.project }})
+      run: npx playwright test --project="${{ matrix.project }}"
 
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-report-${{ matrix.browser }}-${{ matrix.device }}
+        name: playwright-report-${{ matrix.slug }}
         path: playwright-report/
 
     - name: Upload test videos
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-videos-${{ matrix.browser }}-${{ matrix.device }}
+        name: test-videos-${{ matrix.slug }}
         path: test-results/
 
   performance-check:
@@ -135,8 +149,14 @@ jobs:
     - name: Build project
       run: npm run build
 
+    - name: Start preview server
+      run: npx vite preview --root frontend --port 8080 --host 127.0.0.1 &
+
+    - name: Wait for preview server
+      run: npx wait-on http://127.0.0.1:8080 --timeout 30000
+
     - name: Run accessibility tests
-      run: npm run test:a11y
+      run: npx axe-cli http://127.0.0.1:8080 --exit
 
   report-summary:
     timeout-minutes: 10

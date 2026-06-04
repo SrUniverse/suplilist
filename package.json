@@ -15,10 +15,12 @@
     "test:e2e":      "playwright test",
     "lint:css":      "npm run lint:css -w @suplilist/frontend",
     "lint:js":       "npm run lint:js -w @suplilist/frontend",
-    "perf:lighthouse": "lighthouse-ci"
+    "perf:lighthouse": "lighthouse-ci",
+    "test:a11y": "axe-cli http://127.0.0.1:8080 --exit"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0"
+    "@playwright/test": "^1.60.0",
+    "wait-on": "^8.0.0"
   },
   "engines": {
     "node": ">=24.0.0"

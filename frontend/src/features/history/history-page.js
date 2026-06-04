@@ -1,6 +1,5 @@
 import { stateManager } from '../../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
-globalThis.__SUPPLEMENTS_DB_MOCK = SUPPLEMENTS_DB;
 import { todayISO, offsetISO } from '../../utils/date.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';

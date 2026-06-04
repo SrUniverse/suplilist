@@ -57,7 +57,7 @@ jobs:
       run: docker compose up -d
 
     - name: Wait for Backend
-      run: npx wait-on http://127.0.0.1:5000/api/auth/health --timeout 60000
+      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000
 
     - name: Start frontend preview
       run: npx serve frontend/dist --listen 3000 --single &
@@ -113,7 +113,7 @@ jobs:
       run: docker compose up -d
 
     - name: Wait for Backend
-      run: npx wait-on http://127.0.0.1:5000/api/auth/health --timeout 60000
+      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000
 
     - name: Start frontend preview
       run: npx serve frontend/dist --listen 3000 --single &

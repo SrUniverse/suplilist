@@ -10,11 +10,11 @@ test.describe('Checkin Flow', () => {
     const stack = new MyStackPage(page);
 
     // Adicionamos um item no stack primeiro para garantir que há algo para fazer check-in
-    const testItemId = 'creatina';
+    const testItemId = 'creatina-monohidratada';
     await stack.goto();
     // Tenta adicionar
     try {
-      await stack.addItem('Creatina', testItemId);
+      await stack.addItem('Creatina Monohidratada', testItemId);
     } catch (e) {
       // Ignora se falhar, talvez já exista
     }

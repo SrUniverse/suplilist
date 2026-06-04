@@ -15,8 +15,8 @@ test.describe('Calculator Flow', () => {
     await calc.setBiometrics('80', '15');
 
     // 2. Escolhe um suplemento, ex: Creatina
-    const testItemId = 'creatina';
-    await calc.selectSupplement(testItemId, 'Creatina');
+    const testItemId = 'creatina-monohidratada';
+    await calc.selectSupplement(testItemId, 'Creatina Monohidratada');
 
     // 3. Verifica se o resultado apareceu
     await calc.verifyResultVisible();

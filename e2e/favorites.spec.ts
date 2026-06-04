@@ -13,7 +13,7 @@ test.describe('Favorites Flow', () => {
 
     // 1. Vai para o Catálogo e favorita a Creatina (exemplo de ID: creatina)
     await catalog.goto();
-    const testItemId = 'creatina'; 
+    const testItemId = 'creatina-monohidratada';
     await catalog.search('Creatina');
     await catalog.toggleFavorite(testItemId);
 

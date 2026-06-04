@@ -12,9 +12,9 @@ test.describe('My Stack Flow', () => {
 
     // Podemos estar com empty state dependendo do estado salvo.
     // Vamos tentar adicionar um item e depois removê-lo.
-    const testItemId = 'creatina';
+    const testItemId = 'creatina-monohidratada';
 
-    await stack.addItem('Creatina', testItemId);
+    await stack.addItem('Creatina Monohidratada', testItemId);
 
     // O item deve estar visível
     await stack.verifyItemVisible(testItemId);

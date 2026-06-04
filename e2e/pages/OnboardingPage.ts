@@ -46,21 +46,20 @@ export class OnboardingPage {
   }
 
   async finishOnboarding() {
-    await this.finishBtn.click();
+    // Step 3 advances to step 4 (account creation). Step 4 has skip-register to finalize.
+    await this.page.getByTestId('onboarding-btn-next-3').click();
+    await this.page.getByTestId('onboarding-btn-skip-register').click();
   }
 
   async completeOnboarding(data: { name: string, goal: string, unselectSupplements?: string[] }) {
     await this.goto();
-    
-    // Step 1: Preencher nome
+
     await this.fillName(data.name);
     await this.submitStep1();
-    
-    // Step 2: Selecionar o objetivo (ex: 'strength', 'bulk', 'cut', 'general', 'endurance')
+
     await this.selectGoal(data.goal);
     await this.submitStep2();
-    
-    // Step 3: Sugestões (Opcionalmente remover algum do stack)
+
     if (data.unselectSupplements && data.unselectSupplements.length > 0) {
       for (const supp of data.unselectSupplements) {
         await this.toggleSupplement(supp);

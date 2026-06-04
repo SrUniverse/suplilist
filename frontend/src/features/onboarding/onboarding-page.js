@@ -255,7 +255,7 @@ export default class OnboardingPage {
             </button>
           </div>
           <p class="onboarding-switch" style="text-align:center;margin-top:1rem;font-size:0.9rem">
-            <button class="onboarding-btn-link" data-action="skip-register" type="button">
+            <button class="onboarding-btn-link" data-action="skip-register" data-testid="onboarding-btn-skip-register" type="button">
               Continuar sem conta
             </button>
           </p>

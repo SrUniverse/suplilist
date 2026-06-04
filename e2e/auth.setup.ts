@@ -24,7 +24,7 @@ setup('authenticate', async ({ page }) => {
       data: { email: 'testuser@example.com', password: 'password123' },
       failOnStatusCode: false,
     })
-    .then(r => r.status() < 500)
+    .then(r => r.ok() || r.status() === 409) // 409 = email already exists = backend is up
     .catch(() => false);
 
   if (backendAvailable) {

@@ -1,5 +1,7 @@
 import { stateManager, ACTIONS, STORAGE_KEYS } from '../../state/state-manager.js';
 import { StorageManager } from '../../platform/storage-manager.js';
+import { eventBus, EVENTS } from '../../core/event-bus.js';
+import { settingsService } from './settings-service.js';
 import NotificationService from '../notifications/notification-service.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
 
@@ -27,11 +29,63 @@ export default class SettingsPage {
         this._bindSubscriptionEvents();
       }
     });
+
+    // Listen for settings rollback events (OCC conflict resolved by service)
+    this._onSettingsChanged = (payload) => {
+      if (!payload?.rollback) return;
+      logger.info?.('[SettingsPage] Rollback received — re-rendering notification toggles from server state.');
+      this._syncNotificationToggles(payload);
+      eventBus.emit(EVENTS.TOAST_SHOW, {
+        message: payload.rollbackReason === 'occ_conflict'
+          ? 'Configurações sincronizadas com o servidor (versão mais recente aplicada).'
+          : 'Conexão restaurada. Configurações sincronizadas.',
+        type: 'warning',
+        duration: 4000,
+      });
+    };
+    this._unsubSettings = eventBus.on(EVENTS.SETTINGS_CHANGED, this._onSettingsChanged);
+
+    // If the user is authenticated, fetch server settings in the background.
+    // Falls back to localStorage values already rendered synchronously above.
+    if (stateManager.get('user.isAuthenticated')) {
+      this._loadFromAPI();
+    }
   }
 
   unmount() {
     this._unsubscribe?.();
+    this._unsubSettings?.();
     this.container.innerHTML = '';
+  }
+
+  /**
+   * Fetch settings from the API and sync the notification toggle DOM state.
+   * Called on mount() for authenticated users — fire-and-forget.
+   * Falls back gracefully: if the fetch fails, localStorage values remain.
+   */
+  async _loadFromAPI() {
+    try {
+      const settings = await settingsService.getSettings();
+      this._syncNotificationToggles(settings);
+    } catch (err) {
+      // User is offline or token expired — localStorage values stay, no crash.
+      logger.warn?.('[SettingsPage] Could not load server settings:', err.error ?? err.message);
+    }
+  }
+
+  /**
+   * Update DOM toggle state from a SettingsResponseDTO.
+   * Does not re-render the whole page — only the two notification checkboxes.
+   *
+   * @param {import('./settings-service.js').SettingsResponseDTO} settings
+   */
+  _syncNotificationToggles(settings) {
+    if (!settings?.notifications?.push) return;
+    const { reminders, marketing } = settings.notifications.push;
+    const checkinEl = this.container.querySelector('#sp-notif-checkin');
+    const restockEl = this.container.querySelector('#sp-notif-restock');
+    if (checkinEl) checkinEl.checked = !!reminders;
+    if (restockEl) restockEl.checked = !!marketing;
   }
 
   _injectStyles() {
@@ -473,13 +527,24 @@ export default class SettingsPage {
             notifCheckin.checked = false;
             return;
           }
-          // Envia notificação de boas-vindas
           this.notifService.sendLocalNotification('Lembretes Ativados! 💊', {
             body: 'Agora você receberá lembretes diários para não esquecer seus suplementos.',
             data: { url: '/settings' }
           });
         }
+        // Persist locally first (always works, even offline)
         StorageManager.setItem('suplilist:notif-checkin', notifCheckin.checked ? 'true' : 'false');
+        // Sync to API if authenticated (fire-and-forget — rollback is handled by settingsService)
+        if (stateManager.get('user.isAuthenticated')) {
+          settingsService.updateNotifications({
+            push: { reminders: notifCheckin.checked },
+          }).catch(err => {
+            // Rollback already executed by the service; just surface a toast if needed
+            if (err?.status !== 409) {
+              logger.warn?.('[SettingsPage] Notification update error:', err.error ?? err.message);
+            }
+          });
+        }
       });
     }
 
@@ -494,13 +559,23 @@ export default class SettingsPage {
             notifRestock.checked = false;
             return;
           }
-          // Envia notificação de boas-vindas
           this.notifService.sendLocalNotification('Alertas de Estoque Ativados! 📦', {
             body: 'Você receberá avisos quando seus suplementos estiverem acabando.',
             data: { url: '/settings' }
           });
         }
+        // Persist locally first (always works, even offline)
         StorageManager.setItem('suplilist:notif-restock', notifRestock.checked ? 'true' : 'false');
+        // Sync to API if authenticated
+        if (stateManager.get('user.isAuthenticated')) {
+          settingsService.updateNotifications({
+            push: { marketing: notifRestock.checked },
+          }).catch(err => {
+            if (err?.status !== 409) {
+              logger.warn?.('[SettingsPage] Restock notification update error:', err.error ?? err.message);
+            }
+          });
+        }
       });
     }
 

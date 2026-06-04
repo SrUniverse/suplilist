@@ -12,6 +12,11 @@ export interface UserProfile {
   avatarStatus: AvatarStatus;
   firstName: string | null;
   lastName: string | null;
+  /**
+   * Client-written migration version flag. See PrivateProfileDTO.migrationVersion.
+   * `undefined` = migration never ran. `1` = v1 migration complete.
+   */
+  migrationVersion?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,6 +42,8 @@ export class ProfileMapper {
       // Serializa Date → string ISO (formato de wire do contrato compartilhado)
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),
+      // undefined é omitido pelo JSON.stringify — clientes legados não veem o campo
+      migrationVersion: profile.migrationVersion,
     };
   }
 }

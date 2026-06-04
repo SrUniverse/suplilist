@@ -11,31 +11,12 @@
  *
  * Do NOT import this file from tests. Import app.ts and call createApp() instead.
  */
-import 'dotenv/config';
-import { z } from 'zod';
+import { env } from './shared/config/env.config.js';
 import mongoose from 'mongoose';
 import { createApp } from './app.js';
 import { OutboxProcessorJob } from './shared/infrastructure/jobs/outbox-processor.job.js';
 import { AuditFlushJob } from './shared/infrastructure/jobs/audit-flush.job.js';
 import { PurgeAccountsJob } from './shared/infrastructure/jobs/purge-accounts.job.js';
-
-// ── 1. Environment validation (fail-fast) ─────────────────────────────────────
-const envSchema = z.object({
-  PORT: z.string().default('5000'),
-  MONGO_URI: z.string().url('MONGO_URI must be a valid URL'),
-  REDIS_URI: z.string().url('REDIS_URI must be a valid URL'),
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
-  ENCRYPTION_KEY: z.string().length(64, 'ENCRYPTION_KEY must be a 64-character hex string (32 bytes)'),
-});
-
-const envResult = envSchema.safeParse(process.env);
-if (!envResult.success) {
-  console.error('❌ Fatal Error: Invalid or missing environment variables:');
-  console.error(JSON.stringify(envResult.error.format(), null, 2));
-  process.exit(1);
-}
-
-const env = envResult.data;
 
 // ── 2. Connect to MongoDB and start the server ─────────────────────────────────
 mongoose.connect(env.MONGO_URI)

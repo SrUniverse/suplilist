@@ -1,6 +1,22 @@
 import { Nav } from './nav.js';
 import { logger } from '../utils/logger.js';
 import { MetaManager } from '../platform/meta-manager.js';
+import { identityService } from '../platform/identity-service.js';
+import { stateManager } from '../state/state-manager.js';
+
+/**
+ * Routes that require the user to be authenticated.
+ * The guard in handleRoute() awaits the session probe before checking
+ * isAuthenticated, preventing premature redirects on deep links.
+ */
+const PROTECTED_ROUTES = Object.freeze(new Set([
+  '/my-stack',
+  '/checkin',
+  '/history',
+  '/profile',
+  '/settings',
+  '/favorites',
+]));
 
 /**
  * Router — Client-side route handler
@@ -111,6 +127,41 @@ export class Router {
 
     const { route, params } = match;
 
+    // ── Auth guard (protected routes only) ──────────────────────────────────────
+    if (PROTECTED_ROUTES.has(pathname)) {
+      // Fast path: session probe already settled — no need to await.
+      if (!identityService.isInitializing()) {
+        const isAuth = stateManager.get('user.isAuthenticated');
+        const onboardingDone = stateManager.get('user.onboardingComplete');
+        if (!isAuth && !onboardingDone) {
+          logger.info('[Router] Guard blocked', pathname, '— redirecting to /login');
+          window.history.replaceState(null, null, '/login');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+          return;
+        }
+      } else {
+        // Slow path: session probe is still in-flight (cold start + deep link).
+        // Show a skeleton so the user sees something, then await the probe result.
+        this._renderAuthSkeleton();
+
+        const authenticated = await identityService.isReady();
+
+        // Discard if the user navigated away while we were waiting
+        if (navigationToken !== this._navigationToken) return;
+
+        if (!authenticated) {
+          const onboardingDone = stateManager.get('user.onboardingComplete');
+          if (!onboardingDone) {
+            logger.info('[Router] Guard (after await) blocked', pathname, '— redirecting to /login');
+            window.history.replaceState(null, null, '/login');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+            return;
+          }
+        }
+      }
+    }
+    // ─────────────────────────────────────────────────────────────
+
     // Guard unmount — never abort a transition due to unmount errors
     if (this.currentPage && typeof this.currentPage.unmount === 'function') {
       try {
@@ -158,6 +209,40 @@ export class Router {
     }
 
     Nav.updateActive(pathname);
+  }
+
+  /**
+   * Render a minimal skeleton UI while awaiting the session probe on a deep link.
+   * Replaces the container content — not the full page shell (nav/sidebar stay).
+   * Uses inline styles so no CSS dependency is needed at this point in boot.
+   *
+   * @private
+   */
+  _renderAuthSkeleton() {
+    this.container.innerHTML = `
+      <div style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        gap: 1.5rem;
+        color: var(--color-text-secondary, #888);
+      ">
+        <div style="
+          width: 40px;
+          height: 40px;
+          border: 3px solid var(--color-border, #333);
+          border-top-color: var(--color-accent, #7c3aed);
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        "></div>
+        <p style="font-size: 0.9rem; margin: 0;">Verificando sessão…</p>
+      </div>
+      <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+      </style>
+    `;
   }
 }
 

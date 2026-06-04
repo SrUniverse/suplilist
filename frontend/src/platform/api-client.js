@@ -52,12 +52,14 @@ export class ApiError extends Error {
    * @param {number} status  - HTTP status code (0 for network failure)
    * @param {string} error   - Server error code (e.g. 'expired_token')
    * @param {string} [message]
+   * @param {any} [data]     - Additional payload (e.g. current item on 412)
    */
-  constructor(status, error, message = '') {
+  constructor(status, error, message = '', data = null) {
     super(message || error);
     this.name = 'ApiError';
     this.status = status;
     this.error = error;
+    this.data = data;
   }
 }
 
@@ -87,9 +89,10 @@ export function clearAccessToken() {
  * Canonical fetch wrapper for all SupliList API calls.
  *
  * @param {string} path - Absolute API path starting with /api/
- * @param {RequestInit & { _isRetry?: boolean }} [options] - Standard fetch options
- *   plus internal `_isRetry` flag (prevents recursive refresh loops).
- * @returns {Promise<unknown>} The `data` field of ApiResponse<T> on success.
+ * @param {RequestInit & { _isRetry?: boolean, returnHeaders?: boolean }} [options] - Standard fetch options
+ *   plus internal `_isRetry` flag (prevents recursive refresh loops) and `returnHeaders`
+ *   to return the full response envelope including ETags.
+ * @returns {Promise<any>} The `data` field of ApiResponse<T> by default. If `returnHeaders` is true, returns `{ data, headers }`.
  * @throws {ApiError} On HTTP errors, network failures, or auth expiry.
  *
  * @example
@@ -103,7 +106,7 @@ export function clearAccessToken() {
  * });
  */
 export async function apiFetch(path, options = {}) {
-  const { _isRetry = false, ...fetchOptions } = options;
+  const { _isRetry = false, returnHeaders = false, ...fetchOptions } = options;
 
   const headers = new Headers(fetchOptions.headers ?? {});
 
@@ -166,11 +169,18 @@ export async function apiFetch(path, options = {}) {
       response.status,
       envelope?.error ?? 'unknown_error',
       envelope?.message ?? `HTTP ${response.status}`,
+      envelope?.data
     );
   }
 
   // Unwrap envelope — callers receive data, not the wrapper
-  return envelope.data ?? envelope;
+  const payloadData = envelope.data ?? envelope;
+
+  if (returnHeaders) {
+    return { data: payloadData, headers: response.headers };
+  }
+
+  return payloadData;
 }
 
 // ── Internal: single-flight token refresh ─────────────────────────────────────

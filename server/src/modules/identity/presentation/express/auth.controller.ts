@@ -110,14 +110,8 @@ export class AuthController {
         });
       }
 
-      const userAgent = req.headers['user-agent'] || 'unknown';
-      const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || 'unknown';
-
       const result = await this.refreshTokenUseCase.execute({
-        refreshToken,
-        userAgent,
-        ipAddress,
-        deviceLabel: null
+        refreshToken
       });
 
       // Update cookie with rotated token
@@ -156,17 +150,9 @@ export class AuthController {
   async logout(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
       const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
-      const jti = req.user?.jti;
-      const exp = (req.user as any)?.exp; // Extracted in JWT validation
-      
-      // Calculate token expiration date
-      const jwtExpiresAt = exp ? new Date(exp * 1000) : new Date(Date.now() + 15 * 60 * 1000);
-
-      if (jti) {
+      if (refreshToken) {
         await this.logoutUseCase.execute({
-          refreshToken,
-          jti,
-          jwtExpiresAt
+          refreshToken
         });
       }
 

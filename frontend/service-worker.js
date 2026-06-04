@@ -79,6 +79,23 @@ function isDynamicDataRequest(url) {
 }
 
 /**
+ * Auxiliar para determinar se uma requisição é de dados de usuário (Stale-While-Revalidate).
+ * Identifica rotas críticas de leitura que precisam estar disponíveis offline:
+ * - /api/profile/me (perfil do usuário)
+ * - /api/stack (stack de suplementos do usuário)
+ * - /api/favorites (favoritos salvos)
+ * - /api/settings/me (configurações do usuário)
+ */
+function isUserDataRequest(url) {
+  return (
+    url.pathname.startsWith('/api/profile/me') ||
+    url.pathname.startsWith('/api/stack') ||
+    url.pathname.startsWith('/api/favorites') ||
+    url.pathname.startsWith('/api/settings/me')
+  );
+}
+
+/**
  * Evento de Interceptação de Requisições (Fetch).
  */
 self.addEventListener('fetch', (event) => {
@@ -132,6 +149,45 @@ self.addEventListener('fetch', (event) => {
           console.log('[Service Worker] Rede indisponível. Servindo do cache.');
           return caches.match(event.request);
         })
+    );
+    return;
+  }
+
+  // 2.5 ESTRATÉGIA STALE-WHILE-REVALIDATE: Dados de usuário (GET /api/profile/me, /api/stack, etc.)
+  //
+  // Invariantes:
+  //   • Se há cache: serve imediatamente, revalida em background.
+  //   • Se não há cache + rede disponível: aguarda rede e armazena no cache.
+  //   • Se não há cache + offline: retorna 503 estruturado.
+  //     O apiFetch lança ApiError(503, 'offline') → profile-page.js usa stateManager.user como fallback.
+  //     O resultado é nunca uma Promise resolvendo para undefined.
+  if (isUserDataRequest(requestUrl)) {
+    event.respondWith(
+      caches.open(DYNAMIC_CACHE).then((cache) => {
+        return cache.match(event.request).then((cachedResponse) => {
+          // Revalida em background — resultado ignorado se já servimos o cache.
+          const networkPromise = fetch(event.request)
+            .then((networkResponse) => {
+              if (networkResponse.status === 200) {
+                cache.put(event.request, networkResponse.clone());
+              }
+              return networkResponse;
+            })
+            .catch(() => {
+              // Rede indisponível. Se já servimos o cache acima, este resultado é ignorado.
+              // Se não há cache (cold start offline), retorna 503 estruturado para que
+              // o apiFetch lance ApiError em vez de resolver para undefined.
+              return new Response(
+                JSON.stringify({ success: false, error: 'offline', message: 'Dispositivo offline' }),
+                { status: 503, headers: { 'Content-Type': 'application/json' } }
+              );
+            });
+
+          // Stale: serve cache imediatamente se disponível;
+          // enquanto isso, networkPromise atualiza o cache em background.
+          return cachedResponse || networkPromise;
+        });
+      })
     );
     return;
   }

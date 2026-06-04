@@ -55,6 +55,8 @@ export default class OnboardingPage {
     this.container.addEventListener('click', this._clickHandler);
   }
 
+  // ── Wizard mode ───────────────────────────────────────────────────────────────
+
   _renderStep1() {
     this.container.innerHTML = `
       <div class="onboarding-wrap">
@@ -213,7 +215,6 @@ export default class OnboardingPage {
       });
 
     stateManager.dispatch(ACTIONS.COMPLETE_ONBOARDING);
-    // P10: navegação via EventBus em vez de window.__router (global exposto)
     eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
   }
 }

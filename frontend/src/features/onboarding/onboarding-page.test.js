@@ -31,6 +31,7 @@ vi.mock('../../core/event-bus.js', () => ({
   EVENTS: { ROUTER_NAVIGATE: 'router:navigate' }
 }));
 
+
 function makeContainer() {
   const dom = new JSDOM('<!DOCTYPE html><div id="app"></div>');
   return dom.window.document.getElementById('app');

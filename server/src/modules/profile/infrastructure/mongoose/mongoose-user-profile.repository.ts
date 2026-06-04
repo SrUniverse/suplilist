@@ -14,6 +14,8 @@ export class MongooseUserProfileRepository implements IUserProfileRepository {
       // Fallback to null if not selected/loaded
       firstName: doc.firstName !== undefined ? doc.firstName : null,
       lastName: doc.lastName !== undefined ? doc.lastName : null,
+      // undefined when the field was not selected — omitted from JSON.stringify
+      migrationVersion: doc.migrationVersion,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };
@@ -39,7 +41,7 @@ export class MongooseUserProfileRepository implements IUserProfileRepository {
     const doc = await UserProfileModel.findOne({ 
       userId: new mongoose.Types.ObjectId(userId) 
     })
-    .select('+firstName +lastName')
+    .select('+firstName +lastName +migrationVersion')
     .session(session || null);
     
     return doc ? this.mapToDomain(doc) : null;
@@ -53,7 +55,11 @@ export class MongooseUserProfileRepository implements IUserProfileRepository {
       doc = await UserProfileModel.findOne({ 
         userId: new mongoose.Types.ObjectId(profile.userId) 
       })
-      .select('+firstName +lastName')
+      // +migrationVersion is required here: without it, doc.migrationVersion is undefined
+      // in memory even if the DB has a value. Mongoose will not detect a change when the
+      // incoming value equals the unloaded undefined, potentially skipping the field in
+      // the update statement and silently losing the persisted version counter.
+      .select('+firstName +lastName +migrationVersion')
       .session(session || null);
     }
 
@@ -65,6 +71,8 @@ export class MongooseUserProfileRepository implements IUserProfileRepository {
       // Update private fields if provided
       if (profile.firstName !== undefined) doc.firstName = profile.firstName;
       if (profile.lastName !== undefined) doc.lastName = profile.lastName;
+      // Only update migrationVersion if the caller explicitly set it (not undefined)
+      if (profile.migrationVersion !== undefined) doc.migrationVersion = profile.migrationVersion;
 
       await doc.save({ session });
     } else {
@@ -75,6 +83,7 @@ export class MongooseUserProfileRepository implements IUserProfileRepository {
         avatarStatus: profile.avatarStatus,
         firstName: profile.firstName,
         lastName: profile.lastName,
+        migrationVersion: profile.migrationVersion,
       });
       doc = await created.save({ session });
     }

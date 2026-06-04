@@ -12,6 +12,7 @@ import { escapeHtml } from '../../utils/escape.js';
 import affiliateEngine from '../../monetization/affiliate-engine.js';
 import ShareService from '../sharing/share-service.js';
 import QRGenerator from '../sharing/qr-generator.js';
+import { stackService } from './stack-service.js';
 
 
 // Prices loaded lazily from /data/prices.json
@@ -929,24 +930,28 @@ export class MyStackPage {
       const category = dbEntry?.category ?? '';
       const desc = dbEntry?.benefits?.[0] ?? '';
       const affLinks = affiliateEngine.getLinks(item.name);
+      
+      const isSyncing = item.isSyncing;
+      const opacity = isSyncing ? '0.6' : '1';
+      const pointerEvents = isSyncing ? 'none' : 'auto';
 
       el.innerHTML = `
-        <div class="msp-item-top">
+        <div class="msp-item-top" style="opacity: ${opacity}; pointer-events: ${pointerEvents}; transition: opacity 200ms;">
           <img class="msp-item-img"
             src="${imgSrc}"
             alt="${item.name}"
             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'72\\' height=\\'72\\'%3E%3Crect width=\\'72\\' height=\\'72\\' rx=\\'12\\' fill=\\'%23161616\\'/%3E%3Ctext x=\\'50%25\\' y=\\'55%25\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' font-size=\\'28\\' fill=\\'%23555555\\'%3E💊%3C/text%3E%3C/svg%3E'">
           <div class="msp-item-info">
             ${category ? `<p class="msp-item-cat">${category}</p>` : ''}
-            <p class="msp-item-name">${escapeHtml(item.name)}</p>
+            <p class="msp-item-name">${escapeHtml(item.name)} ${isSyncing ? '<span style="font-size:11px; font-weight:normal; color:var(--color-text-muted);"> ⟳ Sincronizando...</span>' : ''}</p>
             <p class="msp-item-dosage">${item.dosage ?? '—'} ${escapeHtml(item.unit ?? 'g')}/dia</p>
             ${daysLeft !== null ? `<p class="msp-item-days">~${daysLeft} dias restantes</p>` : ''}
           </div>
           <div class="msp-item-right">
             ${badge}
             <div class="msp-item-actions">
-              <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${escapeHtml(item.name)}" title="Editar">✏️</button>
-              <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${escapeHtml(item.name)}" title="Remover">🗑️</button>
+              <button class="msp-btn-icon" data-action="edit" data-id="${itemId}" aria-label="Editar ${escapeHtml(item.name)}" title="Editar" ${isSyncing ? 'disabled' : ''}>✏️</button>
+              <button class="msp-btn-icon del" data-action="remove" data-id="${itemId}" aria-label="Remover ${escapeHtml(item.name)}" title="Remover" ${isSyncing ? 'disabled' : ''}>🗑️</button>
               <a class="msp-btn-reorder"
                  href="${affLinks.amazon}"
                  target="_blank"
@@ -954,14 +959,15 @@ export class MyStackPage {
                  data-aff-id="${escapeHtml(itemId)}"
                  data-aff-mp="amazon"
                  title="Recomprar na Amazon"
-                 aria-label="Recomprar ${escapeHtml(item.name)} na Amazon">🛒 Recomprar</a>
+                 aria-label="Recomprar ${escapeHtml(item.name)} na Amazon"
+                 ${isSyncing ? 'disabled' : ''}>🛒 Recomprar</a>
             </div>
           </div>
         </div>
-        ${desc ? `<div style="padding:0 16px 8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5;">${desc}</div>` : ''}
-        <div class="msp-item-footer">
-          <button class="msp-btn-pause" data-action="edit" data-id="${itemId}">Editar</button>
-          <button class="msp-btn-finish" data-action="remove" data-id="${itemId}">Remover</button>
+        ${desc ? `<div style="padding:0 16px 8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5; opacity: ${opacity};">${desc}</div>` : ''}
+        <div class="msp-item-footer" style="opacity: ${opacity}; pointer-events: ${pointerEvents};">
+          <button class="msp-btn-pause" data-action="edit" data-id="${itemId}" ${isSyncing ? 'disabled' : ''}>Editar</button>
+          <button class="msp-btn-finish" data-action="remove" data-id="${itemId}" ${isSyncing ? 'disabled' : ''}>Remover</button>
         </div>
       `;
 
@@ -1059,9 +1065,9 @@ export class MyStackPage {
       }
       if (btn.dataset.action === 'remove') {
         const item = (stateManager.stack ?? []).find(s => (s.supplementId ?? s.id) === id);
-        if (!item) return;
+        if (!item || item.isSyncing) return;
         if (!confirm(`Remover "${item.name}" do stack?`)) return;
-        stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { supplementId: id });
+        stackService.removeItem(id);
       }
       if (btn.dataset.action === 'save-edit') {
         this._saveInlineEdit(id);
@@ -1167,7 +1173,7 @@ export class MyStackPage {
 
     if (dosage <= 0) { alert('Informe uma dosagem válida.'); return; }
 
-    stateManager.dispatch(ACTIONS.UPDATE_STACK_ITEM, { supplementId: id, dosage, unit, quantity });
+    stackService.updateItem(id, { dosage, unit, quantity });
     this._closeInlineEdit(id);
   }
 
@@ -1320,7 +1326,7 @@ export class MyStackPage {
       const id = this._modalSelectedId
         ?? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
 
-      stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
+      stackService.addItem({
         supplementId: id,
         name,
         dosage,

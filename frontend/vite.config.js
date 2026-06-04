@@ -6,7 +6,14 @@ export default defineConfig({
   root: '.',
   server: {
     port: 3000,
-    historyApiFallback: true
+    historyApiFallback: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false
+      }
+    }
   },
   preview: {
     port: 3000,

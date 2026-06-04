@@ -21,3 +21,16 @@ export type {
   UpdateNotificationsDTO,
   UpdateLocaleDTO,
 } from './settings.js';
+export type {
+  TimeOfDay,
+  FrequencyType,
+  StackItemDTO,
+  CreateStackItemRequestDTO,
+  UpdateStackItemRequestDTO,
+} from './stack.js';
+export type {
+  CheckinDTO,
+  LogCheckinRequestDTO,
+  GetCheckinHistoryRequestDTO,
+  CheckinHistoryResponseDTO,
+} from './checkin.js';

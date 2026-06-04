@@ -5,15 +5,19 @@ import { Router } from './router.js';
 import { Nav } from './nav.js';
 import { analyticsEngine } from '../analytics/analytics-engine.js';
 import { StorageManager } from '../platform/storage-manager.js';
+import { OfflineHandler } from '../platform/offline-handler.js';
+import { syncQueue } from '../platform/sync-queue.js';
 import '../platform/mobile-keyboard-handler.js';
 import '../platform/mobile-utilities.js';
 import '../platform/pwa-handler.js';
 import '../platform/performance-monitor.js';
 import NotificationService from '../features/notifications/notification-service.js';
+import { identityService } from '../platform/identity-service.js';
 
 
 const routes = [
   { path: '/onboarding', load: () => import('../features/onboarding/onboarding-page.js') },
+  { path: '/login',      load: () => import('../features/auth/login-page.js') },
   { path: '/',           load: () => import('../features/home/home-page.js') },
   { path: '/home',       load: () => import('../features/home/home-page.js') },
   { path: '/list',       load: () => import('../features/supplements/list-page.js') },
@@ -33,6 +37,11 @@ const PAGE_METADATA = {
     title: 'Bem-vindo | SupliList',
     description: 'Faça o seu onboarding no SupliList e configure seu perfil de suplementação personalizada.',
     keywords: 'onboarding, cadastro, configurar suplementos'
+  },
+  '/login': {
+    title: 'Entrar | SupliList',
+    description: 'Acesse sua conta SupliList e continue de onde parou. Gerencie seu stack de suplementos personalizados.',
+    keywords: 'login, entrar, acessar conta, suplementos'
   },
   '/': {
     title: 'SupliList | Suplementos com Evidência Científica — Compare Preços e Doses',
@@ -153,7 +162,7 @@ function updateSEOMetadata() {
  */
 function applyLandingMode() {
   const path = window.location.pathname;
-  const isLanding = path === '/' || path === '/home' || path === '/onboarding';
+  const isLanding = path === '/' || path === '/home' || path === '/onboarding' || path === '/login';
   document.body.classList.toggle('body--landing', isLanding);
 }
 
@@ -161,6 +170,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Inicializar IndexedDB (não bloqueia, mas prepara para uso)
   StorageManager.init().catch(e => {
     console.warn('[App] IndexedDB init falhou, usando fallback:', e);
+  });
+
+  // ── Session Recovery (PWA cold-start) ──────────────────────────────────────
+  // Fire-and-forget: probes GET /api/profile/me in the background.
+  // If a valid HttpOnly refresh cookie exists, the api-client's silent refresh
+  // chain will restore the access token and dispatch AUTH_LOGIN automatically.
+  // The UI starts in visitor mode and reactively transitions to "Logged in".
+  // Do NOT await this — blocking here would freeze the entire boot sequence.
+  identityService.initializeSession().catch(err => {
+    console.warn('[App] Session initialization probe failed:', err);
   });
 
   // State is initialized in the StateManager constructor (_initializeState reads from localStorage).
@@ -183,7 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyLandingMode();
     updateSEOMetadata();
     // Nav.updateActive is already called by router.js handleRoute() — no duplicate needed
-    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding';
+    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding' || window.location.pathname === '/login';
     isLanding ? Nav.hide() : Nav.show();
   });
 
@@ -204,6 +223,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Analytics errors should not crash the app
     console.error('[App] Analytics init error:', err);
   });
+
+  // Initialize Sync Queue (background sync for offline check-ins)
+  syncQueue.init().catch(err => {
+    console.warn('[App] Sync queue initialization failed:', err);
+    // Non-critical: app still works without offline sync
+  });
+
+  // Initialize Offline Handler (detects network changes, disables edit controls in offline mode)
+  const offlineHandler = new OfflineHandler(stateManager, eventBus);
+  offlineHandler.init();
 
   // Restaurar tema salvo
   const savedTheme = StorageManager.getItem(STORAGE_KEYS.THEME) || StorageManager.getItem('theme');
@@ -259,6 +288,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   eventBus.on('toast:show', _showToast);
   eventBus.on('ui:toastRequested', _showToast); // stateManager.dispatch(ACTIONS.SHOW_TOAST) + profile-page legacy
+
+  // Offline/Online toast notifications
+  eventBus.on('ui:offline', ({ message, severity = 'warning' }) => {
+    _showToast({ message, type: severity, duration: 5000 });
+  });
+  eventBus.on('ui:online', ({ message = 'Conexão restaurada' }) => {
+    _showToast({ message, type: 'success', duration: 3000 });
+  });
 
   // L3 FIX: Ouvir mensagens do Service Worker (Navegação via Push e Sync offline)
   if ('serviceWorker' in navigator) {

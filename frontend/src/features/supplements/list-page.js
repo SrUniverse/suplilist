@@ -1633,7 +1633,7 @@ export default class ListPage {
             </div>
             <p class="lp-modal-img-col-name">${escapeHtml(item.name)}</p>
             <p class="lp-modal-img-col-cat">${escapeHtml(item.category ?? '')}</p>
-            ${ev ? `<span style="display:inline-flex;align-self:flex-start;font-size:10px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:${evStyle.bg};color:${evStyle.color};">Evidência ${ev}</span>` : ''}
+            ${ev ? `<span class="ev-badge ev-badge--${String(ev).toLowerCase()}">Evidência ${escapeHtml(String(ev))}</span>` : ''}
             <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin:4px 0 0;">${escapeHtml(item.benefits?.join(' · ') ?? '')}</p>
           </div>
 

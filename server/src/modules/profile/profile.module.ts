@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { requireAuth } from '../../shared/middleware/auth.middleware.js';
 import { MongooseProfileRepository } from './infrastructure/mongoose/mongoose-profile.repository.js';
 import { GetProfileUseCase } from './application/use-cases/get-profile.use-case.js';
@@ -22,8 +22,8 @@ export function initializeProfileModule(): Router {
   // All profile routes require authentication
   router.use(requireAuth);
 
-  router.get('/me', (req, res, next) => controller.getMe(req, res, next));
-  router.put('/me', (req, res, next) => controller.updateProfile(req, res, next));
+  router.get('/me', (req: Request, res: Response, next: NextFunction) => controller.getMe(req, res, next));
+  router.put('/me', (req: Request, res: Response, next: NextFunction) => controller.updateProfile(req, res, next));
 
   return router;
 }

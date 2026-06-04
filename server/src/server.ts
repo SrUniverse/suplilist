@@ -19,13 +19,13 @@ import { AuditFlushJob } from './shared/infrastructure/jobs/audit-flush.job.js';
 import { PurgeAccountsJob } from './shared/infrastructure/jobs/purge-accounts.job.js';
 
 // ── 2. Connect to MongoDB and start the server ─────────────────────────────────
-mongoose.connect(env.MONGO_URI)
+mongoose.connect(env!.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB connected successfully');
 
     const app = createApp();
-    const server = app.listen(env.PORT, () => {
-      console.log(`🚀 SupliList backend server running on port ${env.PORT}`);
+    const server = app.listen(env!.PORT, () => {
+      console.log(`🚀 SupliList backend server running on port ${env!.PORT}`);
     });
 
     // ── 3. Background job workers ──────────────────────────────────────────────

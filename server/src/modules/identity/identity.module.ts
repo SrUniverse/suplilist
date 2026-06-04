@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { MongooseUserIdentityRepository } from './infrastructure/mongoose/mongoose-user-identity.repository.js';
 import { MongooseProfileRepository } from '../profile/infrastructure/mongoose/mongoose-profile.repository.js';
 import { RedisTokenBlocklist } from '../../shared/infrastructure/security/redis-token-blocklist.js';
@@ -46,20 +46,20 @@ export function initializeIdentityModule(): Router {
   );
 
   // 4. Register HTTP Router Routes
-  router.post('/register', (req, res, next) => controller.register(req, res, next));
+  router.post('/register', (req: Request, res: Response, next: NextFunction) => controller.register(req, res, next));
   
   // Chain both IP-based and Email-based rate limiters to secure the login route
   router.post(
     '/login', 
     ipAuthRateLimiter, 
     emailAuthRateLimiter, 
-    (req, res, next) => controller.login(req, res, next)
+    (req: Request, res: Response, next: NextFunction) => controller.login(req, res, next)
   );
   
-  router.post('/refresh', (req, res, next) => controller.refresh(req, res, next));
-  router.post('/logout', requireAuth, (req, res, next) => controller.logout(req, res, next));
-  router.delete('/account', requireAuth, (req, res, next) => controller.deleteAccount(req, res, next));
-  router.post('/account/cancel-deletion', (req, res, next) => controller.cancelDeletion(req, res, next));
+  router.post('/refresh', (req: Request, res: Response, next: NextFunction) => controller.refresh(req, res, next));
+  router.post('/logout', requireAuth, (req: Request, res: Response, next: NextFunction) => controller.logout(req, res, next));
+  router.delete('/account', requireAuth, (req: Request, res: Response, next: NextFunction) => controller.deleteAccount(req, res, next));
+  router.post('/account/cancel-deletion', (req: Request, res: Response, next: NextFunction) => controller.cancelDeletion(req, res, next));
 
   return router;
 }

@@ -39,7 +39,7 @@ afterEach(() => {
 describe('Router — Basic Navigation', () => {
   let router;
   let container;
-  let mockPage;
+  let _mockPage;
 
   beforeEach(() => {
     // Setup DOM
@@ -67,7 +67,7 @@ describe('Router — Basic Navigation', () => {
     ];
 
     router = new Router(routes, container);
-    mockPage = {
+    _mockPage = {
       mount: vi.fn().mockResolvedValue(undefined),
       unmount: vi.fn().mockResolvedValue(undefined)
     };
@@ -319,7 +319,7 @@ describe('Router — Stale Navigation Prevention (Token System)', () => {
     window.location.pathname = '/slow';
     window.location.search = '';
 
-    const nav1 = router.handleRoute();
+    const _nav1 = router.handleRoute();
 
     // Quick navigate away before first completes
     window.location.pathname = '/fast';
@@ -415,7 +415,7 @@ describe('Router — Cleanup', () => {
 });
 
 // Mock Page Component
-function MockPage(container, params) {
+function MockPage(container, _params) {
   return {
     mount: async () => {
       container.innerHTML = '<div>Mock Page</div>';

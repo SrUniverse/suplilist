@@ -32,7 +32,6 @@ dist/
 .out/
 build/
 # Vite outDir — GitHub Pages deployado via Actions artifact (não commitar)
-docs/
 # TypeScript build output do backend
 server/dist/
 
@@ -72,6 +71,8 @@ assets/logo2.jpeg
 # Sistema Operacional
 .DS_Store
 Thumbs.db
+*.db
+*.sqlite
 
 # IDEs e Editores
 .vscode/

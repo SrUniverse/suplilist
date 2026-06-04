@@ -218,7 +218,7 @@ export function _renderProgressTrackerSection() {
           <h4 style="font-size:12px;font-weight:700;color:var(--color-text-secondary);margin:0 0 12px;text-transform:uppercase;">
             Timeline de Progresso
           </h4>
-          ${timeline.map((milestone, idx) => `
+          ${timeline.map((milestone, _idx) => `
             <div style="
               background:var(--color-surface-primary);
               border:1px solid var(--color-border);

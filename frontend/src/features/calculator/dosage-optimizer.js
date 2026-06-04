@@ -108,8 +108,8 @@ export function compareWithRecommended(supplementId, userDosage, weight, goal) {
   }
 
   const percentage = Math.round((userDosage / recommended) * 100);
-  let status = 'optimal';
-  let message = '';
+let status = 'optimal';
+let message = '';
 
   if (percentage > 125) {
     status = 'too-high';

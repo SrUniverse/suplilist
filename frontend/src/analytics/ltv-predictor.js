@@ -5,7 +5,6 @@
 
 import { analyticsStorage } from './storage/analytics-storage.js';
 import { stateManager } from '../state/state-manager.js';
-import { logger } from '../utils/logger.js';
 
 /**
  * Predicts customer lifetime value (LTV)
@@ -176,7 +175,7 @@ export class LTVPredictor {
 
     // Estimate LTV for each user (simplified)
     let totalLTV = 0;
-    cohortEvents.forEach(event => {
+    cohortEvents.forEach(_event => {
       // Rough estimate: 50-300 BRL per user depending on tier
       const minLTV = 50;
       const maxLTV = 300;
@@ -270,7 +269,7 @@ export class LTVPredictor {
    * Get recommended action for user
    * @private
    */
-  #getRecommendedAction(userProfile, segment) {
+  #getRecommendedAction(userProfile, _segment) {
     if (userProfile.tier === 'pro' || userProfile.tier === 'master') {
       return 'Retention: High-value user, maintain engagement';
     }
@@ -286,7 +285,7 @@ export class LTVPredictor {
    * Estimate cohort retention D30
    * @private
    */
-  async #estimateCohortRetention(cohortDateISO) {
+  async #estimateCohortRetention(_cohortDateISO) {
     // Rough: new cohorts retain ~40% at D30
     const random = Math.random();
     return Math.round((35 + random * 15) * 10) / 10;  // 35-50%

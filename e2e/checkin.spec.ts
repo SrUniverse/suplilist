@@ -5,16 +5,24 @@ import { MyStackPage } from './pages/MyStackPage';
 test.describe('Checkin Flow', () => {
   test.use({ storageState: 'e2e/support/storageState.json' });
 
+  test.beforeEach(async ({ page }) => {
+    page.on('console', msg => console.log(`[Browser] ${msg.text()}`));
+  });
+
   test('should check-in a supplement from the stack', async ({ page }) => {
     const checkin = new CheckinPage(page);
     const stack = new MyStackPage(page);
 
     // Adicionamos um item no stack primeiro para garantir que há algo para fazer check-in
     const testItemId = 'creatina-monohidratada';
+    const testItemName = 'Creatina Monohidratada';
+
     await stack.goto();
     // Tenta adicionar
     try {
-      await stack.addItem('Creatina Monohidratada', testItemId);
+      await stack.addItem(testItemName, testItemId);
+      // Wait for the 300ms debounce in state-manager to persist to localStorage
+      await page.waitForTimeout(400);
     } catch (e) {
       // Ignora se falhar, talvez já exista
     }
@@ -22,14 +30,8 @@ test.describe('Checkin Flow', () => {
     // Agora vamos para a home/check-in
     await checkin.goto();
 
-    // Se o botão de check-in unitário estiver visível, clica nele
-    const checkinBtn = page.getByTestId(`checkin-btn-${testItemId}`);
-    
-    // Verifica se precisa de checkin
-    const isVisible = await checkinBtn.isVisible();
-    if (isVisible) {
-      await checkin.checkInItem(testItemId);
-    }
+    // Tenta fazer o checkin (espera o botão ficar visível)
+    await checkin.checkInItem(testItemId);
     
     // Verifica se agora está concluído
     await checkin.verifyItemChecked(testItemId);
@@ -37,7 +39,7 @@ test.describe('Checkin Flow', () => {
     // Limpeza
     await stack.goto();
     try {
-      await stack.removeItem(testItemId);
+      await stack.removeItem(testItemName);
     } catch (e) {
       // Ignora erro
     }

@@ -1,4 +1,3 @@
-import { stateManager } from '../../state/state-manager.js';
 import { todayISO, offsetISO } from '../../utils/date.js';
 
 export default class NotificationService {

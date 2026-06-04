@@ -86,7 +86,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   it('6. scrollToIndex() scrolls to item', () => {
     scroller.mount();
 
-    const scrollSpy = vi.spyOn(window, 'scrollTo').mockImplementation();
+    const _scrollSpy = vi.spyOn(window, 'scrollTo').mockImplementation();
     scroller.scrollToIndex(50);
 
     // Should scroll to approximately item 50's position
@@ -106,7 +106,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
 
   // 8. renderItem is called with correct parameters
   it('8. renderItem is called with correct parameters', () => {
-    const spy = vi.fn((item, index) => `<div>${item.name}</div>`);
+    const spy = vi.fn((item, _index) => `<div>${item.name}</div>`);
     const testScroller = new VirtualScroller(container, items.slice(0, 10), spy, {
       itemHeight: 50,
       bufferSize: 5

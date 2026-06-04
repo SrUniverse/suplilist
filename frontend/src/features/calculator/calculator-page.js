@@ -157,7 +157,7 @@ export default class CalculatorPage {
     return filtered.map(s => {
       const active = this._selectedSupp?.id === s.id;
       const ev = s.evidenceLevel ?? 'D';
-      const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
+      const _evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
       return `
         <button class="calcp-chip${active ? ' calcp-chip--active' : ''}"
           role="option" aria-selected="${active}"
@@ -182,7 +182,7 @@ export default class CalculatorPage {
     const supp = this._selectedSupp;
     const result = this._calcResult;
     const ev = supp.evidenceLevel ?? 'D';
-    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
+    const _evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
 
     // Determine displayed dose
     let doseValue = '—';

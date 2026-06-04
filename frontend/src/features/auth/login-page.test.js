@@ -87,7 +87,7 @@ describe('LoginPage', () => {
       const { identityService } = await import('../../platform/identity-service.js');
       identityService.login.mockResolvedValue({});
 
-      const page = await mountPage(container);
+      const _page = await mountPage(container);
       submitForm(container, 'test@example.com', 'mysecret');
       await Promise.resolve();
 

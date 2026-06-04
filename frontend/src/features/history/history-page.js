@@ -9,9 +9,9 @@ import { historyService } from './history-service.js';
 import { logger } from '../../utils/logger.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const pad = n => String(n).padStart(2, '0');
+const _pad = n => String(n).padStart(2, '0');
 const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const formatMonthYear = (isoDate) => {
+const _formatMonthYear = (isoDate) => {
   if (!isoDate) return '';
   const [y, m] = isoDate.split('-');
   return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`;
@@ -446,7 +446,7 @@ export default class HistoryPage {
     const stack = state.stack || [];
     const supMap = buildSupMap();
 
-    const today = todayISO();
+    const _today = todayISO();
     const daysInRange = 30;
     const daysSet = new Set(checkins.map(c => c.date).filter(Boolean));
     const totalCycles = daysSet.size;
@@ -595,7 +595,7 @@ export default class HistoryPage {
     this._scroller.mount();
   }
 
-  _renderCheckinItem(ck, index) {
+  _renderCheckinItem(ck, _index) {
     const supMap = buildSupMap();
     const db = supMap[ck.supplementId || ''];
     const name = db?.name || ck.supplementId || 'Desconhecido';
@@ -859,7 +859,7 @@ export default class HistoryPage {
    * @returns {string} HTML string for advanced analytics dashboard
    * @private
    */
-  _renderAdvancedAnalyticsDashboard(checkins, stack, supMap) {
+  _renderAdvancedAnalyticsDashboard(checkins, stack, _supMap) {
     const daysSet = new Set(checkins.map(c => c.date).filter(Boolean));
     
     // Heatmap Cells

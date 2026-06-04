@@ -148,7 +148,7 @@ describe('StorageManager - Input Validation', () => {
 describe('StorageManager - Import Validation', () => {
   // Setup mock IndexedDB store
   const mockStore = {
-    put: vi.fn((value, key) => {
+    put: vi.fn((_value, _key) => {
       // Return mock request that auto-resolves
       const mockRequest = { onerror: null, onsuccess: null };
       setTimeout(() => {

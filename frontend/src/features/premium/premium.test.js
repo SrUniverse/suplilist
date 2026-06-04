@@ -5,7 +5,6 @@ import { CheckoutModal } from './checkout-modal.js';
 import ListPage from '../supplements/list-page.js';
 import HistoryPage from '../history/history-page.js';
 import SettingsPage from '../settings/settings-page.js';
-import ExcelJS from 'exceljs';
 
 // Mock VirtualScroller to safely test ListPage rendering under JSDOM
 vi.mock('../../core/virtual-scroller.js', () => ({

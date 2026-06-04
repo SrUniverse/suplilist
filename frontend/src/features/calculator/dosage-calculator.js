@@ -206,7 +206,7 @@ export class DosageCalculator {
     return 1.0;
   }
 
-  _getDosageFrequency(supplement, objective) {
+  _getDosageFrequency(supplement, _objective) {
     if (supplement.id === 'cafeina-teanina') {
       return 'Somente nos dias de treino (pré-treino)';
     }

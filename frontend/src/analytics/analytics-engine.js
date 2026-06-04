@@ -49,7 +49,7 @@ export class AnalyticsEngine {
       logger.debug('[AnalyticsEngine] Session manager initialized');
 
       // PATCH 1: Step 4: Listen to key events with error handling
-      eventBus.on(EVENTS.PROFILE_UPDATED, (payload) => {
+      eventBus.on(EVENTS.PROFILE_UPDATED, (_payload) => {
         try {
           sessionManager.recordActivity('user:profileUpdated');
         } catch (err) {
@@ -57,7 +57,7 @@ export class AnalyticsEngine {
         }
       });
 
-      eventBus.on(EVENTS.STACK_UPDATED, (payload) => {
+      eventBus.on(EVENTS.STACK_UPDATED, (_payload) => {
         try {
           sessionManager.recordActivity('stack:updated');
         } catch (err) {
@@ -65,7 +65,7 @@ export class AnalyticsEngine {
         }
       });
 
-      eventBus.on(EVENTS.CHECKIN_LOGGED, (payload) => {
+      eventBus.on(EVENTS.CHECKIN_LOGGED, (_payload) => {
         try {
           sessionManager.recordActivity('checkin:logged');
         } catch (err) {
@@ -73,7 +73,7 @@ export class AnalyticsEngine {
         }
       });
 
-      eventBus.on(EVENTS.PREMIUM_UNLOCKED, (payload) => {
+      eventBus.on(EVENTS.PREMIUM_UNLOCKED, (_payload) => {
         try {
           sessionManager.recordActivity('premium:unlocked');
         } catch (err) {
@@ -81,7 +81,7 @@ export class AnalyticsEngine {
         }
       });
 
-      eventBus.on('*', (eventName, payload) => {
+      eventBus.on('*', (eventName, _payload) => {
         try {
           // Track user activity for idle detection
           if (!eventName.startsWith('analytics:') && !eventName.startsWith('ui:')) {

@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-06-04T17:18:35.518Z",
+  "projectRoot": "C:\\Users\\User\\Desktop\\suplilist",
+  "structure": {
+    "hasPackageJson": true,
+    "hasTsConfig": false,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1780593515518
+}

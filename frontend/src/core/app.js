@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
           eventBus.emit(EVENTS.SYNC_COMPLETED);
           eventBus.emit('toast:show', { message: 'Dados atualizados em segundo plano!', type: 'success', duration: 2500 });
-        } catch (err) {
+        } catch (_err) {
           eventBus.emit(EVENTS.SYNC_FAILED);
         }
       }

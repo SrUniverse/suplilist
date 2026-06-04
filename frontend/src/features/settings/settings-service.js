@@ -36,7 +36,6 @@
  */
 
 import { apiFetch, ApiError } from '../../platform/api-client.js';
-import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { logger } from '../../utils/logger.js';
 

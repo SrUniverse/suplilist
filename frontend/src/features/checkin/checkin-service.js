@@ -109,7 +109,7 @@ class CheckinService {
         eventBus.emit('toast:show', { message: '🎉 Check-in completo!', type: 'success' });
       }
 
-    } catch (err) {
+    } catch (_err) {
       // Fallback global de precaução
       for (const payload of payloads) {
         await syncQueue.enqueue(payload);

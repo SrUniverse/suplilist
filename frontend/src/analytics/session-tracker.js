@@ -3,7 +3,7 @@
 // Tracks session lifecycle (start, duration, end)
 // ============================================================
 
-import { analyticsStorage, STORES } from './storage/analytics-storage.js';
+import { analyticsStorage } from './storage/analytics-storage.js';
 import { logger } from '../utils/logger.js';
 
 /**

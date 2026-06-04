@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { funnelEngine, FunnelEngine } from './funnel-engine.js';
+import { FunnelEngine } from './funnel-engine.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
 
 let mockEvents = [];

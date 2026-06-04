@@ -76,6 +76,7 @@ export const EVENTS = Object.freeze({
   SYNC_FAILED: 'sync:failed',
   SYNC_SUBSCRIPTION: 'sync:subscription',
   SYNC_QUEUE_EMPTIED: 'sync:queue:emptied',
+  SYNC_QUEUE_UPDATED: 'sync:queue:updated',
 
   // UI
   UI_OFFLINE: 'ui:offline',

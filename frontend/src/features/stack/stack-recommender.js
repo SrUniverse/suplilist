@@ -1037,7 +1037,7 @@ export class StackRecommender {
   /**
    * Assesses general compatibility based on safety scores.
    */
-  _scoreCompatibility(supplement, userProfile) {
+  _scoreCompatibility(supplement, _userProfile) {
     return (supplement.safetyScore || 90) / 100;
   }
 
@@ -1079,7 +1079,7 @@ export class StackRecommender {
   _calculatePersonalDosage(supplement, userProfile) {
     const weight = userProfile.weight || 70;
     const objective = userProfile.objective || 'general';
-    const age = userProfile.age || 25;
+    const _age = userProfile.age || 25;
 
     let daily = supplement.dosage.maintenance;
     
@@ -1156,7 +1156,7 @@ export class StackRecommender {
   /**
    * Maps optimal intake frequency matching supplement profile.
    */
-  _getDosageFrequency(supplement, objective) {
+  _getDosageFrequency(supplement, _objective) {
     if (supplement.id === 'cafeina-teanina') {
       return 'Somente nos dias de treino (pré-treino)';
     }
@@ -1202,7 +1202,7 @@ export class StackRecommender {
   /**
    * Standardizes recommendation payloads matching strict schema requirements.
    */
-  _formatResult(supplement, score, dosage, cost, userProfile) {
+  _formatResult(supplement, score, dosage, cost, _userProfile) {
     const timing = dosage.timing;
     let priority = 'LOW';
     if (score >= 0.8) priority = 'HIGH';

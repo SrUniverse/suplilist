@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { metricsAggregator, BusinessMetrics } from './metrics-aggregator.js';
+import { metricsAggregator } from './metrics-aggregator.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
 import { stateManager } from '../state/state-manager.js';
 

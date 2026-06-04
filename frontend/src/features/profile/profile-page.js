@@ -2,7 +2,7 @@ import { stateManager, ACTIONS, STORAGE_KEYS } from '../../state/state-manager.j
 import { eventBus } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { StorageManager } from '../../platform/storage-manager.js';
-import { getAdherenceOverview, getTopSupplements, calculateAdherence, renderAdherenceChart } from '../analytics/adherence-tracker.js';
+import { getAdherenceOverview } from '../analytics/adherence-tracker.js';
 import { getRefillAlerts, getAlertMessage, getAlertColor } from './refill-alerts.js';
 import { optimizeStack } from '../stack/stack-optimizer.js';
 import { generateTimeline } from '../progress/before-after-tracker.js';

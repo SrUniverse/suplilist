@@ -3,7 +3,7 @@
 // End-to-end tests for complete analytics flows
 // ============================================================
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 describe('AnalyticsEngine E2E', () => {
   describe('Analytics Structure', () => {

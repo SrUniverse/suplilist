@@ -82,7 +82,9 @@ export class StorageManager {
       try {
         await this._setIndexedDB(key, value);
         // Depois sincronizar com cookies para cross-browser
-        this._syncToCookie(key, value);
+        if (!this._syncToCookie(key, value)) {
+          try { localStorage.setItem(key, value); } catch (e) { this._emitStorageDegradedEvent('localStorage', e.message); }
+        }
         return;
       } catch (e) {
         console.warn('[StorageManager] IndexedDB setItem falhou, tentando fallback:', e);
@@ -98,7 +100,7 @@ export class StorageManager {
         return;
       }
     } catch (e) {
-      // Cookie falhou, tentar localStorage
+      this._emitStorageDegradedEvent('cookie', e.message);
     }
 
     // Fallback para localStorage
@@ -136,6 +138,22 @@ export class StorageManager {
     try {
       return localStorage.getItem(key);
     } catch (e) {
+      this._emitStorageDegradedEvent('localStorage', e.message);
+      return null;
+    }
+  }
+
+  /**
+   * Lê um valor do armazenamento de forma síncrona (apenas Cookies e localStorage).
+   * Útil para hidratação inicial do estado (evita UI flickering).
+   */
+  static getItemSync(key) {
+    let value = this._getCookie(key);
+    if (value !== null) return value;
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      this._emitStorageDegradedEvent('localStorage', e.message);
       return null;
     }
   }
@@ -170,7 +188,7 @@ export class StorageManager {
     try {
       localStorage.removeItem(key);
     } catch (e) {
-      // Ignorar
+      this._emitStorageDegradedEvent('localStorage', e.message);
     }
   }
 
@@ -188,7 +206,7 @@ export class StorageManager {
         if (key) keys.add(key);
       }
     } catch (e) {
-      // Ignorar
+      this._emitStorageDegradedEvent('localStorage', e.message);
     }
 
     // Adicionar chaves de cookies
@@ -200,7 +218,7 @@ export class StorageManager {
         if (key) keys.add(key);
       }
     } catch (e) {
-      // Ignorar
+      this._emitStorageDegradedEvent('cookie', e.message);
     }
 
     return Array.from(keys);
@@ -216,7 +234,7 @@ export class StorageManager {
       const value = this._getCookie(test);
       this._removeCookie(test);
       return value === '1';
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }
@@ -407,11 +425,12 @@ export class StorageManager {
     try {
       // Só sincroniza dados "state" para evitar poluir cookies
       if (key === this.STORAGE_KEY) {
-        this._setCookie(key, value);
+        return this._setCookie(key, value);
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignorar sincronização falha
     }
+    return false;
   }
 
   /**
@@ -446,7 +465,7 @@ export class StorageManager {
           result[key] = localStorage.getItem(key);
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // Ignorar
     }
     return result;
@@ -486,7 +505,7 @@ export class StorageManager {
       // PATCH 12: Verificar se cookie foi escrito (comparar serialized)
       const readBack = this._getCookie(key);
       return readBack === serialized;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }
@@ -509,7 +528,7 @@ export class StorageManager {
       }
 
       return null;
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }
@@ -523,7 +542,7 @@ export class StorageManager {
       expires.setDate(expires.getDate() - 1);
       const cookie = `${key}=; expires=${expires.toUTCString()}; path=${this.COOKIE_PATH}`;
       document.cookie = cookie;
-    } catch (e) {
+    } catch (_e) {
       // Ignorar
     }
   }
@@ -552,7 +571,7 @@ export class StorageManager {
           detail: { layer, error: errorMessage, timestamp: Date.now() }
         }));
       }
-    } catch (e) {
+    } catch (_e) {
       // Silenciar erro de emit (não crítico)
     }
   }

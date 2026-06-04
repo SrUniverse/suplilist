@@ -18,13 +18,14 @@ export class MyStackPage {
     await expect(this.emptyState).toBeVisible();
   }
 
-  async verifyItemVisible(itemId: string) {
-    const item = this.page.getByTestId(`stack-item-${itemId}`);
-    await expect(item).toBeVisible();
+  async verifyItemVisible(supplementName: string) {
+    const itemCard = this.page.locator('.msp-item').filter({ hasText: supplementName });
+    await expect(itemCard).toBeVisible();
   }
 
-  async removeItem(itemId: string) {
-    const removeBtn = this.page.getByTestId(`stack-remove-btn-${itemId}`);
+  async removeItem(supplementName: string) {
+    const itemCard = this.page.locator('.msp-item').filter({ hasText: supplementName });
+    const removeBtn = itemCard.locator('button[data-action="remove"]');
     await removeBtn.waitFor({ state: 'visible' });
     
     // Playwright handles the native confirm dialog automatically by dismissing it unless we hook into it.
@@ -32,6 +33,11 @@ export class MyStackPage {
     this.page.once('dialog', dialog => dialog.accept());
     
     await removeBtn.click();
+  }
+
+  async verifyItemHidden(supplementName: string) {
+    const itemCard = this.page.locator('.msp-item').filter({ hasText: supplementName });
+    await expect(itemCard).toBeHidden();
   }
 
   async addItem(searchTerm: string, itemId: string) {

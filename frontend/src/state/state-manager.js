@@ -186,44 +186,37 @@ function reducer(state, action) {
         return state;
       }
 
-      // Suporta ambos os formatos: { id } e { supplementId }
-      const itemId = action.payload.supplementId ?? action.payload.id;
+      const { id, supplementId } = action.payload;
 
-      if (typeof itemId !== 'string' || itemId.trim() === '') {
-        logger.warn('[StateManager] ADD_TO_STACK requires supplementId or id');
+      if (!id || typeof id !== 'string' || id.trim() === '') {
+        logger.warn('[StateManager] ADD_TO_STACK requires an id');
         return state;
       }
 
-      const exists = state.stack.some(
-        item => (item.supplementId ?? item.id) === itemId
-      );
-      if (exists) return state; // Prevent duplicates
+      // Prevent duplicates based on supplementId
+      const exists = state.stack.some(item => item.supplementId === supplementId);
+      if (exists) return state;
 
-      // Normaliza: garante que o item tenha sempre supplementId
-      const normalizedItem = {
-        ...action.payload,
-        supplementId: itemId,
-      };
       return {
         ...state,
-        stack: [...state.stack, normalizedItem]
+        stack: [...state.stack, action.payload]
       };
     }
 
-    case ACTIONS.REMOVE_FROM_STACK:
+    case ACTIONS.REMOVE_FROM_STACK: {
+      const idToRemove = action.payload.id;
       return {
         ...state,
-        stack: state.stack.filter(item =>
-          (item.supplementId ?? item.id) !== action.payload.supplementId
-        )
+        stack: state.stack.filter(item => item.id !== idToRemove)
       };
+    }
 
     case ACTIONS.RESTORE_STACK_ITEM_AT_INDEX: {
       const { item, index } = action.payload;
       if (!item) return state;
       const newStack = [...state.stack];
       // Prevent duplicates if network revived late
-      const exists = newStack.some(i => (i.supplementId ?? i.id) === (item.supplementId ?? item.id));
+      const exists = newStack.some(i => i.id === item.id || i.supplementId === item.supplementId);
       if (!exists) {
         newStack.splice(index, 0, item);
       }
@@ -242,14 +235,7 @@ function reducer(state, action) {
     case ACTIONS.IMPORT_STACK:
       return {
         ...state,
-        stack: (action.payload || []).map(item => {
-          const itemId = item.supplementId ?? item.id;
-          return {
-            ...item,
-            supplementId: itemId,
-            id: itemId
-          };
-        })
+        stack: action.payload || []
       };
 
     case ACTIONS.CLEAR_CHECKINS:
@@ -884,26 +870,47 @@ export class StateManager {
     }
   }
 
-  /**
-   * Initialize state from storage with fallback validation.
-   */
   _initializeState() {
     try {
-      const stored = StorageManager.getItem(STORAGE_KEY);
+      const stored = StorageManager.getItemSync(STORAGE_KEY);
       if (!stored) {
         this._state = this._deepFreeze(DEFAULT_STATE);
-        return DEFAULT_STATE;
+      } else {
+        const parsed = JSON.parse(stored);
+        const migrated = this._migrateState(parsed);
+        const merged = this._deepMerge(DEFAULT_STATE, migrated);
+        this._state = this._deepFreeze(merged);
       }
-      const parsed = JSON.parse(stored);
-      const migrated = this._migrateState(parsed);
-      const merged = this._deepMerge(DEFAULT_STATE, migrated);
-      this._state = this._deepFreeze(merged);
-      return merged;
     } catch (err) {
       logger.warn('[StateManager] Corrupted storage detected, falling back to default:', err);
       this._state = this._deepFreeze(DEFAULT_STATE);
-      return DEFAULT_STATE;
     }
+
+    // Async hydration from IndexedDB
+    Promise.resolve().then(() => {
+      StorageManager.getItem(STORAGE_KEY).then(stored => {
+        if (stored) {
+          try {
+            const parsed = typeof stored === 'string' ? JSON.parse(stored) : stored;
+            const migrated = this._migrateState(parsed);
+            const merged = this._deepMerge(this._state, migrated);
+            if (JSON.stringify(this._state) !== JSON.stringify(merged)) {
+              this._state = this._deepFreeze(merged);
+              this._subscribers.forEach(cb => {
+                try { cb(this._state, { type: 'STATE_HYDRATED_ASYNC' }); } catch (e) { logger.error('[StateManager] Subscriber error during async hydration:', e); }
+              });
+              if (typeof eventBus !== 'undefined') {
+                eventBus.emit('state:changed', { path: 'all', value: merged, fullState: this.export() });
+              }
+            }
+          } catch (err) {
+            logger.warn('[StateManager] Async hydration failed:', err);
+          }
+        }
+      }).catch(() => {});
+    });
+
+    return this._state;
   }
 
   /**
@@ -965,7 +972,7 @@ export class StateManager {
         });
         break;
       case ACTIONS.REMOVE_FROM_STACK:
-        eventBus.emit('stack:itemRemoved', { supplementId: action.payload.supplementId });
+        eventBus.emit('stack:itemRemoved', { supplementId: action.payload.supplementId ?? action.payload.id });
         break;
       case ACTIONS.CLEAR_STACK:
         eventBus.emit('stack:cleared', {});

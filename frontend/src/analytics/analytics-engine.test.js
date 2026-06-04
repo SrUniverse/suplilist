@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { _analyticsEngine, AnalyticsEngine } from './analytics-engine.js';
+import { AnalyticsEngine } from './analytics-engine.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 import { eventPipeline } from './event-pipeline.js';
 import { sessionManager } from './session-tracker.js';
@@ -7,7 +7,6 @@ import { metricsAggregator } from './metrics-aggregator.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
 import { funnelEngine } from './funnel-engine.js';
 import { logger } from '../utils/logger.js';
-import { StorageManager as _StorageManager } from '../platform/storage-manager.js';
 
 // Mock all internal subsystems
 vi.mock('../core/event-bus.js', async (importOriginal) => {

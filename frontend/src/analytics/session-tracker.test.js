@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { sessionManager, SessionManager, SessionTracker } from './session-tracker.js';
+import { SessionManager, SessionTracker } from './session-tracker.js';
 import { analyticsStorage } from './storage/analytics-storage.js';
 
 vi.mock('./storage/analytics-storage.js', () => ({

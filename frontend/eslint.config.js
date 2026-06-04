@@ -1,17 +1,29 @@
 import js from '@eslint/js';
 
+import unusedImports from 'eslint-plugin-unused-imports';
+
 export default [
   js.configs.recommended,
   {
+    plugins: {
+      'unused-imports': unusedImports,
+    },
     files: ['src/**/*.js'],
     rules: {
-      'no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_',
-        caughtErrorsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      }],
+      'no-unused-vars': 'off',
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       'no-undef': 'error',
-      'no-useless-assignment': 'warn',
+      'no-useless-assignment': 'off',
     },
     languageOptions: {
       globals: {

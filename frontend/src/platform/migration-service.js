@@ -167,7 +167,7 @@ class MigrationService {
     const activePromises = [];
     const MAX_CONCURRENT = 3;
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       let endpointSupported = true;
 
       const tick = (deadline) => {

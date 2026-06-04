@@ -5,6 +5,10 @@ import { MyStackPage } from './pages/MyStackPage';
 test.describe('My Stack Flow', () => {
   test.use({ storageState: 'e2e/support/storageState.json' });
 
+  test.beforeEach(async ({ page }) => {
+    page.on('console', msg => console.log(`[Browser] ${msg.text()}`));
+  });
+
   test('should manage stack items correctly', async ({ page }) => {
     const stack = new MyStackPage(page);
 
@@ -13,18 +17,17 @@ test.describe('My Stack Flow', () => {
     // Podemos estar com empty state dependendo do estado salvo.
     // Vamos tentar adicionar um item e depois removê-lo.
     const testItemId = 'creatina-monohidratada';
+    const testItemName = 'Creatina Monohidratada';
 
-    await stack.addItem('Creatina Monohidratada', testItemId);
+    await stack.addItem(testItemName, testItemId);
 
     // O item deve estar visível
-    await stack.verifyItemVisible(testItemId);
+    await stack.verifyItemVisible(testItemName);
 
     // Agora remove o item
-    await stack.removeItem(testItemId);
+    await stack.removeItem(testItemName);
 
-    // Se a stack ficou vazia de novo (assumindo que estava vazia),
-    // a gente pode verificar se sumiu. Mas a página pode ter outros itens.
-    // Pelo menos o item atualizado não deve estar mais lá.
-    await expect(page.getByTestId(`stack-item-${testItemId}`)).toBeHidden();
+    // Verifica se sumiu
+    await stack.verifyItemHidden(testItemName);
   });
 });

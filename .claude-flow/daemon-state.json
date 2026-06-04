@@ -1,0 +1,140 @@
+{
+  "running": true,
+  "startedAt": "2026-06-04T17:03:35.500Z",
+  "workers": {
+    "map": {
+      "runCount": 2,
+      "successCount": 2,
+      "failureCount": 0,
+      "averageDurationMs": 2,
+      "isRunning": false,
+      "nextRun": "2026-06-04T17:33:35.519Z",
+      "lastStartedAt": "2026-06-04T17:18:35.516Z",
+      "lastRun": "2026-06-04T17:18:35.518Z"
+    },
+    "audit": {
+      "runCount": 2,
+      "successCount": 2,
+      "failureCount": 0,
+      "averageDurationMs": 35901.5,
+      "isRunning": true,
+      "nextRun": "2026-06-04T17:26:47.329Z",
+      "lastStartedAt": "2026-06-04T17:26:47.339Z",
+      "lastRun": "2026-06-04T17:16:47.328Z"
+    },
+    "optimize": {
+      "runCount": 1,
+      "successCount": 1,
+      "failureCount": 0,
+      "averageDurationMs": 162511,
+      "isRunning": true,
+      "nextRun": "2026-06-04T17:25:18.017Z",
+      "lastStartedAt": "2026-06-04T17:25:18.026Z",
+      "lastRun": "2026-06-04T17:10:18.016Z"
+    },
+    "consolidate": {
+      "runCount": 1,
+      "successCount": 1,
+      "failureCount": 0,
+      "averageDurationMs": 3,
+      "isRunning": false,
+      "nextRun": "2026-06-04T17:39:35.510Z",
+      "lastStartedAt": "2026-06-04T17:09:35.507Z",
+      "lastRun": "2026-06-04T17:09:35.510Z"
+    },
+    "testgaps": {
+      "runCount": 1,
+      "successCount": 1,
+      "failureCount": 0,
+      "averageDurationMs": 140700,
+      "isRunning": false,
+      "nextRun": "2026-06-04T17:33:56.205Z",
+      "lastStartedAt": "2026-06-04T17:11:35.504Z",
+      "lastRun": "2026-06-04T17:13:56.204Z"
+    },
+    "predict": {
+      "runCount": 0,
+      "successCount": 0,
+      "failureCount": 0,
+      "averageDurationMs": 0,
+      "isRunning": false
+    },
+    "document": {
+      "runCount": 0,
+      "successCount": 0,
+      "failureCount": 0,
+      "averageDurationMs": 0,
+      "isRunning": false
+    }
+  },
+  "config": {
+    "autoStart": false,
+    "logDir": "C:\\Users\\User\\Desktop\\suplilist\\.claude-flow\\logs",
+    "stateFile": "C:\\Users\\User\\Desktop\\suplilist\\.claude-flow\\daemon-state.json",
+    "maxConcurrent": 2,
+    "workerTimeoutMs": 960000,
+    "resourceThresholds": {
+      "maxCpuLoad": 12.8,
+      "minFreeMemoryPercent": 10
+    },
+    "workers": [
+      {
+        "type": "map",
+        "intervalMs": 900000,
+        "offsetMs": 0,
+        "priority": "normal",
+        "description": "Codebase mapping",
+        "enabled": true
+      },
+      {
+        "type": "audit",
+        "intervalMs": 600000,
+        "offsetMs": 120000,
+        "priority": "critical",
+        "description": "Security analysis",
+        "enabled": true
+      },
+      {
+        "type": "optimize",
+        "intervalMs": 900000,
+        "offsetMs": 240000,
+        "priority": "high",
+        "description": "Performance optimization",
+        "enabled": true
+      },
+      {
+        "type": "consolidate",
+        "intervalMs": 1800000,
+        "offsetMs": 360000,
+        "priority": "low",
+        "description": "Memory consolidation",
+        "enabled": true
+      },
+      {
+        "type": "testgaps",
+        "intervalMs": 1200000,
+        "offsetMs": 480000,
+        "priority": "normal",
+        "description": "Test coverage analysis",
+        "enabled": true
+      },
+      {
+        "type": "predict",
+        "intervalMs": 600000,
+        "offsetMs": 0,
+        "priority": "low",
+        "description": "Predictive preloading",
+        "enabled": false
+      },
+      {
+        "type": "document",
+        "intervalMs": 3600000,
+        "offsetMs": 0,
+        "priority": "low",
+        "description": "Auto-documentation",
+        "enabled": false
+      }
+    ]
+  },
+  "savedAt": "2026-06-04T17:26:47.339Z"
+}

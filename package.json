@@ -2,7 +2,9 @@
   "name": "suplilist",
   "private": true,
   "workspaces": [
-    "frontend"
+    "frontend",
+    "server",
+    "shared"
   ],
   "scripts": {
     "dev":           "npm run dev -w @suplilist/frontend",

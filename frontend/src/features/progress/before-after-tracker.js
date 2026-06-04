@@ -118,7 +118,7 @@ function getTransformationSummary(weightChange, waistChange, chestChange, isBulk
  * @param {string} goal - Training goal
  * @returns {string} Motivational message
  */
-export function getMotivationMessage(transformation, goal) {
+export function getMotivationMessage(transformation, _goal) {
   if (!transformation) {
     return '📸 Capture your first before/after to track progress!';
   }
@@ -151,12 +151,12 @@ export function correlateStackWithResults(beforeRecord, afterRecord, supplements
     return [];
   }
 
-  let beforeStack = [];
+let beforeStack = [];
   try {
     beforeStack = typeof beforeRecord.stackSnapshot === 'string'
       ? JSON.parse(beforeRecord.stackSnapshot)
       : beforeRecord.stackSnapshot;
-  } catch (e) {
+  } catch (_e) {
     beforeStack = [];
   }
 

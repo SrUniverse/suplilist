@@ -48,7 +48,7 @@ export default class ShareService {
   async shareStack(stack) {
     if (!stack || !stack.length) return false;
     const url = this.generateShareUrl(stack);
-    const text = this.formatStackText(stack);
+    const _text = this.formatStackText(stack);
 
     if (navigator.share) {
       try {

@@ -9,7 +9,7 @@ describe('SchemaManager — JSON-LD Structured Data', () => {
   });
 
   // Helper to get last inserted script
-  function getLastSchema() {
+  function _getLastSchema() {
     const scripts = document.querySelectorAll('script[type="application/ld+json"]');
     return scripts.length > 0 ? JSON.parse(scripts[scripts.length - 1].textContent) : null;
   }

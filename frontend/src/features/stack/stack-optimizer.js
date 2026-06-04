@@ -144,7 +144,7 @@ export function optimizeStack(stackItems, purchases, goal, budget = 500) {
   const priorityGaps = gaps.filter(g => ['critical', 'high'].includes(g.priority));
   const suggestionGaps = gaps.filter(g => ['medium', 'low'].includes(g.priority));
 
-  let recommendation = '';
+let recommendation = '';
   if (redundancies.length > 0 && priorityGaps.length > 0) {
     recommendation = `Remove ${redundancies.map(r => r.supplements[0]).join(' + ')} (R$${savings_rounded}/mês), add ${priorityGaps.slice(0, 2).map(g => g.name).join(' + ')} = save R$${savings_rounded}/mês, +${priorityGaps.slice(0, 2).length} benefits`;
   } else if (redundancies.length > 0) {

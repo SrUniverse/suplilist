@@ -2,6 +2,31 @@ import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { apiFetch } from '../../platform/api-client.js';
 
 /**
+ * Adapter: Normalizes backend payload into the frontend UI entity.
+ * Guarantees that `id` is the primary key and `supplementId` is the catalog reference.
+ */
+const normalizeStackItem = (backendItem) => ({
+  id: backendItem.id, // Mandatory: DB row ID
+  supplementId: backendItem.supplementId, // Catalog Reference
+  dosage: backendItem.dose, // Nomenclature conversion
+  frequency: backendItem.frequency || 'daily',
+  timeOfDay: backendItem.timeOfDay || 'morning',
+  version: backendItem.version || 0,
+  isSyncing: false // Ephemeral UI state
+});
+
+/**
+ * Adapter: Maps frontend UI payload into the backend expected DTO.
+ */
+const mapToBackend = (frontendItem) => ({
+  supplementId: frontendItem.supplementId,
+  dose: frontendItem.dosage,
+  frequency: frontendItem.frequency || 'daily',
+  timeOfDay: frontendItem.timeOfDay || 'anytime',
+  notes: frontendItem.notes || null,
+});
+
+/**
  * Stack Service
  * 
  * Handles API mutations for the user's supplement stack with Optimistic UI updates.
@@ -17,7 +42,7 @@ class StackService {
    */
   async removeItem(id) {
     const stack = stateManager.stack || [];
-    const index = stack.findIndex(s => s.id === id);
+    const index = stack.findIndex(s => s.id === id); // Strict DB id matching
     if (index === -1) return;
 
     // 1. Snapshot for rollback
@@ -30,7 +55,7 @@ class StackService {
       // 3. Network Request (DELETE ignores OCC, bypasses If-Match validation)
       await apiFetch(`/api/stack/${id}`, { method: 'DELETE' });
 
-    } catch (err) {
+    } catch (_err) {
       // 4. Compensatory Rollback
       stateManager.dispatch(ACTIONS.SHOW_TOAST, {
         message: 'Sem conexão. O suplemento foi restaurado ao stack.',
@@ -46,11 +71,11 @@ class StackService {
    * Injects `isSyncing: true` to prevent concurrent edits.
    * 
    * @param {string} id - The stack item ID to update
-   * @param {Object} updates - The new values (e.g. { dose, timeOfDay })
+   * @param {Object} updates - The new values (e.g. { dosage, timeOfDay })
    */
   async updateItem(id, updates) {
     const stack = stateManager.stack || [];
-    const index = stack.findIndex(s => s.id === id);
+    const index = stack.findIndex(s => s.id === id); // Strict DB id matching
     if (index === -1) return;
 
     // 1. Snapshot for rollback
@@ -64,18 +89,19 @@ class StackService {
     });
 
     try {
+      const payload = mapToBackend({ ...itemBackup, ...updates });
+
       // 3. Network Request with OCC (If-Match)
       const { item: confirmed } = await apiFetch(`/api/stack/${id}`, {
         method: 'PUT',
         headers: { 'If-Match': `"${itemBackup.version}"` },
-        body: JSON.stringify(updates)
+        body: JSON.stringify(payload)
       });
 
       // Success: Remove the isSyncing flag and sync the new __v version
       stateManager.dispatch(ACTIONS.UPDATE_STACK_ITEM, {
         id,
-        ...confirmed,
-        isSyncing: false
+        ...normalizeStackItem(confirmed),
       });
 
     } catch (err) {
@@ -90,7 +116,10 @@ class StackService {
         const currentItem = err.data;
         
         // Surgical OCC Rollback: Overwrite the conflicting local item with the actual server state
-        stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { item: { ...currentItem, isSyncing: false }, index });
+        stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { 
+          item: normalizeStackItem(currentItem), 
+          index 
+        });
         return;
       }
 
@@ -102,7 +131,10 @@ class StackService {
       });
       
       // Replace the entire object with the backup (clears isSyncing natively)
-      stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { item: { ...itemBackup, isSyncing: false }, index });
+      stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { 
+        item: { ...itemBackup, isSyncing: false }, 
+        index 
+      });
     }
   }
 
@@ -113,21 +145,23 @@ class StackService {
    */
   async addItem(itemData) {
     // Generate a temporary ID for optimistic UI
-    const tempId = `temp_${Date.now()}`;
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const optimisticItem = { ...itemData, id: tempId, isSyncing: true };
 
     // Optimistic Add
     stateManager.dispatch(ACTIONS.ADD_TO_STACK, optimisticItem);
 
     try {
+      const payload = mapToBackend(itemData);
+
       const { item: confirmed } = await apiFetch('/api/stack', {
         method: 'POST',
-        body: JSON.stringify(itemData)
+        body: JSON.stringify(payload)
       });
 
       // Remove temp item and replace with confirmed server item
       stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { id: tempId });
-      stateManager.dispatch(ACTIONS.ADD_TO_STACK, { ...confirmed, isSyncing: false });
+      stateManager.dispatch(ACTIONS.ADD_TO_STACK, normalizeStackItem(confirmed));
 
     } catch (err) {
       // Rollback: Remove the item we just optimistically added
@@ -137,6 +171,7 @@ class StackService {
         duration: 4000
       });
       stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { id: tempId });
+      throw err;
     }
   }
 
@@ -146,7 +181,8 @@ class StackService {
   async getStack() {
     try {
       const { items } = await apiFetch('/api/stack');
-      stateManager.dispatch(ACTIONS.SET_STACK, items);
+      const normalizedItems = items.map(normalizeStackItem);
+      stateManager.dispatch(ACTIONS.IMPORT_STACK, normalizedItems);
     } catch (err) {
       console.error('Failed to fetch stack', err);
     }
@@ -154,3 +190,4 @@ class StackService {
 }
 
 export const stackService = new StackService();
+

@@ -7,6 +7,14 @@ test.describe('Favorites Flow', () => {
   // Assuming auth.setup saves state to storageState.json
   test.use({ storageState: 'e2e/support/storageState.json' });
 
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/**', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ success: true })
+    }));
+  });
+
   test('should favorite an item in the catalog and verify it appears in favorites', async ({ page }) => {
     const catalog = new CatalogPage(page);
     const favorites = new FavoritesPage(page);
@@ -16,6 +24,9 @@ test.describe('Favorites Flow', () => {
     const testItemId = 'creatina-monohidratada';
     await catalog.search('Creatina');
     await catalog.toggleFavorite(testItemId);
+    
+    // Wait for the 300ms debounce in state-manager to persist to localStorage
+    await page.waitForTimeout(400);
 
     // 2. Vai para a página de favoritos e verifica se o card apareceu
     await favorites.goto();

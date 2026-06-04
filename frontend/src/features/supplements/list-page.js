@@ -1380,7 +1380,7 @@ export default class ListPage {
         if (entries[0].isIntersecting) this._loadMore();
       }, { rootMargin: '300px' });
       this._observer.observe(sentinel);
-    } catch (err) {
+    } catch (_err) {
       this._observer?.disconnect();
       this._observer = null;
     }
@@ -1548,14 +1548,14 @@ export default class ListPage {
     this._modalOpen = supplementId;
 
     const ev = item.evidenceLevel;
-    const evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
+    const _evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
     const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
     const stack = stateManager.stack ?? [];
     const inStack = stack.some(s => s.supplementId === item.id);
 
     // Build price cards
     const affLinks = affiliateEngine.getLinks(item.name, item.id);
-    let priceCardsHtml = '';
+let priceCardsHtml = '';
     const priceKey = item.id;
     if (this._prices && this._prices[priceKey]) {
       const stores = this._prices[priceKey];

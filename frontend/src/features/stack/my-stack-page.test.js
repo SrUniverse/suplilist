@@ -95,7 +95,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('1. Calculates and displays monthly investment with unit conversion', async () => {
-    const { stateManager } = await import('../../state/state-manager.js');
+    const { _stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       stack: [
         { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 }
@@ -113,7 +113,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('2. Calculates adherence rate based on checkins', async () => {
-    const { stateManager } = await import('../../state/state-manager.js');
+    const { _stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       stack: [
         { id: '1', supplementId: '1', dosage: 30, unit: 'g', quantity: 200 }
@@ -245,7 +245,7 @@ describe('MyStackPage — User Personal Stack', () => {
   });
 
   it('7. Empty stack shows CTA button and hides metrics', async () => {
-    const { stateManager } = await import('../../state/state-manager.js');
+    const { _stateManager } = await import('../../state/state-manager.js');
     sharedState = {
       stack: [],
       checkins: []

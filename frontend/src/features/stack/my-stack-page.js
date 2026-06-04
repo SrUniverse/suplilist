@@ -3,9 +3,9 @@
  * My Stack: full visual rebuild with metrics, list, add modal, replenishment sidebar
  */
 
-import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { stateManager } from '../../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
-import { todayISO, offsetISO } from '../../utils/date.js';
+import { offsetISO } from '../../utils/date.js';
 import { renderEvidenceBadge } from '../../utils/evidence.js';
 import { getSupplementId } from '../../utils/stack.js';
 import { escapeHtml } from '../../utils/escape.js';
@@ -51,7 +51,7 @@ function calcMonthlyInvestment(stack) {
 function calcAdherenceRate(stack) {
   if (!stack.length) return '0%';
   const checkins = stateManager.checkins ?? [];
-  const stackIds = new Set(stack.map(item => item.supplementId ?? item.id));
+  const stackIds = new Set(stack.map(item => item.supplementId));
   let completeDays = 0;
   for (let i = 0; i < 7; i++) {
     const day = offsetISO(i);
@@ -918,7 +918,7 @@ export class MyStackPage {
 
     list.innerHTML = '';
     stack.forEach(item => {
-      const itemId = getSupplementId(item);
+      const itemId = item.id;
       const daysLeft = calcDaysLeft(item);
       const imgSrc = getSupplementImage(item);
       const badge = renderEvidenceBadge(getEvidenceLevel(item));
@@ -927,7 +927,7 @@ export class MyStackPage {
       el.className = 'msp-item';
       el.dataset.itemId = itemId;
       el.dataset.testid = `stack-item-${itemId}`;
-      const dbEntry = SUPPLEMENTS_DB.find(s => s.id === itemId);
+      const dbEntry = SUPPLEMENTS_DB.find(s => s.id === item.supplementId);
       const category = dbEntry?.category ?? '';
       const desc = dbEntry?.benefits?.[0] ?? '';
       const affLinks = affiliateEngine.getLinks(item.name);
@@ -1065,7 +1065,7 @@ export class MyStackPage {
         this._toggleInlineEdit(id);
       }
       if (btn.dataset.action === 'remove') {
-        const item = (stateManager.stack ?? []).find(s => (s.supplementId ?? s.id) === id);
+        const item = (stateManager.stack ?? []).find(s => s.id === id);
         if (!item || item.isSyncing) return;
         if (!confirm(`Remover "${item.name}" do stack?`)) return;
         stackService.removeItem(id);
@@ -1108,7 +1108,7 @@ export class MyStackPage {
       if (w.id !== `msp-edit-${id}`) w.style.display = 'none';
     });
 
-    const item = (stateManager.stack ?? []).find(s => (s.supplementId ?? s.id) === id);
+    const item = (stateManager.stack ?? []).find(s => s.id === id);
     if (!item) return;
 
     wrap.style.display = 'block';
@@ -1316,7 +1316,7 @@ export class MyStackPage {
     document.addEventListener('click', this._docClickHandler);
 
     // Submit
-    document.getElementById('msp-modal-submit')?.addEventListener('click', () => {
+    document.getElementById('msp-modal-submit')?.addEventListener('click', async () => {
       const name = (document.getElementById('msp-modal-search')?.value ?? '').trim();
       const dosage = parseFloat(document.getElementById('msp-modal-dosage')?.value) || 0;
       const unit = document.getElementById('msp-modal-unit')?.value || 'g';
@@ -1328,15 +1328,42 @@ export class MyStackPage {
       const id = this._modalSelectedId
         ?? name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
 
-      stackService.addItem({
-        supplementId: id,
-        name,
-        dosage,
-        unit,
-        quantity: quantity || null,
-      });
-
+      // Fechar a modal imediatamente para sensação de UI otimista
       this._closeModal();
+
+      try {
+        await stackService.addItem({
+          supplementId: id,
+          name,
+          dosage,
+          unit,
+          quantity: quantity || null,
+        });
+      } catch (err) {
+        if (err && err.status === 409) {
+          // Exibir aviso visual explícito no DOM em caso de conflito OCC de mesmo turno
+          const banner = document.createElement('div');
+          banner.className = 'msp-conflict-banner';
+          banner.innerHTML = `
+            <strong>Conflito de Agendamento:</strong> 
+            Você já tem ${name} agendado para este horário. 
+            <button onclick="this.parentElement.remove()">Entendi</button>
+          `;
+          Object.assign(banner.style, {
+            backgroundColor: '#fee2e2',
+            color: '#991b1b',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            border: '1px solid #f87171'
+          });
+          const listContainer = document.querySelector('.msp-list-container') || document.body;
+          listContainer.prepend(banner);
+        }
+      }
     });
 
     // Focus search

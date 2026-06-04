@@ -6,7 +6,6 @@
 
 import { analyticsStorage } from './storage/analytics-storage.js';
 import { logger } from '../utils/logger.js';
-import { todayISO, offsetISO } from '../utils/date.js';
 import { generateUUID } from './utils/crypto-utils.js';
 import { stateManager } from '../state/state-manager.js';
 

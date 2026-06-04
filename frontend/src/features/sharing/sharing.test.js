@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import ShareService from './share-service.js';
 import QRGenerator from './qr-generator.js';
-import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { stateManager } from '../../state/state-manager.js';
 import QRCode from 'qrcode';
 
 // Mock QRCode library

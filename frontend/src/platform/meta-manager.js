@@ -167,7 +167,7 @@ export class MetaManager {
     el.setAttribute('content', content);
   }
 
-  static _updateTwitterTags(title, description, image, url) {
+  static _updateTwitterTags(title, description, image, _url) {
     this._updateMetaTag('twitter:card', 'summary_large_image');
     this._updateMetaTag('twitter:title', title);
     this._updateMetaTag('twitter:description', description);

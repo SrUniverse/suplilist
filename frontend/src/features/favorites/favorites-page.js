@@ -4,7 +4,7 @@
 // ============================================================
 
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
-import { stateManager, ACTIONS, STORAGE_KEYS } from '../../state/state-manager.js';
+import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { EVIDENCE_COLORS } from '../../utils/evidence.js';
 import { escapeHtml } from '../../utils/escape.js';
 

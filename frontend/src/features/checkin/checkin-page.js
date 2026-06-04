@@ -1,4 +1,4 @@
-import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { stateManager } from '../../state/state-manager.js';
 import { eventBus } from '../../core/event-bus.js';
 import { todayISO } from '../../utils/date.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';

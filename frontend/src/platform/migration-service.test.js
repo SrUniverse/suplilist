@@ -2,7 +2,7 @@
  * migration-service.test.js — Unit tests for the client-side migration service.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Mocks ──────────────────────────────────────────────────────────────────────
 

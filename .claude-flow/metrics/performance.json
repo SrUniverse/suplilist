@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-06-04T17:10:18.015Z",
+  "mode": "headless",
+  "workerType": "optimize",
+  "model": "sonnet",
+  "durationMs": 162508,
+  "executionId": "optimize_1780592855507_sxpfwd",
+  "success": true,
+  "findings": {
+    "sections": [
+      {
+        "title": "Performance Analysis — SupliList",
+        "content": "\n",
+        "level": 2
+      },
+      {
+        "title": "1. N+1-style Query Patterns",
+        "content": "\n**Prices re-fetched on every `/list` mount** (`list-page.js:272`)\n\nNo caching between navigations means `/data/prices.json` is fetched fresh each time the user navigates away and back.\n\n```js\n// BEFORE (list-page.js)\nasync function _loadPrices() {\n  const res = await fetch('/data/prices.json');\n  return res.json();\n}\n\n// AFTER — module-level cache with 1-hour TTL\nlet _pricesCache = null;\nlet _pricesFetchedAt = 0;\n\nasync function _loadPrices() {\n  if (_pricesCache && Date.now() - _pricesFetchedAt < 3_600_000) {\n    return _pricesCache;\n  }\n  const res = await fetch('/data/prices.json');\n  _pricesCache = await res.json();\n  _pricesFetchedAt = Date.now();\n  return _pricesCache;\n}\n```\n\n**Cookie parsed on every `getItemSync()` call** (`storage-manager.js:514-532`)\n\n`document.cookie` is split and scanned linearly each time — called multiple times during startup hydration.\n\n```js\n// BEFORE\n_getCookie(key) {\n  const cookies = document.cookie.split('; ');\n  return cookies.find(c => c.startsWith(key + '='))?.split('=')[1];\n}\n\n// AFTER — parse once, invalidate on write\nlet _cookieCache = null;\nfunction _parseCookies() {\n  _cookieCache = Object.fromEntries(\n    document.cookie.split('; ').filter(Boolean).map(c => c.split('='))\n  );\n}\n_getCookie(key) {\n  if (!_cookieCache) _parseCookies();\n  return _cookieCache[key];\n}\n_setCookie(key, value, ...) {\n  _cookieCache = null; // invalidate on write\n  // ...existing cookie write logic\n}\n```\n\n---\n\n",
+        "level": 3
+      },
+      {
+        "title": "2. Redundant Computations",
+        "content": "\n**Path selector re-parsed on every `.get()` call** (`state-manager.js:600-602`)\n\n```js\n// BEFORE\nget(path) {\n  return path.split('.').reduce((obj, key) => obj?.[key], this._state);\n}\n\n// AFTER — memoize compiled path accessors\nconst _pathCache = new Map();\nget(path) {\n  if (!_pathCache.has(path)) {\n    const keys = path.split('.');\n    _pathCache.set(path, state => keys.reduce((obj, k) => obj?.[k], state));\n  }\n  return _pathCache.get(path)(this._state);\n}\n```\n\n**Double async hydration triggers subscribers twice** (`state-manager.js:905-927`)\n\nSync localStorage read fires subscribers, then IndexedDB read fires them again ~10ms later. Add a hydration flag:\n\n```js\nasync _hydrate() {\n  this._hydrating = true;\n  const syncData = this._storage.getItemSync('state');\n  if (syncData) this._applyHydration(syncData);\n\n  const asyncData = await this._storage.getItem('state');\n  if (asyncData) this._applyHydration(asyncData); // merge on top, don't re-trigger\n\n  this._hydrating = false;\n  this._notifySubscribers('*'); // single notification after both reads\n}\n\ndispatch(action) {\n  // ...existing logic\n  if (!this._hydrating) this._notifySubscribers(changedPaths);\n}\n```\n\n---\n\n",
+        "level": 3
+      },
+      {
+        "title": "3. Caching Opportunities",
+        "content": "\n**Fuse.js loaded eagerly but only used on `/list`** (`vite.config.js`)\n\nFuse.js adds ~50KB gzipped to the main bundle. Dynamic import defers it until the search field is first focused:\n\n```js\n// list-page.js — lazy-load Fuse only when search is first used\nlet _fuse = null;\nasync function _getSearchEngine(supplements) {\n  if (!_fuse) {\n    const { default: Fuse } = await import('fuse.js');\n    _fuse = new Fuse(supplements, { keys: ['name', 'category'], threshold: 0.3 });\n  }\n  return _fuse;\n}\n\nsearchInput.addEventListener('focus', () => _getSearchEngine(supplements), { once: true });\n```\n\n**ExcelJS always loaded even when user never exports** (`vite.config.js:84`)\n\nRemove it from `build.rollupOptions.input`; lazy-import in the settings page only:\n\n```js\n// settings-page.js\nasync function _exportToExcel(data) {\n  const { default: ExcelJS } = await import('exceljs');\n  const wb = new ExcelJS.Workbook();\n  // ...existing export logic\n}\n```\n\n---\n\n",
+        "level": 3
+      },
+      {
+        "title": "4. Memory Leak Risks",
+        "content": "\n**Analytics engine registers wildcard listener, never cleans up** (`analytics-engine.js:84`)\n\nEvery state change triggers activity recording with no debounce and no `off()` path:\n\n```js\n// BEFORE — fires on every state change\neventBus.on('*', event => this._recordActivity(event));\n\n// AFTER — debounced + cleanup\nconst _debouncedRecord = debounce(event => this._recordActivity(event), 500);\nconst _unsubscribe = eventBus.on('*', _debouncedRecord);\n\ndestroy() {\n  _unsubscribe();\n}\n```\n\n**300+ individual card event listeners instead of delegation** (list-page.js)\n\nEach rendered supplement card attaches its own click listener. With 300 supplements visible, that's 300+ listeners:\n\n```js\n// BEFORE — listener per card\nsupplements.forEach(s => {\n  const card = renderCard(s);\n  card.addEventListener('click', () => openModal(s.id));\n  grid.appendChild(card);\n});\n\n// AFTER — single delegated listener on grid\ngrid.addEventListener('click', e => {\n  const card = e.target.closest('[data-supplement-id]');\n  if (card) openModal(card.dataset.supplementId);\n});\n```\n\n---\n\n",
+        "level": 3
+      },
+      {
+        "title": "5. Build / Bundle Quick Wins",
+        "content": "\n| Item | Current | Fix | Savings |\n|------|---------|-----|---------|\n| Fuse.js in main bundle | ~50KB gz | Dynamic import | ~50KB on all non-list routes |\n| ExcelJS always bundled | ~200KB | Lazy import on settings | ~200KB on all non-settings routes |\n| VirtualScroller uses `top` | Layout recalc | Use `transform: translateY()` | Eliminates reflows on scroll |\n\n**VirtualScroller positioning fix** (`virtual-scroller.js:148-157`):\n```js\n// BEFORE — triggers layout\nitem.style.top = `${offset}px`;\nitem.style.position = 'absolute';\n\n// AFTER — compositor-only, no layout\nitem.style.transform = `translateY(${offset}px)`;\nitem.style.position = 'absolute';\nitem.style.top = '0';\nitem.style.willChange = 'transform';\n```\n\n---\n\n",
+        "level": 3
+      },
+      {
+        "title": "Priority Order",
+        "content": "1. **Lazy-load Fuse.js + ExcelJS** — ~250KB main bundle reduction, ~10 min work\n2. **Cache prices fetch** — eliminates re-fetch on every `/list` visit\n3. **Cache cookie parsing** — removes O(N) parse on every startup read\n4. **Event delegation on supplement grid** — drops 300+ listeners to 1\n5. **Debounce analytics wildcard listener** — prevents per-keystroke activity recording\n6. **VirtualScroller `transform` swap** — eliminates layout thrashing on scroll",
+        "level": 3
+      }
+    ],
+    "codeBlocks": [
+      {
+        "language": "js",
+        "code": "// BEFORE (list-page.js)\nasync function _loadPrices() {\n  const res = await fetch('/data/prices.json');\n  return res.json();\n}\n\n// AFTER — module-level cache with 1-hour TTL\nlet _pricesCache = null;\nlet _pricesFetchedAt = 0;\n\nasync function _loadPrices() {\n  if (_pricesCache && Date.now() - _pricesFetchedAt < 3_600_000) {\n    return _pricesCache;\n  }\n  const res = await fetch('/data/prices.json');\n  _pricesCache = await res.json();\n  _pricesFetchedAt = Date.now();\n  return _pricesCache;\n}"
+      },
+      {
+        "language": "js",
+        "code": "// BEFORE\n_getCookie(key) {\n  const cookies = document.cookie.split('; ');\n  return cookies.find(c => c.startsWith(key + '='))?.split('=')[1];\n}\n\n// AFTER — parse once, invalidate on write\nlet _cookieCache = null;\nfunction _parseCookies() {\n  _cookieCache = Object.fromEntries(\n    document.cookie.split('; ').filter(Boolean).map(c => c.split('='))\n  );\n}\n_getCookie(key) {\n  if (!_cookieCache) _parseCookies();\n  return _cookieCache[key];\n}\n_setCookie(key, value, ...) {\n  _cookieCache = null; // invalidate on write\n  // ...existing cookie write logic\n}"
+      },
+      {
+        "language": "js",
+        "code": "// BEFORE\nget(path) {\n  return path.split('.').reduce((obj, key) => obj?.[key], this._state);\n}\n\n// AFTER — memoize compiled path accessors\nconst _pathCache = new Map();\nget(path) {\n  if (!_pathCache.has(path)) {\n    const keys = path.split('.');\n    _pathCache.set(path, state => keys.reduce((obj, k) => obj?.[k], state));\n  }\n  return _pathCache.get(path)(this._state);\n}"
+      },
+      {
+        "language": "js",
+        "code": "async _hydrate() {\n  this._hydrating = true;\n  const syncData = this._storage.getItemSync('state');\n  if (syncData) this._applyHydration(syncData);\n\n  const asyncData = await this._storage.getItem('state');\n  if (asyncData) this._applyHydration(asyncData); // merge on top, don't re-trigger\n\n  this._hydrating = false;\n  this._notifySubscribers('*'); // single notification after both reads\n}\n\ndispatch(action) {\n  // ...existing logic\n  if (!this._hydrating) this._notifySubscribers(changedPaths);\n}"
+      },
+      {
+        "language": "js",
+        "code": "// list-page.js — lazy-load Fuse only when search is first used\nlet _fuse = null;\nasync function _getSearchEngine(supplements) {\n  if (!_fuse) {\n    const { default: Fuse } = await import('fuse.js');\n    _fuse = new Fuse(supplements, { keys: ['name', 'category'], threshold: 0.3 });\n  }\n  return _fuse;\n}\n\nsearchInput.addEventListener('focus', () => _getSearchEngine(supplements), { once: true });"
+      },
+      {
+        "language": "js",
+        "code": "// settings-page.js\nasync function _exportToExcel(data) {\n  const { default: ExcelJS } = await import('exceljs');\n  const wb = new ExcelJS.Workbook();\n  // ...existing export logic\n}"
+      },
+      {
+        "language": "js",
+        "code": "// BEFORE — fires on every state change\neventBus.on('*', event => this._recordActivity(event));\n\n// AFTER — debounced + cleanup\nconst _debouncedRecord = debounce(event => this._recordActivity(event), 500);\nconst _unsubscribe = eventBus.on('*', _debouncedRecord);\n\ndestroy() {\n  _unsubscribe();\n}"
+      },
+      {
+        "language": "js",
+        "code": "// BEFORE — listener per card\nsupplements.forEach(s => {\n  const card = renderCard(s);\n  card.addEventListener('click', () => openModal(s.id));\n  grid.appendChild(card);\n});\n\n// AFTER — single delegated listener on grid\ngrid.addEventListener('click', e => {\n  const card = e.target.closest('[data-supplement-id]');\n  if (card) openModal(card.dataset.supplementId);\n});"
+      },
+      {
+        "language": "js",
+        "code": "// BEFORE — triggers layout\nitem.style.top = `${offset}px`;\nitem.style.position = 'absolute';\n\n// AFTER — compositor-only, no layout\nitem.style.transform = `translateY(${offset}px)`;\nitem.style.position = 'absolute';\nitem.style.top = '0';\nitem.style.willChange = 'transform';"
+      }
+    ]
+  },
+  "rawOutputPreview": "**Important finding:** this codebase is **vanilla JavaScript**, not React — so there are no React re-renders to optimize. Here's what the analysis found instead, with actionable code examples.\n\n---\n\n## Performance Analysis — SupliList\n\n### 1. N+1-style Query Patterns\n\n**Prices re-fetched on every `/list` mount** (`list-page.js:272`)\n\nNo caching between navigations means `/data/prices.json` is fetched fresh each time the user navigates away and back.\n\n```js\n// BEFORE (list-page.js)\nasync function _loadPrices() {\n  const res = await fetch('/data/prices.json');\n  return res.json();\n}\n\n// AFTER — module-level cache with 1-hour TTL\nlet _pricesCache = null;\nlet _pricesFetchedAt = 0;\n\nasync function _loadPrices() {\n  if (_pricesCache && Date.now() - _pricesFetchedAt < 3_600_000) {\n    return _pricesCache;\n  }\n  const res = await fetch('/data/prices.json');\n  _pricesCache = await res.json();\n  _pricesFetchedAt = Date.now();\n  return _pricesCache;\n}\n```\n\n**Cookie parsed on every `getItemSync()` call** (`storage-manager.js:514-532`)\n\n`document.cookie` is split and scanned linearly each time — called multiple times during startup hydration.\n\n```js\n// BEFORE\n_getCookie(key) {\n  const cookies = document.cookie.split('; ');\n  return cookies.find(c => c.startsWith(key + '='))?.split('=')[1];\n}\n\n// AFTER — parse once, invalidate on write\nlet _cookieCache = null;\nfunction _parseCookies() {\n  _cookieCache = Object.fromEntries(\n    document.cookie.split('; ').filter(Boolean).map(c => c.split('='))\n  );\n}\n_getCookie(key) {\n  if (!_cookieCache) _parseCookies();\n  return _cookieCache[key];\n}\n_setCookie(key, value, ...) {\n  _cookieCache = null; // invalidate on write\n  // ...existing cookie write logic\n}\n```\n\n---\n\n### 2. Redundant Computations\n\n**Path selector re-parsed on every `.get()` call** (`state-manager.js:600-602`)\n\n```js\n// BEFORE\nget(path) {\n  return path.split('.').reduce((obj, key) => obj?.[key], this._state);\n}\n\n// AFTER — memoize compiled path accessors\nconst _pathCache = ne",
+  "rawOutputLength": 6255
+}

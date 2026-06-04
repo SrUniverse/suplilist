@@ -148,7 +148,7 @@ describe('StorageManager — Multi-layer Storage', () => {
     StorageManager._db = mockDB;
     StorageManager._dbReady = true;
 
-    mockStore.put.mockImplementationOnce((val, key) => {
+    mockStore.put.mockImplementationOnce((_val, _key) => {
       const req = { onsuccess: null, onerror: null };
       setTimeout(() => {
         req.onsuccess();
@@ -202,7 +202,7 @@ describe('StorageManager — Multi-layer Storage', () => {
     StorageManager._db = mockDB;
     StorageManager._dbReady = true;
 
-    mockStore.get.mockImplementationOnce((key) => {
+    mockStore.get.mockImplementationOnce((_key) => {
       const req = { onsuccess: null, onerror: null, result: 'indexeddb-value' };
       setTimeout(() => {
         req.onsuccess({ target: req });
@@ -221,7 +221,7 @@ describe('StorageManager — Multi-layer Storage', () => {
     StorageManager._dbReady = true;
 
     // IndexedDB returns null
-    mockStore.get.mockImplementationOnce((key) => {
+    mockStore.get.mockImplementationOnce((_key) => {
       const req = { onsuccess: null, onerror: null, result: null };
       setTimeout(() => {
         req.onsuccess({ target: req });
@@ -280,7 +280,7 @@ describe('StorageManager — Multi-layer Storage', () => {
     StorageManager._db = mockDB;
     StorageManager._dbReady = true;
 
-    mockStore.openCursor.mockImplementationOnce((range) => {
+    mockStore.openCursor.mockImplementationOnce((_range) => {
       const req = { onsuccess: null, onerror: null };
       setTimeout(() => {
         const mockCursor = {

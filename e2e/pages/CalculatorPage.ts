@@ -22,7 +22,7 @@ export class CalculatorPage {
   }
 
   async goto() {
-    await this.page.goto('/calculator');
+    await this.page.goto('/dosage');
   }
 
   async setBiometrics(weight: string, bodyfat?: string) {

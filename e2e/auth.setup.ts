@@ -56,7 +56,11 @@ setup('authenticate', async ({ page }) => {
       data: { email: 'testuser@example.com', password: 'password123' },
       failOnStatusCode: false,
     })
-    .then(r => r.ok() || r.status() === 409)
+    .then(async r => {
+      const ct = r.headers()['content-type'] ?? '';
+      if (!ct.includes('application/json')) return false; // static SPA fallback, not a real API
+      return r.ok() || r.status() === 409;
+    })
     .catch(() => false);
 
   if (backendAvailable) {

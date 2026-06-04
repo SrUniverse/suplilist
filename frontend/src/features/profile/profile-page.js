@@ -8,13 +8,14 @@ import { optimizeStack } from '../stack/stack-optimizer.js';
 import { generateTimeline } from '../progress/before-after-tracker.js';
 import { profileService } from './profile-service.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
+import { identityService } from '../../platform/identity-service.js';
 
 const OBJECTIVES = [
-  { value: 'bulk',      label: 'Bulk',       desc: 'Ganho de Massa' },
-  { value: 'cut',       label: 'Cut',        desc: 'Definição Muscular' },
-  { value: 'strength',  label: 'Força',      desc: 'Força Máxima' },
+  { value: 'bulk', label: 'Bulk', desc: 'Ganho de Massa' },
+  { value: 'cut', label: 'Cut', desc: 'Definição Muscular' },
+  { value: 'strength', label: 'Força', desc: 'Força Máxima' },
   { value: 'endurance', label: 'Resistência', desc: 'Cardio & Endurance' },
-  { value: 'general',   label: 'Saúde',      desc: 'Bem-estar Geral' },
+  { value: 'general', label: 'Saúde', desc: 'Bem-estar Geral' },
 ];
 
 const inputStyle = [
@@ -90,12 +91,12 @@ export default class ProfilePage {
 
     const user = this._userData || stateManager.user || {};
     this._form = {
-      name:      user.displayName || user.name || stateManager.get?.('user.name') || 'Usuário',
-      objective: user.objective         || stateManager.user?.objective || 'general',
-      weight:    user.weight            || stateManager.user?.weight    || '',
+      name: user.displayName || user.name || stateManager.get?.('user.name') || 'Usuário',
+      objective: user.objective || stateManager.user?.objective || 'general',
+      weight: user.weight || stateManager.user?.weight || '',
       biologicalSex: user.biologicalSex || stateManager.user?.biologicalSex || '',
-      height:    user.height            || stateManager.user?.height    || '',
-      age:       user.age               || stateManager.user?.age       || '',
+      height: user.height || stateManager.user?.height || '',
+      age: user.age || stateManager.user?.age || '',
     };
     this._render();
     this._attachListeners();
@@ -136,7 +137,7 @@ export default class ProfilePage {
     // Botão de salvar biometria
     const btnSaveBio = this.container.querySelector('#btn-save-bio');
     if (btnSaveBio) {
-      btnSaveBio.disabled    = isOffline;
+      btnSaveBio.disabled = isOffline;
       btnSaveBio.textContent = isOffline ? 'Indisponível Offline' : 'Salvar';
       btnSaveBio.style.opacity = isOffline ? '0.5' : '1';
     }
@@ -144,7 +145,7 @@ export default class ProfilePage {
     // Botão de confirmar edição de nome
     const btnNameConfirm = this.container.querySelector('#btn-name-confirm');
     if (btnNameConfirm) {
-      btnNameConfirm.disabled  = isOffline;
+      btnNameConfirm.disabled = isOffline;
       btnNameConfirm.style.opacity = isOffline ? '0.5' : '1';
     }
   }
@@ -230,8 +231,8 @@ export default class ProfilePage {
     const topSupplements = overview.topSupplements.slice(0, 5);
 
     const percentageColor = overview.averageAdherence >= 80 ? 'var(--color-success)' :
-                           overview.averageAdherence >= 60 ? 'var(--color-warning)' :
-                           'var(--color-error)';
+      overview.averageAdherence >= 60 ? 'var(--color-warning)' :
+        'var(--color-error)';
 
     return cardWrap('Sua Aderência 📊', `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
@@ -431,6 +432,32 @@ export default class ProfilePage {
     `);
   }
 
+  _renderAuthSection() {
+    const isAuthenticated = stateManager.user?.isAuthenticated || stateManager.get?.('user.isAuthenticated') || this._userData?.email;
+
+    if (!isAuthenticated) {
+      return cardWrap('Sua Conta ☁️', `
+        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          Você está navegando como visitante. Faça login ou crie uma conta para fazer backup do seu stack e histórico na nuvem.
+        </p>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button id="btn-profile-register" style="flex:1;background:var(--color-brand);color:#fff;border:none;border-radius:10px;padding:11px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;">Criar Conta</button>
+          <button id="btn-profile-login" style="flex:1;background:transparent;color:var(--color-text-primary);border:1px solid var(--color-border-strong);border-radius:10px;padding:11px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">Fazer Login</button>
+        </div>
+      `);
+    }
+
+    const email = stateManager.user?.email || this._userData?.email || 'Usuário logado';
+    return cardWrap('Sua Conta ☁️', `
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:13px;color:var(--color-text-secondary);">
+          Conectado como <strong style="color:var(--color-text-primary);">${escapeHtml(email)}</strong>
+        </div>
+        <button id="btn-profile-logout" style="background:transparent;color:var(--color-error);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Sair</button>
+      </div>
+    `);
+  }
+
   _render() {
     const form = this._form;
     const initial = this._getInitial();
@@ -475,6 +502,9 @@ export default class ProfilePage {
             </div>
           </div>
         </div>
+
+        <!-- 0. CONTA -->
+        ${this._renderAuthSection()}
 
         <!-- 1. DADOS BIOMÉTRICOS -->
         ${cardWrap('Dados Biométricos', `
@@ -625,13 +655,13 @@ export default class ProfilePage {
 
   _attachListeners() {
     // Inline name edit
-    const btnEditName    = this.container.querySelector('#btn-edit-name');
-    const nameDisplay    = this.container.querySelector('#name-display');
-    const nameEdit       = this.container.querySelector('#name-edit');
-    const nameText       = this.container.querySelector('#name-text');
-    const inlineInput    = this.container.querySelector('#inline-name-input');
+    const btnEditName = this.container.querySelector('#btn-edit-name');
+    const nameDisplay = this.container.querySelector('#name-display');
+    const nameEdit = this.container.querySelector('#name-edit');
+    const nameText = this.container.querySelector('#name-text');
+    const inlineInput = this.container.querySelector('#inline-name-input');
     const btnNameConfirm = this.container.querySelector('#btn-name-confirm');
-    const btnNameCancel  = this.container.querySelector('#btn-name-cancel');
+    const btnNameCancel = this.container.querySelector('#btn-name-cancel');
 
     if (btnEditName) {
       btnEditName.addEventListener('click', () => {
@@ -674,27 +704,27 @@ export default class ProfilePage {
     // Biometrics save
     const btnSaveBio = this.container.querySelector('#btn-save-bio');
     if (btnSaveBio) {
-      const weightEl    = this.container.querySelector('#field-weight');
-      const sexEl       = this.container.querySelector('#field-biologicalSex');
-      const heightEl    = this.container.querySelector('#field-height');
-      const ageEl       = this.container.querySelector('#field-age');
+      const weightEl = this.container.querySelector('#field-weight');
+      const sexEl = this.container.querySelector('#field-biologicalSex');
+      const heightEl = this.container.querySelector('#field-height');
+      const ageEl = this.container.querySelector('#field-age');
       const objectiveEl = this.container.querySelector('#field-objective');
 
       btnSaveBio.addEventListener('click', () => {
         const _num = v => { const n = parseFloat(v); return isNaN(n) ? undefined : n; };
-        this._form.weight        = _num(weightEl.value);
+        this._form.weight = _num(weightEl.value);
         this._form.biologicalSex = sexEl.value || undefined;
-        this._form.height        = _num(heightEl.value);
-        this._form.age           = _num(ageEl.value);
-        this._form.objective     = objectiveEl.value;
+        this._form.height = _num(heightEl.value);
+        this._form.age = _num(ageEl.value);
+        this._form.objective = objectiveEl.value;
 
         stateManager.dispatch(ACTIONS.SET_USER_PROFILE, {
-          name:          this._form.name,
-          weight:        this._form.weight,
+          name: this._form.name,
+          weight: this._form.weight,
           biologicalSex: this._form.biologicalSex,
-          height:        this._form.height,
-          age:           this._form.age,
-          objective:     this._form.objective,
+          height: this._form.height,
+          age: this._form.age,
+          objective: this._form.objective,
         });
 
         eventBus.emit('toast:show', { message: 'Dados biométricos salvos!', type: 'success' });
@@ -717,18 +747,18 @@ export default class ProfilePage {
 
         // Update toggle UI
         const nowDark = newTheme === 'dark';
-        themeToggle.style.background     = nowDark ? 'var(--color-brand)' : 'var(--color-surface-secondary)';
-        themeToggle.style.borderColor    = nowDark ? 'var(--color-brand)' : 'var(--color-border-strong)';
+        themeToggle.style.background = nowDark ? 'var(--color-brand)' : 'var(--color-surface-secondary)';
+        themeToggle.style.borderColor = nowDark ? 'var(--color-brand)' : 'var(--color-border-strong)';
         themeToggle.setAttribute('aria-checked', nowDark);
         const knob = themeToggle.querySelector('span');
         if (knob) {
-          knob.style.left      = nowDark ? '26px' : '3px';
-          knob.textContent     = nowDark ? '🌙' : '☀️';
+          knob.style.left = nowDark ? '26px' : '3px';
+          knob.textContent = nowDark ? '🌙' : '☀️';
         }
-        const themeIcon  = this.container.querySelector('#theme-icon');
+        const themeIcon = this.container.querySelector('#theme-icon');
         const themeLabel = this.container.querySelector('#theme-label');
-        if (themeIcon)  themeIcon.textContent  = nowDark ? '🌙' : '☀️';
-        if (themeLabel) themeLabel.textContent  = nowDark ? 'Tema Escuro' : 'Tema Claro';
+        if (themeIcon) themeIcon.textContent = nowDark ? '🌙' : '☀️';
+        if (themeLabel) themeLabel.textContent = nowDark ? 'Tema Escuro' : 'Tema Claro';
       });
     }
 
@@ -738,16 +768,16 @@ export default class ProfilePage {
       btnExport.addEventListener('click', () => {
         try {
           const data = {
-            user:      stateManager.user,
-            stack:     stateManager.stack,
-            checkins:  stateManager.checkins,
+            user: stateManager.user,
+            stack: stateManager.stack,
+            checkins: stateManager.checkins,
             exportedAt: new Date().toISOString(),
           };
           const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-          const url  = URL.createObjectURL(blob);
-          const a    = document.createElement('a');
-          a.href     = url;
-          a.download = `suplilist-backup-${new Date().toISOString().slice(0,10)}.json`;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `suplilist-backup-${new Date().toISOString().slice(0, 10)}.json`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -790,6 +820,32 @@ export default class ProfilePage {
           window.dispatchEvent(new PopStateEvent('popstate'));
         } else if (confirmation !== null) {
           eventBus.emit('toast:show', { message: 'Texto incorreto. Reset cancelado.', type: 'error' });
+        }
+      });
+    }
+
+    // Auth actions
+    const btnProfileRegister = this.container.querySelector('#btn-profile-register');
+    if (btnProfileRegister) {
+      btnProfileRegister.addEventListener('click', () => {
+        eventBus.emit('router:navigate', { path: '/onboarding' });
+      });
+    }
+    const btnProfileLogin = this.container.querySelector('#btn-profile-login');
+    if (btnProfileLogin) {
+      btnProfileLogin.addEventListener('click', () => {
+        eventBus.emit('router:navigate', { path: '/login' });
+      });
+    }
+    const btnProfileLogout = this.container.querySelector('#btn-profile-logout');
+    if (btnProfileLogout) {
+      btnProfileLogout.addEventListener('click', async () => {
+        btnProfileLogout.textContent = 'Saindo...';
+        try {
+          await identityService.logout();
+        } catch (err) {
+          eventBus.emit('toast:show', { message: 'Erro ao desconectar.', type: 'error' });
+          btnProfileLogout.textContent = 'Sair';
         }
       });
     }

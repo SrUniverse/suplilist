@@ -25,7 +25,7 @@ export class AuthMapper {
     userId: string,
     email: string,
   ): RegisterResponseDTO {
-    return { userId, email, status: 'pending_verification' };
+    return { userId, email, status: 'active' };
   }
 }
 

@@ -146,8 +146,9 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          console.log('[Service Worker] Rede indisponível. Servindo do cache.');
-          return caches.match(event.request);
+          return caches.match(event.request).then(
+            cached => cached || new Response('', { status: 503 })
+          );
         })
     );
     return;
@@ -222,11 +223,10 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // SPA Fallback: Se estiver offline, serve a raiz '/' (chave real no STATIC_CACHE).
-          // Não usar '/index.html' pois o Vite registra a entrada como '/' no cache.
           if (event.request.mode === 'navigate' || event.request.destination === 'document') {
-            return caches.match('/');
+            return caches.match('/').then(cached => cached || new Response('', { status: 503 }));
           }
+          return new Response('', { status: 503 });
         });
     })
   );

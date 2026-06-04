@@ -124,7 +124,7 @@ export default class OnboardingPage {
 
   _renderStep3() {
     if (!this._suggestions.length) {
-      this._suggestions = recommender.recommend({ objective: this.data.goal });
+      this._suggestions = recommender.recommend({ objective: this.data.goal, weight: 70 });
       this.data.selectedIds = new Set(this._suggestions.map(s => s.id));
     }
 

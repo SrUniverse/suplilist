@@ -35,7 +35,7 @@ import { logger } from '../utils/logger.js';
 
 /** @type {string} Backend origin — set via VITE_API_BASE_URL in .env.local */
 const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL)
-  ?? 'http://localhost:5000';
+  ?? '';
 
 // ── In-memory token ────────────────────────────────────────────────────────────
 /** @type {string | null} */

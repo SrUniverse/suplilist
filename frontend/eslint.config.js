@@ -66,6 +66,8 @@ export default [
         PerformanceObserver: 'readonly',
         MouseEvent: 'readonly',
         KeyboardEvent: 'readonly',
+        Headers: 'readonly',
+        logger: 'readonly',
       },
     },
   },

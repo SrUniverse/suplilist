@@ -152,7 +152,7 @@ class MigrationService {
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) {
         logger.info(`[MigrationService] Endpoint ${path} not found — skipping migration.`);
-        throw new Error('endpoint_not_supported');
+        throw new Error('endpoint_not_supported', { cause: err });
       }
       throw err;
     }

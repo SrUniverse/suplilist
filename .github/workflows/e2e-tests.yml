@@ -16,6 +16,16 @@ jobs:
         browser: [chromium, firefox, webkit]
         device: ['desktop', 'mobile']
 
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
     steps:
     - uses: actions/checkout@v4
 
@@ -32,12 +42,22 @@ jobs:
       run: npx playwright install --with-deps
 
     - name: Build project
-      run: npm run build
+      run: |
+        npm run build -w @suplilist/shared
+        npm run build -w @suplilist/server
+        npm run build -w @suplilist/frontend
 
-    - name: Start development server
-      run: npm run dev -- --host 127.0.0.1 &
+    - name: Start services
+      run: |
+        npm start -w @suplilist/server &
+        npm run dev -w @suplilist/frontend -- --host 127.0.0.1 &
       env:
         NODE_ENV: test
+        MONGO_URI: mongodb://127.0.0.1:27017/suplilist_test
+        REDIS_URI: redis://127.0.0.1:6379
+        JWT_SECRET: dummy_secret_key_for_testing_purposes
+        FRONTEND_ORIGIN: http://127.0.0.1:3000
+        PORT: 5000
 
     - name: Wait for server
       run: npx wait-on http://127.0.0.1:3000 --timeout 60000
@@ -92,7 +112,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: lighthouse-results
+        name: lighthouse-performance-report
         path: .lighthouseci
 
   accessibility-check:

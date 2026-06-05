@@ -144,7 +144,9 @@ Object.defineProperty(global.navigator, 'serviceWorker', {
   value: {
     register: vi.fn(() => Promise.resolve({ scope: '/', active: { state: 'activated' } })),
     ready: Promise.resolve({ active: { state: 'activated' } }),
-    controller: null
+    controller: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn()
   }
 });
 
@@ -152,7 +154,12 @@ Object.defineProperty(global.navigator, 'serviceWorker', {
 if (!global.crypto) {
   global.crypto = {};
 }
-global.crypto.randomUUID = vi.fn(() => '00000000-0000-4000-8000-000000000000');
+let uuidCounter = 0;
+global.crypto.randomUUID = vi.fn(() => {
+  uuidCounter++;
+  const hex = uuidCounter.toString(16).padStart(12, '0');
+  return `00000000-0000-4000-8000-${hex}`;
+});
 global.crypto.getRandomValues = vi.fn((arr) => {
   for (let i = 0; i < arr.length; i++) {
     arr[i] = Math.floor(Math.random() * 256);
@@ -223,3 +230,15 @@ Object.defineProperty(global, 'location', {
     }
   })
 });
+
+// matchMedia mock
+global.matchMedia = vi.fn((query) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn()
+}));

@@ -656,7 +656,11 @@ export class StorageManager {
    */
   static getKeys(storage, prefix = '') {
     const store = storage === 'session' ? sessionStorage : localStorage;
-    const keys = Object.keys(store);
+    const keys = [];
+    for (let i = 0; i < store.length; i++) {
+      const key = store.key(i);
+      if (key) keys.push(key);
+    }
     return prefix ? keys.filter(k => k.startsWith(prefix)) : keys;
   }
 

@@ -10,6 +10,109 @@ import { todayISO, offsetISO } from '../utils/date.js';
 import { logger } from '../utils/logger.js';
 import { StorageManager } from '../platform/storage-manager.js';
 
+// ─── JSDoc Type Definitions ──────────────────────────────────────────────────
+
+/**
+ * @typedef {Object} Supplement
+ * @property {string} id - Unique supplement identifier from catalog
+ * @property {string} name - Display name
+ * @property {string} [category] - Category (Proteína, Pré-treino, etc)
+ * @property {string} [brand] - Manufacturer name
+ * @property {number} [price] - Current price in R$
+ * @property {string} [unit] - Unit of measurement (g, ml, caps, etc)
+ * @property {string} [description] - Long description
+ */
+
+/**
+ * @typedef {Object} StackItem
+ * @property {string} supplementId - Foreign key to Supplement catalog
+ * @property {string} name - Display name of supplement
+ * @property {number} dosage - Daily dosage amount
+ * @property {string} unit - Unit (g, ml, caps, etc)
+ * @property {string} [goal] - Training goal context (bulk/cut/strength/etc)
+ * @property {boolean} [isActive] - Whether actively taking
+ * @property {number} [addedAt] - Timestamp when added to stack
+ */
+
+/**
+ * @typedef {Object} CheckIn
+ * @property {string} supplementId - Which supplement was taken
+ * @property {string} date - ISO date string (YYYY-MM-DD)
+ * @property {number} timestamp - Milliseconds since epoch
+ * @property {boolean} taken - Whether it was taken today
+ * @property {string} [notes] - Optional user notes
+ */
+
+/**
+ * @typedef {Object} Purchase
+ * @property {string} supplementId - Which supplement
+ * @property {number} quantity - Amount purchased
+ * @property {number} dailyConsumption - How much consumed per day
+ * @property {number} price - Purchase price in R$
+ * @property {string} source - Where purchased (Amazon, ML, etc)
+ * @property {number} purchasedAt - Timestamp of purchase
+ * @property {string} [status] - 'active' | 'used_up' | 'archived'
+ */
+
+/**
+ * @typedef {Object} UserProfile
+ * @property {string | null} id - User ID from auth system
+ * @property {string | null} name - Display name
+ * @property {string | null} email - Email address
+ * @property {number | null} weight - Weight in kg
+ * @property {string | null} biologicalSex - 'M' | 'F' | other
+ * @property {number | null} height - Height in cm
+ * @property {number | null} age - Age in years
+ * @property {number | null} trainingFrequency - Days per week
+ * @property {number | null} trainingAge - Years of training
+ * @property {'bulk'|'cut'|'strength'|'endurance'|'general'|null} objective - Training goal
+ * @property {string[]} restrictions - Dietary restrictions
+ * @property {number | null} budget - Monthly budget in R$
+ * @property {'free'|'pro'|'elite'} tier - Subscription tier
+ * @property {number | null} createdAt - Account creation timestamp
+ * @property {boolean} onboardingComplete - Finished onboarding flow
+ * @property {boolean} isAuthenticated - Currently logged in
+ * @property {string | null} role - 'user' | 'admin'
+ * @property {boolean} isMfaEnabled - Two-factor enabled
+ * @property {boolean} emailVerified - Email confirmed
+ * @property {Purchase[]} purchases - Purchase history
+ */
+
+/**
+ * @typedef {Object} UIState
+ * @property {string} currentRoute - Current page path
+ * @property {boolean} loading - Global loading flag
+ * @property {string | null} error - Error message if any
+ * @property {Object | null} modal - Active modal {type, props}
+ * @property {Object | null} toast - Active toast {message, type, duration}
+ * @property {boolean} isOffline - Network connectivity
+ */
+
+/**
+ * @typedef {Object} AppState
+ * @property {string} _version - State schema version
+ * @property {number | null} _lastUpdated - Last save timestamp
+ * @property {string | null} _ownerId - Synced user ID
+ * @property {UserProfile} user - User identity and profile
+ * @property {StackItem[]} stack - Current supplement stack
+ * @property {CheckIn[]} checkins - Daily check-in history
+ * @property {string[]} favorites - Favorited supplement IDs
+ * @property {Object} recommendations - AI recommendations cache
+ * @property {Supplement[]} recommendations.items - Recommended supplements
+ * @property {number | null} recommendations.generatedAt - When generated
+ * @property {string | null} recommendations.profileHash - Hash for invalidation
+ * @property {Object[]} achievements - Badges/achievements
+ * @property {Object[]} notifications - In-app notifications
+ * @property {Object} preferences - App preferences
+ * @property {string} preferences.theme - 'dark'|'light'|'system'
+ * @property {string} preferences.language - 'pt-BR'|'en'|etc
+ * @property {string} preferences.currency - 'BRL'|'USD'|etc
+ * @property {boolean} preferences.notificationsEnabled - Push notifications
+ * @property {string} preferences.reminderTime - Time for daily reminder HH:MM
+ * @property {number} preferences.weekStartDay - 0=Sunday, 1=Monday, etc
+ * @property {UIState} ui - Transient UI state (not persisted)
+ */
+
 export const STATE_VERSION = '4.0.0';
 export const STORAGE_KEY = 'suplilist-state-v4';
 
@@ -129,6 +232,15 @@ export const DEFAULT_STATE = Object.freeze({
 });
 
 // ─── Pure Reducer Function ───────────────────────────────────────────────────
+
+/**
+ * Pure reducer function that handles all state transitions
+ * Redux-inspired: takes current state + action, returns new immutable state
+ * @param {AppState} state - Current application state
+ * @param {{type: string, payload?: *}} action - Action object with type and optional payload
+ * @returns {AppState} New state after applying the action
+ * @private
+ */
 function reducer(state, action) {
   if (!action) return state;
 
@@ -681,6 +793,7 @@ export class StateManager {
    * @example
    *   stateManager.dispatch('ADD_TO_STACK', { supplementId: 'whey-1' });
    *   stateManager.undo(); // Reverts the ADD_TO_STACK action
+   * @returns {boolean} True if undo succeeded, false if no history available
    */
   undo() {
     if (this._history.length === 0) return false;
@@ -731,6 +844,8 @@ export class StateManager {
 
   /**
    * Reset state to initial values.
+   * Clears history and reloads DEFAULT_STATE.
+   * @returns {void}
    */
   reset() {
     this._history = [];
@@ -739,7 +854,10 @@ export class StateManager {
   }
 
   /**
-   * Hydrates state from a custom payload.
+   * Hydrates state from a custom payload (shallow merge with defaults).
+   * Used during boot to restore saved state from localStorage.
+   * @param {Partial<AppState>} savedState - Saved state object to merge
+   * @returns {void}
    */
   hydrate(savedState) {
     const merged = this._deepMerge(DEFAULT_STATE, savedState);
@@ -747,7 +865,9 @@ export class StateManager {
   }
 
   /**
-   * Export the current state as a plain object.
+   * Export the current state as a plain object (deep copy).
+   * Used for debugging, serialization, or backups.
+   * @returns {AppState} Deep copy of current state
    */
   export() {
     return JSON.parse(JSON.stringify(this._state));
@@ -1044,20 +1164,44 @@ export class StateManager {
     return streak;
   }
 
+  /**
+   * Calculate current check-in streak (consecutive days)
+   * @param {CheckIn[]} [checkins] - Check-in history (defaults to state.checkins)
+   * @returns {number} Number of consecutive days with check-ins
+   */
   calculateStreak(checkins = this.checkins) {
     return this._calculateStreak(checkins);
   }
 
+  /**
+   * Get today's check-ins
+   * @returns {CheckIn[]} Array of check-ins for today (YYYY-MM-DD)
+   */
   getTodayCheckins() {
     const todayStr = todayISO();
     return this.checkins.filter(c => c.date === todayStr);
   }
 
   // ─── Backward Compatibility Getters & Methods ────────────────────────────────
+
+  /**
+   * Get state at path (backward compatibility alias for get)
+   * @param {?string} path - Dot notation path
+   * @returns {*} Value at path
+   * @deprecated Use get() instead
+   */
   getState(path) {
     return this.get(path);
   }
 
+  /**
+   * Set state at path (restricted to mapped actions only)
+   * @param {string} path - Dot notation path (only 'favorites' and 'settings.theme' allowed)
+   * @param {*} value - Value to set
+   * @param {Object} [_options] - Options (unused)
+   * @returns {void}
+   * @deprecated Use dispatch() with explicit actions instead
+   */
   setState(path, value, _options = {}) {
     // P3: caminhos arbitrários em dot-notation contornariam o reducer e toda a lógica de negócio.
     // Apenas caminhos mapeados explicitamente são aceitos.
@@ -1086,6 +1230,14 @@ export class StateManager {
     }
   }
 
+  /**
+   * Immutably set value at nested path in object
+   * @private
+   * @param {Object} obj - Object to update
+   * @param {string[]} keys - Array of keys forming the path
+   * @param {*} value - Value to set
+   * @returns {Object} New object with updated value
+   */
   _setPath(obj, keys, value) {
     if (keys.length === 0) return value;
     const [head, ...tail] = keys;
@@ -1095,18 +1247,39 @@ export class StateManager {
     };
   }
 
+  /**
+   * Observe state changes at a specific path (alias for subscribe with path).
+   * Convenience method for reactive binding.
+   * @param {string} path - Dot notation path (e.g., 'user.weight', 'stack.0')
+   * @param {Function} callback - Called with (newValue, oldValue) when path changes
+   * @returns {Function} Unsubscribe function
+   */
   observe(path, callback) {
     return this.subscribe(path, callback);
   }
 
+  /**
+   * Export the current state (alias for export).
+   * @returns {AppState} Deep copy of current state
+   */
   exportState() {
     return this.export();
   }
 
+  /**
+   * Import state from an external object (alias for hydrate).
+   * @param {Partial<AppState>} data - State to import
+   * @returns {void}
+   */
   importState(data) {
     this.hydrate(data);
   }
 
+  /**
+   * Enable/disable debug logging.
+   * @param {boolean} enabled - Whether to enable debug output
+   * @returns {void}
+   */
   setDebug(enabled) {
     this._debug = !!enabled;
   }
@@ -1114,3 +1287,4 @@ export class StateManager {
 
 // Default Singleton
 export const stateManager = StateManager.getInstance();
+export default stateManager; // Default export for backward compatibility

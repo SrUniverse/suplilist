@@ -6,6 +6,8 @@
 // 2. Cookies — sincronização entre navegadores no mesmo dispositivo
 // 3. File System API — export/import manual de backups
 
+import { logger } from '../utils/logger.js';
+
 export class StorageManager {
   static COOKIE_DURATION_DAYS = 365;
   static COOKIE_PATH = '/';
@@ -41,7 +43,7 @@ export class StorageManager {
 
       this._dbReady = true;
     } catch (e) {
-      console.warn('[StorageManager] IndexedDB init falhou, usando fallback:', e);
+      logger.warn('[StorageManager] IndexedDB init falhou, usando fallback:', e);
       this._dbReady = false;
     }
   }
@@ -87,7 +89,7 @@ export class StorageManager {
         }
         return;
       } catch (e) {
-        console.warn('[StorageManager] IndexedDB setItem falhou, tentando fallback:', e);
+        logger.warn('[StorageManager] IndexedDB setItem falhou, tentando fallback:', e);
 
         // PATCH 5: Emitir evento de degradação para UI mostrar warning
         this._emitStorageDegradedEvent('IndexedDB', e.message);
@@ -107,7 +109,7 @@ export class StorageManager {
     try {
       localStorage.setItem(key, value);
     } catch (e) {
-      console.error(`[StorageManager] Falha ao escrever chave "${key}":`, e);
+      logger.error(`[StorageManager] Falha ao escrever chave "${key}":`, e);
     }
   }
 
@@ -124,7 +126,7 @@ export class StorageManager {
           return value;
         }
       } catch (e) {
-        console.warn('[StorageManager] IndexedDB getItem falhou:', e);
+        logger.warn('[StorageManager] IndexedDB getItem falhou:', e);
       }
     }
 
@@ -177,7 +179,7 @@ export class StorageManager {
           request.onsuccess = () => resolve();
         });
       } catch (e) {
-        console.warn('[StorageManager] Failed to remove from IndexedDB:', e);
+        logger.warn('[StorageManager] Failed to remove from IndexedDB:', e);
       }
     }
 
@@ -278,7 +280,7 @@ export class StorageManager {
 
       return { success: true, message: 'Dados exportados com sucesso!' };
     } catch (e) {
-      console.error('[StorageManager] Export falhou:', e);
+      logger.error('[StorageManager] Export falhou:', e);
       return { success: false, message: `Erro ao exportar: ${e.message}` };
     }
   }
@@ -332,14 +334,14 @@ export class StorageManager {
         for (const [key, value] of Object.entries(data.sources.indexeddb)) {
           // Proteger contra prototype pollution
           if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
-            console.warn(`[StorageManager] Ignorando key perigosa durante import: ${key}`);
+            logger.warn(`[StorageManager] Ignorando key perigosa durante import: ${key}`);
             continue;
           }
 
           // Validar key contra allowlist de prefixos
           const isValid = validKeyPrefixes.some(prefix => key.startsWith(prefix));
           if (!isValid) {
-            console.warn(`[StorageManager] Ignorando key não reconhecida durante import: ${key}`);
+            logger.warn(`[StorageManager] Ignorando key não reconhecida durante import: ${key}`);
             continue;
           }
 
@@ -349,7 +351,7 @@ export class StorageManager {
 
       return { success: true, message: 'Dados importados com sucesso!' };
     } catch (e) {
-      console.error('[StorageManager] Import falhou:', e);
+      logger.error('[StorageManager] Import falhou:', e);
       return { success: false, message: `Erro ao importar: ${e.message}` };
     }
   }
@@ -573,6 +575,104 @@ export class StorageManager {
       }
     } catch (_e) {
       // Silenciar erro de emit (não crítico)
+    }
+  }
+
+  // ============================================================
+  // Backward compatibility aliases for tests
+  // ============================================================
+
+  /**
+   * Alias for setItem with localStorage semantics
+   */
+  static setLocal(key, value, options = {}) {
+    localStorage.setItem(key, JSON.stringify(value));
+    return value;
+  }
+
+  /**
+   * Alias for getItem with localStorage semantics
+   */
+  static getLocal(key, options = {}) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * Alias for setItem with sessionStorage semantics
+   */
+  static setSession(key, value, options = {}) {
+    sessionStorage.setItem(key, JSON.stringify(value));
+    return value;
+  }
+
+  /**
+   * Alias for getItem with sessionStorage semantics
+   */
+  static getSession(key, options = {}) {
+    try {
+      const raw = sessionStorage.getItem(key);
+      return raw ? JSON.parse(raw) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * Remove item from localStorage
+   */
+  static removeLocal(key) {
+    localStorage.removeItem(key);
+  }
+
+  /**
+   * Remove item from sessionStorage
+   */
+  static removeSession(key) {
+    sessionStorage.removeItem(key);
+  }
+
+  /**
+   * Clear both storages
+   */
+  static clear() {
+    localStorage.clear();
+    sessionStorage.clear();
+  }
+
+  /**
+   * List all keys in localStorage
+   */
+  static listKeys() {
+    return Object.keys(localStorage);
+  }
+
+  /**
+   * Get keys with optional prefix filter
+   */
+  static getKeys(storage, prefix = '') {
+    const store = storage === 'session' ? sessionStorage : localStorage;
+    const keys = Object.keys(store);
+    return prefix ? keys.filter(k => k.startsWith(prefix)) : keys;
+  }
+
+  /**
+   * Migrate data between storages
+   */
+  static migrate(key, from, to) {
+    const value = from === 'session' ? this.getSession(key) : this.getLocal(key);
+    if (value !== undefined) {
+      if (to === 'local') {
+        this.setLocal(key, value);
+        if (from === 'session') this.removeSession(key);
+      } else if (to === 'session') {
+        this.setSession(key, value);
+        if (from === 'local') this.removeLocal(key);
+      }
     }
   }
 }

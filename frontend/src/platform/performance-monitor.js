@@ -3,6 +3,8 @@
  * Tracks Core Web Vitals and custom metrics
  */
 
+import { logger } from '../utils/logger.js';
+
 export class PerformanceMonitor {
   constructor() {
     this.metrics = {
@@ -46,7 +48,7 @@ export class PerformanceMonitor {
 
       observer.observe({ entryTypes: ['largest-contentful-paint'] });
     } catch (error) {
-      console.warn('[Performance] LCP tracking failed:', error);
+      logger.warn('[Performance] LCP tracking failed:', error);
     }
   }
 
@@ -67,7 +69,7 @@ export class PerformanceMonitor {
 
       observer.observe({ entryTypes: ['first-input'] });
     } catch (error) {
-      console.warn('[Performance] FID tracking failed:', error);
+      logger.warn('[Performance] FID tracking failed:', error);
     }
   }
 
@@ -93,7 +95,7 @@ export class PerformanceMonitor {
 
       observer.observe({ entryTypes: ['layout-shift'] });
     } catch (error) {
-      console.warn('[Performance] CLS tracking failed:', error);
+      logger.warn('[Performance] CLS tracking failed:', error);
     }
   }
 
@@ -171,7 +173,7 @@ export class PerformanceMonitor {
 
     // Also log to console in development
     if (import.meta.env.DEV) {
-      console.debug(`[Performance] ${name}: ${Math.round(value)}ms`);
+      logger.debug(`[Performance] ${name}: ${Math.round(value)}ms`);
     }
   }
 
@@ -197,7 +199,7 @@ export class PerformanceMonitor {
     const allPass = Object.values(budget).every(b => b.status === 'PASS');
 
     if (!allPass && import.meta.env.PROD) {
-      console.warn('[Performance Budget] Some metrics exceeded:', budget);
+      logger.warn('[Performance Budget] Some metrics exceeded:', budget);
     }
 
     return budget;

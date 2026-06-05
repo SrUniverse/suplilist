@@ -14,6 +14,7 @@
  * Implementação de referência: profile-page.js → _syncOfflineState()
  */
 import { syncQueue } from './sync-queue.js';
+import { logger } from '../utils/logger.js';
 
 export class OfflineHandler {
   /**
@@ -38,7 +39,7 @@ export class OfflineHandler {
       this._handleOffline();
     }
 
-    console.log('[OfflineHandler] Initialized. Network:', navigator.onLine ? 'online' : 'offline');
+    logger.log('[OfflineHandler] Initialized. Network:', navigator.onLine ? 'online' : 'offline');
   }
 
   // ── Handlers privados ──────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ export class OfflineHandler {
   _handleOffline() {
     this.stateManager.dispatch('SET_OFFLINE_MODE', { isOffline: true });
     this.eventBus.emit('ui:offline', { message: 'Modo offline — leitura ativa' });
-    console.warn('[OfflineHandler] Offline detected.');
+    logger.warn('[OfflineHandler] Offline detected.');
   }
 
   /**
@@ -61,11 +62,11 @@ export class OfflineHandler {
   _handleOnline() {
     this.stateManager.dispatch('SET_OFFLINE_MODE', { isOffline: false });
     this.eventBus.emit('ui:online', { message: 'Conexão restaurada' });
-    console.log('[OfflineHandler] Online restored.');
+    logger.log('[OfflineHandler] Online restored.');
     
     // Executor Duplo (Thread Principal)
     syncQueue.sync().catch(err => {
-      console.error('[OfflineHandler] Failed to sync queue on network restoration:', err);
+      logger.error('[OfflineHandler] Failed to sync queue on network restoration:', err);
     });
   }
 }

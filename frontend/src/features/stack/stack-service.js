@@ -1,5 +1,6 @@
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { apiFetch } from '../../platform/api-client.js';
+import { logger } from '../../utils/logger.js';
 
 /**
  * Adapter: Normalizes backend payload into the frontend UI entity.
@@ -184,7 +185,7 @@ class StackService {
       const normalizedItems = items.map(normalizeStackItem);
       stateManager.dispatch(ACTIONS.IMPORT_STACK, normalizedItems);
     } catch (err) {
-      console.error('Failed to fetch stack', err);
+      logger.error('Failed to fetch stack', err);
     }
   }
 }

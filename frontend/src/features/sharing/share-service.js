@@ -1,4 +1,5 @@
 import { eventBus } from '../../core/event-bus.js';
+import { logger } from '../../utils/logger.js';
 
 export default class ShareService {
   /**
@@ -61,7 +62,7 @@ export default class ShareService {
       } catch (err) {
         // Share can be cancelled by user, which is a normal rejection
         if (err.name !== 'AbortError') {
-          console.error('[ShareService] Native share failed:', err);
+          logger.error('[ShareService] Native share failed:', err);
         }
       }
     }
@@ -90,7 +91,7 @@ export default class ShareService {
         return true;
       } catch (err) {
         if (err.name !== 'AbortError') {
-          console.error('[ShareService] Native streak share failed:', err);
+          logger.error('[ShareService] Native streak share failed:', err);
         }
       }
     }
@@ -111,7 +112,7 @@ export default class ShareService {
       eventBus.emit('toast:show', { message: successMessage, type: 'success' });
       return true;
     } catch (err) {
-      console.error('[ShareService] Clipboard copy failed:', err);
+      logger.error('[ShareService] Clipboard copy failed:', err);
       // Fallback: prompt input
       window.prompt('Copie o link de compartilhamento:', text);
       return true;

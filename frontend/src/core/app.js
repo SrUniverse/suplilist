@@ -7,6 +7,7 @@ import { analyticsEngine } from '../analytics/analytics-engine.js';
 import { StorageManager } from '../platform/storage-manager.js';
 import { OfflineHandler } from '../platform/offline-handler.js';
 import { syncQueue } from '../platform/sync-queue.js';
+import { logger } from '../utils/logger.js';
 import '../platform/mobile-keyboard-handler.js';
 import '../platform/mobile-utilities.js';
 import '../platform/pwa-handler.js';
@@ -169,7 +170,7 @@ function applyLandingMode() {
 document.addEventListener('DOMContentLoaded', async () => {
   // Inicializar IndexedDB (não bloqueia, mas prepara para uso)
   StorageManager.init().catch(e => {
-    console.warn('[App] IndexedDB init falhou, usando fallback:', e);
+    logger.warn('[App] IndexedDB init falhou, usando fallback:', e);
   });
 
   // ── Session Recovery (PWA cold-start) ──────────────────────────────────────
@@ -179,7 +180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // The UI starts in visitor mode and reactively transitions to "Logged in".
   // Do NOT await this — blocking here would freeze the entire boot sequence.
   identityService.initializeSession().catch(err => {
-    console.warn('[App] Session initialization probe failed:', err);
+    logger.warn('[App] Session initialization probe failed:', err);
   });
 
   // State is initialized in the StateManager constructor (_initializeState reads from localStorage).
@@ -221,12 +222,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize Analytics Engine (captures events from EventBus)
   analyticsEngine.init().catch((err) => {
     // Analytics errors should not crash the app
-    console.error('[App] Analytics init error:', err);
+    logger.error('[App] Analytics init error:', err);
   });
 
   // Initialize Sync Queue (background sync for offline check-ins)
   syncQueue.init().catch(err => {
-    console.warn('[App] Sync queue initialization failed:', err);
+    logger.warn('[App] Sync queue initialization failed:', err);
     // Non-critical: app still works without offline sync
   });
 
@@ -338,7 +339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     notifService.checkAndTriggerDailyReminder(stateManager.state);
     notifService.checkAndTriggerLowStockAlerts(stateManager.state);
   } catch (err) {
-    console.error('[App] Initial notifications check failed:', err);
+    logger.error('[App] Initial notifications check failed:', err);
   }
 
   // Subscribe to state changes to handle streak milestones and low-stock alerts dynamically
@@ -349,7 +350,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         notifService.checkAndTriggerLowStockAlerts(state);
       }
     } catch (err) {
-      console.error('[App] Notification subscriber error:', err);
+      logger.error('[App] Notification subscriber error:', err);
     }
   });
 
@@ -382,7 +383,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 800);
       }
     } catch (e) {
-      console.error('[App] Shared stack parsing failed:', e);
+      logger.error('[App] Shared stack parsing failed:', e);
     }
   }
 

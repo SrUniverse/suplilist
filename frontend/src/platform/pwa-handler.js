@@ -6,6 +6,8 @@
  * - Install prompt handling
  */
 
+import { logger } from '../utils/logger.js';
+
 export class PWAHandler {
   constructor() {
     this.isOnline = navigator.onLine;
@@ -27,9 +29,9 @@ export class PWAHandler {
         const registration = await navigator.serviceWorker.register('/sw.js', {
           scope: '/'
         });
-        console.debug('[PWA] Service Worker registered', registration);
+        logger.debug('[PWA] Service Worker registered', registration);
       } catch (error) {
-        console.warn('[PWA] Service Worker registration failed:', error);
+        logger.warn('[PWA] Service Worker registration failed:', error);
       }
     }
   }
@@ -73,7 +75,7 @@ export class PWAHandler {
     });
 
     window.addEventListener('appinstalled', () => {
-      console.debug('[PWA] App installed');
+      logger.debug('[PWA] App installed');
       document.body.classList.add('is-installed');
     });
   }

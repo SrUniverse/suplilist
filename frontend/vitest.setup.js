@@ -184,21 +184,42 @@ global.history.back = vi.fn();
 global.history.forward = vi.fn();
 global.history.go = vi.fn();
 
-// Location mock
+// Location mock with writable properties
+const mockLocation = {
+  href: 'http://localhost:5173/',
+  protocol: 'http:',
+  host: 'localhost:5173',
+  hostname: 'localhost',
+  port: '5173',
+  pathname: '/',
+  search: '',
+  hash: '',
+  origin: 'http://localhost:5173',
+  assign: vi.fn(),
+  reload: vi.fn(),
+  replace: vi.fn()
+};
+
 Object.defineProperty(global, 'location', {
   writable: true,
-  value: {
-    href: 'http://localhost:5173/',
-    protocol: 'http:',
-    host: 'localhost:5173',
-    hostname: 'localhost',
-    port: '5173',
-    pathname: '/',
-    search: '',
-    hash: '',
-    origin: 'http://localhost:5173',
-    assign: vi.fn(),
-    reload: vi.fn(),
-    replace: vi.fn()
-  }
+  configurable: true,
+  value: new Proxy(mockLocation, {
+    set(target, prop, value) {
+      target[prop] = value;
+      if (prop === 'href') {
+        // Parse href to update other properties
+        try {
+          const url = new URL(value, 'http://localhost:5173');
+          target.protocol = url.protocol;
+          target.host = url.host;
+          target.hostname = url.hostname;
+          target.port = url.port;
+          target.pathname = url.pathname;
+          target.search = url.search;
+          target.hash = url.hash;
+        } catch {}
+      }
+      return true;
+    }
+  })
 });

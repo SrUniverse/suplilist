@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import { logger } from '../../utils/logger.js';
 
 export default class QRGenerator {
   /**
@@ -31,7 +32,7 @@ export default class QRGenerator {
     try {
       await QRCode.toCanvas(canvasEl, url, options);
     } catch (err) {
-      console.error('[QRGenerator] QR code rendering failed:', err);
+      logger.error('[QRGenerator] QR code rendering failed:', err);
     }
   }
 }

@@ -1,6 +1,7 @@
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus } from '../../core/event-bus.js';
 import { StorageManager } from '../../platform/storage-manager.js';
+import { logger } from '../../utils/logger.js';
 
 export class CheckoutModal {
   static _activeOverlay = null;
@@ -13,14 +14,14 @@ export class CheckoutModal {
   static show(options = {}) {
     // PATCH 1: Prevent race condition - check for active overlay first
     if (this._activeOverlay) {
-      console.warn('[CheckoutModal] Modal already open');
+      logger.warn('[CheckoutModal] Modal already open');
       return;
     }
 
     // Clean up any orphaned overlay in DOM (defensive)
     const stale = document.getElementById('premium-checkout-overlay');
     if (stale) {
-      console.warn('[CheckoutModal] Found orphaned overlay, cleaning up');
+      logger.warn('[CheckoutModal] Found orphaned overlay, cleaning up');
       stale.remove();
     }
 
@@ -33,7 +34,7 @@ export class CheckoutModal {
     const validTiers = ['pro', 'elite'];
     const tier = options?.tier;
     if (tier !== undefined && !validTiers.includes(tier)) {
-      console.warn(`[CheckoutModal] Invalid tier "${tier}", defaulting to "pro"`);
+      logger.warn(`[CheckoutModal] Invalid tier "${tier}", defaulting to "pro"`);
     }
     const initialTier = tier === 'elite' ? 'elite' : 'pro';
 
@@ -500,7 +501,7 @@ export class CheckoutModal {
         try {
           StorageManager.setItem('suplilist:tier', selectedTier);
         } catch (storageError) {
-          console.error('[CheckoutModal] Failed to persist tier to localStorage:', storageError);
+          logger.error('[CheckoutModal] Failed to persist tier to localStorage:', storageError);
           // Continue anyway - state manager has it, localStorage is cache
         }
 
@@ -520,7 +521,7 @@ export class CheckoutModal {
 
       } catch (error) {
         // Handle activation failure
-        console.error('[CheckoutModal] Activation failed:', error);
+        logger.error('[CheckoutModal] Activation failed:', error);
 
         statusMsg.textContent = 'Erro ao ativar plano. Tente novamente.';
         submitBtn.disabled = false;

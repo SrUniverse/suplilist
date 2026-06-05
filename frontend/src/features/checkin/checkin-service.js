@@ -3,6 +3,7 @@ import { syncQueue } from '../../platform/sync-queue.js';
 import { eventBus } from '../../core/event-bus.js';
 import { apiFetch } from '../../platform/api-client.js';
 import { todayISO } from '../../utils/date.js';
+import { logger } from '../../utils/logger.js';
 
 class CheckinService {
   /**
@@ -99,7 +100,7 @@ class CheckinService {
         } else {
           // Caiu no catch por item, manda pra syncQueue local
           hasOfflineFallback = true;
-          syncQueue.enqueue(payloads[index]).catch(console.error);
+          syncQueue.enqueue(payloads[index]).catch(logger.error);
         }
       });
 

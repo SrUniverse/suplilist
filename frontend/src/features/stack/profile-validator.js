@@ -3,6 +3,8 @@
 // Validates user profile data for recommendation engine.
 // ============================================================
 
+import { logger } from '../../utils/logger.js';
+
 /**
  * Valid objective values for supplement recommendations.
  */
@@ -81,7 +83,7 @@ export function validateUserProfile(userProfile) {
       }
       // Warning: unknown restriction (not blocking)
       if (!VALID_RESTRICTIONS.includes(restriction)) {
-        console.warn(`[ProfileValidator] Unknown restriction: ${restriction}`);
+        logger.warn(`[ProfileValidator] Unknown restriction: ${restriction}`);
       }
     }
   }

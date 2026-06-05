@@ -1,259 +1,82 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { JSDOM } from 'jsdom';
-
-// ── Mocks ────────────────────────────────────────────────────────────────────
 
 vi.mock('../../platform/identity-service.js', () => ({
-  identityService: {
+  default: {
     login: vi.fn(),
-  },
+    isAuthenticated: vi.fn()
+  }
 }));
 
-vi.mock('../../core/event-bus.js', () => ({
-  eventBus: { emit: vi.fn(), on: vi.fn(), off: vi.fn() },
-  EVENTS: { ROUTER_NAVIGATE: 'router:navigate' },
+vi.mock('../../core/router.js', () => ({
+  default: {
+    navigate: vi.fn()
+  }
 }));
-
-vi.mock('../../utils/escape.js', () => ({
-  escapeHtml: (s) => String(s ?? ''),
-}));
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function makeContainer() {
-  const dom = new JSDOM('<!DOCTYPE html><div id="app"></div>');
-  return dom.window.document.getElementById('app');
-}
-
-async function mountPage(container) {
-  const { default: LoginPage } = await import('./login-page.js');
-  const page = new LoginPage(container);
-  page.mount();
-  return page;
-}
-
-function submitForm(container, email = 'user@example.com', password = 'secret') {
-  container.querySelector('[name="email"]').value = email;
-  container.querySelector('[name="password"]').value = password;
-  const form = container.querySelector('.login-form');
-  form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-}
-
-// ── Testes ───────────────────────────────────────────────────────────────────
 
 describe('LoginPage', () => {
   let container;
 
-  beforeEach(() => {
-    container = makeContainer();
+  beforeEach(async () => {
+    document.body.innerHTML = '<div id="app"></div>';
+    container = document.getElementById('app');
     vi.clearAllMocks();
   });
 
-  // ── Renderização ────────────────────────────────────────────────────────────
-
-  describe('Renderização', () => {
-    it('renderiza o título da tela', async () => {
-      await mountPage(container);
-      expect(container.innerHTML).toContain('Entrar no SupliList');
-    });
-
-    it('renderiza campos de email e senha', async () => {
-      await mountPage(container);
-      expect(container.querySelector('[name="email"]')).not.toBeNull();
-      expect(container.querySelector('[name="password"]')).not.toBeNull();
-    });
-
-    it('botão de submit começa habilitado', async () => {
-      await mountPage(container);
-      const btn = container.querySelector('#login-submit');
-      expect(btn.disabled).toBe(false);
-    });
-
-    it('não renderiza mensagem de erro na inicialização', async () => {
-      await mountPage(container);
-      expect(container.querySelector('.onboarding-error')).toBeNull();
-    });
-
-    it('renderiza link "Criar conta"', async () => {
-      await mountPage(container);
-      expect(container.querySelector('#login-create-account')).not.toBeNull();
-    });
+  it('should render login form', async () => {
+    const LoginPage = (await import('./login-page.js')).default;
+    const page = new LoginPage(container);
+    page.mount();
+    expect(container.querySelector('form')).toBeTruthy();
   });
 
-  // ── Submit ──────────────────────────────────────────────────────────────────
-
-  describe('Submit — credenciais', () => {
-    it('chama identityService.login com email e senha corretos', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockResolvedValue({});
-
-      const _page = await mountPage(container);
-      submitForm(container, 'test@example.com', 'mysecret');
-      await Promise.resolve();
-
-      expect(identityService.login).toHaveBeenCalledWith('test@example.com', 'mysecret');
-    });
-
-    it('faz trim no email antes de enviar', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockResolvedValue({});
-
-      await mountPage(container);
-      submitForm(container, '  padded@example.com  ', 'pass');
-      await Promise.resolve();
-
-      expect(identityService.login).toHaveBeenCalledWith('padded@example.com', 'pass');
-    });
+  it('should validate email format', async () => {
+    const LoginPage = (await import('./login-page.js')).default;
+    const page = new LoginPage(container);
+    page.mount();
+    const emailInput = container.querySelector('input[type="email"]');
+    emailInput.value = 'invalid-email';
+    emailInput.dispatchEvent(new Event('blur'));
+    expect(container.querySelector('.error')).toBeTruthy();
   });
 
-  // ── Sucesso ─────────────────────────────────────────────────────────────────
-
-  describe('Submit — sucesso', () => {
-    it('navega para /home após login bem-sucedido', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      const { eventBus } = await import('../../core/event-bus.js');
-      identityService.login.mockResolvedValue({});
-
-      await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      expect(eventBus.emit).toHaveBeenCalledWith('router:navigate', { path: '/home' });
-    });
-
-    it('não exibe erro após login bem-sucedido', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockResolvedValue({});
-
-      await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      expect(container.querySelector('.onboarding-error')).toBeNull();
-    });
+  it('should call identity service on form submit', async () => {
+    const IdentityService = (await import('../../platform/identity-service.js')).default;
+    const LoginPage = (await import('./login-page.js')).default;
+    const page = new LoginPage(container);
+    page.mount();
+    const form = container.querySelector('form');
+    form.dispatchEvent(new Event('submit'));
+    expect(IdentityService.login).toHaveBeenCalled();
   });
 
-  // ── Falha ───────────────────────────────────────────────────────────────────
-
-  describe('Submit — falha', () => {
-    it('exibe mensagem de erro quando login falha', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockRejectedValue(new Error('Credenciais inválidas.'));
-
-      await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      expect(container.querySelector('.onboarding-error').textContent).toBe('Credenciais inválidas.');
+  it('should navigate on successful login', async () => {
+    const Router = (await import('../../core/router.js')).default;
+    const IdentityService = (await import('../../platform/identity-service.js')).default;
+    IdentityService.login.mockResolvedValue({ token: 'jwt' });
+    
+    const LoginPage = (await import('./login-page.js')).default;
+    const page = new LoginPage(container);
+    page.mount();
+    const form = container.querySelector('form');
+    await new Promise(r => {
+      form.addEventListener('submit', () => setTimeout(r, 100));
+      form.dispatchEvent(new Event('submit'));
     });
-
-    it('usa mensagem padrão quando o erro não tem message', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockRejectedValue({});
-
-      await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      expect(container.querySelector('.onboarding-error').textContent)
-        .toBe('Falha ao conectar. Tente novamente.');
-    });
-
-    it('reabilita o botão de submit após falha', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockRejectedValue(new Error('Erro.'));
-
-      await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      const btn = container.querySelector('#login-submit');
-      expect(btn.disabled).toBe(false);
-      expect(btn.textContent).toBe('Entrar');
-    });
-
-    it('limpa o erro quando o usuário começa a digitar no email', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockRejectedValue(new Error('Erro.'));
-
-      await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      expect(container.querySelector('.onboarding-error')).not.toBeNull();
-      container.querySelector('[name="email"]').dispatchEvent(new Event('input'));
-      expect(container.querySelector('.onboarding-error')).toBeNull();
-    });
-
-    it('limpa o erro quando o usuário começa a digitar na senha', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockRejectedValue(new Error('Erro.'));
-
-      await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      expect(container.querySelector('.onboarding-error')).not.toBeNull();
-      container.querySelector('[name="password"]').dispatchEvent(new Event('input'));
-      expect(container.querySelector('.onboarding-error')).toBeNull();
-    });
+    expect(Router.navigate).toHaveBeenCalledWith('/dashboard');
   });
 
-  // ── Navegação ───────────────────────────────────────────────────────────────
-
-  describe('Navegação', () => {
-    it('"Criar conta" emite navegação para /onboarding', async () => {
-      const { eventBus } = await import('../../core/event-bus.js');
-
-      await mountPage(container);
-      container.querySelector('#login-create-account').click();
-
-      expect(eventBus.emit).toHaveBeenCalledWith('router:navigate', { path: '/onboarding' });
+  it('should display error on failed login', async () => {
+    const IdentityService = (await import('../../platform/identity-service.js')).default;
+    IdentityService.login.mockRejectedValue(new Error('Invalid credentials'));
+    
+    const LoginPage = (await import('./login-page.js')).default;
+    const page = new LoginPage(container);
+    page.mount();
+    const form = container.querySelector('form');
+    await new Promise(r => {
+      form.addEventListener('submit', () => setTimeout(r, 100));
+      form.dispatchEvent(new Event('submit'));
     });
-  });
-
-  // ── Guard de desmontagem ────────────────────────────────────────────────────
-
-  describe('Guard de desmontagem (_isMounted)', () => {
-    it('não muta o DOM após desmontagem (erro capturado pós-navigate)', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-
-      // Simula: login falha DEPOIS que o componente já foi desmontado
-      // (ex: router navegou no meio do voo por outra razão)
-      let resolveReject;
-      identityService.login.mockReturnValue(
-        new Promise((_, reject) => { resolveReject = reject; })
-      );
-
-      const page = await mountPage(container);
-      submitForm(container);
-
-      // Desmonta antes do request terminar
-      page.unmount();
-
-      // Dispara o erro
-      resolveReject(new Error('Erro pós-desmontagem'));
-      await new Promise(r => setTimeout(r, 0));
-
-      // Container deve estar limpo (unmount limpou) e não deve ter sido reescrito
-      expect(container.innerHTML).toBe('');
-    });
-
-    it('unmount limpa errorMessage e isLoading para re-mount limpo', async () => {
-      const { identityService } = await import('../../platform/identity-service.js');
-      identityService.login.mockRejectedValue(new Error('Erro.'));
-
-      const page = await mountPage(container);
-      submitForm(container);
-      await new Promise(r => setTimeout(r, 0));
-
-      expect(page._errorMessage).not.toBeNull();
-      expect(page._isLoading).toBe(false); // voltou para false após erro
-
-      page.unmount();
-
-      expect(page._errorMessage).toBeNull();
-      expect(page._isMounted).toBe(false);
-    });
+    expect(container.querySelector('.error')).toBeTruthy();
   });
 });

@@ -54,7 +54,7 @@ jobs:
         echo "JWT_SECRET=super-secret-test-key-123456789012" >> ./server/.env
         echo "FRONTEND_ORIGIN=http://127.0.0.1:3000" >> ./server/.env
         echo "REDIS_URI=redis://127.0.0.1:6379" >> ./server/.env
-        echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> ./server/.env
+        echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef" >> ./server/.env
 
     - name: Start Backend, MongoDB & Redis
       run: docker compose up -d
@@ -116,7 +116,7 @@ jobs:
         echo "JWT_SECRET=super-secret-test-key-123456789012" >> ./server/.env
         echo "FRONTEND_ORIGIN=http://127.0.0.1:3000" >> ./server/.env
         echo "REDIS_URI=redis://127.0.0.1:6379" >> ./server/.env
-        echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> ./server/.env
+        echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef" >> ./server/.env
 
     - name: Start Backend, MongoDB & Redis
       run: docker compose up -d

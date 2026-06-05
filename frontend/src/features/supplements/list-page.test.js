@@ -51,9 +51,8 @@ vi.mock('../../core/virtual-scroller.js', () => ({
     }
     mount() {
       this.mounted = true;
-      this.container.innerHTML = `<div id="lp-grid" data-component="supplement-grid">` + 
-        this.items.map(item => this.renderFn(item)).join('') + 
-        `</div>`;
+      // Render directly into container (which is already #lp-grid)
+      this.container.innerHTML = this.items.map((item, idx) => this.renderFn(item, idx)).join('');
     }
     unmount() {
       this.mounted = false;
@@ -62,9 +61,7 @@ vi.mock('../../core/virtual-scroller.js', () => ({
     updateItems(items) {
       this.items = items;
       if (this.mounted) {
-        this.container.innerHTML = `<div id="lp-grid" data-component="supplement-grid">` + 
-          this.items.map(item => this.renderFn(item)).join('') + 
-          `</div>`;
+        this.container.innerHTML = this.items.map((item, idx) => this.renderFn(item, idx)).join('');
       }
     }
   }
@@ -89,6 +86,8 @@ describe('ListPage — Supplement Catalog', () => {
     // Setup container
     container = document.createElement('div');
     container.id = 'list-page';
+    container.style.height = '800px'; // VirtualScroller needs height to calculate viewport
+    container.style.overflow = 'auto';
     document.body.appendChild(container);
 
     // Dynamic import to get fresh class instance
@@ -103,7 +102,8 @@ describe('ListPage — Supplement Catalog', () => {
   });
 
   it('1. Renders supplement grid with correct structure', async () => {
-    await listPage.mount();
+    listPage.mount();
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait longer for VirtualScroller
 
     const grid = container.querySelector('[data-component="supplement-grid"]');
     expect(grid).not.toBeNull();
@@ -149,7 +149,8 @@ describe('ListPage — Supplement Catalog', () => {
   });
 
   it('4. Modal opens with supplement data and handles tab switching', async () => {
-    await listPage.mount();
+    listPage.mount();
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const firstBtn = container.querySelector('.lp-btn-ver-precos');
     firstBtn?.click();
@@ -166,7 +167,8 @@ describe('ListPage — Supplement Catalog', () => {
   });
 
   it('5. Modal closes on close button, overlay click, and Escape key', async () => {
-    await listPage.mount();
+    listPage.mount();
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const firstBtn = container.querySelector('.lp-btn-ver-precos');
     firstBtn?.click();
@@ -233,7 +235,7 @@ describe('ListPage — Supplement Catalog', () => {
 
   it('8. Unmount clears listeners and virtual scroller', () => {
     listPage.mount();
-    const spy = vi.spyOn(listPage._scroller, 'unmount');
+    const spy = vi.spyOn(listPage._grid, 'unmount');
     listPage.unmount();
     expect(spy).toHaveBeenCalled();
   });
@@ -246,6 +248,8 @@ describe('ListPage — tier reactivity', () => {
   beforeEach(async () => {
     container = document.createElement('div');
     container.id = 'list-page';
+    container.style.height = '800px'; // VirtualScroller needs height to calculate viewport
+    container.style.overflow = 'auto';
     document.body.appendChild(container);
   });
 
@@ -269,10 +273,11 @@ describe('ListPage — tier reactivity', () => {
     listPage = new ListPage(container, {});
 
     // Act
-    await listPage.mount();
+    listPage.mount();
+    await new Promise(resolve => setTimeout(resolve, 50));
 
-    // Assert — _filtered is populated after mount
-    const items = listPage._filtered;
+    // Assert — _filtered is now in _search component
+    const items = listPage._search.getFiltered();
     if (items && items.length > 3) {
       expect(items[3].isAd).toBe(true);
     } else {

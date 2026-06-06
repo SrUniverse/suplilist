@@ -268,6 +268,10 @@ class IdentityService {
       return { status: 'mfa_required', mfaToken: authResponse.mfaToken };
     }
 
+    if (authResponse.challenge === 'device_verification') {
+      return { status: 'device_verification_required', email: authResponse.email };
+    }
+
     // Persist the short-lived token in the secure closure immediately.
     // From this point on, apiFetch will inject it as Bearer automatically.
     setAccessToken(authResponse.accessToken);
@@ -300,10 +304,36 @@ class IdentityService {
       return { status: 'mfa_required', mfaToken: response.mfaToken };
     }
 
+    if (response.challenge === 'device_verification') {
+      return { status: 'device_verification_required', email: response.email };
+    }
+
     setAccessToken(response.accessToken);
     const identity = await apiFetch(API.PROFILE);
     this.#commitLogin(identity);
     logger.info('[IdentityService] Google Login successful for', identity.email);
+    eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
+
+    return identity;
+  }
+
+  /**
+   * Verify device using OTP
+   */
+  async verifyDevice(email, otpCode) {
+    const response = await apiFetch('/api/auth/verify-device', {
+      method: 'POST',
+      body: JSON.stringify({ email, otpCode }),
+    });
+
+    if (response.mfaRequired) {
+      return { status: 'mfa_required', mfaToken: response.mfaToken };
+    }
+
+    setAccessToken(response.accessToken);
+    const identity = await apiFetch(API.PROFILE);
+    this.#commitLogin(identity);
+    logger.info('[IdentityService] Device verification successful for', identity.email);
     eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
 
     return identity;

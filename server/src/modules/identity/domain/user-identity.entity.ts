@@ -31,6 +31,7 @@ export interface UserIdentity {
   deletedAt: Date | null;
   suspendedAt: Date | null;
   suspendedReason: string | null;
+  trustedDevices: string[]; // Stores SHA-256 hashes of valid device UUIDs
   sessionsValidAfter: Date | null;
   passwordReset?: {
     tokenHash: string | null;

@@ -29,11 +29,11 @@ export class ListPageModal {
   /**
    * Initialize modal with items and prices.
    * @param {Array} allItems - All supplement items
-   * @param {Object} [prices] - Prices from prices.json
+   * @param {Object|null} prices - Prices from prices.json
    * @returns {void}
    */
   init(allItems, prices) {
-    this._allItems = allItems;
+    this._allItems = Array.isArray(allItems) ? allItems : [];
     this._prices = prices;
     document.addEventListener('keydown', this._boundKeydown);
   }
@@ -234,10 +234,34 @@ export class ListPageModal {
       if (affLink) affiliateEngine.trackClick(affLink.dataset.affId, affLink.dataset.affMp);
     });
 
-    // Add to stack button
+    // Disable add button when offline
+    const isOffline = stateManager.state?.ui?.isOffline === true;
     const addBtn = overlay.querySelector('#lp-modal-add-btn');
+    if (isOffline) {
+      addBtn.disabled = true;
+      addBtn.title = 'Indisponível no modo offline';
+      addBtn.style.opacity = '0.5';
+      addBtn.style.cursor = 'not-allowed';
+    }
+
     addBtn.addEventListener('click', e => {
       e.stopPropagation();
+
+      // Guard: offline mode — no writes allowed
+      if (stateManager.state?.ui?.isOffline === true) {
+        return;
+      }
+
+      // Guard: unauthenticated — redirect to login instead of a 401
+      const isAuthenticated = stateManager.state?.user?.isAuthenticated === true;
+      if (!isAuthenticated) {
+        this.close();
+        import('../../core/event-bus.js').then(({ eventBus, EVENTS }) => {
+          eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/login' });
+        });
+        return;
+      }
+
       const id = addBtn.dataset.id;
       const sup = this._allItems.find(s => s.id === id);
       if (!sup) return;

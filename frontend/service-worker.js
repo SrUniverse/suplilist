@@ -106,6 +106,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 0. NETWORK-ONLY: Bypass absoluto para rotas de autenticação
+  // Nunca fazer cache de /api/auth/me para evitar account takeover ou falhas de hidratação.
+  if (requestUrl.pathname.startsWith('/api/auth/')) {
+    event.respondWith(
+      fetch(event.request).catch((error) => {
+        // Se a rede falhar, não caia no cache, apenas falhe (ou lance 503 local)
+        return new Response('', { status: 503, statusText: 'Service Unavailable (Offline)' });
+      })
+    );
+    return;
+  }
+
   // 1. ESTRATÉGIA CACHE-FIRST: Lista de Suplementos (muda muito raramente)
   if (isSupplementsRequest(requestUrl)) {
     event.respondWith(

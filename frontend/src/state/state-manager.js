@@ -128,6 +128,9 @@ export const STORAGE_KEYS = Object.freeze({
 export const ACTIONS = Object.freeze({
   SET_USER_PROFILE: 'SET_USER_PROFILE',
   COMPLETE_ONBOARDING: 'COMPLETE_ONBOARDING',
+  UPDATE_PROFILE: 'UPDATE_PROFILE',              // Profile updates (name, photo, etc)
+  UPDATE_PHOTO: 'UPDATE_PHOTO',                  // Photo-specific update
+  DELETE_PHOTO: 'DELETE_PHOTO',                  // Delete profile photo
   ADD_TO_STACK: 'ADD_TO_STACK',
   REMOVE_FROM_STACK: 'REMOVE_FROM_STACK',
   UPDATE_STACK_ITEM: 'UPDATE_STACK_ITEM',       // #2 FIX: antes ausente do registro
@@ -168,6 +171,7 @@ export const DEFAULT_STATE = Object.freeze({
     id: null,
     name: null,
     email: null,
+    photo: null,          // Profile photo URL (NEW)
     weight: null,         // kg
     biologicalSex: null,  // 'male' | 'female'
     trainingFrequency: null, // days/week
@@ -295,6 +299,39 @@ function reducer(state, action) {
           onboardingComplete: true
         }
       };
+
+    case ACTIONS.UPDATE_PROFILE: {
+      // Update user profile with new data
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          ...action.payload
+        }
+      };
+    }
+
+    case ACTIONS.UPDATE_PHOTO: {
+      // Update just the photo field
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          photo: action.payload
+        }
+      };
+    }
+
+    case ACTIONS.DELETE_PHOTO: {
+      // Remove photo
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          photo: null
+        }
+      };
+    }
 
     case ACTIONS.ADD_TO_STACK: {
       // PATCH 3: Validate payload structure

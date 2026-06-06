@@ -578,6 +578,162 @@ export class StorageManager {
     }
   }
 
+  /**
+   * Encrypts data using Web Crypto API (AES-GCM)
+   * @param {string} data - Data to encrypt
+   * @param {string} password - Encryption password (minimum 8 characters)
+   * @returns {Promise<string>} Encrypted data as base64
+   */
+  static async encrypt(data, password) {
+    if (!password || password.length < 8) {
+      throw new Error('Password must be at least 8 characters');
+    }
+
+    try {
+      // Derive key from password
+      const encoder = new TextEncoder();
+      const passwordBuffer = encoder.encode(password);
+      const key = await crypto.subtle.importKey('raw', passwordBuffer, { name: 'PBKDF2' }, false, ['deriveBits']);
+      const derivedBits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: encoder.encode('suplilist-salt'), iterations: 100000, hash: 'SHA-256' },
+        key,
+        256
+      );
+      const cryptoKey = await crypto.subtle.importKey('raw', derivedBits, { name: 'AES-GCM' }, false, ['encrypt']);
+
+      // Generate random IV
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+
+      // Encrypt data
+      const encryptedBuffer = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        encoder.encode(data)
+      );
+
+      // Combine IV + encrypted data
+      const combined = new Uint8Array(iv.length + encryptedBuffer.byteLength);
+      combined.set(iv);
+      combined.set(new Uint8Array(encryptedBuffer), iv.length);
+
+      // Convert to base64
+      const binaryString = String.fromCharCode.apply(null, combined);
+      return btoa(binaryString);
+    } catch (e) {
+      logger.error('[StorageManager] Encryption failed:', e);
+      throw new Error(`Encryption failed: ${e.message}`);
+    }
+  }
+
+  /**
+   * Decrypts data encrypted with encrypt()
+   * @param {string} encryptedData - Base64-encoded encrypted data
+   * @param {string} password - Decryption password
+   * @returns {Promise<string>} Decrypted data
+   */
+  static async decrypt(encryptedData, password) {
+    if (!password || password.length < 8) {
+      throw new Error('Password must be at least 8 characters');
+    }
+
+    try {
+      // Decode from base64
+      const binaryString = atob(encryptedData);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      // Extract IV and encrypted data
+      const iv = bytes.slice(0, 12);
+      const encryptedBuffer = bytes.slice(12);
+
+      // Derive key from password (same as encrypt())
+      const encoder = new TextEncoder();
+      const passwordBuffer = encoder.encode(password);
+      const key = await crypto.subtle.importKey('raw', passwordBuffer, { name: 'PBKDF2' }, false, ['deriveBits']);
+      const derivedBits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: encoder.encode('suplilist-salt'), iterations: 100000, hash: 'SHA-256' },
+        key,
+        256
+      );
+      const cryptoKey = await crypto.subtle.importKey('raw', derivedBits, { name: 'AES-GCM' }, false, ['decrypt']);
+
+      // Decrypt data
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        encryptedBuffer
+      );
+
+      return new TextDecoder().decode(decryptedBuffer);
+    } catch (e) {
+      logger.error('[StorageManager] Decryption failed:', e);
+      throw new Error(`Decryption failed: ${e.message}`);
+    }
+  }
+
+  /**
+   * Sets a value with TTL (time-to-live) expiration
+   * @param {string} key - Storage key
+   * @param {*} value - Value to store
+   * @param {number} ttlMs - Time to live in milliseconds
+   * @returns {Promise<void>}
+   */
+  static async setWithTTL(key, value, ttlMs = 24 * 60 * 60 * 1000) {
+    if (typeof ttlMs !== 'number' || ttlMs <= 0) {
+      throw new Error('ttlMs must be a positive number');
+    }
+
+    const ttlKey = `${key}:ttl`;
+    const expiresAt = Date.now() + ttlMs;
+
+    // Store value and expiration
+    await this.setItem(key, value);
+    await this.setItem(ttlKey, expiresAt);
+
+    logger.debug(`[StorageManager] Set ${key} with TTL: ${ttlMs}ms`);
+  }
+
+  /**
+   * Clears expired items from storage
+   * Removes all keys with TTL markers that have expired
+   * @returns {Promise<{cleared: number, remaining: number}>}
+   */
+  static async clearExpired() {
+    try {
+      const keys = this.getAllKeys();
+      let cleared = 0;
+      let remaining = 0;
+
+      for (const key of keys) {
+        // Check if this key has a TTL
+        if (key.endsWith(':ttl')) {
+          const baseKey = key.slice(0, -4); // Remove ':ttl' suffix
+          const expiresAt = await this.getItem(key);
+
+          if (typeof expiresAt === 'string') {
+            const expiresAtNum = parseInt(expiresAt, 10);
+            if (expiresAtNum < Date.now()) {
+              // Expired - remove both value and TTL key
+              await this.removeItem(baseKey);
+              await this.removeItem(key);
+              cleared++;
+              logger.debug(`[StorageManager] Cleared expired key: ${baseKey}`);
+            } else {
+              remaining++;
+            }
+          }
+        }
+      }
+
+      return { cleared, remaining };
+    } catch (e) {
+      logger.error('[StorageManager] clearExpired failed:', e);
+      return { cleared: 0, remaining: 0 };
+    }
+  }
+
   // ============================================================
   // Backward compatibility aliases for tests
   // ============================================================

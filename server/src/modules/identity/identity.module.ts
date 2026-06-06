@@ -21,6 +21,9 @@ import { SetupMfaUseCase } from './application/use-cases/setup-mfa.use-case.js';
 import { ConfirmMfaSetupUseCase } from './application/use-cases/confirm-mfa-setup.use-case.js';
 import { VerifyMfaUseCase } from './application/use-cases/verify-mfa.use-case.js';
 import { VerifyOtpUseCase } from './application/use-cases/verify-otp.use-case.js';
+import { ResendOtpUseCase } from './application/use-cases/resend-otp.use-case.js';
+import { GetSessionIdentityUseCase } from './application/use-cases/get-session-identity.use-case.js';
+import { VerifyDeviceUseCase } from './application/use-cases/verify-device.use-case.js';
 
 import { AuthController } from './presentation/express/auth.controller.js';
 import { ipAuthRateLimiter, emailAuthRateLimiter, messagingIpLimiter, messagingEmailLimiter, authApiLimiter } from '../../shared/middleware/auth-rate-limiter.js';
@@ -40,19 +43,21 @@ export function initializeIdentityModule(): Router {
 
   // 2. Instantiate Use Cases (Application Services)
   const registerUseCase = new RegisterUseCase(userIdentityRepository, profileRepository, unitOfWork, eventBus, emailService);
-  const loginUseCase = new LoginUseCase(userIdentityRepository, unitOfWork);
+  const loginUseCase = new LoginUseCase(userIdentityRepository, unitOfWork, emailService);
   const refreshTokenUseCase = new RefreshTokenUseCase(userIdentityRepository, tokenBlocklistRepository, unitOfWork);
   const logoutUseCase = new LogoutUseCase(tokenBlocklistRepository, unitOfWork);
   const deleteAccountUseCase = new DeleteAccountUseCase(userIdentityRepository, refreshTokenRepository, tokenBlocklistRepository, unitOfWork);
   const cancelDeletionUseCase = new CancelDeletionUseCase(userIdentityRepository, unitOfWork);
   const forgotPasswordUseCase = new ForgotPasswordUseCase(userIdentityRepository, emailService);
   const resetPasswordUseCase = new ResetPasswordUseCase(userIdentityRepository, tokenBlocklistRepository);
-  const googleAuthUseCase = new GoogleAuthUseCase(userIdentityRepository, profileRepository, unitOfWork);
+  const googleAuthUseCase = new GoogleAuthUseCase(userIdentityRepository, profileRepository, unitOfWork, emailService);
   const setupMfaUseCase = new SetupMfaUseCase(userIdentityRepository, unitOfWork);
   const confirmMfaSetupUseCase = new ConfirmMfaSetupUseCase(userIdentityRepository, unitOfWork);
   const verifyMfaUseCase = new VerifyMfaUseCase(userIdentityRepository, tokenBlocklistRepository, unitOfWork);
   const verifyOtpUseCase = new VerifyOtpUseCase(userIdentityRepository);
   const resendOtpUseCase = new ResendOtpUseCase(userIdentityRepository, emailService);
+  const getSessionIdentityUseCase = new GetSessionIdentityUseCase(userIdentityRepository);
+  const verifyDeviceUseCase = new VerifyDeviceUseCase(userIdentityRepository, unitOfWork);
 
   // 3. Instantiate Controller (Presentation Layer)
   const controller = new AuthController(
@@ -69,10 +74,14 @@ export function initializeIdentityModule(): Router {
     confirmMfaSetupUseCase,
     verifyMfaUseCase,
     verifyOtpUseCase,
-    resendOtpUseCase
+    resendOtpUseCase,
+    getSessionIdentityUseCase,
+    verifyDeviceUseCase
   );
 
   // 4. Register HTTP Router Routes
+  router.get('/me', requireAuth, (req: Request, res: Response, next: NextFunction) => controller.getMe(req, res, next));
+  
   router.post(
     '/register', 
     messagingIpLimiter, 
@@ -90,6 +99,12 @@ export function initializeIdentityModule(): Router {
     '/resend-otp',
     authApiLimiter,
     (req: Request, res: Response, next: NextFunction) => controller.resendOtp(req, res, next)
+  );
+
+  router.post(
+    '/verify-device',
+    authApiLimiter,
+    (req: Request, res: Response, next: NextFunction) => controller.verifyDevice(req, res, next)
   );
   
   // Chain both IP-based and Email-based rate limiters to secure the login route

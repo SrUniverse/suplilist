@@ -21,6 +21,24 @@ export class IdentityEmailService {
     await this.emailProvider.sendEmail(email, subject, html);
   }
 
+  async sendDeviceVerificationEmail(email: string, otpCode: string): Promise<void> {
+    const subject = 'Novo Dispositivo Detectado - SupliList';
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>Confirmação de Segurança</h2>
+        <p>Detectamos um login a partir de um novo dispositivo ou navegador.</p>
+        <p>Para prosseguir com o login e registrar este dispositivo como confiável, insira o código abaixo:</p>
+        <div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
+          <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #007bff;">${otpCode}</span>
+        </div>
+        <p style="margin-top: 20px; font-size: 13px; color: #666;">Este código expira em 15 minutos.</p>
+        <p style="font-size: 12px; color: #999;">Se você não tentou fazer login, altere sua senha imediatamente.</p>
+      </div>
+    `;
+
+    await this.emailProvider.sendEmail(email, subject, html);
+  }
+
   async sendDuplicateRegistrationWarning(email: string): Promise<void> {
     const loginLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
     const subject = 'Tentativa de registro de conta no SupliList';

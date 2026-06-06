@@ -75,6 +75,7 @@ export class RegisterUseCase {
         deletedAt: null,
         suspendedAt: null,
         suspendedReason: null,
+        trustedDevices: [],
         sessionsValidAfter: null,
         version: 0,
         createdAt: new Date(),

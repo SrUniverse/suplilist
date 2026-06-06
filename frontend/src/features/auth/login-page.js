@@ -32,9 +32,10 @@ import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { apiFetch, setAccessToken } from '../../platform/api-client.js';
 
-// CLOSURE: Variável isolada na memória para reter o Token Pre-Auth do MFA.
+// CLOSURE: Variáveis isoladas na memória para reter tokens temporários.
 // Nunca tocará no localStorage ou sessionStorage para evitar vazamento via XSS.
 let _mfaPreAuthToken = null;
+let _deviceVerificationEmail = null;
 
 export default class LoginPage {
   /**
@@ -57,17 +58,18 @@ export default class LoginPage {
 
   mount() {
     this._isMounted = true;
-    _mfaPreAuthToken = null; // Clean up on mount
+    _mfaPreAuthToken = null;
+    _deviceVerificationEmail = null;
     this._render();
     this._injectGoogleGis();
   }
 
   unmount() {
     this._isMounted = false;
-    // Limpar referências de dados para evitar flash de estado antigo em re-mounts.
     this._isLoading = false;
     this._errorMessage = null;
-    _mfaPreAuthToken = null; // Clean memory on unmount to kill the token
+    _mfaPreAuthToken = null;
+    _deviceVerificationEmail = null;
     this.container.innerHTML = '';
   }
 
@@ -179,6 +181,41 @@ export default class LoginPage {
             </form>
             <button id="mfa-cancel" class="onboarding-btn-link" style="display:block; margin: 1.5rem auto 0; text-align:center;">Voltar</button>
           </div>
+
+          <div id="login-step-device" style="display: none;">
+            <p style="text-align: center; font-size: 0.95rem; margin-bottom: 0.5rem; color: #e4e4e7;">
+              Novo dispositivo detectado.
+            </p>
+            <p style="text-align: center; font-size: 0.85rem; margin-bottom: 1.5rem; color: #a1a1aa;">
+              Enviamos um código de verificação para o seu e-mail. Insira-o abaixo para continuar.
+            </p>
+            <form class="device-form" novalidate>
+              <input
+                id="device-code"
+                data-testid="device-code"
+                class="onboarding-input"
+                type="text"
+                name="code"
+                placeholder="000000"
+                autocomplete="one-time-code"
+                inputmode="numeric"
+                maxlength="6"
+                aria-label="Código de verificação do dispositivo"
+                style="text-align: center; letter-spacing: 0.2em; font-size: 1.2rem;"
+              />
+              <div class="onboarding-actions" style="margin-top:1.75rem">
+                <button
+                  id="device-submit"
+                  data-testid="device-submit"
+                  type="submit"
+                  class="onboarding-btn-next"
+                >
+                  Verificar dispositivo
+                </button>
+              </div>
+            </form>
+            <button id="device-cancel" class="onboarding-btn-link" style="display:block; margin: 1.5rem auto 0; text-align:center;">Voltar</button>
+          </div>
         </div>
       </div>`;
 
@@ -216,7 +253,20 @@ export default class LoginPage {
     const btnMfaCancel = this.container.querySelector('#mfa-cancel');
     if (btnMfaCancel) {
       btnMfaCancel.addEventListener('click', () => {
-        _mfaPreAuthToken = null; // Clean up token on cancel
+        _mfaPreAuthToken = null;
+        this._showStep('credentials');
+      });
+    }
+
+    const deviceForm = this.container.querySelector('.device-form');
+    if (deviceForm) {
+      deviceForm.addEventListener('submit', e => this._handleDeviceSubmit(e));
+    }
+
+    const btnDeviceCancel = this.container.querySelector('#device-cancel');
+    if (btnDeviceCancel) {
+      btnDeviceCancel.addEventListener('click', () => {
+        _deviceVerificationEmail = null;
         this._showStep('credentials');
       });
     }
@@ -251,7 +301,7 @@ export default class LoginPage {
 
     try {
       const result = await identityService.login(email, password);
-      
+
       if (result.status === 'mfa_required') {
         _mfaPreAuthToken = result.mfaToken;
         this._showStep('mfa');
@@ -260,9 +310,23 @@ export default class LoginPage {
         return;
       }
 
+      if (result.status === 'device_verification_required') {
+        _deviceVerificationEmail = result.email;
+        this._showStep('device');
+        this._isLoading = false;
+        this._syncButtonState();
+        return;
+      }
+
       eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
     } catch (err) {
       if (!this._isMounted) return;
+      if (err.error === 'pending_verification') {
+        // Store the email so /verify-otp can pick it up
+        try { localStorage.setItem('pending_verification_email', email); } catch {}
+        eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-otp' });
+        return;
+      }
       this._errorMessage = err.message || 'Falha ao conectar. Tente novamente.';
       this._isLoading = false;
       this._syncButtonState();
@@ -322,6 +386,39 @@ export default class LoginPage {
     }
   }
 
+  async _handleDeviceSubmit(e) {
+    e.preventDefault();
+    if (!_deviceVerificationEmail) return;
+
+    const deviceForm = this.container.querySelector('.device-form');
+    const otpCode = deviceForm.querySelector('[name="code"]').value.trim();
+    if (!otpCode || otpCode.length !== 6) return;
+
+    this._clearError();
+    const btn = this.container.querySelector('#device-submit');
+    btn.disabled = true;
+    btn.textContent = 'Verificando...';
+
+    try {
+      const result = await identityService.verifyDevice(_deviceVerificationEmail, otpCode);
+      _deviceVerificationEmail = null;
+
+      if (result.status === 'mfa_required') {
+        _mfaPreAuthToken = result.mfaToken;
+        this._showStep('mfa');
+        return;
+      }
+
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
+    } catch (err) {
+      if (!this._isMounted) return;
+      this._errorMessage = err.error === 'invalid_otp' ? 'Código incorreto ou expirado.' : (err.message || 'Falha na verificação.');
+      btn.disabled = false;
+      btn.textContent = 'Verificar dispositivo';
+      this._showError(this._errorMessage);
+    }
+  }
+
   // ── Injeção do Google SDK ───────────────────────────────────────────────────
 
   _injectGoogleGis() {
@@ -369,10 +466,18 @@ export default class LoginPage {
 
     try {
       const result = await identityService.googleAuth(response.credential);
-      
+
       if (result.status === 'mfa_required') {
         _mfaPreAuthToken = result.mfaToken;
         this._showStep('mfa');
+        this._isLoading = false;
+        this._syncButtonState();
+        return;
+      }
+
+      if (result.status === 'device_verification_required') {
+        _deviceVerificationEmail = result.email;
+        this._showStep('device');
         this._isLoading = false;
         this._syncButtonState();
         return;
@@ -445,14 +550,23 @@ export default class LoginPage {
     this._clearError();
     const stepCreds = this.container.querySelector('#login-step-credentials');
     const stepMfa = this.container.querySelector('#login-step-mfa');
-    
+    const stepDevice = this.container.querySelector('#login-step-device');
+
+    stepCreds.style.display = 'none';
+    stepMfa.style.display = 'none';
+    if (stepDevice) stepDevice.style.display = 'none';
+
     if (step === 'mfa') {
-      stepCreds.style.display = 'none';
       stepMfa.style.display = 'block';
       const mfaCodeInput = stepMfa.querySelector('[name="code"]');
       if (mfaCodeInput) mfaCodeInput.focus();
+    } else if (step === 'device') {
+      if (stepDevice) {
+        stepDevice.style.display = 'block';
+        const deviceCodeInput = stepDevice.querySelector('[name="code"]');
+        if (deviceCodeInput) deviceCodeInput.focus();
+      }
     } else {
-      stepMfa.style.display = 'none';
       stepCreds.style.display = 'block';
     }
   }

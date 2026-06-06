@@ -31,6 +31,7 @@ export interface IUserIdentityDocument extends Document {
   deletedAt: Date | null;
   suspendedAt: Date | null;
   suspendedReason: string | null;
+  trustedDevices: string[];
   sessionsValidAfter: Date | null;
   
   passwordReset: {
@@ -141,6 +142,10 @@ const userIdentitySchema = new Schema<IUserIdentityDocument>({
   suspendedReason: {
     type: String,
     default: null,
+  },
+  trustedDevices: {
+    type: [String],
+    default: [],
   },
   sessionsValidAfter: {
     type: Date,

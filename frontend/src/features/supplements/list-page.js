@@ -54,29 +54,85 @@ export default class ListPage {
     // Render main layout first
     this._render();
 
-    // Initialize sub-components in order: grid → modal → search
-    // (search triggers onFiltersChanged → grid.updateFiltered, so grid must be ready first)
-    this._grid.init([], null); // starts empty, will receive data from search callback
-    this._modal.init(SUPPLEMENTS_DB, null);
-    this._search.init(null); // prices loaded after, triggers _applyFilters() → onFiltersChanged → grid.updateFiltered
-
-    // Load prices async
     this._fetchController = new AbortController();
-    fetch('/data/prices.json', { signal: this._fetchController.signal })
+    const signal = this._fetchController.signal;
+
+    // Show skeleton cards while catalog data loads
+    const grid = this.container.querySelector('#lp-grid');
+    if (grid) {
+      grid.innerHTML = Array.from({ length: 8 }, () => `
+        <div class="lp-skeleton-card">
+          <div class="lp-skeleton-img"></div>
+          <div class="lp-skeleton-body">
+            <div class="lp-skeleton-line"></div>
+            <div class="lp-skeleton-line"></div>
+            <div class="lp-skeleton-line"></div>
+            <div class="lp-skeleton-line"></div>
+            <div class="lp-skeleton-line"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Fetch catalog from static JSON (same URL pattern as future GET /api/supplements)
+    fetch('/data/supplements-db.json', { signal })
       .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-      .then(data => {
-        this._prices = data;
-        this._search._prices = data;
-        this._grid.updatePrices(data);
-        this._modal._prices = data;
+      .then(catalogData => {
+        if (signal.aborted) return;
+
+        const supplements = Array.isArray(catalogData) ? catalogData : (catalogData.supplements ?? SUPPLEMENTS_DB);
+
+        // Initialize sub-components in order: grid → modal → search
+        this._grid.init([], null);
+        this._modal.init(supplements, null);
+        this._search.init(null, supplements);
+
+        // Load prices async
+        fetch('/data/prices.json', { signal })
+          .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+          .then(data => {
+            if (signal.aborted) return;
+            this._prices = data;
+            this._search._prices = data;
+            this._grid.updatePrices(data);
+            this._modal._prices = data;
+          })
+          .catch(err => {
+            if (err.name !== 'AbortError') {
+              logger.warn('[ListPage] prices.json failed to load:', err.message);
+            }
+          });
       })
       .catch(err => {
-        if (err.name !== 'AbortError') {
-          logger.warn('[ListPage] prices.json failed to load:', err.message);
+        if (err.name === 'AbortError' || signal.aborted) return;
+        logger.error('[ListPage] Catalog fetch failed:', err.message);
+
+        // Fall back to bundled data so the page still works
+        this._grid.init([], null);
+        this._modal.init(SUPPLEMENTS_DB, null);
+        this._search.init(null, SUPPLEMENTS_DB);
+
+        // Show error notice above grid without breaking layout
+        if (grid) {
+          const notice = document.createElement('div');
+          notice.className = 'lp-catalog-error';
+          notice.innerHTML = `
+            <div class="lp-catalog-error-icon">📡</div>
+            <p class="lp-catalog-error-title">Não foi possível carregar os suplementos no momento</p>
+            <p class="lp-catalog-error-msg">Exibindo dados em cache. Verifique sua conexão e tente novamente.</p>
+            <button class="lp-catalog-retry-btn" id="lp-catalog-retry">Tentar novamente</button>
+          `;
+          grid.parentElement?.insertBefore(notice, grid);
+          notice.querySelector('#lp-catalog-retry')?.addEventListener('click', () => {
+            notice.remove();
+            this.unmount();
+            this.mount();
+          });
         }
       });
 
-    // Subscribe to state changes (tier updates)
+    // Subscribe to state changes (tier + stack updates)
+    this._stackLen = (stateManager.stack ?? []).length;
     this._unsubscribe = stateManager.subscribe(() => {
       const state = stateManager.state;
       const newTier = state.user?.tier ?? 'free';
@@ -84,6 +140,13 @@ export default class ListPage {
         this._currentTier = newTier;
         this._search._applyFilters();
         this._grid.updateFiltered(this._search.getFiltered());
+      }
+      // Re-render stats when stack size changes (optimistic UI counter update)
+      const newLen = (stateManager.stack ?? []).length;
+      if (newLen !== this._stackLen) {
+        this._stackLen = newLen;
+        this._search._renderStats();
+        this._grid._refreshCardStates?.();
       }
     });
   }
@@ -263,20 +326,20 @@ export default class ListPage {
 
       #lp-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 12px;
         grid-auto-rows: max-content;
       }
 
       @media (min-width: 640px) {
         #lp-grid {
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(3, minmax(0, 1fr));
         }
       }
 
       @media (min-width: 1024px) {
         #lp-grid {
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(4, minmax(0, 1fr));
         }
       }
 
@@ -324,6 +387,105 @@ export default class ListPage {
         font-weight: 700;
         margin: 0;
         line-height: 1.3;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+
+      .lp-card-desc {
+        font-size: 12px;
+        color: var(--color-text-secondary);
+        margin: 0;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+
+      /* Skeleton loading cards */
+      .lp-skeleton-card {
+        background: var(--color-surface-primary);
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        overflow: hidden;
+        height: 340px;
+      }
+
+      .lp-skeleton-img {
+        height: 185px;
+        background: var(--color-surface-secondary);
+        animation: lp-skeleton-pulse 1.4s ease-in-out infinite;
+      }
+
+      .lp-skeleton-body {
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .lp-skeleton-line {
+        height: 12px;
+        border-radius: 6px;
+        background: var(--color-surface-secondary);
+        animation: lp-skeleton-pulse 1.4s ease-in-out infinite;
+      }
+
+      .lp-skeleton-line:nth-child(1) { width: 40%; }
+      .lp-skeleton-line:nth-child(2) { width: 80%; }
+      .lp-skeleton-line:nth-child(3) { width: 60%; }
+      .lp-skeleton-line:nth-child(4) { width: 90%; height: 20px; margin-top: 6px; }
+      .lp-skeleton-line:nth-child(5) { width: 100%; height: 36px; margin-top: 8px; border-radius: 8px; }
+
+      @keyframes lp-skeleton-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+
+      /* Catalog error / empty state */
+      .lp-catalog-error {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 24px;
+        text-align: center;
+        color: var(--color-text-secondary);
+        gap: 12px;
+      }
+
+      .lp-catalog-error-icon {
+        font-size: 36px;
+        opacity: 0.6;
+      }
+
+      .lp-catalog-error-title {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--color-text-primary);
+        margin: 0;
+      }
+
+      .lp-catalog-error-msg {
+        font-size: 13px;
+        margin: 0;
+        max-width: 280px;
+        line-height: 1.5;
+      }
+
+      .lp-catalog-retry-btn {
+        margin-top: 8px;
+        padding: 10px 24px;
+        background: var(--color-brand);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
       }
 
       .lp-card-price-row {

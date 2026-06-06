@@ -42,9 +42,11 @@ export class ListPageSearch {
    * Called during mount() of parent.
    *
    * @param {Object} [prices] - Prices data from prices.json
+   * @param {Array} [supplements] - Override catalog items (replaces SUPPLEMENTS_DB)
    * @returns {void}
    */
-  init(prices) {
+  init(prices, supplements) {
+    if (supplements) this._allItems = supplements;
     this._fuse = new Fuse(this._allItems, {
       keys: ['name', 'category', 'benefits'],
       threshold: 0.35,

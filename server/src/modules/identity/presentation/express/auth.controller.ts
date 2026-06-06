@@ -13,6 +13,8 @@ import { ConfirmMfaSetupUseCase } from '../../application/use-cases/confirm-mfa-
 import { VerifyMfaUseCase } from '../../application/use-cases/verify-mfa.use-case.js';
 import { VerifyOtpUseCase } from '../../application/use-cases/verify-otp.use-case.js';
 import { ResendOtpUseCase } from '../../application/use-cases/resend-otp.use-case.js';
+import { GetSessionIdentityUseCase } from '../../application/use-cases/get-session-identity.use-case.js';
+import { VerifyDeviceUseCase } from '../../application/use-cases/verify-device.use-case.js';
 import { AuthMapper } from '../../application/mappers/auth.mapper.js';
 
 export class AuthController {
@@ -30,8 +32,38 @@ export class AuthController {
     private confirmMfaSetupUseCase: ConfirmMfaSetupUseCase,
     private verifyMfaUseCase: VerifyMfaUseCase,
     private verifyOtpUseCase: VerifyOtpUseCase,
-    private resendOtpUseCase: ResendOtpUseCase
+    private resendOtpUseCase: ResendOtpUseCase,
+    private getSessionIdentityUseCase: GetSessionIdentityUseCase,
+    private verifyDeviceUseCase: VerifyDeviceUseCase
   ) {}
+
+  async getMe(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: 'unauthenticated' });
+      }
+
+      const identity = await this.getSessionIdentityUseCase.execute(userId);
+
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+
+      return res.status(200).json({
+        success: true,
+        data: identity,
+      });
+    } catch (error: any) {
+      if (error.message === 'user_not_found') {
+        return res.status(404).json({ success: false, error: 'not_found' });
+      }
+      if (error.message === 'invalid_user_status') {
+        return res.status(403).json({ success: false, error: 'account_suspended_or_deleted' });
+      }
+      next(error);
+    }
+  }
 
   async register(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
@@ -58,7 +90,8 @@ export class AuthController {
         password,
         userAgent,
         ipAddress,
-        deviceLabel: null // Parse using device detector in application layer if needed
+        deviceLabel: null, // Parse using device detector in application layer if needed
+        deviceId: req.cookies?.deviceId
       });
 
       if (result.status === 'mfa_required') {
@@ -66,6 +99,14 @@ export class AuthController {
           success: true,
           mfaRequired: true,
           mfaToken: result.mfaToken,
+        });
+      }
+
+      if (result.status === 'device_verification_required') {
+        return res.status(202).json({
+          success: true,
+          challenge: 'device_verification',
+          email: result.email,
         });
       }
 
@@ -89,6 +130,13 @@ export class AuthController {
           message: 'Invalid email or password.',
         });
       }
+      if (error.message === 'pending_verification') {
+        return res.status(403).json({
+          success: false,
+          error: 'pending_verification',
+          message: 'Please verify your email before logging in.',
+        });
+      }
       if (error.message === 'account_deleted') {
         return res.status(403).json({
           success: false,
@@ -102,6 +150,51 @@ export class AuthController {
           error: 'account_suspended',
           message: 'This account has been suspended.',
         });
+      }
+      next(error);
+    }
+  }
+
+  async verifyDevice(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const { email, otpCode } = req.body;
+      if (!email || !otpCode) {
+        return res.status(400).json({ success: false, error: 'validation_error', message: 'Email and OTP code are required.' });
+      }
+
+      const result = await this.verifyDeviceUseCase.execute({ email, otpCode });
+
+      // Save the deviceId in a long-lived cookie
+      res.cookie('deviceId', result.deviceId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+      });
+
+      if (result.status === 'mfa_required') {
+        return res.status(200).json({
+          success: true,
+          mfaRequired: true,
+          mfaToken: result.mfaToken,
+        });
+      }
+
+      // Secure refresh token delivery
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: AuthMapper.toAuthResponse(result.accessToken),
+      });
+    } catch (error: any) {
+      if (error.message === 'invalid_otp') {
+        return res.status(401).json({ success: false, error: 'invalid_otp', message: 'Invalid or expired OTP.' });
       }
       next(error);
     }
@@ -301,13 +394,24 @@ export class AuthController {
         return res.status(400).json({ success: false, error: 'missing_credential' });
       }
 
-      const result = await this.googleAuthUseCase.execute({ idToken: credential });
+      const result = await this.googleAuthUseCase.execute({ 
+        idToken: credential,
+        deviceId: req.cookies?.deviceId
+      });
 
       if (result.status === 'mfa_required') {
         return res.status(200).json({
           success: true,
           mfaRequired: true,
           mfaToken: result.mfaToken,
+        });
+      }
+
+      if (result.status === 'device_verification_required') {
+        return res.status(202).json({
+          success: true,
+          challenge: 'device_verification',
+          email: result.email,
         });
       }
 
@@ -368,7 +472,38 @@ export class AuthController {
     }
   }
 
-  async resendOtp(req: Request, res: Response): Promise<Response | void> {
+  async verifyOtp(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const { email, code } = req.body;
+      if (!email || !code) {
+        return res.status(400).json({ success: false, error: 'validation_error', message: 'Email and code are required.' });
+      }
+
+      const result = await this.verifyOtpUseCase.execute({ email, code });
+
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: AuthMapper.toAuthResponse(result.accessToken),
+      });
+    } catch (error: any) {
+      if (error.message === 'invalid_otp_code') {
+        return res.status(401).json({ success: false, error: 'invalid_otp_code', message: 'Invalid OTP code.' });
+      }
+      if (error.message === 'otp_expired_or_not_found') {
+        return res.status(400).json({ success: false, error: 'otp_expired', message: 'OTP expired. Request a new code.' });
+      }
+      next(error);
+    }
+  }
+
+  async resendOtp(req: Request, res: Response, _next: NextFunction): Promise<Response | void> {
     try {
       const { email } = req.body;
       await this.resendOtpUseCase.execute({ email });

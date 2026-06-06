@@ -11,6 +11,12 @@
  *
  * Do NOT import this file from tests. Import app.ts and call createApp() instead.
  */
+import dns from 'dns';
+// Use reliable public DNS so c-ares can resolve MongoDB Atlas SRV records
+// (some ISP/VPN DNS servers block SRV queries)
+dns.setDefaultResultOrder('ipv4first');
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+
 import { env } from './shared/config/env.config.js';
 import mongoose from 'mongoose';
 import { createApp } from './app.js';

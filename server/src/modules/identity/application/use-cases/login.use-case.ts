@@ -3,8 +3,9 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
-import { RedisTokenBlocklist } from '../../../../shared/infrastructure/security/redis-token-blocklist.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
+import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
+import { IdentityEmailService } from '../services/identity-email.service.js';
 
 const loginInputSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -12,26 +13,29 @@ const loginInputSchema = z.object({
   userAgent: z.string().default('unknown'),
   ipAddress: z.string().default('unknown'),
   deviceLabel: z.string().nullable().default(null),
+  deviceId: z.string().optional(),
 });
 
 export type LoginInput = z.infer<typeof loginInputSchema>;
 
 export type LoginResult = 
   | { status: 'success'; accessToken: string; refreshToken: string }
-  | { status: 'mfa_required'; mfaToken: string };
+  | { status: 'mfa_required'; mfaToken: string }
+  | { status: 'device_verification_required'; email: string };
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
 
 export class LoginUseCase {
   constructor(
     private userIdentityRepo: IUserIdentityRepository,
-    private uow: IUnitOfWork
+    private unitOfWork: IUnitOfWork,
+    private emailService: IdentityEmailService
   ) {}
 
   async execute(input: LoginInput): Promise<LoginResult> {
     const validatedInput = loginInputSchema.parse(input);
 
-    return this.uow.runInTransaction(async () => {
+    return this.unitOfWork.runInTransaction(async () => {
       // 1. Fetch user by email
       const user = await this.userIdentityRepo.findByEmail(validatedInput.email);
       if (!user) {
@@ -78,7 +82,28 @@ export class LoginUseCase {
         await this.userIdentityRepo.save(user);
       }
 
-      // 4. Handle MFA if enabled
+      // 4. Device Fingerprinting Check
+      let isDeviceTrusted = false;
+      if (validatedInput.deviceId && user.trustedDevices?.length > 0) {
+        const hash = crypto.createHash('sha256').update(validatedInput.deviceId).digest('hex');
+        if (user.trustedDevices.includes(hash)) {
+          isDeviceTrusted = true;
+        }
+      }
+
+      if (!isDeviceTrusted) {
+        // Generate a new OTP, save in Redis, send email
+        const newCode = crypto.randomInt(100000, 999999).toString();
+        await redisClient.set(`otp:device:${user.email}`, newCode, 'EX', 900); // 15 min expiry
+        this.emailService.sendDeviceVerificationEmail(user.email, newCode).catch(console.error);
+
+        return {
+          status: 'device_verification_required',
+          email: user.email,
+        };
+      }
+
+      // 5. Handle MFA if enabled
       if (user.mfa.enabled) {
         // Generate a Pre-Auth JWT with 5-minute expiration
         const preAuthJti = crypto.randomUUID();

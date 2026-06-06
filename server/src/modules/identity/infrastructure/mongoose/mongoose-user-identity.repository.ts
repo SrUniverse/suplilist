@@ -32,6 +32,7 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
       deletedAt: doc.deletedAt,
       suspendedAt: doc.suspendedAt,
       suspendedReason: doc.suspendedReason,
+      trustedDevices: doc.trustedDevices || [],
       sessionsValidAfter: doc.sessionsValidAfter,
       passwordReset: doc.passwordReset ? {
         tokenHash: doc.passwordReset.tokenHash,
@@ -91,6 +92,7 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
         deletedAt: user.deletedAt,
         suspendedAt: user.suspendedAt,
         suspendedReason: user.suspendedReason,
+        trustedDevices: user.trustedDevices,
         sessionsValidAfter: user.sessionsValidAfter,
         passwordReset: user.passwordReset,
       });
@@ -117,6 +119,7 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
           deletedAt: user.deletedAt,
           suspendedAt: user.suspendedAt,
           suspendedReason: user.suspendedReason,
+          trustedDevices: user.trustedDevices,
           sessionsValidAfter: user.sessionsValidAfter,
           passwordReset: user.passwordReset,
         },

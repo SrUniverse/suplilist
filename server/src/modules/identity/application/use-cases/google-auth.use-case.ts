@@ -7,6 +7,8 @@ import { UserIdentity } from '../../domain/user-identity.entity.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
 import { IProfileRepository } from '../../../profile/domain/repositories/profile.repository.interface.js';
 import { Profile } from '../../../profile/domain/entities/profile.entity.js';
+import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
+import { IdentityEmailService } from '../services/identity-email.service.js';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
@@ -15,25 +17,28 @@ const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 const googleAuthInputSchema = z.object({
   idToken: z.string().min(1, 'ID Token is required'),
+  deviceId: z.string().optional(),
 });
 
 export type GoogleAuthInput = z.infer<typeof googleAuthInputSchema>;
 
 export type GoogleAuthResult = 
   | { status: 'success'; accessToken: string; refreshToken: string }
-  | { status: 'mfa_required'; mfaToken: string };
+  | { status: 'mfa_required'; mfaToken: string }
+  | { status: 'device_verification_required'; email: string };
 
 export class GoogleAuthUseCase {
   constructor(
     private userIdentityRepo: IUserIdentityRepository,
     private profileRepo: IProfileRepository,
-    private uow: IUnitOfWork
+    private unitOfWork: IUnitOfWork,
+    private emailService: IdentityEmailService
   ) {}
 
   async execute(input: GoogleAuthInput): Promise<GoogleAuthResult> {
     const validatedInput = googleAuthInputSchema.parse(input);
 
-    return this.uow.runInTransaction(async () => {
+    return this.unitOfWork.runInTransaction(async () => {
       // 1. Validate ID Token using Google SDK
       let ticket;
       try {
@@ -116,6 +121,7 @@ export class GoogleAuthUseCase {
             deletedAt: null,
             suspendedAt: null,
             suspendedReason: null,
+            trustedDevices: [],
             sessionsValidAfter: null,
             version: 0,
             createdAt: new Date(),
@@ -147,6 +153,27 @@ export class GoogleAuthUseCase {
       // 4. Check Status
       if (user.status === 'deleted' || user.status === 'suspended') {
         throw new Error(`account_${user.status}`);
+      }
+
+      // 4.5 Device Fingerprinting Check
+      let isDeviceTrusted = false;
+      if (validatedInput.deviceId && user.trustedDevices?.length > 0) {
+        const hash = crypto.createHash('sha256').update(validatedInput.deviceId).digest('hex');
+        if (user.trustedDevices.includes(hash)) {
+          isDeviceTrusted = true;
+        }
+      }
+
+      if (!isDeviceTrusted) {
+        // Generate a new OTP, save in Redis, send email
+        const newCode = crypto.randomInt(100000, 999999).toString();
+        await redisClient.set(`otp:device:${user.email}`, newCode, 'EX', 900); // 15 min expiry
+        this.emailService.sendDeviceVerificationEmail(user.email, newCode).catch(console.error);
+
+        return {
+          status: 'device_verification_required',
+          email: user.email,
+        };
       }
 
       // 5. Handle MFA

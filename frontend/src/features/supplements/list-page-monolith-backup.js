@@ -1,7 +1,6 @@
 import { stateManager } from '../../state/state-manager.js';
 import { logger } from '../../utils/logger.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
-import { escapeHtml } from '../../utils/escape.js';
 import { CATEGORIES, OBJECTIVES } from './list-page-utils.js';
 import { ListPageSearch } from './list-page-search.js';
 import { ListPageGrid } from './list-page-grid.js';

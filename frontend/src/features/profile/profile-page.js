@@ -843,7 +843,7 @@ export default class ProfilePage {
         btnProfileLogout.textContent = 'Saindo...';
         try {
           await identityService.logout();
-        } catch (err) {
+        } catch (_err) {
           eventBus.emit('toast:show', { message: 'Erro ao desconectar.', type: 'error' });
           btnProfileLogout.textContent = 'Sair';
         }

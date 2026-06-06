@@ -4,7 +4,6 @@
  */
 
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
-import { logger } from '../../utils/logger.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { EVIDENCE_COLORS } from '../../utils/evidence.js';
 import affiliateEngine from '../../monetization/affiliate-engine.js';

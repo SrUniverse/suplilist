@@ -6,7 +6,7 @@ import { escapeHtml } from '../../utils/escape.js';
 import { renderEvidenceBadge } from '../../utils/evidence.js';
 import { getSupplementId } from '../../utils/stack.js';
 import { compareWithRecommended, getStatusColor } from '../calculator/dosage-optimizer.js';
-import { getSupplementImage, getEvidenceLevel, calcDaysLeft, formatBRL } from './my-stack-page-utils.js';
+import { getSupplementImage, getEvidenceLevel, calcDaysLeft } from './my-stack-page-utils.js';
 
 export class MyStackPageList {
   constructor(container, callbacks) {

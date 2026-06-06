@@ -5,14 +5,12 @@
 
 import { stateManager } from '../../state/state-manager.js';
 import Fuse from 'fuse.js';
-import { logger } from '../../utils/logger.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { escapeHtml } from '../../utils/escape.js';
-import { DAYS_PER_MONTH, DEBOUNCE_SEARCH_MS } from '../../config/constants.js';
+import { DEBOUNCE_SEARCH_MS } from '../../config/constants.js';
 import {
-  CATEGORIES, OBJECTIVES, OBJECTIVE_KEY_MAP,
   matchesCategory, matchesObjective,
-  getFavoritesFromState, toggleFavorite, getPriceLabel, getMaxSaving, getDosePrice
+  getFavoritesFromState
 } from './list-page-utils.js';
 
 /**

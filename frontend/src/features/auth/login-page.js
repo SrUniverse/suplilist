@@ -283,7 +283,7 @@ export default class LoginPage {
       setAccessToken(response.accessToken);
       
       // We need to fetch the profile manually to commit the login
-      const identity = await apiFetch('/api/profile/me');
+      const _identity = await apiFetch('/api/profile/me');
       
       // We cannot call identityService.#commitLogin since it's private,
       // but initializeSession() will naturally do it if we just call it.

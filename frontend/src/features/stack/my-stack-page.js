@@ -6,7 +6,6 @@
 import { stateManager } from '../../state/state-manager.js';
 import ShareService from '../sharing/share-service.js';
 import QRGenerator from '../sharing/qr-generator.js';
-import { stackService } from './stack-service.js';
 import { fetchPrices } from './my-stack-page-utils.js';
 import { MyStackPageList } from './my-stack-page-list.js';
 import { MyStackPageStats } from './my-stack-page-stats.js';

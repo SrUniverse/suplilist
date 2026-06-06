@@ -585,7 +585,7 @@ export class StorageManager {
   /**
    * Alias for setItem with localStorage semantics
    */
-  static setLocal(key, value, options = {}) {
+  static setLocal(key, value, _options = {}) {
     localStorage.setItem(key, JSON.stringify(value));
     return value;
   }
@@ -593,7 +593,7 @@ export class StorageManager {
   /**
    * Alias for getItem with localStorage semantics
    */
-  static getLocal(key, options = {}) {
+  static getLocal(key, _options = {}) {
     try {
       const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : undefined;
@@ -605,7 +605,7 @@ export class StorageManager {
   /**
    * Alias for setItem with sessionStorage semantics
    */
-  static setSession(key, value, options = {}) {
+  static setSession(key, value, _options = {}) {
     sessionStorage.setItem(key, JSON.stringify(value));
     return value;
   }
@@ -613,7 +613,7 @@ export class StorageManager {
   /**
    * Alias for getItem with sessionStorage semantics
    */
-  static getSession(key, options = {}) {
+  static getSession(key, _options = {}) {
     try {
       const raw = sessionStorage.getItem(key);
       return raw ? JSON.parse(raw) : undefined;

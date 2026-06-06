@@ -44,7 +44,7 @@ describe('OfflineHandler', () => {
 
   it('should detect navigator.onLine', async () => {
     const { OfflineHandler } = await import('./offline-handler.js');
-    const handler = new OfflineHandler();
+    const _handler = new OfflineHandler();
     expect(typeof navigator.onLine).toBe('boolean');
   });
 

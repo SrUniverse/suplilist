@@ -4,9 +4,7 @@
  */
 
 import { stateManager } from '../../state/state-manager.js';
-import { logger } from '../../utils/logger.js';
 import { escapeHtml } from '../../utils/escape.js';
-import { EVIDENCE_COLORS } from '../../utils/evidence.js';
 import { VirtualScroller } from '../../core/virtual-scroller.js';
 import { PAGE_SIZE as CONST_PAGE_SIZE } from '../../config/constants.js';
 import {
@@ -348,7 +346,7 @@ export class ListPageGrid {
    */
   _refreshCardStates() {
     const favs = getFavoritesFromState();
-    const stack = stateManager.stack || [];
+    const _stack = stateManager.stack || [];
 
     this.container.querySelectorAll('.lp-card').forEach(card => {
       const id = card.dataset.id;

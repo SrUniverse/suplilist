@@ -1,9 +1,7 @@
 /**
  * MyStackPageReplenishment — Replenishment suggestions based on prices
  */
-import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { getSupplementId } from '../../utils/stack.js';
-import affiliateEngine from '../../monetization/affiliate-engine.js';
 import { formatBRL, calcDaysLeft } from './my-stack-page-utils.js';
 import { escapeHtml } from '../../utils/escape.js';
 

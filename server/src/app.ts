@@ -35,6 +35,15 @@ export function createApp() {
   // ── Security headers ───────────────────────────────────────────────────────
   app.use(helmet());
 
+  // ── CORS (OWASP & W3C compliant) ──────────────────────────────────────────
+  // credentials: true requires an explicit origin — never wildcard '*'.
+  app.use(cors({
+    origin: env.FRONTEND_ORIGIN, // Zod guaranteed
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-SupliList-Client', 'If-Match'],
+    credentials: true,
+  }));
+
   // ── Cloudflare Edge Shield (Direct Origin Bypass Protection) ────────────────
   // Bloqueia qualquer tráfego que tente contornar o Cloudflare acessando a URL direta do Render,
   // impedindo o IP Spoofing de `cf-connecting-ip`.
@@ -55,15 +64,6 @@ export function createApp() {
     
     next();
   });
-
-  // ── CORS (OWASP & W3C compliant) ──────────────────────────────────────────
-  // credentials: true requires an explicit origin — never wildcard '*'.
-  app.use(cors({
-    origin: env.FRONTEND_ORIGIN, // Zod guaranteed
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-SupliList-Client', 'If-Match'],
-    credentials: true,
-  }));
 
   // ── Body parsers ───────────────────────────────────────────────────────────
   app.use(express.json({ limit: '10kb' })); // 10 kb cap mitigates payload-size DoS

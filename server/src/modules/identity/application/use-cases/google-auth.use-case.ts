@@ -55,6 +55,10 @@ export class GoogleAuthUseCase {
         throw new Error('unverified_google_email');
       }
 
+      if (!payload.email) {
+        throw new Error('google_email_missing');
+      }
+
       const email = payload.email.toLowerCase().trim();
       const googleId = payload.sub;
 

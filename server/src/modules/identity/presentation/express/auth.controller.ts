@@ -61,7 +61,7 @@ export class AuthController {
         return res.status(200).json({
           success: true,
           mfaRequired: true,
-          mfaTicket: result.mfaTicket,
+          mfaToken: result.mfaToken,
         });
       }
 

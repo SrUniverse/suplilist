@@ -6,7 +6,7 @@
  * As entidades de domínio (com `Date`) permanecem no backend.
  */
 
-export type AvatarStatus = 'none' | 'pending_moderation' | 'approved' | 'rejected';
+export type AvatarStatus = 'none' | 'synced' | 'pending_moderation' | 'approved' | 'rejected';
 
 /** Dados biométricos básicos, cruciais para a calculadora de dosagem. */
 export interface BiometricsDTO {

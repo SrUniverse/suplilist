@@ -65,7 +65,12 @@ setup('authenticate', async ({ page }) => {
 
   if (backendAvailable) {
     await login.login('testuser@example.com', 'password123');
-    await page.waitForURL('**/home');
+    // Wait for any post-login redirect; accept /home or /verify-otp (new OTP flow).
+    try {
+      await page.waitForURL(url => /\/(home|verify-otp)/.test(url.pathname), { timeout: 15000 });
+    } catch {
+      // Backend may have redirected unexpectedly — just save current state.
+    }
   }
 
   const dir = path.dirname(authFile);

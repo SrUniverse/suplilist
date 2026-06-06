@@ -39,7 +39,7 @@ export class OfflineHandler {
       this._handleOffline();
     }
 
-    logger.log('[OfflineHandler] Initialized. Network:', navigator.onLine ? 'online' : 'offline');
+    logger.info('[OfflineHandler] Initialized. Network:', navigator.onLine ? 'online' : 'offline');
   }
 
   // ── Handlers privados ──────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ export class OfflineHandler {
   _handleOnline() {
     this.stateManager.dispatch('SET_OFFLINE_MODE', { isOffline: false });
     this.eventBus.emit('ui:online', { message: 'Conexão restaurada' });
-    logger.log('[OfflineHandler] Online restored.');
+    logger.info('[OfflineHandler] Online restored.');
     
     // Executor Duplo (Thread Principal)
     syncQueue.sync().catch(err => {

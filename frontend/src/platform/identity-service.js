@@ -256,6 +256,10 @@ class IdentityService {
       body: JSON.stringify({ email, password }),
     });
 
+    if (authResponse.mfaRequired) {
+      return { status: 'mfa_required', mfaToken: authResponse.mfaToken };
+    }
+
     // Persist the short-lived token in the secure closure immediately.
     // From this point on, apiFetch will inject it as Bearer automatically.
     setAccessToken(authResponse.accessToken);
@@ -267,6 +271,31 @@ class IdentityService {
     this.#commitLogin(identity);
 
     logger.info('[IdentityService] Login successful for', identity.email);
+    eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
+
+    return identity;
+  }
+
+  /**
+   * Authenticate a user via Google Identity Services (OAuth2).
+   * 
+   * @param {string} credential - The JWT credential returned by Google
+   * @returns {Promise<UserIdentityDTO | { status: 'mfa_required', mfaToken: string }>}
+   */
+  async googleAuth(credential) {
+    const response = await apiFetch('/api/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ credential }),
+    });
+
+    if (response.mfaRequired) {
+      return { status: 'mfa_required', mfaToken: response.mfaToken };
+    }
+
+    setAccessToken(response.accessToken);
+    const identity = await apiFetch(API.PROFILE);
+    this.#commitLogin(identity);
+    logger.info('[IdentityService] Google Login successful for', identity.email);
     eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
 
     return identity;

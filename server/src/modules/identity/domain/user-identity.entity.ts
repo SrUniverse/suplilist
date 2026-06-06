@@ -12,6 +12,7 @@ export interface MfaInfo {
   enabled: boolean;
   type: 'totp' | null;
   totpSecret: string | null;
+  tempSecret: string | null;
   backupCodes: string[];
   enabledAt: Date | null;
   lastUsedAt: Date | null;
@@ -30,6 +31,11 @@ export interface UserIdentity {
   deletedAt: Date | null;
   suspendedAt: Date | null;
   suspendedReason: string | null;
+  sessionsValidAfter: Date | null;
+  passwordReset?: {
+    tokenHash: string | null;
+    expiresAt: Date | null;
+  };
   version: number; // Mapped to mongoose __v for Optimistic Concurrency Control
   createdAt: Date;
   updatedAt: Date;

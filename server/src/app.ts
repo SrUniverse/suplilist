@@ -35,6 +35,27 @@ export function createApp() {
   // ── Security headers ───────────────────────────────────────────────────────
   app.use(helmet());
 
+  // ── Cloudflare Edge Shield (Direct Origin Bypass Protection) ────────────────
+  // Bloqueia qualquer tráfego que tente contornar o Cloudflare acessando a URL direta do Render,
+  // impedindo o IP Spoofing de `cf-connecting-ip`.
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (process.env.NODE_ENV !== 'production' || !process.env.CF_EDGE_TOKEN) {
+      return next();
+    }
+    
+    // Isenção para tráfego legítimo máquina-a-máquina que não passa pelo Cloudflare (ex: Stripe, Resend)
+    if (req.path.startsWith('/api/webhooks/')) {
+      return next();
+    }
+    
+    const edgeToken = req.headers['x-suplilist-edge-token'];
+    if (!edgeToken || edgeToken !== process.env.CF_EDGE_TOKEN) {
+      return res.status(403).json({ error: 'Direct access not allowed' });
+    }
+    
+    next();
+  });
+
   // ── CORS (OWASP & W3C compliant) ──────────────────────────────────────────
   // credentials: true requires an explicit origin — never wildcard '*'.
   app.use(cors({

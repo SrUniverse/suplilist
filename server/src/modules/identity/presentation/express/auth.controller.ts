@@ -5,6 +5,12 @@ import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.u
 import { LogoutUseCase } from '../../application/use-cases/logout.use-case.js';
 import { DeleteAccountUseCase } from '../../application/use-cases/delete-account.use-case.js';
 import { CancelDeletionUseCase } from '../../application/use-cases/cancel-deletion.use-case.js';
+import { ForgotPasswordUseCase } from '../../application/use-cases/forgot-password.use-case.js';
+import { ResetPasswordUseCase } from '../../application/use-cases/reset-password.use-case.js';
+import { GoogleAuthUseCase } from '../../application/use-cases/google-auth.use-case.js';
+import { SetupMfaUseCase } from '../../application/use-cases/setup-mfa.use-case.js';
+import { ConfirmMfaSetupUseCase } from '../../application/use-cases/confirm-mfa-setup.use-case.js';
+import { VerifyMfaUseCase } from '../../application/use-cases/verify-mfa.use-case.js';
 import { AuthMapper } from '../../application/mappers/auth.mapper.js';
 
 export class AuthController {
@@ -14,7 +20,13 @@ export class AuthController {
     private refreshTokenUseCase: RefreshTokenUseCase,
     private logoutUseCase: LogoutUseCase,
     private deleteAccountUseCase: DeleteAccountUseCase,
-    private cancelDeletionUseCase: CancelDeletionUseCase
+    private cancelDeletionUseCase: CancelDeletionUseCase,
+    private forgotPasswordUseCase: ForgotPasswordUseCase,
+    private resetPasswordUseCase: ResetPasswordUseCase,
+    private googleAuthUseCase: GoogleAuthUseCase,
+    private setupMfaUseCase: SetupMfaUseCase,
+    private confirmMfaSetupUseCase: ConfirmMfaSetupUseCase,
+    private verifyMfaUseCase: VerifyMfaUseCase
   ) {}
 
   async register(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
@@ -22,18 +34,11 @@ export class AuthController {
       const { email, password } = req.body;
       const result = await this.registerUseCase.execute({ email, password });
       
-      return res.status(201).json({
+      return res.status(202).json({
         success: true,
         data: AuthMapper.toRegisterResponse(result.userId, result.email),
       });
     } catch (error: any) {
-      if (error.message === 'user_already_exists') {
-        return res.status(499).json({ // 499 or 409 Conflict
-          success: false,
-          error: 'user_already_exists',
-          message: 'An account with this email address already exists.',
-        });
-      }
       next(error);
     }
   }
@@ -233,6 +238,159 @@ export class AuthController {
           error: 'validation_error',
           message: error.message.replace('ValidationError: ', '')
         });
+      }
+      next(error);
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ success: false, error: 'validation_error', message: 'Email is required.' });
+      }
+
+      await this.forgotPasswordUseCase.execute({ email });
+
+      // Always return 202 Accepted opaquely to prevent User Enumeration
+      return res.status(202).json({
+        success: true,
+        message: 'If the email exists, a password reset link has been sent.',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resetPassword(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const { token, newPassword } = req.body;
+      if (!token || !newPassword) {
+        return res.status(400).json({ success: false, error: 'validation_error', message: 'Token and new password are required.' });
+      }
+
+      await this.resetPasswordUseCase.execute({ plainToken: token, newPasswordPlain: newPassword });
+
+      // Kill the cookie just to be safe, forcing them to login again
+      res.clearCookie('refreshToken');
+
+      return res.status(200).json({
+        success: true,
+        message: 'Password successfully reset. You can now login with your new password.',
+      });
+    } catch (error: any) {
+      if (error.message === 'invalid_or_expired_token' || error.message === 'user_inactive') {
+        return res.status(401).json({
+          success: false,
+          error: 'invalid_token',
+          message: 'The password reset token is invalid or has expired.',
+        });
+      }
+      next(error);
+    }
+  }
+
+  async googleAuth(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const { credential } = req.body; // Google sends credential
+      if (!credential) {
+        return res.status(400).json({ success: false, error: 'missing_credential' });
+      }
+
+      const result = await this.googleAuthUseCase.execute({ idToken: credential });
+
+      if (result.status === 'mfa_required') {
+        return res.status(200).json({
+          success: true,
+          mfaRequired: true,
+          mfaToken: result.mfaToken,
+        });
+      }
+
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: AuthMapper.toAuthResponse(result.accessToken),
+      });
+    } catch (error: any) {
+      if (error.message === 'unverified_google_email') {
+        return res.status(403).json({ success: false, error: 'unverified_email', message: 'Google account email is not verified.' });
+      }
+      if (error.message === 'invalid_google_token') {
+        return res.status(401).json({ success: false, error: 'invalid_token' });
+      }
+      next(error);
+    }
+  }
+
+  async setupMfa(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) return res.status(401).json({ success: false, error: 'unauthenticated' });
+
+      const result = await this.setupMfaUseCase.execute({ userId });
+      return res.status(200).json({ success: true, data: result });
+    } catch (error: any) {
+      if (error.message === 'mfa_already_enabled') {
+        return res.status(400).json({ success: false, error: 'mfa_already_enabled' });
+      }
+      next(error);
+    }
+  }
+
+  async confirmMfaSetup(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const userId = req.user?.id;
+      const { code } = req.body;
+      if (!userId) return res.status(401).json({ success: false, error: 'unauthenticated' });
+      if (!code) return res.status(400).json({ success: false, error: 'missing_code' });
+
+      const result = await this.confirmMfaSetupUseCase.execute({ userId, code });
+      return res.status(200).json({ success: true, data: result });
+    } catch (error: any) {
+      if (error.message === 'invalid_mfa_code') {
+        return res.status(400).json({ success: false, error: 'invalid_code' });
+      }
+      if (error.message === 'mfa_setup_not_initiated') {
+        return res.status(400).json({ success: false, error: 'setup_not_initiated' });
+      }
+      next(error);
+    }
+  }
+
+  async verifyMfa(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const userId = req.user?.id;
+      const jti = req.user?.jti;
+      const { code } = req.body;
+      if (!userId || !jti) return res.status(401).json({ success: false, error: 'unauthenticated' });
+      if (!code) return res.status(400).json({ success: false, error: 'missing_code' });
+
+      const result = await this.verifyMfaUseCase.execute({ userId, jti, code });
+
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: AuthMapper.toAuthResponse(result.accessToken),
+      });
+    } catch (error: any) {
+      if (error.message === 'invalid_mfa_code') {
+        return res.status(401).json({ success: false, error: 'invalid_code' });
+      }
+      if (error.message === 'too_many_mfa_attempts') {
+        return res.status(429).json({ success: false, error: 'too_many_attempts', message: 'Too many failed attempts. Try again later.' });
       }
       next(error);
     }

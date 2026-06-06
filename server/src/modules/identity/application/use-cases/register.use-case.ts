@@ -7,6 +7,7 @@ import { Profile } from '../../../profile/domain/entities/profile.entity.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
 import { IEventBus } from '../../../../shared/application/event-bus/event-bus.interface.js';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event.js';
+import { IdentityEmailService } from '../services/identity-email.service.js';
 
 const registerInputSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -26,7 +27,8 @@ export class RegisterUseCase {
     private userIdentityRepo: IUserIdentityRepository,
     private profileRepo: IProfileRepository,
     private uow: IUnitOfWork,
-    private eventBus: IEventBus
+    private eventBus: IEventBus,
+    private emailService: IdentityEmailService
   ) {}
 
   async execute(input: RegisterInput): Promise<RegisterResult> {
@@ -37,8 +39,19 @@ export class RegisterUseCase {
       // 2. Check if user already exists
       const existingUser = await this.userIdentityRepo.findByEmail(validatedInput.email);
       if (existingUser) {
-        throw new Error('user_already_exists');
+        // Dispara e-mail de aviso para segurança e evitar Account Enumeration
+        // Background task (não usar await no controller principal se quisermos performance, mas dentro da transação é melhor fazer fire-and-forget de forma segura)
+        this.emailService.sendDuplicateRegistrationWarning(existingUser.email).catch(console.error);
+        
+        // Retorna sucesso simulado para evitar Account Enumeration sem tocar no banco
+        return {
+          userId: existingUser.id,
+          email: existingUser.email,
+          status: 'pending_verification',
+        };
       }
+
+      const passwordHash = await bcrypt.hash(validatedInput.password, 12);
 
       // 3. Create entity template (letting Mongoose pre-save handle bcrypt hash)
       const newUser: UserIdentity = {
@@ -46,12 +59,13 @@ export class RegisterUseCase {
         email: validatedInput.email,
         emailVerified: false,
         emailVerifiedAt: null,
-        passwordHash: validatedInput.password, // Hook will hash this
+        passwordHash, // Hashed locally in Use Case
         providers: [],
         mfa: {
           enabled: false,
           type: null,
           totpSecret: null,
+          tempSecret: null,
           backupCodes: [],
           enabledAt: null,
           lastUsedAt: null,
@@ -61,6 +75,7 @@ export class RegisterUseCase {
         deletedAt: null,
         suspendedAt: null,
         suspendedReason: null,
+        sessionsValidAfter: null,
         version: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -90,6 +105,9 @@ export class RegisterUseCase {
       // 6. Dispatch UserRegistered event
       const event = new UserRegisteredEvent(savedUser.id, savedUser.email);
       await this.eventBus.publish(event);
+
+      // 7. Envia o e-mail de verificação da conta (usando o id da conta como mock token temporário até implementarmos o módulo de Tokens de Acesso Temporário)
+      this.emailService.sendVerificationEmail(savedUser.email, savedUser.id).catch(console.error);
 
       return {
         userId: savedUser.id,

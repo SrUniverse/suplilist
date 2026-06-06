@@ -19,15 +19,27 @@ export class RedisTokenBlocklist implements ITokenBlocklist {
   }
 
   async invalidateUser(userId: string, expiresAt: Date): Promise<void> {
-    const ttlSeconds = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / 1000));
-    if (ttlSeconds > 0) {
-      await redisClient.set(`user:invalidated:${userId}`, '1', 'EX', ttlSeconds);
-    }
+    // Old implementation replaced by deleteSessionsValidAfterCache in Use Cases.
+    // Kept here so interfaces don't break until we finish refactoring.
   }
 
   async isUserInvalidated(userId: string): Promise<boolean> {
-    const exists = await redisClient.exists(`user:invalidated:${userId}`);
-    return exists === 1;
+    return false;
+  }
+
+  async setSessionsValidAfterCache(userId: string, epochMs: number): Promise<void> {
+    // TTL de 24h para o negative cache / epoch cache
+    await redisClient.set(`user:validAfter:${userId}`, epochMs.toString(), 'EX', 24 * 60 * 60);
+  }
+
+  async getSessionsValidAfterCache(userId: string): Promise<number | null> {
+    const val = await redisClient.get(`user:validAfter:${userId}`);
+    if (val === null) return null;
+    return parseInt(val, 10);
+  }
+
+  async deleteSessionsValidAfterCache(userId: string): Promise<void> {
+    await redisClient.del(`user:validAfter:${userId}`);
   }
 }
 export default RedisTokenBlocklist;

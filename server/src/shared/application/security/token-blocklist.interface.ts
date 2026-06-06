@@ -22,5 +22,11 @@ export interface ITokenBlocklist {
    * Checks if all sessions for the given user are invalidated.
    */
   isUserInvalidated(userId: string): Promise<boolean>;
+
+  setSessionsValidAfterCache(userId: string, epochMs: number): Promise<void>;
+
+  getSessionsValidAfterCache(userId: string): Promise<number | null>;
+
+  deleteSessionsValidAfterCache(userId: string): Promise<void>;
 }
 export default ITokenBlocklist;

@@ -13,6 +13,7 @@ export interface IMfaInfoDocument {
   enabled: boolean;
   type: 'totp' | null;
   totpSecret: string | null;
+  tempSecret: string | null;
   backupCodes: string[];
   enabledAt: Date | null;
   lastUsedAt: Date | null;
@@ -30,6 +31,12 @@ export interface IUserIdentityDocument extends Document {
   deletedAt: Date | null;
   suspendedAt: Date | null;
   suspendedReason: string | null;
+  sessionsValidAfter: Date | null;
+  
+  passwordReset: {
+    tokenHash: string | null;
+    expiresAt: Date | null;
+  };
   
   // Controle de Infraestrutura (Expurgo)
   purgeAttempts: number;
@@ -95,6 +102,10 @@ const userIdentitySchema = new Schema<IUserIdentityDocument>({
       type: String,
       default: null,
     },
+    tempSecret: {
+      type: String,
+      default: null,
+    },
     backupCodes: {
       type: [String],
       default: [],
@@ -131,6 +142,20 @@ const userIdentitySchema = new Schema<IUserIdentityDocument>({
     type: String,
     default: null,
   },
+  sessionsValidAfter: {
+    type: Date,
+    default: null,
+  },
+  passwordReset: {
+    tokenHash: {
+      type: String,
+      default: null,
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
+    }
+  },
   purgeAttempts: {
     type: Number,
     default: 0,
@@ -157,17 +182,10 @@ userIdentitySchema.index(
 // Índice composto otimizado estritamente para o loop de paginação do Purge Job
 userIdentitySchema.index({ status: 1, deletedAt: 1, purgeFailed: 1, _id: 1 });
 
-// Bcrypt Hashing Hook
-userIdentitySchema.pre('save', async function(next) {
-  if (!this.isModified('passwordHash') || !this.passwordHash) return next();
-  try {
-    const salt = await bcrypt.genSalt(12);
-    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-    next();
-  } catch (err: any) {
-    next(err);
-  }
-});
+// Índice para otimização da busca de redefinição de senha (e expiração nativa)
+userIdentitySchema.index({ 'passwordReset.tokenHash': 1, 'passwordReset.expiresAt': 1 });
+
+
 
 export const UserIdentityModel = mongoose.model<IUserIdentityDocument>('UserIdentity', userIdentitySchema);
 export default UserIdentityModel;

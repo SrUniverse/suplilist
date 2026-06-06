@@ -12,16 +12,8 @@ if (!fs.existsSync(INDEX_PATH)) {
 
 // ─── EXTRAIR DADOS DINAMICAMENTE DO MOTOR DE IA ─────────────────────────────────
 console.log('Carregando banco de dados de suplementos da IA...');
-const sourceCode = fs.readFileSync(path.join(__dirname, '../frontend/src/features/stack/stack-recommender.js'), 'utf-8');
-
-// Limpar o código removendo imports e exportações para rodar puramente com eval
-const cleanCode = sourceCode
-  .replace(/import\s+[^;]+;/g, '') // remove os imports
-  .replace(/export\s+default\s+[^;]+;/g, '') // remove "export default ..." para evitar erro de token
-  .replace(/\bexport\s+/g, ''); // remove todos os "export " para virar declarações locais válidas
-
-// Eval do código limpo, retornando o banco de dados
-const supplements = eval(cleanCode + '\nSUPPLEMENTS_DB;');
+const supplementsData = fs.readFileSync(path.join(__dirname, '../frontend/public/data/supplements-db.json'), 'utf-8');
+const supplements = JSON.parse(supplementsData);
 
 console.log(`✓ Encontrados ${supplements.length} suplementos cadastrados.`);
 

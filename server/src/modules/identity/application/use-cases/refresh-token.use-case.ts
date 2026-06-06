@@ -41,20 +41,26 @@ export class RefreshTokenUseCase {
         throw new Error('invalid_refresh_token');
       }
 
-      // 1. Refresh Token Rotation (RTR): Theft Detection via Blocklist
-      const isRevoked = await this.tokenBlocklistRepo.isBlocked(jti);
-      if (isRevoked) {
-        // Minimum viable RTR: if already in blocklist, the session is cloned.
-        // In a more complex family implementation, we'd revoke all tokens for this user.
-        // For now, we simply reject the rotation.
-        throw new Error('invalid_refresh_token');
-      }
-
-      // 2. Retrieve user and verify account status
+      // 1. Retrieve user FIRST so we can invalidate them
       const user = await this.userIdentityRepo.findById(userId);
       if (!user || user.status === 'deleted' || user.status === 'suspended') {
         throw new Error('user_inactive');
       }
+
+      // 2. Refresh Token Rotation (RTR): Theft Detection via Blocklist
+      const isRevoked = await this.tokenBlocklistRepo.isBlocked(jti);
+      if (isRevoked) {
+        // Global Revocation: The session was cloned. Invalidate all tokens emitted before now.
+        user.sessionsValidAfter = new Date();
+        await this.userIdentityRepo.save(user);
+        
+        // Destroy the negative cache to force Mongoose reload on next request
+        await this.tokenBlocklistRepo.deleteSessionsValidAfterCache(userId);
+        
+        throw new Error('token_theft_detected');
+      }
+
+      // User already retrieved and verified in Step 1.
 
       // 3. Generate a new session (Rotation)
       const accessJti = crypto.randomUUID();

@@ -4,6 +4,7 @@ import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { settingsService } from './settings-service.js';
 import NotificationService from '../notifications/notification-service.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
+import { MfaSetupModal } from '../auth/mfa-setup-modal.js';
 import { logger } from '../../utils/logger.js';
 
 export default class SettingsPage {
@@ -435,6 +436,20 @@ export default class SettingsPage {
           <p class="sp-notif-note">Notificações são locais e não requerem cadastro. Nada é enviado para servidores.</p>
         </div>
 
+        <!-- Segurança -->
+        ${stateManager.get('user.isAuthenticated') ? `
+        <div class="sp-card">
+          <h2 class="sp-section-label">Segurança</h2>
+          <div class="sp-action-row">
+            <span class="sp-action-label">Autenticação em Duas Etapas (MFA)</span>
+            ${state.user?.isMfaEnabled 
+              ? '<span style="color: #22c55e; font-weight: 600; font-size: 14px;">Ativo ✓</span>'
+              : '<button class="sp-btn sp-btn-outline" id="sp-mfa-setup-btn">Configurar</button>'
+            }
+          </div>
+        </div>
+        ` : ''}
+
         <!-- Dados & Privacidade -->
         <div class="sp-card">
           <h2 class="sp-section-label">Dados &amp; Privacidade</h2>
@@ -681,5 +696,24 @@ export default class SettingsPage {
         window.dispatchEvent(new PopStateEvent('popstate'));
       });
     });
+
+    // MFA Setup
+    const mfaSetupBtn = this.container.querySelector('#sp-mfa-setup-btn');
+    if (mfaSetupBtn) {
+      mfaSetupBtn.addEventListener('click', () => {
+        const modalContainer = document.createElement('div');
+        document.body.appendChild(modalContainer);
+        const mfaModal = new MfaSetupModal(modalContainer);
+        
+        // Intercept unmount to remove container
+        const originalUnmount = mfaModal.unmount.bind(mfaModal);
+        mfaModal.unmount = () => {
+          originalUnmount();
+          modalContainer.remove();
+        };
+
+        mfaModal.mount();
+      });
+    }
   }
 }

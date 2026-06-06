@@ -3,7 +3,6 @@ import { stateManager, STORAGE_KEYS, ACTIONS } from '../state/state-manager.js';
 import { eventBus, EVENTS } from './event-bus.js';
 import { Router } from './router.js';
 import { Nav } from './nav.js';
-import { analyticsEngine } from '../analytics/analytics-engine.js';
 import { StorageManager } from '../platform/storage-manager.js';
 import { OfflineHandler } from '../platform/offline-handler.js';
 import { syncQueue } from '../platform/sync-queue.js';
@@ -19,6 +18,7 @@ import { identityService } from '../platform/identity-service.js';
 const routes = [
   { path: '/onboarding', load: () => import('../features/onboarding/onboarding-page.js') },
   { path: '/login',      load: () => import('../features/auth/login-page.js') },
+  { path: '/register',   load: () => import('../features/auth/register-page.js') },
   { path: '/',           load: () => import('../features/home/home-page.js') },
   { path: '/home',       load: () => import('../features/home/home-page.js') },
   { path: '/list',       load: () => import('../features/supplements/list-page.js') },
@@ -43,6 +43,11 @@ const PAGE_METADATA = {
     title: 'Entrar | SupliList',
     description: 'Acesse sua conta SupliList e continue de onde parou. Gerencie seu stack de suplementos personalizados.',
     keywords: 'login, entrar, acessar conta, suplementos'
+  },
+  '/register': {
+    title: 'Criar Conta | SupliList',
+    description: 'Junte-se ao SupliList de forma segura e gerencie sua suplementação.',
+    keywords: 'registro, criar conta, signup, suplementos'
   },
   '/': {
     title: 'SupliList | Suplementos com Evidência Científica — Compare Preços e Doses',
@@ -163,7 +168,7 @@ function updateSEOMetadata() {
  */
 function applyLandingMode() {
   const path = window.location.pathname;
-  const isLanding = path === '/' || path === '/home' || path === '/onboarding' || path === '/login';
+  const isLanding = path === '/' || path === '/home' || path === '/onboarding' || path === '/login' || path === '/register';
   document.body.classList.toggle('body--landing', isLanding);
 }
 
@@ -203,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyLandingMode();
     updateSEOMetadata();
     // Nav.updateActive is already called by router.js handleRoute() — no duplicate needed
-    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding' || window.location.pathname === '/login';
+    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding' || window.location.pathname === '/login' || window.location.pathname === '/register';
     isLanding ? Nav.hide() : Nav.show();
   });
 
@@ -219,10 +224,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   router.start();
 
-  // Initialize Analytics Engine (captures events from EventBus)
-  analyticsEngine.init().catch((err) => {
-    // Analytics errors should not crash the app
-    logger.error('[App] Analytics init error:', err);
+  // Initialize Analytics Engine dynamically to prevent AdBlockers from crashing the app
+  import('../analytics/analytics-engine.js').then(({ analyticsEngine }) => {
+    analyticsEngine.init().catch((err) => {
+      logger.error('[App] Analytics init error:', err);
+    });
+
+    // Flush analytics before page unload
+    window.addEventListener('beforeunload', () => {
+      if (analyticsEngine.isInitialized()) {
+        analyticsEngine.flush().catch(() => {});
+        analyticsEngine.endSession().catch(() => {});
+      }
+    });
+  }).catch((err) => {
+    logger.warn('[App] Analytics module blocked by AdBlocker. App will continue normally.', err);
   });
 
   // Initialize Sync Queue (background sync for offline check-ins)
@@ -387,16 +403,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Flush analytics before page unload
-  window.addEventListener('beforeunload', () => {
-    if (analyticsEngine.isInitialized()) {
-      analyticsEngine.flush().catch(() => {
-        // Silently ignore flush errors on unload
-      });
-      analyticsEngine.endSession().catch(() => {
-        // Silently ignore session end errors on unload
-      });
-    }
-  });
+
 });
 

@@ -38,3 +38,15 @@ export {
   prioritizeByGoal,
   getGoalMetrics
 };
+
+export default {
+  getRecommendations,
+  getSupplementById,
+  calculateCompatibility,
+  compareWithRecommended,
+  getStatusColor,
+  calcDailyCost,
+  getGoalConfig,
+  prioritizeByGoal,
+  getGoalMetrics
+};

@@ -18,7 +18,7 @@ export type LoginInput = z.infer<typeof loginInputSchema>;
 
 export type LoginResult = 
   | { status: 'success'; accessToken: string; refreshToken: string }
-  | { status: 'mfa_required'; mfaTicket: string };
+  | { status: 'mfa_required'; mfaToken: string };
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
 
@@ -67,13 +67,29 @@ export class LoginUseCase {
         throw new Error('invalid_credentials');
       }
 
+      // Clear password reset token if it exists (anti-hijack after successful login)
+      if (user.passwordReset) {
+        user.passwordReset = undefined;
+        await this.userIdentityRepo.save(user);
+      }
+
       // 4. Handle MFA if enabled
       if (user.mfa.enabled) {
-        // Generate a temporary 5-minute ticket for MFA validation
-        const mfaTicket = crypto.randomBytes(32).toString('hex');
+        // Generate a Pre-Auth JWT with 5-minute expiration
+        const preAuthJti = crypto.randomUUID();
+        const mfaToken = jwt.sign(
+          {
+            sub: user.id,
+            jti: preAuthJti,
+            scope: 'pre_auth',
+          },
+          JWT_SECRET,
+          { expiresIn: '5m' }
+        );
+
         return {
           status: 'mfa_required',
-          mfaTicket,
+          mfaToken,
         };
       }
 

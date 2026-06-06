@@ -22,6 +22,7 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
         enabled: doc.mfa.enabled,
         type: doc.mfa.type,
         totpSecret: doc.mfa.totpSecret,
+        tempSecret: doc.mfa.tempSecret,
         backupCodes: doc.mfa.backupCodes,
         enabledAt: doc.mfa.enabledAt,
         lastUsedAt: doc.mfa.lastUsedAt,
@@ -31,6 +32,11 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
       deletedAt: doc.deletedAt,
       suspendedAt: doc.suspendedAt,
       suspendedReason: doc.suspendedReason,
+      sessionsValidAfter: doc.sessionsValidAfter,
+      passwordReset: doc.passwordReset ? {
+        tokenHash: doc.passwordReset.tokenHash,
+        expiresAt: doc.passwordReset.expiresAt,
+      } : undefined,
       version: (doc as any).__v ?? 0, // Map mongoose version key to domain
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -59,6 +65,15 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
     return doc ? this.mapToDomain(doc) : null;
   }
 
+  async findByPasswordResetToken(tokenHash: string): Promise<UserIdentity | null> {
+    const session = transactionStorage.getStore();
+    const doc = await UserIdentityModel.findOne({
+      'passwordReset.tokenHash': tokenHash,
+      // The application layer checks expiration, but we can double check or just let it pass
+    }).session(session || null);
+    return doc ? this.mapToDomain(doc) : null;
+  }
+
   async save(user: UserIdentity): Promise<UserIdentity> {
     const session = transactionStorage.getStore();
 
@@ -76,6 +91,8 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
         deletedAt: user.deletedAt,
         suspendedAt: user.suspendedAt,
         suspendedReason: user.suspendedReason,
+        sessionsValidAfter: user.sessionsValidAfter,
+        passwordReset: user.passwordReset,
       });
       const doc = await created.save({ session });
       return this.mapToDomain(doc);
@@ -100,6 +117,8 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
           deletedAt: user.deletedAt,
           suspendedAt: user.suspendedAt,
           suspendedReason: user.suspendedReason,
+          sessionsValidAfter: user.sessionsValidAfter,
+          passwordReset: user.passwordReset,
         },
         $inc: { __v: 1 } // Increment the version key to block other stale threads
       },

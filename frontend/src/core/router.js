@@ -3,6 +3,7 @@ import { logger } from '../utils/logger.js';
 import { MetaManager } from '../platform/meta-manager.js';
 import { identityService } from '../platform/identity-service.js';
 import { stateManager } from '../state/state-manager.js';
+import { authGuard } from '../features/auth/auth-guard.js';
 
 /**
  * Routes that require the user to be authenticated.
@@ -127,37 +128,26 @@ export class Router {
 
     const { route, params } = match;
 
-    // ── Auth guard (protected routes only) ──────────────────────────────────────
-    if (PROTECTED_ROUTES.has(pathname)) {
-      // Fast path: session probe already settled — no need to await.
-      if (!identityService.isInitializing()) {
-        const isAuth = stateManager.get('user.isAuthenticated');
-        const onboardingDone = stateManager.get('user.onboardingComplete');
-        if (!isAuth && !onboardingDone) {
-          logger.info('[Router] Guard blocked', pathname, '— redirecting to /login');
-          window.history.replaceState(null, null, '/login');
-          window.dispatchEvent(new PopStateEvent('popstate'));
-          return;
-        }
-      } else {
-        // Slow path: session probe is still in-flight (cold start + deep link).
-        // Show a skeleton so the user sees something, then await the probe result.
-        this._renderAuthSkeleton();
+    // ── Auth guard ──────────────────────────────────────
+    // Fast path: session probe already settled — no need to await.
+    if (!identityService.isInitializing()) {
+      const user = stateManager.get('user');
+      if (!authGuard.checkAccess(pathname, user)) {
+        return;
+      }
+    } else {
+      // Slow path: session probe is still in-flight.
+      // Show a skeleton so the user sees something, then await the probe result.
+      this._renderAuthSkeleton();
 
-        const authenticated = await identityService.isReady();
+      await identityService.isReady();
 
-        // Discard if the user navigated away while we were waiting
-        if (navigationToken !== this._navigationToken) return;
+      // Discard if the user navigated away while we were waiting
+      if (navigationToken !== this._navigationToken) return;
 
-        if (!authenticated) {
-          const onboardingDone = stateManager.get('user.onboardingComplete');
-          if (!onboardingDone) {
-            logger.info('[Router] Guard (after await) blocked', pathname, '— redirecting to /login');
-            window.history.replaceState(null, null, '/login');
-            window.dispatchEvent(new PopStateEvent('popstate'));
-            return;
-          }
-        }
+      const user = stateManager.get('user');
+      if (!authGuard.checkAccess(pathname, user)) {
+        return;
       }
     }
     // ─────────────────────────────────────────────────────────────

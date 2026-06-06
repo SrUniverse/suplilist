@@ -205,31 +205,19 @@ class IdentityService {
    * @returns {Promise<void>}
    */
   async logout() {
-    // Declare intent to log out BEFORE the network call.
-    // If the process crashes or the call fails, this flag survives.
     try {
-      localStorage.setItem(PENDING_LOGOUT_KEY, '1');
-    } catch {
-      // localStorage can be unavailable (private mode quota exceeded, etc.)
-      // Proceed anyway — best-effort protection.
-      logger.warn('[IdentityService] Could not set pending logout flag in localStorage.');
-    }
-
-    // Attempt server-side revocation of the refresh token cookie + JTI blocklist
-    try {
+      // 1. Notifica o backend para invalidar o Refresh Token (se houver)
       await apiFetch('/api/auth/logout', { method: 'POST' });
-      // Success: server invalidated the cookie — safe to clear the guard flag
-      localStorage.removeItem(PENDING_LOGOUT_KEY);
-    } catch (err) {
-      // Network failure — flag stays in localStorage.
-      // initializeSession() will handle it on next boot.
-      logger.warn('[IdentityService] Logout server call failed; pending flag preserved for next boot:', err);
+    } catch (e) {
+      logger.warn('[IdentityService] Logout server call failed, proceeding with local cleanup', e);
+    } finally {
+      // 2. Limpeza Nuclear
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // 3. Força redirecionamento
+      window.location.replace('/login');
     }
-
-    // Always clear local session — must not depend on network availability
-    clearAccessToken();
-    stateManager.dispatch(ACTIONS.AUTH_LOGOUT, null);
-    eventBus.emit(EVENTS.AUTH_LOGOUT, null);
   }
 
   // ── initializeSession ────────────────────────────────────────────────────────

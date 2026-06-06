@@ -3,16 +3,18 @@ import { IEmailProvider } from '../../../../shared/infrastructure/email/email-pr
 export class IdentityEmailService {
   constructor(private emailProvider: IEmailProvider) {}
 
-  async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const link = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${token}`;
-    const subject = 'Bem-vindo ao SupliList! Verifique seu e-mail';
+  async sendVerificationEmail(email: string, otpCode: string): Promise<void> {
+    const subject = 'Verificação de E-mail - SupliList';
     const html = `
       <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2>Bem-vindo(a)!</h2>
-        <p>Obrigado por criar sua conta no SupliList.</p>
-        <p>Por favor, clique no botão abaixo para verificar sua conta de e-mail e ativar o seu perfil:</p>
-        <a href="${link}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-top: 15px;">Verificar E-mail</a>
-        <p style="margin-top: 20px; font-size: 12px; color: #666;">Se você não solicitou isso, apenas ignore este e-mail.</p>
+        <h2>Bem-vindo(a) ao SupliList!</h2>
+        <p>Obrigado por criar sua conta.</p>
+        <p>Para ativar o seu perfil e garantir a segurança da sua conta, use o código de verificação abaixo:</p>
+        <div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center;">
+          <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #28a745;">${otpCode}</span>
+        </div>
+        <p style="margin-top: 20px; font-size: 13px; color: #666;">Este código expira em 15 minutos.</p>
+        <p style="font-size: 12px; color: #999;">Se você não solicitou a criação desta conta, por favor ignore este e-mail.</p>
       </div>
     `;
 

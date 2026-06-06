@@ -128,6 +128,16 @@ export default class LoginPage {
                 </button>
               </div>
             </form>
+            
+            <div style="text-align: center; margin-top: 1rem;">
+              <button
+                id="login-forgot-password"
+                class="onboarding-btn-link"
+                type="button"
+                style="font-size: 0.85rem;"
+              >Esqueceu a senha?</button>
+            </div>
+
             <p class="onboarding-switch" style="text-align:center;margin-top:1.25rem;font-size:0.9rem">
               Novo por aqui?
               <button
@@ -193,6 +203,13 @@ export default class LoginPage {
     if (btnCreateAccount) {
       btnCreateAccount.addEventListener('click', () => {
         eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/onboarding' });
+      });
+    }
+
+    const btnForgotPassword = this.container.querySelector('#login-forgot-password');
+    if (btnForgotPassword) {
+      btnForgotPassword.addEventListener('click', () => {
+        eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/forgot-password' });
       });
     }
 

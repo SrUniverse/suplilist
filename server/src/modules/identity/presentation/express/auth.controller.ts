@@ -11,6 +11,8 @@ import { GoogleAuthUseCase } from '../../application/use-cases/google-auth.use-c
 import { SetupMfaUseCase } from '../../application/use-cases/setup-mfa.use-case.js';
 import { ConfirmMfaSetupUseCase } from '../../application/use-cases/confirm-mfa-setup.use-case.js';
 import { VerifyMfaUseCase } from '../../application/use-cases/verify-mfa.use-case.js';
+import { VerifyOtpUseCase } from '../../application/use-cases/verify-otp.use-case.js';
+import { ResendOtpUseCase } from '../../application/use-cases/resend-otp.use-case.js';
 import { AuthMapper } from '../../application/mappers/auth.mapper.js';
 
 export class AuthController {
@@ -26,7 +28,9 @@ export class AuthController {
     private googleAuthUseCase: GoogleAuthUseCase,
     private setupMfaUseCase: SetupMfaUseCase,
     private confirmMfaSetupUseCase: ConfirmMfaSetupUseCase,
-    private verifyMfaUseCase: VerifyMfaUseCase
+    private verifyMfaUseCase: VerifyMfaUseCase,
+    private verifyOtpUseCase: VerifyOtpUseCase,
+    private resendOtpUseCase: ResendOtpUseCase
   ) {}
 
   async register(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
@@ -361,6 +365,19 @@ export class AuthController {
         return res.status(400).json({ success: false, error: 'setup_not_initiated' });
       }
       next(error);
+    }
+  }
+
+  async resendOtp(req: Request, res: Response): Promise<Response | void> {
+    try {
+      const { email } = req.body;
+      await this.resendOtpUseCase.execute({ email });
+      return res.status(200).json({ success: true });
+    } catch (err: any) {
+      if (err.message === 'too_many_requests') {
+        return res.status(429).json({ success: false, error: err.message });
+      }
+      return res.status(400).json({ success: false, error: err.message });
     }
   }
 

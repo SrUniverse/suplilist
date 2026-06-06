@@ -62,6 +62,11 @@ export class LoginUseCase {
         throw new Error('oauth_account_only');
       }
 
+      // Check if email is verified
+      if (!user.emailVerified) {
+        throw new Error('pending_verification');
+      }
+
       const isPasswordValid = await bcrypt.compare(validatedInput.password, user.passwordHash);
       if (!isPasswordValid) {
         throw new Error('invalid_credentials');

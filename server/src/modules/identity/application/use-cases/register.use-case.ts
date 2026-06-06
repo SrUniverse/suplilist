@@ -106,8 +106,15 @@ export class RegisterUseCase {
       const event = new UserRegisteredEvent(savedUser.id, savedUser.email);
       await this.eventBus.publish(event);
 
-      // 7. Envia o e-mail de verificação da conta (usando o id da conta como mock token temporário até implementarmos o módulo de Tokens de Acesso Temporário)
-      this.emailService.sendVerificationEmail(savedUser.email, savedUser.id).catch(console.error);
+      // 7. Generate OTP, save to Redis, and send email
+      const crypto = await import('crypto');
+      const otpCode = crypto.randomInt(100000, 999999).toString();
+      
+      const { redisClient } = await import('../../../../shared/infrastructure/redis/redis.client.js');
+      // TTL de 15 minutos (900 segundos)
+      await redisClient.set(`otp:email:${savedUser.email}`, otpCode, 'EX', 900);
+
+      this.emailService.sendVerificationEmail(savedUser.email, otpCode).catch(console.error);
 
       return {
         userId: savedUser.id,

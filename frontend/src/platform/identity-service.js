@@ -239,10 +239,18 @@ class IdentityService {
    * @throws {ApiError} On validation errors or duplicate email (status 499).
    */
   async register(email, password) {
-    return apiFetch(API.REGISTER, {
+    const response = await apiFetch(API.REGISTER, {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+
+    try {
+      localStorage.setItem('pending_verification_email', email);
+    } catch {
+      logger.warn('[IdentityService] Could not store pending verification email.');
+    }
+
+    return response;
   }
 
   async login(email, password) {

@@ -673,13 +673,27 @@ export default class ProfilePage {
     }
 
     if (btnNameConfirm) {
-      btnNameConfirm.addEventListener('click', () => {
+      btnNameConfirm.addEventListener('click', async () => {
         const val = (inlineInput.value || '').trim();
         if (val) {
-          this._form.name = val;
-          nameText.textContent = val;
-          const avatarEl = this.container.querySelector('#profile-avatar-initial');
-          if (avatarEl) avatarEl.textContent = val[0].toUpperCase();
+          try {
+            btnNameConfirm.disabled = true;
+            btnNameConfirm.style.opacity = '0.5';
+            
+            await profileService.updateProfile({ displayName: val });
+            
+            this._form.name = val;
+            nameText.textContent = val;
+            const avatarEl = this.container.querySelector('#profile-avatar-initial');
+            if (avatarEl) avatarEl.textContent = val[0].toUpperCase();
+            
+            eventBus.emit('toast:show', { message: 'Nome atualizado!', type: 'success' });
+          } catch (err) {
+            eventBus.emit('toast:show', { message: 'Erro ao atualizar nome.', type: 'error' });
+          } finally {
+            btnNameConfirm.disabled = false;
+            btnNameConfirm.style.opacity = '1';
+          }
         }
         nameEdit.style.display = 'none';
         nameDisplay.style.display = 'flex';

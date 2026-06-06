@@ -156,10 +156,8 @@ export default class RegisterPage {
       
       if (!this._isMounted) return;
       
-      // Sucesso na criação. Mostrar mensagem de confirmação para que verifique o email.
-      this._successMessage = 'Conta criada com sucesso! Por favor verifique seu e-mail.';
-      this._isLoading = false;
-      this._render(); // re-render to hide form and show success msg
+      // O registro agora pede verificação OTP, e o email está salvo no localStorage
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-otp' });
     } catch (err) {
       if (!this._isMounted) return;
 

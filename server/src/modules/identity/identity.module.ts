@@ -20,6 +20,7 @@ import { GoogleAuthUseCase } from './application/use-cases/google-auth.use-case.
 import { SetupMfaUseCase } from './application/use-cases/setup-mfa.use-case.js';
 import { ConfirmMfaSetupUseCase } from './application/use-cases/confirm-mfa-setup.use-case.js';
 import { VerifyMfaUseCase } from './application/use-cases/verify-mfa.use-case.js';
+import { VerifyOtpUseCase } from './application/use-cases/verify-otp.use-case.js';
 
 import { AuthController } from './presentation/express/auth.controller.js';
 import { ipAuthRateLimiter, emailAuthRateLimiter, messagingIpLimiter, messagingEmailLimiter, authApiLimiter } from '../../shared/middleware/auth-rate-limiter.js';
@@ -50,6 +51,8 @@ export function initializeIdentityModule(): Router {
   const setupMfaUseCase = new SetupMfaUseCase(userIdentityRepository, unitOfWork);
   const confirmMfaSetupUseCase = new ConfirmMfaSetupUseCase(userIdentityRepository, unitOfWork);
   const verifyMfaUseCase = new VerifyMfaUseCase(userIdentityRepository, tokenBlocklistRepository, unitOfWork);
+  const verifyOtpUseCase = new VerifyOtpUseCase(userIdentityRepository);
+  const resendOtpUseCase = new ResendOtpUseCase(userIdentityRepository, emailService);
 
   // 3. Instantiate Controller (Presentation Layer)
   const controller = new AuthController(
@@ -64,7 +67,9 @@ export function initializeIdentityModule(): Router {
     googleAuthUseCase,
     setupMfaUseCase,
     confirmMfaSetupUseCase,
-    verifyMfaUseCase
+    verifyMfaUseCase,
+    verifyOtpUseCase,
+    resendOtpUseCase
   );
 
   // 4. Register HTTP Router Routes
@@ -73,6 +78,18 @@ export function initializeIdentityModule(): Router {
     messagingIpLimiter, 
     messagingEmailLimiter, 
     (req: Request, res: Response, next: NextFunction) => controller.register(req, res, next)
+  );
+  
+  router.post(
+    '/verify-otp',
+    authApiLimiter,
+    (req: Request, res: Response, next: NextFunction) => controller.verifyOtp(req, res, next)
+  );
+
+  router.post(
+    '/resend-otp',
+    authApiLimiter,
+    (req: Request, res: Response, next: NextFunction) => controller.resendOtp(req, res, next)
   );
   
   // Chain both IP-based and Email-based rate limiters to secure the login route

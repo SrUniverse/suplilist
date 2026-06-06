@@ -34,6 +34,9 @@ export class ProfileController {
 
       // Inject the version as ETag for Optimistic Concurrency
       res.setHeader('ETag', `"${result.version}"`);
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       
       return res.status(200).json({
         success: true,

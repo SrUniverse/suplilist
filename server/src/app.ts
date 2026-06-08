@@ -23,6 +23,7 @@ import { initializeFavoritesModule } from './modules/favorites/favorites.module.
 import { initializeCheckinModule } from './modules/checkin/checkin.module.js';
 import { initializeNotificationsModule } from './modules/notifications/notifications.module.js';
 import { initializeReportsModule } from './modules/reports/reports.module.js';
+import { initializeAdminModule } from './modules/admin/admin.module.js';
 import { csrfGuard } from './shared/middleware/csrf-guard.js';
 import { env } from './shared/config/env.config.js';
 
@@ -107,6 +108,7 @@ export function createApp() {
   app.use('/api/checkin', initializeCheckinModule());
   app.use('/api/notifications', initializeNotificationsModule());
   app.use('/api/reports', initializeReportsModule());
+  app.use('/api/admin', initializeAdminModule());
 
   // ── 404 catch-all ─────────────────────────────────────────────────────────
   app.use((req: Request, res: Response) => {

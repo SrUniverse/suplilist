@@ -4,6 +4,7 @@ import { RedisTokenBlocklist } from '../infrastructure/security/redis-token-bloc
 import { UserIdentityModel } from '../../modules/identity/infrastructure/mongoose/user-identity.model.js';
 import { logSecurityEvent } from '../infrastructure/logging/security-event-logger.js';
 import { env } from '../config/env.config.js';
+import { UserRole } from '../../modules/identity/domain/user-identity.entity.js';
 
 // Declaration merging to add user to Express Request
 declare global {
@@ -12,7 +13,7 @@ declare global {
       user?: {
         id: string;
         jti: string;
-        role: string;
+        role: UserRole;
         status: string;
         exp: number;
       };
@@ -136,7 +137,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     req.user = {
       id: decoded.sub,
       jti: decoded.jti,
-      role: decoded.role || 'user',
+      role: (decoded.role as UserRole) || 'user',
       status: decoded.status || 'active',
       exp: decoded.exp,
     };
@@ -189,7 +190,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     req.user = {
       id: decoded.sub,
       jti: decoded.jti,
-      role: decoded.role || 'user',
+      role: (decoded.role as UserRole) || 'user',
       status: decoded.status || 'active',
       exp: decoded.exp,
     };
@@ -201,7 +202,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-export const requireRole = (allowedRoles: string[]) => {
+export const requireRole = (allowedRoles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
@@ -226,6 +227,26 @@ export const requireRole = (allowedRoles: string[]) => {
 
     next();
   };
+};
+
+export const requireVerifiedEmail = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: 'unauthenticated',
+      message: 'Authentication is required for this resource.',
+    });
+  }
+
+  if (req.user.status !== 'active') {
+    return res.status(403).json({
+      success: false,
+      error: 'email_not_verified',
+      message: 'Email verification is required to access this resource.',
+    });
+  }
+
+  next();
 };
 
 export const requirePreAuth = async (req: Request, res: Response, next: NextFunction) => {
@@ -255,7 +276,7 @@ export const requirePreAuth = async (req: Request, res: Response, next: NextFunc
     req.user = {
       id: decoded.sub,
       jti: decoded.jti,
-      role: decoded.role || 'user',
+      role: (decoded.role as UserRole) || 'user',
       status: decoded.status || 'active',
       exp: decoded.exp,
     };

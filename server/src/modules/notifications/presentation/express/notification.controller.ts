@@ -1,14 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { NotificationService } from '../../application/notification.service.js';
 
-interface AuthenticatedRequest extends Request {
-  user?: { id: string };
-}
-
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
 
-  async getPreferences(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getPreferences(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -23,7 +19,7 @@ export class NotificationController {
     }
   }
 
-  async updatePreferences(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async updatePreferences(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -43,7 +39,7 @@ export class NotificationController {
     }
   }
 
-  async scheduleNotifications(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async scheduleNotifications(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -58,7 +54,7 @@ export class NotificationController {
     }
   }
 
-  async trackEngagement(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async trackEngagement(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -75,7 +71,7 @@ export class NotificationController {
     }
   }
 
-  async getPendingNotifications(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getPendingNotifications(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -90,7 +86,7 @@ export class NotificationController {
     }
   }
 
-  async getAnalytics(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getAnalytics(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {

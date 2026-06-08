@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { UserIdentity } from '../../domain/user-identity.entity.js';
-import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
+import { IUserIdentityRepository, FindAllOptions, FindAllResult } from '../../repositories/user-identity.repository.js';
 import { UserIdentityModel, IUserIdentityDocument } from './user-identity.model.js';
 import { transactionStorage } from '../../../../shared/infrastructure/mongoose/mongoose-unit-of-work.js';
 
@@ -73,6 +73,26 @@ export class MongooseUserIdentityRepository implements IUserIdentityRepository {
       // The application layer checks expiration, but we can double check or just let it pass
     }).session(session || null);
     return doc ? this.mapToDomain(doc) : null;
+  }
+
+  async findAll({ page, limit, role, status }: FindAllOptions): Promise<FindAllResult> {
+    const filter: Record<string, unknown> = {};
+    if (role) filter['role'] = role;
+    if (status) filter['status'] = status;
+
+    const [docs, total] = await Promise.all([
+      UserIdentityModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      UserIdentityModel.countDocuments(filter),
+    ]);
+
+    return {
+      users: docs.map(doc => this.mapToDomain(doc as unknown as IUserIdentityDocument)),
+      total,
+    };
   }
 
   async save(user: UserIdentity): Promise<UserIdentity> {

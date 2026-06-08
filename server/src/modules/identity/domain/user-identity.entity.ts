@@ -1,5 +1,5 @@
 export type UserStatus = 'active' | 'pending_verification' | 'suspended' | 'deleted';
-export type UserRole = 'user' | 'admin';
+export type UserRole = 'user' | 'moderator' | 'admin';
 
 export interface OAuthProvider {
   provider: 'google';

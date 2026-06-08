@@ -1,14 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnalyticsService } from '../../application/analytics.service.js';
 
-interface AuthenticatedRequest extends Request {
-  user?: { id: string };
-}
-
 export class ReportController {
   constructor(private analyticsService: AnalyticsService) {}
 
-  async getHeatmap(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getHeatmap(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -25,7 +21,7 @@ export class ReportController {
     }
   }
 
-  async getTrend(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getTrend(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -42,7 +38,7 @@ export class ReportController {
     }
   }
 
-  async getStreak(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getStreak(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -57,7 +53,7 @@ export class ReportController {
     }
   }
 
-  async getAchievements(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getAchievements(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -72,7 +68,7 @@ export class ReportController {
     }
   }
 
-  async getSupplementAdherence(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getSupplementAdherence(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -89,7 +85,7 @@ export class ReportController {
     }
   }
 
-  async getMonthlyReport(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getMonthlyReport(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {
@@ -107,7 +103,7 @@ export class ReportController {
     }
   }
 
-  async getDashboard(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+  async getDashboard(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user?.id;
       if (!userId) {

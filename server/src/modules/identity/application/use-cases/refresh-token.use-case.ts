@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
 import { RedisTokenBlocklist } from '../../../../shared/infrastructure/security/redis-token-blocklist.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
+import { logSecurityEvent } from '../../../../shared/infrastructure/logging/security-event-logger.js';
+import { env } from '../../../../shared/config/env.config.js';
 
 const refreshTokenInputSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
@@ -16,7 +18,7 @@ export interface RefreshTokenResult {
   refreshToken: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
+const JWT_SECRET = env.JWT_SECRET;
 
 export class RefreshTokenUseCase {
   constructor(
@@ -56,7 +58,8 @@ export class RefreshTokenUseCase {
         
         // Destroy the negative cache to force Mongoose reload on next request
         await this.tokenBlocklistRepo.deleteSessionsValidAfterCache(userId);
-        
+
+        logSecurityEvent('auth.session_theft_detected', { userId, detail: 'refresh_token_reuse' });
         throw new Error('token_theft_detected');
       }
 
@@ -72,7 +75,7 @@ export class RefreshTokenUseCase {
           status: user.status,
         },
         JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '5m' }
       );
 
       const newRefreshJti = crypto.randomUUID();
@@ -86,10 +89,10 @@ export class RefreshTokenUseCase {
       );
 
       // 4. Invalidate old token (Memory Bomb logic for OOM prevention)
-      const nowSec = Math.floor(Date.now() / 1000);
-      const expiresInSec = Math.max(0, exp - nowSec);
+      const nowSec = Math.floor(Date.now() / 1000);  // ms → s, normalize once
+      const expiresInSec = exp - nowSec;              // pure seconds arithmetic
       if (expiresInSec > 0) {
-        await this.tokenBlocklistRepo.block(jti, new Date(exp * 1000));
+        await this.tokenBlocklistRepo.block(jti, expiresInSec);
       }
 
       return {

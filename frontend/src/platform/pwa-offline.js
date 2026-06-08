@@ -21,7 +21,7 @@ export class PWAOfflineManager {
     try {
       // Register service worker
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.register('/sw.js');
         logger.info('Service worker registered');
       }
 

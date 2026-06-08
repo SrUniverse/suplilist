@@ -16,7 +16,6 @@ describe('AdvancedSearch', () => {
   it('should find exact name match', () => {
     const results = AdvancedSearch.search('vitamin d');
     expect(results.length).toBeGreaterThan(0);
-    const hasExactMatch = results.some(r => r.name.toLowerCase() === 'vitamin d');
     expect(results[0].score).toBeGreaterThan(100);
   });
 

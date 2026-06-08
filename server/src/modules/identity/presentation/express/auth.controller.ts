@@ -252,10 +252,11 @@ export class AuthController {
   async logout(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
       const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+      const authHeader = req.headers.authorization;
+      const accessToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
+
       if (refreshToken) {
-        await this.logoutUseCase.execute({
-          refreshToken
-        });
+        await this.logoutUseCase.execute({ refreshToken, accessToken });
       }
 
       // Clear cookie

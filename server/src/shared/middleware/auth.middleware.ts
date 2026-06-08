@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { RedisTokenBlocklist } from '../infrastructure/security/redis-token-blocklist.js';
 import { UserIdentityModel } from '../../modules/identity/infrastructure/mongoose/user-identity.model.js';
+import { logSecurityEvent } from '../infrastructure/logging/security-event-logger.js';
+import { env } from '../config/env.config.js';
 
 // Declaration merging to add user to Express Request
 declare global {
@@ -18,7 +20,9 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
+// Importing env triggers the Zod validation + process.exit(1) at module load time.
+// If JWT_SECRET is absent or too short, the server crashes here — not silently at request time.
+const JWT_SECRET = env.JWT_SECRET;
 const blocklist = new RedisTokenBlocklist();
 
 interface JwtPayload {
@@ -50,11 +54,15 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       });
     }
 
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+
     let decoded: JwtPayload;
     try {
       decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     } catch (err: any) {
       if (err.name === 'TokenExpiredError') {
+        logSecurityEvent('auth.token_expired', { ip, userAgent });
         return res.status(401).json({
           success: false,
           error: 'token_expired',
@@ -77,6 +85,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     if (decoded.scope === 'pre_auth') {
+      logSecurityEvent('auth.insufficient_scope', { userId: decoded.sub, ip });
       return res.status(401).json({
         success: false,
         error: 'insufficient_scope',
@@ -84,29 +93,38 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       });
     }
 
-    // Token signature validation passed. We assume short-lived token is valid.
-    // Refresh Token Rotation (Redis Blocklist) is checked in /refresh endpoint.
-    
+    // JTI blocklist check — catches tokens revoked at logout
+    const isRevoked = await blocklist.isBlocked(decoded.jti);
+    if (isRevoked) {
+      logSecurityEvent('auth.token_revoked', { userId: decoded.sub, ip, userAgent });
+      return res.status(401).json({
+        success: false,
+        error: 'token_revoked',
+        message: 'This token has been revoked.',
+      });
+    }
+
     // Global Revocation Check via Negative Caching (Epoch)
     let validAfterEpoch = await blocklist.getSessionsValidAfterCache(decoded.sub);
-    
+
     if (validAfterEpoch === null) {
       // Cache miss -> Fallback to MongoDB
       const userDoc = await UserIdentityModel.findById(decoded.sub).select('sessionsValidAfter').lean();
-      
+
       if (userDoc && userDoc.sessionsValidAfter) {
         validAfterEpoch = userDoc.sessionsValidAfter.getTime();
       } else {
         validAfterEpoch = 0; // Clean user
       }
-      
-      // Repopulate negative cache (TTL is 24h as defined in blocklist)
+
+      // Repopulate negative cache (TTL is 5min as defined in blocklist)
       await blocklist.setSessionsValidAfterCache(decoded.sub, validAfterEpoch);
     }
 
     if (validAfterEpoch > 0) {
       const iatMs = decoded.iat * 1000;
       if (iatMs < validAfterEpoch) {
+        logSecurityEvent('auth.token_revoked_globally', { userId: decoded.sub, ip, userAgent });
         return res.status(401).json({
           success: false,
           error: 'token_revoked_globally',
@@ -194,6 +212,11 @@ export const requireRole = (allowedRoles: string[]) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
+      logSecurityEvent('auth.role_denied', {
+        userId: req.user.id,
+        requiredRole: allowedRoles.join('|'),
+        actualRole: req.user.role,
+      });
       return res.status(403).json({
         success: false,
         error: 'forbidden',

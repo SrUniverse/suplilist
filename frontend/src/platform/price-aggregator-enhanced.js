@@ -20,7 +20,7 @@ export class EnhancedPriceAggregator extends PriceAggregator {
    * Get prices with optional Firecrawl augmentation
    * @override
    */
-  async getPrices(supplementName, options = {}) {
+  async getPrices(supplementName, _options = {}) {
     // Try API first
     const apiPrices = await super.getPrices(supplementName);
 

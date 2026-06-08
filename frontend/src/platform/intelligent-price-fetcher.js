@@ -20,7 +20,7 @@ export class IntelligentPriceFetcher {
    * @param {Object} options
    * @returns {Promise<Object>} Price data
    */
-  async fetchPrices(supplementName, options = {}) {
+  async fetchPrices(supplementName, _options = {}) {
     logger.info(`Fetching prices for: ${supplementName}`, { useFirecrawl: this.useFirecrawl });
 
     try {

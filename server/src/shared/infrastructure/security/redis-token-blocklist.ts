@@ -2,14 +2,16 @@ import { ITokenBlocklist } from '../../application/security/token-blocklist.inte
 import { redisClient } from '../redis/redis.client.js';
 
 export class RedisTokenBlocklist implements ITokenBlocklist {
-  async block(jti: string, expiresAt: Date): Promise<boolean> {
-    const ttlSeconds = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / 1000));
-    if (ttlSeconds <= 0) return true;
+  async block(jti: string, ttlSeconds: number): Promise<boolean> {
+    // Callers compute ttlSeconds as pure integer arithmetic (no Date objects).
+    // Redis EX expects a whole-number count of seconds; Math.floor guards against
+    // any floating-point residue a caller may pass.
+    const ttl = Math.max(0, Math.floor(ttlSeconds));
+    if (ttl <= 0) return true;
 
-    // Use atomic SET with NX (Set if Not eXists) and EX (Expiration in seconds)
-    // - Returns 'OK' if the key was set (meaning this thread won the race condition).
-    // - Returns null if the key already exists (meaning a concurrent duplicate request is running).
-    const result = await redisClient.set(`jwt:blocklist:${jti}`, '1', 'EX', ttlSeconds, 'NX');
+    // Atomic SET NX EX: sets the key only if it does not already exist.
+    // Returns 'OK' on first write, null on duplicate — prevents TOCTOU races.
+    const result = await redisClient.set(`jwt:blocklist:${jti}`, '1', 'EX', ttl, 'NX');
     return result === 'OK';
   }
 
@@ -28,8 +30,9 @@ export class RedisTokenBlocklist implements ITokenBlocklist {
   }
 
   async setSessionsValidAfterCache(userId: string, epochMs: number): Promise<void> {
-    // TTL de 24h para o negative cache / epoch cache
-    await redisClient.set(`user:validAfter:${userId}`, epochMs.toString(), 'EX', 24 * 60 * 60);
+    // TTL de 5min: sessões revogadas são detectadas em no máximo 5min, reduzindo janela de ataque
+    const SESSION_CACHE_TTL_SECONDS = 5 * 60;
+    await redisClient.set(`user:validAfter:${userId}`, epochMs.toString(), 'EX', SESSION_CACHE_TTL_SECONDS);
   }
 
   async getSessionsValidAfterCache(userId: string): Promise<number | null> {

@@ -17,9 +17,8 @@ const envSchema = z.object({
 const envResult = envSchema.safeParse(process.env);
 
 if (!envResult.success) {
-  console.error('❌ Fatal Error: Invalid or missing environment variables:');
-  console.error(JSON.stringify(envResult.error.format(), null, 2));
-  process.exit(1); // Esmaga o aplicativo no arranque se algo não conferir.
+  const formatted = JSON.stringify(envResult.error.format(), null, 2);
+  throw new Error(`Invalid ENV — missing or invalid variables:\n${formatted}`);
 }
 
 export const env = envResult.data;

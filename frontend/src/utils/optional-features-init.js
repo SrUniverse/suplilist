@@ -301,7 +301,7 @@ function showSharePrompt(streak) {
  * Show social share options
  */
 function showSocialShareOptions(streak, adherence) {
-  const html = `
+  const _html = `
     <div style="display: flex; gap: 10px; justify-content: center;">
       <button onclick="socialSharing.shareStreakWhatsApp(${streak}, ${adherence})" style="padding: 10px 20px; cursor: pointer;">
         💬 WhatsApp

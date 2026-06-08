@@ -32,7 +32,7 @@ class MarketplaceAdapter {
     }
   }
 
-  async search(supplementName) {
+  async search(_supplementName) {
     throw new Error('search() must be implemented by subclass');
   }
 }

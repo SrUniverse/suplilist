@@ -3,7 +3,7 @@
  * Critical for retention - users forget without reminders
  */
 
-import { stateManager } from '../state/state-manager.js';
+import { stateManager, ACTIONS } from '../state/state-manager.js';
 import logger from './logger.js';
 
 export class NotificationManager {
@@ -266,7 +266,6 @@ export class NotificationManager {
     logger.info(`User clicked notification: ${reminder.supplementName}`);
 
     // Dispatch action to mark as taken
-    const { ACTIONS } = require('../state/state-manager.js');
     stateManager.dispatch(ACTIONS.RECORD_CHECKIN, {
       supplementId,
       date: new Date().toISOString().split('T')[0],

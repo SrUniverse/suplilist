@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
+import { env } from '../../../../shared/config/env.config.js';
 
 const verifyOtpSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -16,7 +17,7 @@ export type VerifyOtpResult = {
   refreshToken: string;
 };
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
+const JWT_SECRET = env.JWT_SECRET;
 
 export class VerifyOtpUseCase {
   constructor(
@@ -62,7 +63,7 @@ export class VerifyOtpUseCase {
         status: user.status,
       },
       JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '5m' }
     );
 
     const refreshJti = crypto.randomUUID();

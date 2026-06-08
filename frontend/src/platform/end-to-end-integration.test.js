@@ -2,9 +2,6 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('End-to-End Integration Tests', () => {
   let app;
-  let stateManager;
-  let apiClient;
-  let storage;
 
   beforeEach(async () => {
     // Mock all core modules

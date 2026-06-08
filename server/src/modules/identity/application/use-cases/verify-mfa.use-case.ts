@@ -7,6 +7,7 @@ import { IUserIdentityRepository } from '../../repositories/user-identity.reposi
 import { RedisTokenBlocklist } from '../../../../shared/infrastructure/security/redis-token-blocklist.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
+import { env } from '../../../../shared/config/env.config.js';
 
 const verifyMfaInputSchema = z.object({
   userId: z.string().min(1),
@@ -21,7 +22,7 @@ export interface VerifyMfaResult {
   refreshToken: string;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
+const JWT_SECRET = env.JWT_SECRET;
 const MAX_ATTEMPTS = 5;
 const COOLDOWN_SECONDS = 15 * 60; // 15 minutes
 
@@ -101,7 +102,7 @@ export class VerifyMfaUseCase {
       await this.userIdentityRepo.save(user);
 
       // Revoke the Pre-Auth Token (so it can't be reused)
-      await this.tokenBlocklistRepo.block(validatedInput.jti, new Date(Date.now() + 5 * 60 * 1000));
+      await this.tokenBlocklistRepo.block(validatedInput.jti, 5 * 60);
 
       // 6. Generate Sessions
       const accessJti = crypto.randomUUID(); 
@@ -113,7 +114,7 @@ export class VerifyMfaUseCase {
           status: user.status,
         },
         JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '5m' }
       );
 
       const refreshJti = crypto.randomUUID();

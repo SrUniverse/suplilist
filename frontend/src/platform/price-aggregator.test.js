@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { PriceAggregator } from './price-aggregator.js';
 
 describe('PriceAggregator', () => {
@@ -57,7 +57,7 @@ describe('PriceAggregator', () => {
   });
 
   it('should return cached results', async () => {
-    const p1 = await aggregator.getPrices('Vitamin D');
+    await aggregator.getPrices('Vitamin D');
     const cached = aggregator.getFromCache('Vitamin D');
 
     expect(cached).toBeDefined();
@@ -67,7 +67,7 @@ describe('PriceAggregator', () => {
   it('should expire cache after timeout', async () => {
     aggregator.cacheExpiry = 100; // 100ms
 
-    const p1 = await aggregator.getPrices('Vitamin D');
+    await aggregator.getPrices('Vitamin D');
     await new Promise(r => setTimeout(r, 150));
 
     const cached = aggregator.getFromCache('Vitamin D');
@@ -104,7 +104,7 @@ describe('PriceAggregator', () => {
   });
 
   it('should limit price alert notifications', async () => {
-    const alert = aggregator.setPriceAlert('Vitamin D', 100, { maxNotifications: 1 });
+    aggregator.setPriceAlert('Vitamin D', 100, { maxNotifications: 1 });
     const prices = await aggregator.getPrices('Vitamin D');
 
     aggregator.checkPriceAlerts(prices);

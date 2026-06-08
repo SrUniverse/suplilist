@@ -621,7 +621,7 @@ export class StorageManager {
       return btoa(binaryString);
     } catch (e) {
       logger.error('[StorageManager] Encryption failed:', e);
-      throw new Error(`Encryption failed: ${e.message}`);
+      throw new Error('Encryption failed', { cause: e });
     }
   }
 
@@ -669,7 +669,7 @@ export class StorageManager {
       return new TextDecoder().decode(decryptedBuffer);
     } catch (e) {
       logger.error('[StorageManager] Decryption failed:', e);
-      throw new Error(`Decryption failed: ${e.message}`);
+      throw new Error('Decryption failed', { cause: e });
     }
   }
 

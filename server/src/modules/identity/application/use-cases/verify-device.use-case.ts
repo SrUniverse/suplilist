@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
+import { env } from '../../../../shared/config/env.config.js';
 
 const verifyDeviceSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -23,7 +24,7 @@ export type VerifyDeviceResult = {
   deviceId: string;
 };
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
+const JWT_SECRET = env.JWT_SECRET;
 
 export class VerifyDeviceUseCase {
   constructor(
@@ -94,7 +95,7 @@ export class VerifyDeviceUseCase {
           status: user.status,
         },
         JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '5m' }
       );
 
       const refreshJti = crypto.randomUUID();

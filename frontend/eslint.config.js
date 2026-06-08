@@ -80,6 +80,16 @@ export default [
         KeyboardEvent: 'readonly',
         Headers: 'readonly',
         logger: 'readonly',
+        // Google Calendar SDK injected via <script> tag
+        gapi: 'readonly',
+        // Fetch API classes — available in browsers and Node 18+
+        Response: 'readonly',
+        AbortSignal: 'readonly',
+        TextDecoder: 'readonly',
+        // Vite replaces process.env at build time; declare readonly so linter doesn't error
+        process: 'readonly',
+        // CJS interop needed by one legacy file (notification-manager.js pending refactor)
+        require: 'readonly',
       },
     },
   },

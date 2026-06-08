@@ -6,6 +6,8 @@ import { IUserIdentityRepository } from '../../repositories/user-identity.reposi
 import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interface.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
 import { IdentityEmailService } from '../services/identity-email.service.js';
+import { logSecurityEvent } from '../../../../shared/infrastructure/logging/security-event-logger.js';
+import { env } from '../../../../shared/config/env.config.js';
 
 const loginInputSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -23,7 +25,7 @@ export type LoginResult =
   | { status: 'mfa_required'; mfaToken: string }
   | { status: 'device_verification_required'; email: string };
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
+const JWT_SECRET = env.JWT_SECRET;
 
 export class LoginUseCase {
   constructor(
@@ -73,6 +75,12 @@ export class LoginUseCase {
 
       const isPasswordValid = await bcrypt.compare(validatedInput.password, user.passwordHash);
       if (!isPasswordValid) {
+        logSecurityEvent('auth.login_failed', {
+          userId: user.id,
+          ip: validatedInput.ipAddress,
+          userAgent: validatedInput.userAgent,
+          detail: 'wrong_password',
+        });
         throw new Error('invalid_credentials');
       }
 
@@ -133,7 +141,7 @@ export class LoginUseCase {
           status: user.status,
         },
         JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '5m' }
       );
 
       // Generate stateless JWT refresh token

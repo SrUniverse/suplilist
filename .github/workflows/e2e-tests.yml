@@ -19,14 +19,19 @@ jobs:
         include:
           - project: chromium
             slug: chromium
+            browser: chromium
           - project: firefox
             slug: firefox
+            browser: firefox
           - project: webkit
             slug: webkit
+            browser: webkit
           - project: Mobile Chrome
             slug: mobile-chrome
+            browser: chromium
           - project: Mobile Safari
             slug: mobile-safari
+            browser: webkit
 
     steps:
     - uses: actions/checkout@v4
@@ -41,7 +46,7 @@ jobs:
       run: npm ci
 
     - name: Install Playwright browsers
-      run: npx playwright install --with-deps
+      run: npx playwright install --with-deps ${{ matrix.browser }}
 
     - name: Build frontend
       run: npm run build -w @suplilist/frontend
@@ -56,11 +61,16 @@ jobs:
         echo "REDIS_URI=redis://127.0.0.1:6379" >> ./server/.env
         echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> ./server/.env
 
-    - name: Start Backend, MongoDB & Redis
-      run: docker compose up -d
+    # Only start the databases via Docker — the API runs directly on the Ubuntu runner
+    # where bcrypt native bindings were compiled. Running it inside alpine would fail.
+    - name: Start MongoDB & Redis
+      run: docker compose up -d mongodb redis
+
+    - name: Start Backend
+      run: npm run dev -w @suplilist/server &
 
     - name: Wait for Backend
-      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs && exit 1)
+      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs mongodb redis && exit 1)
 
     - name: Start frontend preview
       run: npx serve frontend/dist --listen 3000 --single &
@@ -80,6 +90,8 @@ jobs:
       with:
         name: playwright-report-${{ matrix.slug }}
         path: playwright-report/
+        retention-days: 7
+        if-no-files-found: warn
 
     - name: Upload test videos
       if: always()
@@ -87,6 +99,8 @@ jobs:
       with:
         name: test-videos-${{ matrix.slug }}
         path: test-results/
+        retention-days: 7
+        if-no-files-found: warn
 
   performance-check:
     timeout-minutes: 30
@@ -118,11 +132,14 @@ jobs:
         echo "REDIS_URI=redis://127.0.0.1:6379" >> ./server/.env
         echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> ./server/.env
 
-    - name: Start Backend, MongoDB & Redis
-      run: docker compose up -d
+    - name: Start MongoDB & Redis
+      run: docker compose up -d mongodb redis
+
+    - name: Start Backend
+      run: npm run dev -w @suplilist/server &
 
     - name: Wait for Backend
-      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs && exit 1)
+      run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs mongodb redis && exit 1)
 
     - name: Start frontend preview
       run: npx serve frontend/dist --listen 3000 --single &
@@ -143,6 +160,7 @@ jobs:
       with:
         name: lighthouse-performance-report
         path: .lighthouseci
+        if-no-files-found: warn
 
   accessibility-check:
     timeout-minutes: 30

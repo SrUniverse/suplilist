@@ -124,7 +124,6 @@ export class CalendarSync {
    * Build calendar event object
    */
   buildCalendarEvent(reminder) {
-    const now = new Date();
     const startTime = new Date();
     startTime.setHours(reminder.hour, reminder.minute, 0);
 

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('IndexedDB Persistence', () => {
-  let db;
   let mockIDB;
 
   beforeEach(async () => {
@@ -19,11 +18,6 @@ describe('IndexedDB Persistence', () => {
   });
 
   it('should open database connection', async () => {
-    const mockDB = {
-      createObjectStore: vi.fn(),
-      close: vi.fn()
-    };
-
     mockIDB.open.mockReturnValue({
       onsuccess: null,
       onerror: null,
@@ -66,7 +60,7 @@ describe('IndexedDB Persistence', () => {
       })
     };
 
-    const result = mockStore.get('1');
+    mockStore.get('1');
     expect(mockStore.get).toHaveBeenCalledWith('1');
   });
 

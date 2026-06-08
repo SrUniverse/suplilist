@@ -298,40 +298,77 @@ router.delete(
   }
 );
 
+// Isolated rate limiter for the public photo endpoint.
+// 200/min per IP: enough to handle a page with dozens of avatars,
+// but low enough to deter bulk ID scanning.
+const photoRateLimit = rateLimit({ windowMs: 60 * 1000, max: 200 });
+
+// Minimal SVG silhouette served as the default avatar.
+// Same binary for "user not found", "no photo", and "invalid ID" — prevents
+// enumeration through content or status-code variation.
+const DEFAULT_AVATAR_SVG = Buffer.from(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">' +
+  '<rect width="100" height="100" fill="#e5e7eb"/>' +
+  '<circle cx="50" cy="38" r="20" fill="#9ca3af"/>' +
+  '<ellipse cx="50" cy="90" rx="32" ry="22" fill="#9ca3af"/>' +
+  '</svg>'
+);
+
 /**
  * GET /api/profile/:userId/photo
- * Get user's public profile photo (no auth required)
+ * Public endpoint — intentional: avatars are shown on shared content without requiring login.
+ *
+ * Enumeration protection: ALWAYS responds HTTP 200 with image bytes, never a redirect.
+ * A 302 vs 200 split would let an attacker distinguish "user exists" from "user not found"
+ * by inspecting status codes alone — no image download needed. Proxy-and-serve is the
+ * only response shape that makes all three cases (invalid ID, no photo, has photo)
+ * indistinguishable at the protocol level.
+ *
+ * Cache-Control: public, max-age=86400, immutable — browsers and CDN edges cache the
+ * response for 24 h. The rate limiter is the last line of defence, not the first.
  */
-router.get('/:userId/photo', async (req, res) => {
+router.get('/:userId/photo', photoRateLimit, async (req, res) => {
+  const CACHE = 'public, max-age=86400, immutable';
+
+  const sendDefaultAvatar = () =>
+    res
+      .status(200)
+      .set('Content-Type', 'image/svg+xml')
+      .set('Cache-Control', CACHE)
+      .send(DEFAULT_AVATAR_SVG);
+
   try {
     const { userId } = req.params;
 
-    const profile = await UserProfile.findOne(
-      { userId },
-      { 'photo.url': 1, 'photo.uploadedAt': 1, name: 1 }
-    );
-
-    if (!profile?.photo?.url) {
-      return res.status(404).json({
-        success: false,
-        error: 'Photo not found'
-      });
+    if (!userId || !/^[a-f\d]{24}$/i.test(userId)) {
+      return sendDefaultAvatar();
     }
 
-    return res.json({
-      success: true,
-      photo: {
-        url: profile.photo.url,
-        uploadedAt: profile.photo.uploadedAt,
-        userName: profile.name
-      }
-    });
+    const profile = await UserProfile.findOne({ userId }, { 'photo.url': 1 });
+
+    if (!profile?.photo?.url) {
+      return sendDefaultAvatar();
+    }
+
+    // Proxy: fetch the CDN image in the backend and forward the buffer.
+    // This keeps the response shape identical (always 200 + image bytes) whether
+    // the user has a photo or not, so status codes reveal nothing to an attacker.
+    const cdnRes = await fetch(profile.photo.url);
+    if (!cdnRes.ok) {
+      return sendDefaultAvatar();
+    }
+
+    const buffer = Buffer.from(await cdnRes.arrayBuffer());
+    const contentType = cdnRes.headers.get('content-type') || 'image/jpeg';
+
+    return res
+      .status(200)
+      .set('Content-Type', contentType)
+      .set('Cache-Control', CACHE)
+      .send(buffer);
   } catch (error) {
     logger.error('Failed to get profile photo', error);
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    return sendDefaultAvatar();
   }
 });
 

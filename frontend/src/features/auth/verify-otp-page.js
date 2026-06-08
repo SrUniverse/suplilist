@@ -190,12 +190,12 @@ export default class VerifyOtpPage {
     if (!resendBtn) return;
     
     resendBtn.disabled = true;
-    resendBtn.innerText = \`Reenviar código (\${this._timeLeft}s)\`;
+    resendBtn.innerText = `Reenviar código (${this._timeLeft}s)`;
     
     this._timerId = setInterval(() => {
       this._timeLeft--;
       if (this._isMounted) {
-        resendBtn.innerText = \`Reenviar código (\${this._timeLeft}s)\`;
+        resendBtn.innerText = `Reenviar código (${this._timeLeft}s)`;
         if (this._timeLeft <= 0) {
           clearInterval(this._timerId);
           resendBtn.disabled = false;

@@ -40,8 +40,7 @@ export class SocialSharing {
    * Share streak on LinkedIn
    */
   shareStreakLinkedIn(streak, adherence) {
-    const message = this.generateStreakMessage(streak, adherence);
-    const encodedMessage = encodeURIComponent(message);
+    const _message = this.generateStreakMessage(streak, adherence);
     const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(this.shareBaseUrl)}`;
 
     window.open(url, '_blank');
@@ -91,7 +90,7 @@ Estou acompanhando minha saúde com #SupliList!
   /**
    * Generate referral link
    */
-  generateReferralLink(userId) {
+  generateReferralLink(_userId) {
     this.referralCode = this.generateCode();
     return `${this.shareBaseUrl}?ref=${this.referralCode}`;
   }

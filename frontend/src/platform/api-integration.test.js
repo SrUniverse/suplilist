@@ -121,7 +121,7 @@ describe('API Integration Tests', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({}), { status: 500 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ success: true })));
 
-    const result = await apiClient.get('/api/supplements');
+    await apiClient.get('/api/supplements');
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 
@@ -143,7 +143,7 @@ describe('API Integration Tests', () => {
       new Response(JSON.stringify({ data: [] }))
     );
 
-    const [r1, r2, r3] = await Promise.all([
+    await Promise.all([
       apiClient.get('/api/supplements'),
       apiClient.get('/api/stack'),
       apiClient.get('/api/checkins')

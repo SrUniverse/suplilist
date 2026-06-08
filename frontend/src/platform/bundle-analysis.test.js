@@ -54,8 +54,6 @@ describe('Bundle Analysis', () => {
       'auth.chunk.js': 18000
     };
 
-    const totalSize = Object.values(chunks).reduce((a, b) => a + b, 0);
-
     // Should split code into chunks < 150KB
     Object.entries(chunks).forEach(([name, size]) => {
       if (name !== 'vendor.js') {
@@ -103,12 +101,6 @@ describe('Bundle Analysis', () => {
   });
 
   it('should check for circular dependencies', () => {
-    const dependencies = {
-      'moduleA': ['moduleB'],
-      'moduleB': ['moduleC'],
-      'moduleC': []  // No circular dependency
-    };
-
     const hasCircular = false; // Should be false if properly structured
     expect(hasCircular).toBe(false);
   });
@@ -162,7 +154,7 @@ describe('Bundle Analysis', () => {
     };
 
     // Minification ratio should be > 60%
-    Object.entries(files).forEach(([name, sizes]) => {
+    Object.entries(files).forEach(([_name, sizes]) => {
       const ratio = (sizes.minified / sizes.original) * 100;
       expect(ratio).toBeLessThan(70);
     });
@@ -191,7 +183,7 @@ describe('Bundle Analysis', () => {
       }
     };
 
-    Object.entries(bundles).forEach(([name, sizes]) => {
+    Object.entries(bundles).forEach(([_name, sizes]) => {
       const savings = ((1 - sizes.gzipped / sizes.raw) * 100).toFixed(1);
       expect(parseFloat(savings)).toBeGreaterThan(60); // Should save > 60%
     });

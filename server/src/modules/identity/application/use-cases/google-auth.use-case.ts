@@ -9,9 +9,10 @@ import { IProfileRepository } from '../../../profile/domain/repositories/profile
 import { Profile } from '../../../profile/domain/entities/profile.entity.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
 import { IdentityEmailService } from '../services/identity-email.service.js';
+import { env } from '../../../../shared/config/env.config.js';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-unsafe-change-me';
+const JWT_SECRET = env.JWT_SECRET;
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
@@ -205,7 +206,7 @@ export class GoogleAuthUseCase {
           status: user.status,
         },
         JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '5m' }
       );
 
       const refreshJti = crypto.randomUUID();

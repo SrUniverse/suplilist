@@ -4,8 +4,6 @@
  */
 
 import { stateManager } from '../../state/state-manager.js';
-import { escapeHtml } from '../../utils/escape.js';
-import logger from '../../platform/logger.js';
 
 export class AdherenceDashboard {
   constructor(container) {
@@ -166,7 +164,6 @@ export class AdherenceDashboard {
 
   renderMonthlyChart(checkins) {
     const weeks = [];
-    const thirtyDaysAgo = this.getDateOffset(-29);
 
     // Group by week
     for (let i = 0; i < 4; i++) {
@@ -277,7 +274,7 @@ export class AdherenceDashboard {
     const sortedDates = Object.keys(byDate).sort();
 
     // Calculate streaks
-    sortedDates.forEach((date, idx) => {
+    sortedDates.forEach((date, _idx) => {
       if (byDate[date].length === stack.length) {
         currentStreak++;
       } else {

@@ -4,7 +4,6 @@
  */
 
 import { stateManager } from '../../state/state-manager.js';
-import logger from '../../platform/logger.js';
 
 export class SmartRecommender {
   constructor() {
@@ -263,7 +262,6 @@ export class SmartRecommender {
    */
 rateCurrentStack() {
     const stack = stateManager.select(s => s.stack) || [];
-    const profile = stateManager.select(s => s.profile);
 
     let score = 0;
     const analysis = {

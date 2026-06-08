@@ -1,4 +1,4 @@
-import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { stateManager } from '../../state/state-manager.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { settingsService } from './settings-service.js';
 import NotificationService from '../notifications/notification-service.js';

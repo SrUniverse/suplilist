@@ -193,7 +193,7 @@ export class ReportVisualizer {
 
     return `
       <div class="heatmap-grid">
-        ${Object.values(weeks).map((week, idx) => `
+        ${Object.values(weeks).map((week, _idx) => `
           <div class="heatmap-week">
             ${week.map(day => {
               const colors = {

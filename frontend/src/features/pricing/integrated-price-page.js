@@ -66,8 +66,8 @@ export class IntegratedPricePage {
   }
 
   renderPage() {
-    const data = this.priceData;
-    const analysis = this.analysis;
+    const data = this.priceData;  // eslint-disable-line no-unused-vars
+    const analysis = this.analysis;  // eslint-disable-line no-unused-vars
 
     const html = `
       <div class="integrated-price-page">

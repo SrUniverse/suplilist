@@ -4,7 +4,6 @@
  */
 
 import { stateManager } from '../../state/state-manager.js';
-import logger from '../../platform/logger.js';
 
 export class HistoryViewer {
   constructor(container) {
@@ -113,7 +112,7 @@ export class HistoryViewer {
     `;
   }
 
-  renderInsights(monthlyData, trend) {
+  renderInsights(monthlyData, _trend) {
     const firstMonth = monthlyData[0];
     const lastMonth = monthlyData[monthlyData.length - 1];
     const improvement = lastMonth.adherence - firstMonth.adherence;

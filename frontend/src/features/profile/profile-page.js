@@ -688,7 +688,7 @@ export default class ProfilePage {
             if (avatarEl) avatarEl.textContent = val[0].toUpperCase();
             
             eventBus.emit('toast:show', { message: 'Nome atualizado!', type: 'success' });
-          } catch (err) {
+          } catch (_err) {
             eventBus.emit('toast:show', { message: 'Erro ao atualizar nome.', type: 'error' });
           } finally {
             btnNameConfirm.disabled = false;

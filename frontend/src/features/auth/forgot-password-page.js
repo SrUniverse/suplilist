@@ -100,7 +100,7 @@ export default class ForgotPasswordPage {
         method: 'POST',
         body: JSON.stringify({ email })
       });
-    } catch (err) {
+    } catch (_err) {
       // Ignorar erros silenciosamente para evitar Account Enumeration
       console.warn('Opaque forgot password handling.');
     } finally {

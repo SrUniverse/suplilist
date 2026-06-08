@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
+const Response = globalThis.Response;
+
 describe('API Integration Tests', () => {
   let apiClient;
 

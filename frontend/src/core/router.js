@@ -5,19 +5,6 @@ import { identityService } from '../platform/identity-service.js';
 import { stateManager } from '../state/state-manager.js';
 import { authGuard } from '../features/auth/auth-guard.js';
 
-/**
- * Routes that require the user to be authenticated.
- * The guard in handleRoute() awaits the session probe before checking
- * isAuthenticated, preventing premature redirects on deep links.
- */
-const PROTECTED_ROUTES = Object.freeze(new Set([
-  '/my-stack',
-  '/checkin',
-  '/history',
-  '/profile',
-  '/settings',
-  '/favorites',
-]));
 
 /**
  * Router — Client-side route handler

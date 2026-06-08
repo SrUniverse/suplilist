@@ -323,7 +323,7 @@ export default class LoginPage {
       if (!this._isMounted) return;
       if (err.error === 'pending_verification') {
         // Store the email so /verify-otp can pick it up
-        try { localStorage.setItem('pending_verification_email', email); } catch {}
+        try { localStorage.setItem('pending_verification_email', email); } catch (_e) { /* ignore */ }
         eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-otp' });
         return;
       }

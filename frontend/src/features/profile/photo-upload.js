@@ -8,7 +8,7 @@ import logger from '../../platform/logger.js';
 export class PhotoUpload {
   constructor(container) {
     this.container = container;
-    this.apiUrl = process.env.REACT_APP_API_URL || '/api';
+    this.apiUrl = '/api';
     this.maxFileSize = 5 * 1024 * 1024; // 5MB
     this.allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
   }

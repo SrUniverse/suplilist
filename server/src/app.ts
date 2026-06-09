@@ -45,7 +45,9 @@ export function createApp() {
   app.use(tracingInitMiddleware as express.RequestHandler);
 
   // ── Security headers ───────────────────────────────────────────────────────
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  }));
 
   // ── CORS (OWASP & W3C compliant) ──────────────────────────────────────────
   // credentials: true requires an explicit origin — never wildcard '*'.

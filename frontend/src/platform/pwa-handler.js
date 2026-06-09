@@ -69,7 +69,7 @@ export class PWAHandler {
     let deferredPrompt;
 
     window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
+      // e.preventDefault(); // Removed to allow the default browser banner to be shown
       deferredPrompt = e;
       this._showInstallPrompt(deferredPrompt);
     });

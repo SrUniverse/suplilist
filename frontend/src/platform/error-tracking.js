@@ -31,7 +31,7 @@ import { eventBus, EVENTS } from '../core/event-bus.js';
  * }}
  */
 const config = {
-  enabled: true,
+  enabled: false,
   endpoint: `${import.meta.env.VITE_API_BASE_URL || ''}/api/logs/errors`,
   batchSize: 10,
   batchInterval: 30000, // 30 seconds
@@ -189,7 +189,7 @@ function scheduleBatchFlush() {
  * - Listen to component errors from eventBus
  */
 export function init() {
-  config.enabled = true;
+  // config.enabled = true; // Disabled remote reporting by default to avoid 404s
 
   if (state.isInitialized) {
     return;

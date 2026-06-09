@@ -710,12 +710,20 @@ export default class LoginPage {
   _renderGoogleButton() {
     if (!this._isMounted || !window.google) return;
     
+    // Store latest callback globally because 'this' changes if the page remounts
+    window._gsiLatestCallback = (res) => this._handleGoogleCallback(res);
+
     // In strict compliance with Google UX guidelines
-    window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: (res) => this._handleGoogleCallback(res),
-      cancel_on_tap_outside: false,
-    });
+    if (!window._gsiInitialized) {
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: (res) => {
+          if (window._gsiLatestCallback) window._gsiLatestCallback(res);
+        },
+        cancel_on_tap_outside: false,
+      });
+      window._gsiInitialized = true;
+    }
 
     const wrapper = this.container.querySelector('#google-btn-wrapper');
     if (wrapper) {

@@ -14,7 +14,7 @@ import '../platform/performance-monitor.js';
 import ErrorBoundary from '../components/error-boundary.js';
 import GlobalErrorModal from '../components/global-error-modal.js';
 import errorTracker from '../platform/error-tracking.js';
-import perfMonitor from '../platform/performance-monitor.js';
+
 import NotificationService from '../features/notifications/notification-service.js';
 import { identityService } from '../platform/identity-service.js';
 

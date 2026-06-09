@@ -15,6 +15,24 @@ interface OpenRateResult {
 }
 
 export class NotificationService {
+  // ✅ OTIMIZAÇÃO: Initialize indexes on service creation
+  constructor() {
+    this.initializeIndexes().catch((err) => {
+      console.error('Failed to initialize notification indexes:', err);
+    });
+  }
+
+  private async initializeIndexes(): Promise<void> {
+    try {
+      // Critical indexes for queries
+      await NotificationScheduleModel.collection.createIndex({ userId: 1, sent: 1, scheduledTime: -1 });
+      await NotificationEngagementModel.collection.createIndex({ userId: 1, timestamp: -1 });
+      await NotificationEngagementModel.collection.createIndex({ userId: 1, action: 1 });
+    } catch (error) {
+      // Silently fail if indexes already exist
+    }
+  }
+
   private messageTemplates = {
     daily: [
       'Time to check in! 💊',
@@ -90,6 +108,7 @@ export class NotificationService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+    // ✅ OTIMIZAÇÃO: Fetch all at once instead of per-day queries
     const checkins: CheckinRecord[] = await CheckinModel.find({
       userId,
       checkedAt: { $gte: thirtyDaysAgo },
@@ -99,6 +118,7 @@ export class NotificationService {
       return '08:00';
     }
 
+    // ✅ OTIMIZAÇÃO: Process in-memory, no additional queries
     const hourCounts: Record<number, number> = {};
     checkins.forEach((c) => {
       const hour = new Date(c.checkedAt).getHours();
@@ -125,47 +145,43 @@ export class NotificationService {
   }
 
   async checkStreakAlert(userId: string): Promise<{ streakDays: number; shouldNotify: boolean }> {
+    // ✅ OTIMIZAÇÃO: Fetch ALL checkins at once (last 40 days max) instead of per-day queries
+    const fortyDaysAgo = new Date();
+    fortyDaysAgo.setDate(fortyDaysAgo.getDate() - 40);
+
+    const allCheckins: CheckinRecord[] = await CheckinModel.find({
+      userId,
+      checkedAt: { $gte: fortyDaysAgo },
+    }).lean();
+
+    // Build a Set of dates for O(1) lookups
+    const checkinDates = new Set(
+      allCheckins.map(c => c.checkedAt.toISOString().split('T')[0])
+    );
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
 
-    const checkedToday = await CheckinModel.findOne({
-      userId,
-      checkedAt: { $gte: today },
-    });
+    if (!checkinDates.has(todayStr)) {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    if (checkedToday) {
-      return { streakDays: 0, shouldNotify: false };
+      if (!checkinDates.has(yesterdayStr)) {
+        return { streakDays: 0, shouldNotify: false };
+      }
     }
 
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const checkedYesterday = await CheckinModel.findOne({
-      userId,
-      checkedAt: { $gte: yesterday, $lt: today },
-    });
-
-    if (!checkedYesterday) {
-      return { streakDays: 0, shouldNotify: false };
-    }
-
-    let streakDays = 1;
-    const current = new Date(yesterday);
+    // ✅ OTIMIZAÇÃO: Calculate streak in-memory, no additional queries
+    let streakDays = 0;
+    const current = new Date(today);
 
     while (true) {
-      current.setDate(current.getDate() - 1);
-      const dayStart = new Date(current);
-      dayStart.setHours(0, 0, 0, 0);
-      const dayEnd = new Date(dayStart);
-      dayEnd.setDate(dayEnd.getDate() + 1);
-
-      const hasCheckin = await CheckinModel.findOne({
-        userId,
-        checkedAt: { $gte: dayStart, $lt: dayEnd },
-      });
-
-      if (hasCheckin) {
+      const currentStr = current.toISOString().split('T')[0];
+      if (checkinDates.has(currentStr)) {
         streakDays += 1;
+        current.setDate(current.getDate() - 1);
       } else {
         break;
       }

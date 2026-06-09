@@ -1,0 +1,741 @@
+openapi: 3.0.0
+info:
+  title: SupliList API
+  description: |
+    Comprehensive API for supplement management, price comparison, and personalized recommendations.
+    Includes authentication with MFA, health checks, and real-time price monitoring.
+  version: 1.0.0
+  contact:
+    name: SupliList Support
+    email: support@suplilist.com
+  license:
+    name: Proprietary
+    url: https://suplilist.com
+
+servers:
+  - url: https://api.suplilist.com/api
+    description: Production environment
+  - url: http://localhost:3000/api
+    description: Local development environment
+
+security:
+  - bearerAuth: []
+  - cookieAuth: []
+
+paths:
+  /supplements/{id}:
+    get:
+      summary: Get supplement details with price comparison
+      description: Retrieve comprehensive details about a supplement including current prices across all marketplaces
+      operationId: getSupplement
+      tags:
+        - Supplements
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Supplement unique identifier (e.g., "creatina-monohidratada")
+          schema:
+            type: string
+            example: "creatina-monohidratada"
+      responses:
+        '200':
+          description: Supplement details with current prices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplementDetail'
+              example:
+                id: "creatina-monohidratada"
+                name: "Creatina Monohidratada"
+                category: "Performance"
+                defaultDose: 5
+                unit: "g"
+                costPerDose: 1.25
+                evidenceLevel: "A"
+                mechanism: "Atua na regeneração rápida de ATP intra-celular..."
+                goals: ["Ganho de Força", "Hipertrofia"]
+                prices:
+                  shopee: 79.90
+                  mercadolivre: 84.90
+                  amazon: 89.90
+                links:
+                  shopee: "https://shopee.com.br/..."
+                  mercadolivre: "https://mercadolivre.com.br/..."
+                  amazon: "https://amazon.com.br/..."
+                interactions:
+                  - "Causa sinergia de estimulação com Cafeína"
+        '404':
+          description: Supplement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /supplements/search:
+    get:
+      summary: Search supplements by query
+      description: Full-text search across supplement names, categories, and mechanisms
+      operationId: searchSupplements
+      tags:
+        - Supplements
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query term
+          schema:
+            type: string
+            example: "creatina"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results (default 10, max 50)
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+        - name: offset
+          in: query
+          required: false
+          description: Pagination offset (default 0)
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SupplementSummary'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '400':
+          description: Invalid query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /supplements/{id}/price-history:
+    get:
+      summary: Get price history for a supplement
+      description: Retrieve historical price data across marketplaces for trend analysis
+      operationId: getPriceHistory
+      tags:
+        - Supplements
+        - Price Monitoring
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Supplement unique identifier
+          schema:
+            type: string
+        - name: days
+          in: query
+          required: false
+          description: Number of days to retrieve (default 30, max 365)
+          schema:
+            type: integer
+            default: 30
+            maximum: 365
+      responses:
+        '200':
+          description: Price history data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        marketplace:
+                          type: string
+                          enum: [shopee, mercadolivre, amazon]
+                        price:
+                          type: number
+                          format: float
+                        availability:
+                          type: boolean
+                  lowestPrice:
+                    type: object
+                    properties:
+                      marketplace:
+                        type: string
+                      price:
+                        type: number
+                      date:
+                        type: string
+                        format: date
+        '404':
+          description: Supplement or price history not found
+
+  /supplements/crawl-on-demand:
+    post:
+      summary: Trigger on-demand price crawl
+      description: Force immediate price update across all marketplaces (Admin only)
+      operationId: triggerPriceCrawl
+      tags:
+        - Supplements
+        - Admin
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                supplementIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific supplements to crawl (empty = all)
+                  example: ["creatina-monohidratada", "whey-protein"]
+      responses:
+        '202':
+          description: Crawl job accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                  status:
+                    type: string
+                    enum: [queued, processing]
+                  supplementCount:
+                    type: integer
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin role required
+
+  /supplements/prices:
+    get:
+      summary: Get current prices for multiple supplements
+      description: Batch price retrieval for comparison
+      operationId: getBatchPrices
+      tags:
+        - Supplements
+        - Price Monitoring
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          description: Comma-separated supplement IDs
+          schema:
+            type: string
+            example: "creatina-monohidratada,whey-protein,bcaa"
+      responses:
+        '200':
+          description: Current prices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  supplements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        prices:
+                          type: object
+                          additionalProperties:
+                            type: number
+                        lowestPrice:
+                          type: number
+                        lowestMarketplace:
+                          type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: Invalid IDs parameter
+
+  /supplements/{id}/price-alerts:
+    get:
+      summary: Get user's price alerts for a supplement
+      description: Retrieve active price drop alerts set by current user
+      operationId: getPriceAlerts
+      tags:
+        - Supplements
+        - Price Monitoring
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User's price alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceAlert'
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Create a price alert
+      description: Set up a price drop alert when supplement price falls below threshold
+      operationId: createPriceAlert
+      tags:
+        - Supplements
+        - Price Monitoring
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                threshold:
+                  type: number
+                  description: Price threshold in BRL
+                  example: 75.00
+                marketplaces:
+                  type: array
+                  items:
+                    type: string
+                    enum: [shopee, mercadolivre, amazon]
+                  description: Watch specific marketplaces
+                notifyVia:
+                  type: array
+                  items:
+                    type: string
+                    enum: [email, push, in-app]
+      responses:
+        '201':
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceAlert'
+        '400':
+          description: Invalid parameters
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Delete a price alert
+      description: Remove a price alert
+      operationId: deletePriceAlert
+      tags:
+        - Supplements
+        - Price Monitoring
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: alertId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Alert deleted
+        '404':
+          description: Alert not found
+
+  /auth/login:
+    post:
+      summary: User login
+      description: Authenticate user and initiate MFA flow if enabled
+      operationId: login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "SecurePassword123!"
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Login successful (no MFA)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  accessToken:
+                    type: string
+                    description: JWT access token (expires 15 minutes)
+                  refreshToken:
+                    type: string
+                    description: Refresh token (expires 7 days, httpOnly cookie)
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        '202':
+          description: MFA required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mfaRequired: true
+                  mfaMethods:
+                    type: array
+                    items:
+                      type: string
+                      enum: [totp, email, sms]
+                  sessionId:
+                    type: string
+                    description: Temporary session ID for MFA verification
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many login attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/mfa/verify:
+    post:
+      summary: Verify MFA code
+      description: Complete MFA flow by verifying TOTP, email, or SMS code
+      operationId: verifyMFA
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                  description: Temporary session ID from login response
+                method:
+                  type: string
+                  enum: [totp, email, sms]
+                code:
+                  type: string
+                  example: "123456"
+              required:
+                - sessionId
+                - method
+                - code
+      responses:
+        '200':
+          description: MFA verification successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid or expired code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid or expired session
+
+  /health/live:
+    get:
+      summary: Liveness probe
+      description: Check if server is running (no database check)
+      operationId: livenessProbe
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Server is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                    description: Server uptime in seconds
+
+  /health/ready:
+    get:
+      summary: Readiness probe
+      description: Check if server is ready (database and cache accessible)
+      operationId: readinessProbe
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Server is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  database:
+                    type: string
+                    enum: [connected]
+                  cache:
+                    type: string
+                    enum: [connected]
+                  timestamp:
+                    type: string
+                    format: date-time
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [degraded]
+                  database:
+                    type: string
+                  cache:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token in Authorization header
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+      description: HttpOnly refresh token cookie
+
+  schemas:
+    SupplementDetail:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - defaultDose
+        - unit
+        - evidenceLevel
+        - prices
+      properties:
+        id:
+          type: string
+          description: Unique supplement identifier
+        name:
+          type: string
+          description: Display name
+        category:
+          type: string
+          enum:
+            - Performance
+            - Recovery
+            - Health
+            - Cognition
+        defaultDose:
+          type: number
+          description: Recommended dose
+        unit:
+          type: string
+          enum: [g, mg, ml, caps]
+        costPerDose:
+          type: number
+          format: float
+          description: Average cost per dose in BRL
+        evidenceLevel:
+          type: string
+          enum: [A, B, C]
+          description: Scientific evidence rating
+        mechanism:
+          type: string
+          description: How the supplement works
+        goals:
+          type: array
+          items:
+            type: string
+          example: ["Ganho de Força", "Hipertrofia"]
+        prices:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            shopee: 79.90
+            mercadolivre: 84.90
+            amazon: 89.90
+        links:
+          type: object
+          description: Purchase links for each marketplace
+          additionalProperties:
+            type: string
+        interactions:
+          type: array
+          items:
+            type: string
+          description: Known interactions with other supplements
+
+    SupplementSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        evidenceLevel:
+          type: string
+        lowestPrice:
+          type: number
+        lowestMarketplace:
+          type: string
+
+    PriceAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        supplementId:
+          type: string
+        threshold:
+          type: number
+          description: Price threshold in BRL
+        currentPrice:
+          type: number
+        marketplaces:
+          type: array
+          items:
+            type: string
+        notifyVia:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        triggeredAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        mfaEnabled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code for client handling
+        traceId:
+          type: string
+          description: Request trace ID for debugging
+      required:
+        - success
+        - error

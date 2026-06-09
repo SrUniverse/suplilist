@@ -23,10 +23,12 @@ import { createApp } from './app.js';
 import { OutboxProcessorJob } from './shared/infrastructure/jobs/outbox-processor.job.js';
 import { AuditFlushJob } from './shared/infrastructure/jobs/audit-flush.job.js';
 import { PurgeAccountsJob } from './shared/infrastructure/jobs/purge-accounts.job.js';
+import { SchedulerService } from './shared/services/scheduler.service.js';
+import { cacheService } from './shared/services/cache.service.js';
 
 // ── 2. Connect to MongoDB and start the server ─────────────────────────────────
 mongoose.connect(env!.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connected successfully');
 
     const app = createApp();
@@ -34,7 +36,11 @@ mongoose.connect(env!.MONGO_URI)
       console.log(`🚀 SupliList backend server running on port ${env!.PORT}`);
     });
 
-    // ── 3. Background job workers ──────────────────────────────────────────────
+    // ── 3. Initialize scheduler (daily Firecrawl, etc.) ────────────────────────
+    const scheduler = SchedulerService.getInstance();
+    await scheduler.initialize();
+
+    // ── 5. Background job workers ──────────────────────────────────────────────
     const outboxInterval = setInterval(async () => {
       try {
         await OutboxProcessorJob.execute();
@@ -68,16 +74,21 @@ mongoose.connect(env!.MONGO_URI)
       }
     }, 10 * 1000);
 
-    // ── 4. Graceful shutdown ───────────────────────────────────────────────────
+    // ── 6. Graceful shutdown ───────────────────────────────────────────────────
     const shutdown = (signal: string) => {
       console.log(`Received ${signal}. Starting graceful shutdown...`);
 
+      scheduler.stop();
       clearInterval(outboxInterval);
       clearInterval(auditInterval);
       clearInterval(purgeInterval);
 
-      server.close(() => {
+      server.close(async () => {
         console.log('HTTP server closed.');
+
+        // Close Redis and clean up event listeners
+        await cacheService.close();
+
         mongoose.connection.close()
           .then(() => {
             console.log('MongoDB connection closed.');

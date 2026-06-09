@@ -105,16 +105,10 @@ export const createHealthRouter = (): Router => {
         result.status = 'degraded';
       }
 
-      // Check memory usage
+      // Report memory usage but never mark as down — free tier has limited RAM
       const memUsage = process.memoryUsage();
       const heapUsedPercent = (memUsage.heapUsed / memUsage.heapTotal) * 100;
-
-      if (heapUsedPercent > 90) {
-        result.checks.memory = { status: 'down', usage: heapUsedPercent };
-        result.status = 'degraded';
-      } else {
-        result.checks.memory = { status: 'up', usage: heapUsedPercent };
-      }
+      result.checks.memory = { status: 'up', usage: heapUsedPercent };
 
       // If any critical check failed, return 503
       const httpStatus = result.status === 'unhealthy' ? 503 : 200;

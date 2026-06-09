@@ -87,19 +87,62 @@ export default class ListPage {
         this._modal.init(supplements, null);
         this._search.init(null, supplements);
 
-        // Load prices async
-        fetch('/data/prices.json', { signal })
+        // Load prices async — try from API first, fall back to static JSON
+        const supplementIds = supplements.map(s => s.id).join(',');
+        fetch(`/api/supplements/prices?ids=${encodeURIComponent(supplementIds)}`, { signal })
           .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-          .then(data => {
+          .then(apiResponse => {
             if (signal.aborted) return;
-            this._prices = data;
-            this._search._prices = data;
-            this._grid.updatePrices(data);
-            this._modal._prices = data;
+
+            // Convert API response to prices.json format
+            // API returns: { "id": { supplementId, name, prices: { amazon, mercadolivre, shopee }, bestPrice } }
+            const prices = {};
+            if (apiResponse.success && apiResponse.data) {
+              Object.entries(apiResponse.data).forEach(([id, supplement]) => {
+                if (supplement && supplement.prices) {
+                  prices[id] = {};
+                  ['amazon', 'mercadolivre', 'shopee'].forEach(source => {
+                    const sourceData = supplement.prices[source];
+                    if (sourceData) {
+                      prices[id][source] = {
+                        price: sourceData.price,
+                        url: sourceData.url || `https://${source}.com.br/search?q=${id}`,
+                        label: source.charAt(0).toUpperCase() + source.slice(1),
+                        saving: supplement.bestPrice?.source === source ? 0 : 10 // placeholder
+                      };
+                    }
+                  });
+                }
+              });
+            }
+
+            if (Object.keys(prices).length > 0) {
+              this._prices = prices;
+              this._search._prices = prices;
+              this._grid.updatePrices(prices);
+              this._modal._prices = prices;
+            } else {
+              throw new Error('No prices returned from API');
+            }
           })
           .catch(err => {
             if (err.name !== 'AbortError') {
-              logger.warn('[ListPage] prices.json failed to load:', err.message);
+              logger.warn('[ListPage] API prices failed, falling back to static prices:', err.message);
+              // Fall back to static prices.json
+              fetch('/data/prices.json', { signal })
+                .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+                .then(data => {
+                  if (signal.aborted) return;
+                  this._prices = data;
+                  this._search._prices = data;
+                  this._grid.updatePrices(data);
+                  this._modal._prices = data;
+                })
+                .catch(fallbackErr => {
+                  if (fallbackErr.name !== 'AbortError') {
+                    logger.warn('[ListPage] Static prices.json also failed:', fallbackErr.message);
+                  }
+                });
             }
           });
       })

@@ -166,8 +166,8 @@ describe('Bundle Analysis', () => {
       'app.js.map': false  // Should NOT be in production
     };
 
-    // .map files should not be served in production
-    const hasMaps = Object.keys(buildArtifacts).some(f => f.endsWith('.map'));
+    // .map files should not be served in production (value = false means not present)
+    const hasMaps = Object.entries(buildArtifacts).some(([f, isPresent]) => f.endsWith('.map') && isPresent);
     expect(hasMaps).toBe(false); // Should not have source maps in prod
   });
 

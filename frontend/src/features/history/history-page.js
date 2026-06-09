@@ -1,4 +1,5 @@
 import { stateManager } from '../../state/state-manager.js';
+import { getSupplementId } from '../../utils/stack.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { todayISO, offsetISO } from '../../utils/date.js';
 import { escapeHtml } from '../../utils/escape.js';
@@ -31,7 +32,7 @@ const buildSupMap = () => {
 const estimateDailyCost = (stack, supMap) => {
   let total = 0;
   for (const item of stack) {
-    const sid = item.supplementId ?? item.id;
+    const sid = getSupplementId(item);
     const db = supMap[sid];
     if (db && db.dosage && db.pricePerGram) {
       const dose = db.dosage.maintenance || 5;
@@ -621,6 +622,8 @@ export default class HistoryPage {
           <img class="hp-sup-img"
             src="${escapeHtml(img)}"
             alt="${escapeHtml(name)}"
+            loading="lazy"
+            decoding="async"
             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
           />
           <div class="hp-sup-img-placeholder" style="display:none">💊</div>
@@ -1047,7 +1050,7 @@ export default class HistoryPage {
       ];
 
       stack.forEach(item => {
-        const db = supMap[item.supplementId ?? item.id];
+        const db = supMap[getSupplementId(item)];
         const doseVal = item.dosage?.value ?? db?.dosage?.maintenance ?? '';
         const doseUnit = item.dosage?.unit ?? db?.dosage?.unit ?? '';
         sheet2.addRow({

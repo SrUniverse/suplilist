@@ -8,6 +8,7 @@
  */
 
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
+import { getSupplementId } from '../../utils/stack.js';
 
 // ─── Date Formatting ─────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ export const estimateDailyCost = (stack, supMap) => {
   let total = 0;
 
   for (const item of stack) {
-    const sid = item.supplementId ?? item.id;
+    const sid = getSupplementId(item);
     const db = supMap[sid];
 
     if (!db || !db.dosage || !db.pricePerGram) continue;

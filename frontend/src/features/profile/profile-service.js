@@ -35,6 +35,7 @@ import { apiFetch } from '../../platform/api-client.js';
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { logger } from '../../utils/logger.js';
+import { createSingleFlight } from '../../platform/single-flight.js';
 
 /**
  * @typedef {import('@suplilist/shared').PublicProfileDTO}  PublicProfileDTO
@@ -52,68 +53,37 @@ const API = Object.freeze({
 
 class ProfileService {
   /**
-   * In-flight GET /api/profile/me deduplication.
-   * If getProfile() is called twice simultaneously (e.g., page mount + init),
-   * only one HTTP request fires and both callers receive the same result.
-   *
-   * @type {Promise<PrivateProfileDTO> | null}
-   */
-  #fetchPromise = null;
-
-  /**
    * Internal variable to hold the ETag version of the profile for OCC.
    * @type {string | null}
    */
   #currentVersion = null;
 
-  // ── Public API ─────────────────────────────────────────────────────────────
+  constructor() {
+    /**
+     * Fetch the authenticated user's private profile from the server.
+     *
+     * Concurrent calls share the same in-flight Promise via createSingleFlight —
+     * only one HTTP request fires regardless of how many callers invoke this
+     * simultaneously (e.g., page mount + init racing).
+     * The slot clears on settle so subsequent navigations trigger a fresh fetch.
+     *
+     * @type {() => Promise<PrivateProfileDTO>}
+     */
+    this.getProfile = createSingleFlight(async () => {
+      const { data: profile, headers } = await apiFetch(API.ME, { returnHeaders: true });
 
-  /**
-   * Fetch the authenticated user's private profile from the server.
-   *
-   * Behaviour:
-   *   - Deduplicates concurrent calls — only one HTTP request fires.
-   *   - On success, updates stateManager and emits EVENTS.PROFILE_LOADED.
-   *   - On failure, rethrows the ApiError for the caller to handle.
-   *
-   * @returns {Promise<PrivateProfileDTO>}
-   * @throws {ApiError} If the user is not authenticated or the server errors.
-   *
-   * @example
-   * // In a page's mount():
-   * try {
-   *   const profile = await profileService.getProfile();
-   *   this._render(profile);
-   * } catch (err) {
-   *   this._renderError(err);
-   * }
-   */
-  getProfile() {
-    // Single-flight: reuse the in-flight Promise if one exists.
-    if (this.#fetchPromise) return this.#fetchPromise;
+      // Extract ETag for Optimistic Concurrency Control (OCC)
+      const eTag = headers.get('ETag');
+      if (eTag) this.#currentVersion = eTag.replace(/"/g, '');
 
-    this.#fetchPromise = (async () => {
-      try {
-        const { data: profile, headers } = await apiFetch(API.ME, { returnHeaders: true });
-        
-        // Extract ETag for Optimistic Concurrency Control (OCC)
-        const eTag = headers.get('ETag');
-        if (eTag) {
-           this.#currentVersion = eTag.replace(/"/g, '');
-        }
-        this.#applyProfileToState(profile);
-        eventBus.emit(EVENTS.PROFILE_LOADED, { profile });
-        logger.info('[ProfileService] Profile loaded for', profile.userId);
-        return profile;
-      } finally {
-        // Always clear so subsequent calls trigger a fresh request.
-        // This ensures data stays fresh if the user navigates away and back.
-        this.#fetchPromise = null;
-      }
-    })();
-
-    return this.#fetchPromise;
+      this.#applyProfileToState(profile);
+      eventBus.emit(EVENTS.PROFILE_LOADED, { profile });
+      logger.info('[ProfileService] Profile loaded for', profile.userId);
+      return profile;
+    });
   }
+
+  // ── Public API ─────────────────────────────────────────────────────────────
 
   /**
    * Update the authenticated user's profile via PATCH /api/profile/me.

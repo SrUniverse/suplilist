@@ -229,3 +229,38 @@ async function _doTokenRefresh() {
 
   return _refreshPromise;
 }
+
+// ── Simple API client object (for consumers that want get/post/put/del interface) ──
+
+async function _request(path, options = {}) {
+  const headers = {};
+  headers['X-SupliList-Client'] = '1';
+  if (_accessToken) headers['Authorization'] = `Bearer ${_accessToken}`;
+  if (options.body) headers['Content-Type'] = 'application/json';
+
+  const resp = await fetch(path, { ...options, headers });
+  if (!resp.ok) {
+    throw new ApiError(resp.status, 'error', `HTTP ${resp.status}`);
+  }
+  return resp.json();
+}
+
+async function _requestWithRetry(path, options = {}) {
+  try {
+    return await _request(path, options);
+  } catch (err) {
+    if (err.status >= 500) {
+      return _request(path, options);
+    }
+    throw err;
+  }
+}
+
+export const apiClient = {
+  get: (path) => _requestWithRetry(path),
+  post: (path, body) => _requestWithRetry(path, { method: 'POST', body: JSON.stringify(body) }),
+  put: (path, body) => _requestWithRetry(path, { method: 'PUT', body: JSON.stringify(body) }),
+  del: (path) => _requestWithRetry(path, { method: 'DELETE' }),
+};
+
+export default apiClient;

@@ -134,6 +134,8 @@ global.alert = vi.fn();
 global.confirm = vi.fn(() => true);
 
 // Navigator mocks
+global.navigator.sendBeacon = vi.fn(() => true);
+
 Object.defineProperty(global.navigator, 'onLine', {
   writable: true,
   value: true

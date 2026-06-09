@@ -1,4 +1,5 @@
 import { todayISO, offsetISO } from '../../utils/date.js';
+import { getSupplementId } from '../../utils/stack.js';
 
 export default class NotificationService {
   constructor() {
@@ -131,7 +132,7 @@ export default class NotificationService {
 
       const daysLeft = Math.floor(qty / dosage);
       if (daysLeft < 3) {
-        const itemId = item.supplementId || item.id;
+        const itemId = getSupplementId(item);
         const lastAlertKey = `suplilist:last-stock-alert:${itemId}`;
         const lastAlertDate = localStorage.getItem(lastAlertKey);
 
@@ -156,7 +157,7 @@ export default class NotificationService {
    */
   _calculateStreak(checkins, stack) {
     if (!stack.length) return 0;
-    const stackIds = new Set(stack.map(item => item.supplementId || item.id));
+    const stackIds = new Set(stack.map(item => getSupplementId(item)));
     const checkinDays = {};
 
     for (const c of checkins) {

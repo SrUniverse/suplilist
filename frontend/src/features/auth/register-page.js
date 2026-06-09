@@ -12,6 +12,7 @@
 import { identityService } from '../../platform/identity-service.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
+import { validateEmail, validatePassword } from '../../platform/form-validators.js';
 
 export default class RegisterPage {
   constructor(container) {
@@ -127,26 +128,12 @@ export default class RegisterPage {
     const password = form.querySelector('[name="password"]').value;
 
     this._errorMessage = null;
-    
-    // Regex Validação Client-side
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      this._showError('Endereço de e-mail inválido.');
-      return;
-    }
-    
-    if (password.length < 8) {
-      this._showError('A senha deve ter pelo menos 8 caracteres.');
-      return;
-    }
-    if (!/[0-9]/.test(password)) {
-      this._showError('A senha deve conter pelo menos um número.');
-      return;
-    }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-      this._showError('A senha deve conter pelo menos um símbolo especial.');
-      return;
-    }
+
+    const emailErr = validateEmail(email);
+    if (emailErr) { this._showError(emailErr); return; }
+
+    const passwordErr = validatePassword(password);
+    if (passwordErr) { this._showError(passwordErr); return; }
 
     this._isLoading = true;
     this._syncButtonState();

@@ -14,7 +14,7 @@ import emailReminderService from '../platform/email-reminder-service.js';
 import pwaOffline from '../platform/pwa-offline.js';
 import socialSharing from '../features/social/social-sharing.js';
 import SmartRecommender from '../features/recommendations/smart-recommender.js';
-import logger from '../platform/logger.js';
+import logger from './logger.js';
 import { ACTIONS } from '../state/state-manager.js';
 
 /**

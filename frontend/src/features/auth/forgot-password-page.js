@@ -1,6 +1,7 @@
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { apiFetch } from '../../platform/api-client.js';
+import { validateEmail } from '../../platform/form-validators.js';
 
 export default class ForgotPasswordPage {
   constructor(container) {
@@ -69,6 +70,7 @@ export default class ForgotPasswordPage {
   _attachListeners() {
     const form = this.container.querySelector('.forgot-password-form');
     if (form) {
+      form.querySelector('input')?.addEventListener('input', () => this._clearError());
       form.addEventListener('submit', e => this._handleSubmit(e));
     }
 
@@ -86,11 +88,8 @@ export default class ForgotPasswordPage {
     const form = this.container.querySelector('.forgot-password-form');
     const email = form.querySelector('[name="email"]').value.trim();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert('Endereço de e-mail inválido.');
-      return;
-    }
+    const emailErr = validateEmail(email);
+    if (emailErr) { this._showError(emailErr); return; }
 
     this._isLoading = true;
     this._syncButtonState();
@@ -119,5 +118,22 @@ export default class ForgotPasswordPage {
     if (!btn) return;
     btn.disabled = this._isLoading;
     btn.textContent = this._isLoading ? 'Enviando...' : 'Enviar link';
+  }
+
+  _showError(message) {
+    if (!this._isMounted) return;
+    let el = this.container.querySelector('.onboarding-error');
+    if (el) { el.textContent = message; return; }
+    el = document.createElement('div');
+    el.className = 'onboarding-error';
+    el.setAttribute('role', 'alert');
+    el.textContent = message;
+    const form = this.container.querySelector('.forgot-password-form');
+    if (form) form.insertAdjacentElement('beforebegin', el);
+  }
+
+  _clearError() {
+    const el = this.container.querySelector('.onboarding-error');
+    if (el) el.remove();
   }
 }

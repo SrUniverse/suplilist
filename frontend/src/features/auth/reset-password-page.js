@@ -1,6 +1,7 @@
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { apiFetch } from '../../platform/api-client.js';
+import { validatePassword, validatePasswordConfirm } from '../../platform/form-validators.js';
 
 export default class ResetPasswordPage {
   constructor(container) {
@@ -118,23 +119,11 @@ export default class ResetPasswordPage {
 
     this._errorMessage = null;
 
-    if (password !== confirm) {
-      this._showError('As senhas não coincidem.');
-      return;
-    }
+    const confirmErr = validatePasswordConfirm(password, confirm);
+    if (confirmErr) { this._showError(confirmErr); return; }
 
-    if (password.length < 8) {
-      this._showError('A senha deve ter pelo menos 8 caracteres.');
-      return;
-    }
-    if (!/[0-9]/.test(password)) {
-      this._showError('A senha deve conter pelo menos um número.');
-      return;
-    }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-      this._showError('A senha deve conter pelo menos um símbolo especial.');
-      return;
-    }
+    const passwordErr = validatePassword(password);
+    if (passwordErr) { this._showError(passwordErr); return; }
 
     this._isLoading = true;
     this._syncButtonState();

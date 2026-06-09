@@ -1,0 +1,475 @@
+/**
+ * error-components.css — Styles for Error Boundary and Global Error Modal
+ *
+ * Provides user-friendly error UI with proper styling and accessibility
+ */
+
+/* ============================================================
+   ERROR BOUNDARY STYLES
+   ============================================================ */
+
+.error-boundary-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  padding: 1rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.error-boundary-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.error-boundary-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.error-boundary-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.error-boundary-description {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.error-boundary-details {
+  background: #f9fafb;
+  border-left: 4px solid #ef4444;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.error-boundary-error-msg {
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem 0;
+  word-break: break-word;
+}
+
+.error-boundary-error-id {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.error-boundary-error-id code {
+  background: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  color: #6b7280;
+}
+
+.error-boundary-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.error-boundary-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.error-boundary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-boundary-btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.error-boundary-btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+}
+
+.error-boundary-btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.error-boundary-btn-secondary:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.error-boundary-debug {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.error-boundary-debug summary {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: #f3f4f6;
+  user-select: none;
+}
+
+.error-boundary-debug summary:hover {
+  background: #e5e7eb;
+}
+
+.error-boundary-debug pre {
+  background: #1f2937;
+  color: #d1d5db;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ============================================================
+   GLOBAL ERROR MODAL STYLES
+   ============================================================ */
+
+#global-error-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.error-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.error-modal-dialog {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 500px;
+  width: 90%;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.error-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.error-modal-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.error-modal-body {
+  padding: 1.5rem;
+}
+
+.error-modal-message {
+  font-size: 0.95rem;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+}
+
+.error-modal-timestamp {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.error-modal-timestamp code {
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  color: #6b7280;
+}
+
+.error-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+
+.error-modal-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.error-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-modal-btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.error-modal-btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.error-modal-btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.error-modal-btn-secondary:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.error-modal-btn-tertiary {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.error-modal-btn-tertiary:hover:not(:disabled) {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .error-boundary-card {
+    padding: 1.5rem;
+  }
+
+  .error-boundary-title {
+    font-size: 1.25rem;
+  }
+
+  .error-boundary-actions {
+    flex-direction: column;
+  }
+
+  .error-boundary-btn {
+    width: 100%;
+  }
+
+  .error-modal-dialog {
+    width: 95%;
+  }
+
+  .error-modal-actions {
+    flex-direction: column;
+  }
+
+  .error-modal-btn {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   DARK MODE SUPPORT
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .error-boundary-card {
+    background: #1f2937;
+    color: #e5e7eb;
+  }
+
+  .error-boundary-title {
+    color: #f3f4f6;
+  }
+
+  .error-boundary-description {
+    color: #d1d5db;
+  }
+
+  .error-boundary-details {
+    background: #111827;
+    border-left-color: #fca5a5;
+  }
+
+  .error-boundary-error-msg {
+    color: #fca5a5;
+  }
+
+  .error-boundary-error-id {
+    color: #9ca3af;
+  }
+
+  .error-boundary-error-id code {
+    background: #0f172a;
+    color: #cbd5e1;
+  }
+
+  .error-boundary-btn-secondary {
+    background: #374151;
+    color: #e5e7eb;
+  }
+
+  .error-boundary-btn-secondary:hover:not(:disabled) {
+    background: #4b5563;
+  }
+
+  .error-boundary-debug summary {
+    color: #d1d5db;
+    background: #111827;
+  }
+
+  .error-boundary-debug summary:hover {
+    background: #0f172a;
+  }
+
+  .error-modal-dialog {
+    background: #1f2937;
+    color: #e5e7eb;
+  }
+
+  .error-modal-header {
+    border-bottom-color: #374151;
+  }
+
+  .error-modal-title {
+    color: #f3f4f6;
+  }
+
+  .error-modal-close:hover {
+    background: #374151;
+    color: #d1d5db;
+  }
+
+  .error-modal-message {
+    color: #d1d5db;
+  }
+
+  .error-modal-actions {
+    border-top-color: #374151;
+  }
+
+  .error-modal-btn-secondary {
+    background: #374151;
+    color: #d1d5db;
+  }
+
+  .error-modal-btn-secondary:hover:not(:disabled) {
+    background: #4b5563;
+  }
+
+  .error-modal-btn-tertiary {
+    background: #111827;
+    color: #d1d5db;
+    border-color: #374151;
+  }
+
+  .error-modal-btn-tertiary:hover:not(:disabled) {
+    background: #0f172a;
+    border-color: #4b5563;
+  }
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+
+@media print {
+  .error-boundary-container,
+  .error-modal-overlay {
+    display: none;
+  }
+}

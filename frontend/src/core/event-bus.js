@@ -83,6 +83,7 @@ export const EVENTS = Object.freeze({
   UI_OFFLINE: 'ui:offline',
   TOAST_REQUESTED: 'ui:toastRequested',
   TOAST_SHOW: 'toast:show',
+  TOAST_REMOVE: 'toast:remove',
   TOAST_DISMISS: 'toast:dismiss',
   MODAL_OPEN: 'ui:modalOpen',
   MODAL_CLOSE: 'ui:modalClose',
@@ -164,6 +165,7 @@ export const EVENTS = Object.freeze({
   // System
   SYSTEM_ERROR: 'error:system',
   COMPONENT_ERROR: 'component:error',
+  ERROR_CRITICAL: 'error:critical', // Critical errors that need modal display (404, 500, network)
   ERROR_PERSISTENCE: 'error:persistence', // emitido quando localStorage.setItem falha
 });
 

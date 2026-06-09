@@ -9,6 +9,7 @@ import { eventBus } from '../core/event-bus.js';
 import { todayISO, offsetISO } from '../utils/date.js';
 import { logger } from '../utils/logger.js';
 import { StorageManager } from '../platform/storage-manager.js';
+import { getSupplementId } from '../utils/stack.js';
 
 // ─── JSDoc Type Definitions ──────────────────────────────────────────────────
 
@@ -340,30 +341,28 @@ function reducer(state, action) {
         return state;
       }
 
-      const { id, supplementId } = action.payload;
-      const finalId = id || supplementId;
+      const finalId = getSupplementId(action.payload);
 
       if (!finalId || typeof finalId !== 'string' || finalId.trim() === '') {
         logger.warn('[StateManager] ADD_TO_STACK requires an id or supplementId');
         return state;
       }
 
-      // Prevent duplicates based on supplementId
-      const targetId = supplementId || id;
-      const exists = state.stack.some(item => (item.supplementId || item.id) === targetId);
+      // Prevent duplicates — getSupplementId resolves supplementId ?? id on both sides.
+      const exists = state.stack.some(item => getSupplementId(item) === finalId);
       if (exists) return state;
 
       return {
         ...state,
-        stack: [...state.stack, { ...action.payload, id: finalId, supplementId: targetId }]
+        stack: [...state.stack, { ...action.payload, id: finalId, supplementId: finalId }]
       };
     }
 
     case ACTIONS.REMOVE_FROM_STACK: {
-      const idToRemove = action.payload.supplementId ?? action.payload.id;
+      const idToRemove = getSupplementId(action.payload);
       return {
         ...state,
-        stack: state.stack.filter(item => (item.supplementId ?? item.id) !== idToRemove)
+        stack: state.stack.filter(item => getSupplementId(item) !== idToRemove)
       };
     }
 
@@ -372,7 +371,7 @@ function reducer(state, action) {
       if (!item) return state;
       const newStack = [...state.stack];
       // Prevent duplicates if network revived late
-      const exists = newStack.some(i => i.id === item.id || i.supplementId === item.supplementId);
+      const exists = newStack.some(i => getSupplementId(i) === getSupplementId(item));
       if (!exists) {
         newStack.splice(index, 0, item);
       }
@@ -391,11 +390,10 @@ function reducer(state, action) {
     case ACTIONS.IMPORT_STACK:
       return {
         ...state,
-        stack: (action.payload || []).map(item => ({
-          ...item,
-          id: item.supplementId ?? item.id,
-          supplementId: item.supplementId ?? item.id
-        }))
+        stack: (action.payload || []).map(item => {
+          const normId = getSupplementId(item);
+          return { ...item, id: normId, supplementId: normId };
+        })
       };
 
     case ACTIONS.CLEAR_CHECKINS:
@@ -516,26 +514,24 @@ function reducer(state, action) {
         checkins: action.payload
       };
 
-    // #2 FIX: Editar item existente do stack
     case ACTIONS.UPDATE_STACK_ITEM: {
-      const itemId = action.payload.supplementId ?? action.payload.id;
+      const itemId = getSupplementId(action.payload);
       return {
         ...state,
         stack: state.stack.map(item =>
-          (item.supplementId ?? item.id) === itemId
+          getSupplementId(item) === itemId
             ? { ...item, ...action.payload, dosage: { ...(item.dosage ?? {}), ...(action.payload.dosage ?? {}) }, supplementId: itemId }
             : item
         )
       };
     }
 
-    // #2 FIX: Atualizar só a quantidade em estoque
     case ACTIONS.SET_STACK_QUANTITY: {
-      const itemId = action.payload.supplementId ?? action.payload.id;
+      const itemId = getSupplementId(action.payload);
       return {
         ...state,
         stack: state.stack.map(item =>
-          (item.supplementId ?? item.id) === itemId
+          getSupplementId(item) === itemId
             ? { ...item, quantity: action.payload.quantity }
             : item
         )
@@ -1133,14 +1129,13 @@ export class StateManager {
         eventBus.emit('user:onboardingComplete', { user: state.user });
         break;
       case ACTIONS.ADD_TO_STACK:
-        // #5 FIX: payload das páginas usa supplementId, não id
         eventBus.emit('stack:itemAdded', {
-          supplementId: action.payload.supplementId ?? action.payload.id,
+          supplementId: getSupplementId(action.payload),
           name: action.payload.name
         });
         break;
       case ACTIONS.REMOVE_FROM_STACK:
-        eventBus.emit('stack:itemRemoved', { supplementId: action.payload.supplementId ?? action.payload.id });
+        eventBus.emit('stack:itemRemoved', { supplementId: getSupplementId(action.payload) });
         break;
       case ACTIONS.CLEAR_STACK:
         eventBus.emit('stack:cleared', {});

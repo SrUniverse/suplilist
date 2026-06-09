@@ -1,6 +1,7 @@
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { apiFetch } from '../../platform/api-client.js';
 import { logger } from '../../utils/logger.js';
+import { performOptimisticUpdate } from '../../platform/optimistic-update.js';
 
 /**
  * Adapter: Normalizes backend payload into the frontend UI entity.
@@ -43,28 +44,24 @@ class StackService {
    */
   async removeItem(id) {
     const stack = stateManager.stack || [];
-    const index = stack.findIndex(s => s.id === id); // Strict DB id matching
+    const index = stack.findIndex(s => s.id === id);
     if (index === -1) return;
 
-    // 1. Snapshot for rollback
     const itemBackup = { ...stack[index] };
 
-    // 2. Optimistic Mutation
-    stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { id });
-
-    try {
-      // 3. Network Request (DELETE ignores OCC, bypasses If-Match validation)
-      await apiFetch(`/api/stack/${id}`, { method: 'DELETE' });
-
-    } catch (_err) {
-      // 4. Compensatory Rollback
-      stateManager.dispatch(ACTIONS.SHOW_TOAST, {
-        message: 'Sem conexão. O suplemento foi restaurado ao stack.',
-        type: 'error',
-        duration: 4000
-      });
-      stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { item: itemBackup, index });
-    }
+    await performOptimisticUpdate(
+      () => itemBackup,
+      () => stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { id }),
+      () => apiFetch(`/api/stack/${id}`, { method: 'DELETE' }),
+      (backup) => {
+        stateManager.dispatch(ACTIONS.SHOW_TOAST, {
+          message: 'Sem conexão. O suplemento foi restaurado ao stack.',
+          type: 'error',
+          duration: 4000
+        });
+        stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { item: backup, index });
+      }
+    ).catch(() => {}); // rollbackFn handled UX — swallow rethrow
   }
 
   /**
@@ -76,67 +73,52 @@ class StackService {
    */
   async updateItem(id, updates) {
     const stack = stateManager.stack || [];
-    const index = stack.findIndex(s => s.id === id); // Strict DB id matching
+    const index = stack.findIndex(s => s.id === id);
     if (index === -1) return;
 
-    // 1. Snapshot for rollback
     const itemBackup = { ...stack[index] };
 
-    // 2. Optimistic Mutation (inject isSyncing flag to lock the UI card)
-    stateManager.dispatch(ACTIONS.UPDATE_STACK_ITEM, { 
-      id, 
-      ...updates,
-      isSyncing: true 
-    });
-
+    let result;
     try {
-      const payload = mapToBackend({ ...itemBackup, ...updates });
-
-      // 3. Network Request with OCC (If-Match)
-      const { item: confirmed } = await apiFetch(`/api/stack/${id}`, {
-        method: 'PUT',
-        headers: { 'If-Match': `"${itemBackup.version}"` },
-        body: JSON.stringify(payload)
-      });
-
-      // Success: Remove the isSyncing flag and sync the new __v version
-      stateManager.dispatch(ACTIONS.UPDATE_STACK_ITEM, {
-        id,
-        ...normalizeStackItem(confirmed),
-      });
-
-    } catch (err) {
-      if (err.status === 412) {
-        // OCC Collision: The backend provides the updated item payload in the error data
-        stateManager.dispatch(ACTIONS.SHOW_TOAST, {
-          message: 'Houve um conflito! A tela foi atualizada com a versão mais recente do servidor.',
-          type: 'warning',
-          duration: 5000
-        });
-        
-        const currentItem = err.data;
-        
-        // Surgical OCC Rollback: Overwrite the conflicting local item with the actual server state
-        stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { 
-          item: normalizeStackItem(currentItem), 
-          index 
-        });
-        return;
-      }
-
-      // 4. Compensatory Rollback for other errors (network, 500)
-      stateManager.dispatch(ACTIONS.SHOW_TOAST, {
-        message: 'Falha ao salvar edição offline. Alterações revertidas.',
-        type: 'error',
-        duration: 4000
-      });
-      
-      // Replace the entire object with the backup (clears isSyncing natively)
-      stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, { 
-        item: { ...itemBackup, isSyncing: false }, 
-        index 
-      });
+      result = await performOptimisticUpdate(
+        () => itemBackup,
+        () => stateManager.dispatch(ACTIONS.UPDATE_STACK_ITEM, { id, ...updates, isSyncing: true }),
+        () => apiFetch(`/api/stack/${id}`, {
+          method: 'PUT',
+          headers: { 'If-Match': `"${itemBackup.version}"` },
+          body: JSON.stringify(mapToBackend({ ...itemBackup, ...updates }))
+        }),
+        (backup, err) => {
+          if (err.status === 412) {
+            // OCC collision: backend provides the winning server state in err.data
+            stateManager.dispatch(ACTIONS.SHOW_TOAST, {
+              message: 'Houve um conflito! A tela foi atualizada com a versão mais recente do servidor.',
+              type: 'warning',
+              duration: 5000
+            });
+            stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, {
+              item: normalizeStackItem(err.data),
+              index
+            });
+          } else {
+            stateManager.dispatch(ACTIONS.SHOW_TOAST, {
+              message: 'Falha ao salvar edição offline. Alterações revertidas.',
+              type: 'error',
+              duration: 4000
+            });
+            stateManager.dispatch(ACTIONS.RESTORE_STACK_ITEM_AT_INDEX, {
+              item: { ...backup, isSyncing: false },
+              index
+            });
+          }
+        }
+      );
+    } catch {
+      return; // rollbackFn dispatched toast + restore
     }
+
+    // Success: sync confirmed server state (clears isSyncing, updates version)
+    stateManager.dispatch(ACTIONS.UPDATE_STACK_ITEM, { id, ...normalizeStackItem(result.item) });
   }
 
   /**

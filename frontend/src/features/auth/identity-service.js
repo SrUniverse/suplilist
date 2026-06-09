@@ -205,18 +205,22 @@ class IdentityService {
    * @returns {Promise<void>}
    */
   async logout() {
+    // 1. Declare intent before network call (crash-safe zombie session prevention)
+    localStorage.setItem(PENDING_LOGOUT_KEY, '1');
+
     try {
-      // 1. Notifica o backend para invalidar o Refresh Token (se houver)
+      // 2. Notify backend to invalidate refresh token
       await apiFetch('/api/auth/logout', { method: 'POST' });
+      // 3. Server confirmed — safe to clear the flag
+      localStorage.removeItem(PENDING_LOGOUT_KEY);
     } catch (e) {
+      // Flag stays — initializeSession() will catch it on next boot
       logger.warn('[IdentityService] Logout server call failed, proceeding with local cleanup', e);
     } finally {
-      // 2. Limpeza Nuclear
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // 3. Força redirecionamento
-      window.location.replace('/login');
+      // 4. Always clear local auth state
+      clearAccessToken();
+      stateManager.dispatch(ACTIONS.AUTH_LOGOUT, null);
+      eventBus.emit(EVENTS.AUTH_LOGOUT, null);
     }
   }
 

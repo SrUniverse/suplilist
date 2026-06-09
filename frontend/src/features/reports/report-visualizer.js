@@ -12,6 +12,10 @@ export class ReportVisualizer {
     this.container = container;
     this.dashboardData = null;
     this.isLoading = false;
+    // ✅ OTIMIZAÇÃO: Cache for chart calculations
+    this._cachedChartPoints = null;
+    this._cachedTrendLength = null;
+    this._isExporting = false;
   }
 
   async mount() {
@@ -195,21 +199,11 @@ export class ReportVisualizer {
       <div class="heatmap-grid">
         ${Object.values(weeks).map((week, _idx) => `
           <div class="heatmap-week">
-            ${week.map(day => {
-              const colors = {
-                'none': '#EBEDF0',
-                'low': '#C6E48B',
-                'medium-low': '#7BC67B',
-                'medium': '#3D8B56',
-                'high': '#239A3B',
-                'perfect': '#0E4429'
-              };
-              return `
-                <div class="heatmap-day" style="background: ${colors[day.intensity]}"
-                  title="${day.date}: ${day.adherence}%">
-                </div>
-              `;
-            }).join('')}
+            ${week.map(day => `
+              <div class="heatmap-day heatmap-intensity-${day.intensity}"
+                title="${day.date}: ${day.adherence}%">
+              </div>
+            `).join('')}
           </div>
         `).join('')}
       </div>
@@ -257,13 +251,25 @@ export class ReportVisualizer {
     `;
   }
 
+  // ✅ OTIMIZAÇÃO: Memoize chart point calculations
   _getTrendPoints(trend, chartHeight) {
     const maxAdherence = 100;
-    return trend.map((t, i) => {
+
+    // Check cache
+    if (this._cachedChartPoints && this._cachedTrendLength === trend.length) {
+      return this._cachedChartPoints;
+    }
+
+    // Calculate and cache
+    const points = trend.map((t, i) => {
       const x = 40 + (i / (trend.length - 1)) * 550;
       const y = chartHeight - (t.adherence / maxAdherence) * chartHeight;
       return `${x},${y}`;
     });
+
+    this._cachedChartPoints = points;
+    this._cachedTrendLength = trend.length;
+    return points;
   }
 
   _getStreakColor(value) {
@@ -281,6 +287,10 @@ export class ReportVisualizer {
 
   async _exportPDF() {
     try {
+      // ✅ OTIMIZAÇÃO: Prevent multiple simultaneous exports
+      if (this._isExporting) return;
+      this._isExporting = true;
+
       const btn = this.container.querySelector('#btn-export-pdf');
       btn.disabled = true;
       btn.textContent = '⏳ Gerando PDF...';
@@ -310,6 +320,9 @@ export class ReportVisualizer {
         message: 'Erro ao exportar relatório',
         type: 'error'
       });
+    } finally {
+      // ✅ OTIMIZAÇÃO: Reset export flag
+      this._isExporting = false;
     }
   }
 
@@ -546,6 +559,14 @@ export class ReportVisualizer {
       .heatmap-day:hover {
         opacity: 0.8;
       }
+
+      /* ✅ OTIMIZAÇÃO: CSS classes instead of inline styles */
+      .heatmap-intensity-0 { background: #EBEDF0; }
+      .heatmap-intensity-1 { background: #C6E48B; }
+      .heatmap-intensity-2 { background: #7BC67B; }
+      .heatmap-intensity-3 { background: #3D8B56; }
+      .heatmap-intensity-4 { background: #239A3B; }
+      .heatmap-intensity-5 { background: #0E4429; }
 
       .report-heatmap-legend {
         display: flex;

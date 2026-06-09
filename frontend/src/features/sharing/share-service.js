@@ -1,5 +1,6 @@
 import { eventBus } from '../../core/event-bus.js';
 import { logger } from '../../utils/logger.js';
+import { getSupplementId } from '../../utils/stack.js';
 
 export default class ShareService {
   /**
@@ -12,7 +13,7 @@ export default class ShareService {
     if (!stack || !stack.length) return '';
     const cleanData = stack.map(item => ({
       name: item.name,
-      supplementId: item.supplementId || item.id,
+      supplementId: getSupplementId(item),
       quantity: item.quantity,
       dosage: item.dosage,
       frequency: item.frequency,

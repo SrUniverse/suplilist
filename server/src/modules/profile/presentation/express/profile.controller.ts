@@ -17,10 +17,13 @@ export const UpdateProfileSchema = z.object({
   }).optional(),
 });
 
+import { SyncMigrationVersionUseCase } from '../../application/use-cases/sync-migration-version.use-case.js';
+
 export class ProfileController {
   constructor(
     private getProfileUseCase: GetProfileUseCase,
-    private updateProfileUseCase: UpdateProfileUseCase
+    private updateProfileUseCase: UpdateProfileUseCase,
+    private syncMigrationVersionUseCase: SyncMigrationVersionUseCase
   ) {}
 
   async getMe(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
@@ -101,6 +104,32 @@ export class ProfileController {
           error: 'precondition_failed',
           message: 'The profile was modified by another request. Please reload and try again.'
         });
+      }
+      next(error);
+    }
+  }
+
+  async syncMigrationVersion(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: 'unauthenticated' });
+      }
+
+      const result = await this.syncMigrationVersionUseCase.execute(userId, req.body);
+
+      // We do not set ETag here because migrationVersion is not an optimistic-concurrency field
+      // for the public profile payload.
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ success: false, error: 'validation_error', details: error.errors });
+      }
+      if (error.message === 'profile_not_found') {
+        return res.status(404).json({ success: false, error: 'not_found' });
       }
       next(error);
     }

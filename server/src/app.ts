@@ -116,6 +116,12 @@ export function createApp() {
     res.send(metricsService.getMetrics());
   });
 
+  // ── Frontend performance metrics receiver ────────────────────────────────────
+  app.post('/api/metrics/performance', (_req: Request, res: Response) => {
+    // Currently a dummy sink to prevent 404s and console spam from frontend telemetry
+    res.status(202).json({ success: true, message: 'metrics_accepted' });
+  });
+
   // ── Modular monolith routers ───────────────────────────────────────────────
   app.use('/api/auth', initializeIdentityModule());
   app.use('/api/profile', initializeProfileModule());

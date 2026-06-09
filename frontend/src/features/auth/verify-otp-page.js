@@ -1,7 +1,7 @@
 import { identityService } from '../../platform/identity-service.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
-import { apiFetch } from '../../platform/api-client.js';
+import { apiFetch, setAccessToken } from '../../platform/api-client.js';
 
 export default class VerifyOtpPage {
   constructor(container) {
@@ -116,11 +116,14 @@ export default class VerifyOtpPage {
       this._disableInputs(true);
       
       try {
-        await apiFetch('/api/auth/verify-otp', {
+        const response = await apiFetch('/api/auth/verify-otp', {
           method: 'POST',
           body: JSON.stringify({ email: this._email, code })
         });
         
+        // Save the real session token using platform logic
+        setAccessToken(response.accessToken);
+
         // Remove email pendente
         localStorage.removeItem('pending_verification_email');
         

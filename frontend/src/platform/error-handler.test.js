@@ -14,7 +14,7 @@ import * as toastService from './toast-service.js';
 describe('error-handler — Error Handling & User Feedback', () => {
   let toastErrorSpy;
   let loggerErrorSpy;
-  let beaconSpy;
+  let fetchSpy;
   let eventEmitSpy;
 
   beforeEach(() => {
@@ -26,8 +26,8 @@ describe('error-handler — Error Handling & User Feedback', () => {
     // Mock logger
     loggerErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
-    // Mock navigator.sendBeacon for server-side logging
-    beaconSpy = vi.spyOn(navigator, 'sendBeacon').mockImplementation(() => true);
+    // Mock fetch for server-side logging (implementation uses fetch keepalive)
+    fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({ ok: true });
 
     // Mock eventBus.emit to track event emissions
     eventEmitSpy = vi.spyOn(eventBus, 'emit').mockImplementation(() => {});
@@ -42,6 +42,7 @@ describe('error-handler — Error Handling & User Feedback', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     eventBus.clear();
+    import.meta.env.PROD = false;
   });
 
   // ============= ApiError → User-Friendly Message Mapping =============
@@ -216,22 +217,23 @@ describe('error-handler — Error Handling & User Feedback', () => {
   // ============= Server-Side Logging in Production =============
 
   describe('handleError — Server-Side Logging', () => {
-    it('24. logs to server via sendBeacon in production mode', () => {
-      import.meta.env.MODE = 'production';
+    it('24. logs to server via fetch keepalive in production mode', () => {
+      import.meta.env.PROD = true;
       const error = new ApiError(500, 'internal_error', 'Server failed');
       handleError(error, 'database-sync', { logServer: true });
 
-      expect(beaconSpy).toHaveBeenCalledOnce();
-      const beaconUrl = beaconSpy.mock.calls[0][0];
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      const beaconUrl = fetchSpy.mock.calls[0][0];
       expect(beaconUrl).toContain('/api/logs/errors');
     });
 
-    it('25. includes error context in beacon payload', () => {
-      import.meta.env.MODE = 'production';
+    it('25. includes error context in fetch payload', () => {
+      import.meta.env.PROD = true;
       const error = new ApiError(500, 'internal_error', 'Server failed');
       handleError(error, 'payment-processor', { logServer: true });
 
-      const payload = JSON.parse(beaconSpy.mock.calls[0][1]);
+      const options = fetchSpy.mock.calls[0][1];
+      const payload = JSON.parse(options.body);
       expect(payload.context).toBe('payment-processor');
       expect(payload.type).toBe('API_ERROR');
       expect(payload.status).toBe(500);
@@ -239,24 +241,24 @@ describe('error-handler — Error Handling & User Feedback', () => {
     });
 
     it('26. does not log to server in non-production mode', () => {
-      import.meta.env.MODE = 'development';
+      import.meta.env.PROD = false;
       const error = new ApiError(500, 'internal_error', 'Server failed');
       handleError(error, 'api-call', { logServer: true });
 
-      expect(beaconSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
     });
 
     it('27. respects logServer=false option', () => {
-      import.meta.env.MODE = 'production';
+      import.meta.env.PROD = true;
       const error = new ApiError(500, 'internal_error', 'Server failed');
       handleError(error, 'api-call', { logServer: false });
 
-      expect(beaconSpy).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
     });
 
     it('28. handles beacon failures gracefully (no throw)', () => {
       import.meta.env.MODE = 'production';
-      beaconSpy.mockImplementationOnce(() => {
+      fetchSpy.mockImplementationOnce(() => {
         throw new Error('Beacon failed');
       });
 

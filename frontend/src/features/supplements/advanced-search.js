@@ -2,7 +2,7 @@
  * Advanced Search — Full-text search with filters
  */
 
-import { SUPPLEMENTS_DB } from './stack-recommender.js';
+import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 
 export class AdvancedSearch {
   constructor() {
@@ -28,7 +28,7 @@ export class AdvancedSearch {
       benefitTokens: (supp.benefits || []).flatMap(b => this.tokenize(b)),
       tags: supp.tags || [],
       evidenceLevel: supp.evidenceLevel,
-      price: supp.price,
+      price: supp.price ?? supp.pricePerGram,
       pricePerGram: supp.pricePerGram,
       unit: supp.unit,
       rating: supp.rating || 0,

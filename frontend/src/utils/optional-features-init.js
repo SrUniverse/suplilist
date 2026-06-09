@@ -1,6 +1,6 @@
-/**
+﻿/**
  * Optional Features Initializer
- * Inicializa todas as 5 features opcionais com um único comando
+ * Inicializa todas as 5 features opcionais com um Ãºnico comando
  *
  * Import Order (no circular dependencies):
  * 1. logger (lowest dependency)
@@ -14,7 +14,7 @@ import emailReminderService from '../platform/email-reminder-service.js';
 import pwaOffline from '../platform/pwa-offline.js';
 import socialSharing from '../features/social/social-sharing.js';
 import SmartRecommender from '../features/recommendations/smart-recommender.js';
-import logger from './logger.js';
+import { logger } from './logger.js';
 import { ACTIONS } from '../state/state-manager.js';
 
 /**
@@ -27,8 +27,8 @@ export async function initializeOptionalFeatures() {
     calendar: false,
     email: false,
     pwa: false,
-    social: true, // sempre ativo, não precisa init
-    recommendations: true // sempre ativo, não precisa init
+    social: true, // sempre ativo, nÃ£o precisa init
+    recommendations: true // sempre ativo, nÃ£o precisa init
   };
 
   try {
@@ -36,7 +36,7 @@ export async function initializeOptionalFeatures() {
     try {
       const calendarReady = await calendarSync.initialize();
       results.calendar = calendarReady;
-      logger.info(`Calendar sync: ${calendarReady ? '✅ Ready' : '⚠️ Skipped'}`);
+      logger.info(`Calendar sync: ${calendarReady ? 'âœ… Ready' : 'âš ï¸ Skipped'}`);
     } catch (error) {
       logger.warn('Calendar sync initialization failed', error);
       results.calendar = false;
@@ -46,7 +46,7 @@ export async function initializeOptionalFeatures() {
     try {
       await emailReminderService.initialize();
       results.email = true;
-      logger.info('Email reminder service: ✅ Ready');
+      logger.info('Email reminder service: âœ… Ready');
     } catch (error) {
       logger.warn('Email reminder service initialization failed', error);
       results.email = false;
@@ -56,7 +56,7 @@ export async function initializeOptionalFeatures() {
     try {
       const pwaReady = await pwaOffline.initialize();
       results.pwa = pwaReady;
-      logger.info(`PWA offline support: ${pwaReady ? '✅ Ready' : '⚠️ Limited'}`);
+      logger.info(`PWA offline support: ${pwaReady ? 'âœ… Ready' : 'âš ï¸ Limited'}`);
     } catch (error) {
       logger.warn('PWA offline support initialization failed', error);
       results.pwa = false;
@@ -64,11 +64,11 @@ export async function initializeOptionalFeatures() {
 
     // 4. Social Sharing (initialize global reference)
     window.socialSharing = socialSharing;
-    logger.info('Social sharing: ✅ Ready');
+    logger.info('Social sharing: âœ… Ready');
 
     // 5. Smart Recommender (initialize global reference)
     window.smartRecommender = SmartRecommender;
-    logger.info('Smart recommendations: ✅ Ready');
+    logger.info('Smart recommendations: âœ… Ready');
 
     // Setup event listeners
     setupEventListeners();
@@ -177,7 +177,7 @@ function setupIntegrationHooks() {
       configurable: false
     });
 
-    logger.info('Hook 1: Calendar sync integrated with notifications ✓');
+    logger.info('Hook 1: Calendar sync integrated with notifications âœ“');
   }
 
   // Hook 2: When adherence milestone reached, show share prompt
@@ -237,7 +237,7 @@ function setupIntegrationHooks() {
       return result;
     };
 
-    logger.info('Hook 2: Social share prompts on milestones ✓');
+    logger.info('Hook 2: Social share prompts on milestones âœ“');
   }
 
   // Hook 3: On first day of month, ensure email scheduled
@@ -245,7 +245,7 @@ function setupIntegrationHooks() {
     const today = new Date();
     if (today.getDate() === 1) {
       emailReminderService.scheduleMonthlyReport();
-      logger.info('Hook 3: Monthly email scheduled for today ✓');
+      logger.info('Hook 3: Monthly email scheduled for today âœ“');
     }
   }
 
@@ -270,7 +270,7 @@ function showOfflineIndicator() {
     font-weight: bold;
     z-index: 1000;
   `;
-  indicator.textContent = '📡 Você está offline - usando dados locais';
+  indicator.textContent = 'ðŸ“¡ VocÃª estÃ¡ offline - usando dados locais';
 
   document.body.insertBefore(indicator, document.body.firstChild);
 
@@ -304,10 +304,10 @@ function showSocialShareOptions(streak, adherence) {
   const _html = `
     <div style="display: flex; gap: 10px; justify-content: center;">
       <button onclick="socialSharing.shareStreakWhatsApp(${streak}, ${adherence})" style="padding: 10px 20px; cursor: pointer;">
-        💬 WhatsApp
+        ðŸ’¬ WhatsApp
       </button>
       <button onclick="socialSharing.shareStreakTwitter(${streak}, ${adherence})" style="padding: 10px 20px; cursor: pointer;">
-        𝕏 Twitter
+        ð• Twitter
       </button>
       <button onclick="socialSharing.shareStreakLinkedIn(${streak}, ${adherence})" style="padding: 10px 20px; cursor: pointer;">
         in LinkedIn
@@ -482,3 +482,5 @@ export default {
   exportCompleteData,
   importCompleteData
 };
+
+

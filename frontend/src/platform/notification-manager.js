@@ -1,10 +1,10 @@
-/**
- * Notification Manager — Push & Email reminders for daily adherence
+﻿/**
+ * Notification Manager â€” Push & Email reminders for daily adherence
  * Critical for retention - users forget without reminders
  */
 
 import { stateManager, ACTIONS } from '../state/state-manager.js';
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
 export class NotificationManager {
   constructor() {
@@ -295,3 +295,5 @@ export class NotificationManager {
 }
 
 export default new NotificationManager();
+
+

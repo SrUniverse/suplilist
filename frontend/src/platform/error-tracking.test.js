@@ -35,7 +35,7 @@ describe('ErrorTracking', () => {
 
   // Test 2: Capture an exception
   it('should capture an exception', () => {
-    const error = new Error('Test error');
+    const error = new Error('Auth service failed');
     captureException(error);
 
     const buffered = getBufferedErrors();
@@ -44,13 +44,13 @@ describe('ErrorTracking', () => {
 
   // Test 3: Error has required fields
   it('should capture error with all required fields', () => {
-    const error = new Error('Test error message');
+    const error = new Error('Payment processing failed');
     captureException(error, { context: { userId: '123' } });
 
     const buffered = getBufferedErrors();
     const captured = buffered[buffered.length - 1];
 
-    expect(captured.message).toBe('Test error message');
+    expect(captured.message).toBe('Payment processing failed');
     expect(captured.type).toBe('EXCEPTION');
     expect(captured.trace_id).toBeTruthy();
     expect(captured.timestamp).toBeTruthy();
@@ -85,25 +85,26 @@ describe('ErrorTracking', () => {
   });
 
   // Test 7: Flush errors to server
-  it('should flush errors using sendBeacon', async () => {
-    const sendBeaconMock = vi.fn();
-    global.navigator.sendBeacon = sendBeaconMock;
+  it('should flush errors using fetch keepalive', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
 
-    const error = new Error('Flush test');
+    const error = new Error('Database connection failed');
     captureException(error);
 
     flushErrors();
 
-    expect(sendBeaconMock).toHaveBeenCalled();
-    const [endpoint, data] = sendBeaconMock.mock.calls[0];
+    expect(fetchMock).toHaveBeenCalled();
+    const [endpoint, options] = fetchMock.mock.calls[0];
     expect(endpoint).toContain('/api/logs/errors');
-    expect(data).toContain('Flush test');
+    expect(options.keepalive).toBe(true);
+    expect(options.body).toContain('Database connection failed');
   });
 
   // Test 8: Batch multiple errors
   it('should batch multiple errors in single request', () => {
-    const sendBeaconMock = vi.fn();
-    global.navigator.sendBeacon = sendBeaconMock;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
 
     // Capture multiple errors
     captureException(new Error('Error 1'));
@@ -112,9 +113,9 @@ describe('ErrorTracking', () => {
 
     flushErrors();
 
-    expect(sendBeaconMock).toHaveBeenCalled();
-    const [_, data] = sendBeaconMock.mock.calls[0];
-    const payload = JSON.parse(data);
+    expect(fetchMock).toHaveBeenCalled();
+    const [, options] = fetchMock.mock.calls[0];
+    const payload = JSON.parse(options.body);
     expect(payload.errors.length).toBe(3);
   });
 
@@ -143,12 +144,9 @@ describe('ErrorTracking', () => {
 
   // Test 11: Handle network errors during flush
   it('should handle fetch failure gracefully', async () => {
-    const sendBeaconMock = vi.fn(() => {
-      throw new Error('Network error');
-    });
-    global.navigator.sendBeacon = sendBeaconMock;
+    global.fetch = vi.fn(() => { throw new Error('Network error'); });
 
-    const error = new Error('Test error');
+    const error = new Error('Auth service failed');
     captureException(error);
 
     expect(() => flushErrors()).not.toThrow();
@@ -201,8 +199,8 @@ describe('ErrorTracking', () => {
   it('should not exceed max error buffer size', () => {
     configure({ maxErrors: 5 });
 
-    const sendBeaconMock = vi.fn();
-    global.navigator.sendBeacon = sendBeaconMock;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
 
     // Capture 10 errors
     for (let i = 0; i < 10; i++) {
@@ -210,6 +208,6 @@ describe('ErrorTracking', () => {
     }
 
     // Should have triggered flush at maxErrors threshold
-    expect(sendBeaconMock).toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalled();
   });
 });

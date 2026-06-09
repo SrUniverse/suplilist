@@ -1,10 +1,10 @@
-/**
- * Supplement Price Manager — Optimized for Free Tier
+﻿/**
+ * Supplement Price Manager â€” Optimized for Free Tier
  * Manages pricing data for all supplements with smart caching
  */
 
 import FirecrawlScraper from './firecrawl-scraper.js';
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
 export class SupplementPriceManager {
   constructor() {
@@ -90,7 +90,7 @@ export class SupplementPriceManager {
   }
 
   /**
-   * Smart refresh — only scrape if cache is old
+   * Smart refresh â€” only scrape if cache is old
    * Uses minimal credits
    */
   async refreshIfNeeded(supplementName, maxAgeHours = 24) {
@@ -177,7 +177,7 @@ export class SupplementPriceManager {
     if (!data || data.products.length === 0) {
       return {
         supplementName,
-        message: 'Sem preços disponíveis',
+        message: 'Sem preÃ§os disponÃ­veis',
         comparison: []
       };
     }
@@ -280,3 +280,5 @@ export class SupplementPriceManager {
 }
 
 export default new SupplementPriceManager();
+
+

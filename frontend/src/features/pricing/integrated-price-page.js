@@ -1,11 +1,11 @@
 /**
- * Integrated Price Page — Full Firecrawl + API Integration
+ * Integrated Price Page â€” Full Firecrawl + API Integration
  * Real-time pricing with marketplace comparison
  */
 
 import EnhancedPriceAggregator from '../../platform/price-aggregator-enhanced.js';
 import { escapeHtml } from '../../utils/escape.js';
-import logger from '../../platform/logger.js';
+import { logger } from '../../utils/logger.js';
 
 export class IntegratedPricePage {
   constructor(container, supplementName) {
@@ -45,7 +45,7 @@ export class IntegratedPricePage {
     this.container.innerHTML = `
       <div class="integrated-price-loading">
         <div class="spinner"></div>
-        <p>Buscando preços em marketplaces...</p>
+        <p>Buscando preÃ§os em marketplaces...</p>
         <small>${this.priceData?.source === 'hybrid' ? '(API + Web Scraping)' : '(API)'}</small>
       </div>
     `;
@@ -54,7 +54,7 @@ export class IntegratedPricePage {
   renderError(message) {
     this.container.innerHTML = `
       <div class="price-error">
-        <h3>❌ Erro ao buscar preços</h3>
+        <h3>âŒ Erro ao buscar preÃ§os</h3>
         <p>${escapeHtml(message)}</p>
         <button class="btn-retry">Tentar Novamente</button>
       </div>
@@ -114,25 +114,25 @@ export class IntegratedPricePage {
     return `
       <div class="price-stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Melhor Preço</div>
+          <div class="stat-label">Melhor PreÃ§o</div>
           <div class="stat-value green">R$ ${stats.lowestPrice?.toFixed(2)}</div>
           <div class="stat-meta">${this.priceData.bestDeal?.marketplace}</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-label">Preço Médio</div>
+          <div class="stat-label">PreÃ§o MÃ©dio</div>
           <div class="stat-value">R$ ${stats.averagePrice?.toFixed(2)}</div>
           <div class="stat-meta">Mediana: R$ ${analysis.priceAnalysis.median?.toFixed(2)}</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-label">Maior Preço</div>
+          <div class="stat-label">Maior PreÃ§o</div>
           <div class="stat-value">R$ ${stats.highestPrice?.toFixed(2)}</div>
-          <div class="stat-meta">Variação: ${analysis.priceAnalysis.stdDev?.toFixed(2)}</div>
+          <div class="stat-meta">VariaÃ§Ã£o: ${analysis.priceAnalysis.stdDev?.toFixed(2)}</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-label">Economia Possível</div>
+          <div class="stat-label">Economia PossÃ­vel</div>
           <div class="stat-value gold">R$ ${stats.savings?.toFixed(2)}</div>
           <div class="stat-meta">${((stats.savings / stats.highestPrice) * 100).toFixed(1)}% menos</div>
         </div>
@@ -147,7 +147,7 @@ export class IntegratedPricePage {
     return `
       <div class="best-deal-banner">
         <div class="best-deal-content">
-          <div class="deal-badge">🏆 MELHOR OFERTA</div>
+          <div class="deal-badge">ðŸ† MELHOR OFERTA</div>
           <h3>${escapeHtml(bestDeal.title)}</h3>
           <div class="deal-price">
             <span class="amount">R$ ${bestDeal.price?.toFixed(2)}</span>
@@ -156,9 +156,9 @@ export class IntegratedPricePage {
             ` : ''}
           </div>
           <div class="deal-info">
-            <span>🏪 ${bestDeal.marketplace}</span>
-            <span>⭐ ${bestDeal.rating?.toFixed(1) || 'N/A'}</span>
-            <span>📦 ${bestDeal.shipping || 'A calcular'}</span>
+            <span>ðŸª ${bestDeal.marketplace}</span>
+            <span>â­ ${bestDeal.rating?.toFixed(1) || 'N/A'}</span>
+            <span>ðŸ“¦ ${bestDeal.shipping || 'A calcular'}</span>
           </div>
           <a href="${bestDeal.url}" target="_blank" class="btn-buy-now">
             Comprar Agora
@@ -174,7 +174,7 @@ export class IntegratedPricePage {
 
     return `
       <div class="market-analysis">
-        <h3>📊 Análise de Mercado</h3>
+        <h3>ðŸ“Š AnÃ¡lise de Mercado</h3>
 
         <div class="analysis-grid">
           <div class="analysis-card">
@@ -186,15 +186,15 @@ export class IntegratedPricePage {
           </div>
 
           <div class="analysis-card">
-            <div class="analysis-label">Recomendação</div>
+            <div class="analysis-label">RecomendaÃ§Ã£o</div>
             <div class="analysis-value">${rec.recommendation}</div>
             <div class="analysis-meta">${rec.reasoning}</div>
           </div>
 
           <div class="analysis-card">
-            <div class="analysis-label">Amplitude de Preço</div>
+            <div class="analysis-label">Amplitude de PreÃ§o</div>
             <div class="analysis-value">${rec.priceRange}</div>
-            <div class="analysis-meta">Desvio padrão: R$ ${analysis.priceAnalysis.stdDev?.toFixed(2)}</div>
+            <div class="analysis-meta">Desvio padrÃ£o: R$ ${analysis.priceAnalysis.stdDev?.toFixed(2)}</div>
           </div>
         </div>
       </div>
@@ -206,15 +206,15 @@ export class IntegratedPricePage {
 
     return `
       <div class="marketplace-comparison">
-        <h3>🏬 Por Marketplace</h3>
+        <h3>ðŸ¬ Por Marketplace</h3>
         <div class="comparison-table">
           <table>
             <thead>
               <tr>
                 <th>Marketplace</th>
                 <th>Ofertas</th>
-                <th>Melhor Preço</th>
-                <th>Preço Médio</th>
+                <th>Melhor PreÃ§o</th>
+                <th>PreÃ§o MÃ©dio</th>
               </tr>
             </thead>
             <tbody>
@@ -238,15 +238,15 @@ export class IntegratedPricePage {
 
     return `
       <div class="all-listings">
-        <h3>📋 Todas as Ofertas (${results.length})</h3>
+        <h3>ðŸ“‹ Todas as Ofertas (${results.length})</h3>
 
         <div class="listings-grid">
           ${results.map((product, idx) => `
             <div class="listing-card" data-index="${idx}">
               <div class="listing-header">
-                <h4>${escapeHtml(product.title?.substring(0, 40) || 'Sem título')}</h4>
+                <h4>${escapeHtml(product.title?.substring(0, 40) || 'Sem tÃ­tulo')}</h4>
                 <span class="source-badge-small ${product.source || 'api'}">
-                  ${product.source === 'firecrawl' ? '🔗 Scraped' : 'API'}
+                  ${product.source === 'firecrawl' ? 'ðŸ”— Scraped' : 'API'}
                 </span>
               </div>
 
@@ -258,9 +258,9 @@ export class IntegratedPricePage {
               </div>
 
               <div class="listing-meta">
-                <span>🏪 ${product.marketplace}</span>
-                <span>⭐ ${product.rating?.toFixed(1) || 'N/A'}</span>
-                <span>📦 ${product.shipping || '-'}</span>
+                <span>ðŸª ${product.marketplace}</span>
+                <span>â­ ${product.rating?.toFixed(1) || 'N/A'}</span>
+                <span>ðŸ“¦ ${product.shipping || '-'}</span>
               </div>
 
               <div class="listing-availability ${product.availability?.includes('estoque') ? 'available' : 'unavailable'}">
@@ -288,3 +288,5 @@ export class IntegratedPricePage {
 }
 
 export default IntegratedPricePage;
+
+

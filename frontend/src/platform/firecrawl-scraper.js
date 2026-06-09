@@ -1,11 +1,16 @@
-/**
- * Firecrawl Scraper — Optimized for Free Tier (300 credits/month)
+﻿/**
+ * Firecrawl Scraper â€” Optimized for Free Tier (300 credits/month)
  * Single search scrape covers all marketplaces efficiently
  */
 
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
-const API_KEY = process.env.FIRECRAWL_API_KEY || 'FIRECRAWL_KEY_REMOVED';
+// SECURITY: Never embed a Firecrawl API key in frontend code — it ships in the
+// browser bundle and is visible to every visitor. Firecrawl must run server-side
+// (see server/src/shared/services/firecrawl.service.ts). This client path is
+// deprecated and intentionally has no key; calls will fail unless routed through
+// the backend.
+const API_KEY = '';
 const BASE_URL = 'https://api.firecrawl.dev/v1';
 
 export class FirecrawlScraper {
@@ -19,7 +24,7 @@ export class FirecrawlScraper {
   }
 
   /**
-   * Get prices for supplement — optimized single search
+   * Get prices for supplement â€” optimized single search
    * One scrape covers all marketplaces
    */
   async getPrices(supplementName) {
@@ -236,7 +241,7 @@ Make sure to extract from actual Brazilian e-commerce sites, not just Google res
     if (!result.success || !result.products || result.products.length === 0) {
       return {
         supplementName: result.supplementName,
-        message: 'Sem preços encontrados',
+        message: 'Sem preÃ§os encontrados',
         products: []
       };
     }
@@ -251,7 +256,7 @@ Make sure to extract from actual Brazilian e-commerce sites, not just Google res
         discount: p.discount || 0,
         marketplace: p.marketplace || 'Desconhecido',
         seller: p.seller || '-',
-        rating: p.rating ? `${p.rating.toFixed(1)}⭐` : 'N/A',
+        rating: p.rating ? `${p.rating.toFixed(1)}â­` : 'N/A',
         reviews: p.reviews ? `(${p.reviews})` : '',
         availability: p.availability || 'Verificar',
         url: p.url
@@ -381,17 +386,19 @@ Make sure to extract from actual Brazilian e-commerce sites, not just Google res
     const percent = parseFloat(stats.creditsPercent);
 
     if (percent < 30) {
-      return '✅ Plenty of credits. Can scrape aggressively.';
+      return 'âœ… Plenty of credits. Can scrape aggressively.';
     } else if (percent < 60) {
-      return '⚠️  Moderate usage. Be selective with scrapes.';
+      return 'âš ï¸  Moderate usage. Be selective with scrapes.';
     } else if (percent < 80) {
-      return '🟡 Getting close to limit. Use cache more, scrape less.';
+      return 'ðŸŸ¡ Getting close to limit. Use cache more, scrape less.';
     } else if (percent < 95) {
-      return '🔴 Low credits. Only scrape critical supplements.';
+      return 'ðŸ”´ Low credits. Only scrape critical supplements.';
     } else {
-      return '❌ Almost out of credits. Rely on cache only.';
+      return 'âŒ Almost out of credits. Rely on cache only.';
     }
   }
 }
 
 export default new FirecrawlScraper();
+
+

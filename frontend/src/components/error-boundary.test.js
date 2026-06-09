@@ -137,8 +137,8 @@ describe('ErrorBoundary', () => {
 
   // Test 11: Report button sends error to server
   it('should send error to server when report button is clicked', async () => {
-    const mockSendBeacon = vi.fn();
-    global.navigator.sendBeacon = mockSendBeacon;
+    const mockFetch = vi.fn().mockResolvedValue({ ok: true });
+    global.fetch = mockFetch;
 
     const error = new Error('Test error');
     boundary.captureError(error);
@@ -149,7 +149,7 @@ describe('ErrorBoundary', () => {
     // Wait for async operation
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    expect(mockSendBeacon).toHaveBeenCalled();
+    expect(mockFetch).toHaveBeenCalled();
     expect(reportBtn.textContent).toContain('Reportado');
   });
 

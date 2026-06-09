@@ -1,9 +1,9 @@
 /**
- * Photo Upload Component — User profile photo management
+ * Photo Upload Component â€” User profile photo management
  */
 
 import { stateManager } from '../../state/state-manager.js';
-import logger from '../../platform/logger.js';
+import { logger } from '../../utils/logger.js';
 
 export class PhotoUpload {
   constructor(container) {
@@ -38,11 +38,11 @@ export class PhotoUpload {
                 id="profilePhotoDisplay"
               >
               <button class="btn-delete-photo" id="deletePhotoBtn">
-                🗑️ Remover Foto
+                ðŸ—‘ï¸ Remover Foto
               </button>
             ` : `
               <div class="photo-placeholder">
-                <span class="photo-icon">📷</span>
+                <span class="photo-icon">ðŸ“·</span>
                 <p>Sem foto de perfil</p>
               </div>
             `}
@@ -58,7 +58,7 @@ export class PhotoUpload {
                 style="display: none"
               >
               <button class="btn-upload-photo" id="selectPhotoBtn">
-                📤 Escolher Foto
+                ðŸ“¤ Escolher Foto
               </button>
             </div>
 
@@ -73,7 +73,7 @@ export class PhotoUpload {
 
             <!-- Upload Button -->
             <button class="btn-confirm-upload" id="uploadBtn" style="display: none">
-              ✅ Fazer Upload
+              âœ… Fazer Upload
             </button>
           </div>
 
@@ -84,10 +84,10 @@ export class PhotoUpload {
           <div class="guidelines">
             <p><strong>Requisitos:</strong></p>
             <ul>
-              <li>✅ Formatos: JPG, PNG, WebP, GIF</li>
-              <li>✅ Tamanho máximo: 5MB</li>
-              <li>✅ Resolução recomendada: 400x400px</li>
-              <li>✅ Somente usuários logados</li>
+              <li>âœ… Formatos: JPG, PNG, WebP, GIF</li>
+              <li>âœ… Tamanho mÃ¡ximo: 5MB</li>
+              <li>âœ… ResoluÃ§Ã£o recomendada: 400x400px</li>
+              <li>âœ… Somente usuÃ¡rios logados</li>
             </ul>
           </div>
         </div>
@@ -311,8 +311,8 @@ export class PhotoUpload {
     const fileSize = this.container.querySelector('#fileSize');
     const uploadBtn = this.container.querySelector('#uploadBtn');
 
-    fileName.textContent = `📄 ${file.name}`;
-    fileSize.textContent = `💾 ${(file.size / 1024).toFixed(2)} KB`;
+    fileName.textContent = `ðŸ“„ ${file.name}`;
+    fileSize.textContent = `ðŸ’¾ ${(file.size / 1024).toFixed(2)} KB`;
     fileInfo.style.display = 'block';
     uploadBtn.style.display = 'block';
 
@@ -347,7 +347,7 @@ export class PhotoUpload {
                    localStorage.getItem('authToken');
 
       if (!token) {
-        throw new Error('Você precisa estar logado para fazer upload');
+        throw new Error('VocÃª precisa estar logado para fazer upload');
       }
 
       // Upload
@@ -376,7 +376,7 @@ export class PhotoUpload {
 
         // Update UI
         progress.style.width = '100%';
-        this.showStatus('✅ Foto enviada com sucesso!', 'success');
+        this.showStatus('âœ… Foto enviada com sucesso!', 'success');
         this.selectedFile = null;
 
         // Reset form after delay
@@ -390,7 +390,7 @@ export class PhotoUpload {
       }
     } catch (error) {
       logger.error('Photo upload failed', error);
-      this.showStatus(`❌ Erro: ${error.message}`, 'error');
+      this.showStatus(`âŒ Erro: ${error.message}`, 'error');
       uploadBtn.disabled = false;
     }
   }
@@ -426,13 +426,13 @@ export class PhotoUpload {
         photo: null
       });
 
-      this.showStatus('✅ Foto removida com sucesso', 'success');
+      this.showStatus('âœ… Foto removida com sucesso', 'success');
       this.remountWithNewPhoto(null);
 
       logger.info('Photo deleted successfully');
     } catch (error) {
       logger.error('Photo deletion failed', error);
-      this.showStatus(`❌ Erro: ${error.message}`, 'error');
+      this.showStatus(`âŒ Erro: ${error.message}`, 'error');
     }
   }
 
@@ -447,14 +447,14 @@ export class PhotoUpload {
     if (!this.allowedTypes.includes(file.type)) {
       return {
         valid: false,
-        error: `Tipo de arquivo inválido. Permitidos: ${this.allowedTypes.join(', ')}`
+        error: `Tipo de arquivo invÃ¡lido. Permitidos: ${this.allowedTypes.join(', ')}`
       };
     }
 
     if (file.size > this.maxFileSize) {
       return {
         valid: false,
-        error: `Arquivo muito grande. Máximo: 5MB (seu arquivo: ${(file.size / 1024 / 1024).toFixed(2)}MB)`
+        error: `Arquivo muito grande. MÃ¡ximo: 5MB (seu arquivo: ${(file.size / 1024 / 1024).toFixed(2)}MB)`
       };
     }
 
@@ -491,3 +491,5 @@ export class PhotoUpload {
 }
 
 export default PhotoUpload;
+
+

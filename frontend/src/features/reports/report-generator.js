@@ -4,7 +4,7 @@
  */
 
 import { stateManager } from '../../state/state-manager.js';
-import logger from '../../platform/logger.js';
+import { logger } from '../../utils/logger.js';
 
 export class ReportGenerator {
   constructor() {

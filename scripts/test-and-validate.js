@@ -5,8 +5,13 @@
  * Tests Firecrawl connection and validates all integrations
  */
 
-const API_KEY = 'FIRECRAWL_KEY_REMOVED';
+const API_KEY = process.env.FIRECRAWL_API_KEY;
 const BASE_URL = 'https://api.firecrawl.dev/v1';
+
+if (!API_KEY) {
+  console.error('FIRECRAWL_API_KEY not set. Export it before running this script.');
+  process.exit(1);
+}
 
 class TestSuite {
   constructor() {

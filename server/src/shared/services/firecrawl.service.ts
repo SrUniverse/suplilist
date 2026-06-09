@@ -4,6 +4,7 @@
  */
 
 import axios from 'axios';
+import { buildAffiliateLink, isDirectProductUrl, type Marketplace } from './affiliate-link.builder.js';
 
 interface FirecrawlResponse {
   success: boolean;
@@ -18,8 +19,13 @@ interface ScrapedSupplement {
   name: string;
   dosage?: string;
   price: number;
+  /** Best link for the user — affiliate-applied when the marketplace supports it. */
   url: string;
-  source: 'amazon' | 'mercadolivre' | 'shopee';
+  /** Direct product page URL when one was found in the scrape, else undefined. */
+  directUrl?: string;
+  /** True only when an affiliate identifier that credits the sale was applied. */
+  affiliateApplied?: boolean;
+  source: Marketplace;
 }
 
 export class FirecrawlService {
@@ -258,16 +264,39 @@ export class FirecrawlService {
 
           seen.add(key);
 
-          const affiliateUrl = this.addAffiliateParams(normalizedName, source);
+          // Prefer the DIRECT product link found in the scraped markdown.
+          // The product heading (with the link) usually sits a few lines ABOVE
+          // the price, so search a small window nearest-to-price first to avoid
+          // picking up the previous product's link.
+          const lookback: string[] = [];
+          for (let j = i; j >= Math.max(0, i - 3); j--) {
+            lookback.push(productBlocks[j]);
+          }
+          const directUrl = this.extractProductUrl(lookback, source);
+          // Fall back to a marketplace search URL when no product link is present.
+          const linkBase = directUrl ?? this.getSearchUrls(source, normalizedName)[0];
+          const { url, affiliateApplied, reason } = buildAffiliateLink(
+            linkBase,
+            source,
+            this.affiliateCodes
+          );
+
+          if (!affiliateApplied && reason) {
+            console.warn(`[FirecrawlService] No affiliate credit for ${source}: ${reason}`);
+          }
 
           console.log(
-            `[FirecrawlService] Found: ${normalizedName} @ R$${price.toFixed(2)} (${source})`
+            `[FirecrawlService] Found: ${normalizedName} @ R$${price.toFixed(2)} ` +
+              `(${source}, ${directUrl ? 'direct link' : 'search link'}, ` +
+              `affiliate ${affiliateApplied ? 'applied' : 'pending'})`
           );
 
           results.push({
             name: normalizedName,
             price,
-            url: affiliateUrl,
+            url,
+            directUrl,
+            affiliateApplied,
             source,
           });
         }
@@ -344,38 +373,53 @@ export class FirecrawlService {
   }
 
   /**
-   * Generate affiliate search URLs for marketplaces
-   * Each marketplace has its own affiliate code embedded in search URLs
+   * Extract a marketplace product URL from scraped markdown blocks.
    *
-   * Strategy: Generate search URLs with affiliate codes instead of individual product links
-   * This ensures affiliate tracking works correctly across all marketplaces
+   * Looks for a markdown link target `[text](url)` or a bare URL that belongs to
+   * the marketplace domain. Prefers a direct product page (per
+   * isDirectProductUrl); otherwise returns the first marketplace URL found, or
+   * undefined when none is present (caller falls back to a search URL).
    *
-   * Affiliate codes are loaded from environment variables:
-   * - AFFILIATE_CODE_AMAZON: Amazon affiliate tag
-   * - AFFILIATE_CODE_MERCADOLIVRE: Mercado Livre affiliate code
-   * - AFFILIATE_CODE_SHOPEE: Shopee affiliate ID
+   * Affiliate attribution is applied separately by buildAffiliateLink — this
+   * method only locates the link.
    */
-  private addAffiliateParams(productName: string, source: 'amazon' | 'mercadolivre' | 'shopee'): string {
-    const encoded = encodeURIComponent(productName);
+  private extractProductUrl(blocks: string[], source: Marketplace): string | undefined {
+    const domain = this.getDomain(source);
+    // Capture markdown link targets and bare URLs containing the marketplace domain.
+    const urlPattern = new RegExp(
+      `(https?:\\/\\/)?(?:www\\.|produto\\.|lista\\.)?${domain.replace(/\./g, '\\.')}[^\\s)\\]"']*`,
+      'gi'
+    );
 
+    let firstMatch: string | undefined;
+
+    for (const block of blocks) {
+      if (!block) continue;
+      const matches = block.match(urlPattern);
+      if (!matches) continue;
+
+      for (const raw of matches) {
+        const normalized = raw.startsWith('http') ? raw : `https://${raw}`;
+        firstMatch ??= normalized;
+        // Prefer a direct product page as soon as we find one.
+        if (isDirectProductUrl(normalized, source)) {
+          return normalized;
+        }
+      }
+    }
+
+    return firstMatch;
+  }
+
+  /** Canonical domain per marketplace, used for URL matching. */
+  private getDomain(source: Marketplace): string {
     switch (source) {
       case 'amazon':
-        // Amazon search with affiliate tag
-        // When user clicks → goes to Amazon search → sees products → affiliate tracks the sale
-        return `https://www.amazon.com.br/s?k=${encoded}&tag=${this.affiliateCodes.amazon}&s=review-rank`;
-
+        return 'amazon.com.br';
       case 'mercadolivre':
-        // Mercado Livre search with affiliate code in path
-        // Format: https://lista.mercadolivre.com.br/[AFFILIATE_CODE]/[SEARCH_QUERY]
-        return `https://lista.mercadolivre.com.br/${this.affiliateCodes.mercadolivre}/${encoded}`;
-
+        return 'mercadolivre.com.br';
       case 'shopee':
-        // Shopee search with affid parameter
-        // When user clicks → goes to Shopee search → sees products → affiliate tracks via affid
-        return `https://shopee.com.br/search?keyword=${encoded}&affid=${this.affiliateCodes.shopee}`;
-
-      default:
-        return '';
+        return 'shopee.com.br';
     }
   }
 }

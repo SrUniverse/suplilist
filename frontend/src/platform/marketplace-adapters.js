@@ -2,7 +2,7 @@
  * Marketplace Adapters — Fetch prices from different sources
  */
 
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Base adapter for marketplace APIs

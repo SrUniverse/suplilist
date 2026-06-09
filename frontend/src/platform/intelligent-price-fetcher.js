@@ -4,7 +4,7 @@
 
 import priceAggregator from './price-aggregator.js';
 import firecrawlAdapter from './firecrawl-adapter.js';
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
 export class IntelligentPriceFetcher {
   constructor() {

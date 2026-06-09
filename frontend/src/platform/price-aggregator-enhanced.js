@@ -1,11 +1,11 @@
-/**
- * Enhanced Price Aggregator — Integrated with Firecrawl
+﻿/**
+ * Enhanced Price Aggregator â€” Integrated with Firecrawl
  * Combines API-based and web scraping for maximum coverage
  */
 
 import { PriceAggregator } from './price-aggregator.js';
 import { FirecrawlAdapter } from './firecrawl-adapter.js';
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
 export class EnhancedPriceAggregator extends PriceAggregator {
   constructor(useMocks = false) {
@@ -263,3 +263,5 @@ export class EnhancedPriceAggregator extends PriceAggregator {
 }
 
 export default new EnhancedPriceAggregator(true); // Use with Firecrawl by default
+
+

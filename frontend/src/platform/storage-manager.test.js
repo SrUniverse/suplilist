@@ -94,8 +94,82 @@ describe('StorageManager', () => {
   it('should migrate data between storages', () => {
     storageManager.setSession('temp', 'value');
     storageManager.migrate('temp', 'session', 'local');
-    
+
     expect(storageManager.getLocal('temp')).toBe('value');
     expect(storageManager.getSession('temp')).toBeUndefined();
+  });
+
+  it('should migrate from local to session', () => {
+    storageManager.setLocal('item', { x: 1 });
+    storageManager.migrate('item', 'local', 'session');
+    expect(storageManager.getSession('item')).toEqual({ x: 1 });
+    expect(storageManager.getLocal('item')).toBeUndefined();
+  });
+
+  it('should not migrate when key does not exist', () => {
+    storageManager.migrate('nonexistent', 'local', 'session');
+    expect(storageManager.getSession('nonexistent')).toBeUndefined();
+  });
+
+  it('should removeLocal', () => {
+    storageManager.setLocal('toRemove', 'value');
+    storageManager.removeLocal('toRemove');
+    expect(storageManager.getLocal('toRemove')).toBeUndefined();
+  });
+
+  it('should removeSession', () => {
+    storageManager.setSession('toRemove', 'value');
+    storageManager.removeSession('toRemove');
+    expect(storageManager.getSession('toRemove')).toBeUndefined();
+  });
+
+  it('should listKeys', () => {
+    storageManager.setLocal('lk1', 'v1');
+    storageManager.setLocal('lk2', 'v2');
+    const keys = storageManager.listKeys();
+    expect(Array.isArray(keys)).toBe(true);
+    expect(keys.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('should getKeys for session storage', () => {
+    storageManager.setSession('s1', 'x');
+    const keys = storageManager.getKeys('session');
+    expect(keys).toContain('s1');
+  });
+
+  it('should setItem validation — throw on invalid key', async () => {
+    await expect(storageManager.setItem('', 'v')).rejects.toThrow();
+  });
+
+  it('should setItem validation — throw on key with semicolon', async () => {
+    await expect(storageManager.setItem('bad;key', 'v')).rejects.toThrow();
+  });
+
+  it('should setItem validation — throw on undefined value', async () => {
+    await expect(storageManager.setItem('validKey', undefined)).rejects.toThrow();
+  });
+
+  it('should getItem fallback to localStorage', async () => {
+    localStorage.setItem('testFallback', '"hello"');
+    const val = await storageManager.getItem('testFallback');
+    expect(val).not.toBeNull();
+  });
+
+  it('should getItemSync from localStorage', () => {
+    localStorage.setItem('syncKey', '"syncValue"');
+    const val = storageManager.getItemSync('syncKey');
+    expect(val).toBe('"syncValue"');
+  });
+
+  it('should removeItem via localStorage fallback', async () => {
+    localStorage.setItem('removeMe', 'v');
+    await storageManager.removeItem('removeMe');
+    expect(localStorage.getItem('removeMe')).toBeNull();
+  });
+
+  it('should getAllKeys from localStorage', () => {
+    localStorage.setItem('allKeys1', 'v');
+    const keys = storageManager.getAllKeys();
+    expect(Array.isArray(keys)).toBe(true);
   });
 });

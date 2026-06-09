@@ -1,10 +1,10 @@
 /**
- * Social Sharing — Share achievement streak on social media
+ * Social Sharing â€” Share achievement streak on social media
  * Increases viral potential through WhatsApp, Twitter, LinkedIn
  */
 
 import { stateManager } from '../../state/state-manager.js';
-import logger from '../../platform/logger.js';
+import { logger } from '../../utils/logger.js';
 
 export class SocialSharing {
   constructor() {
@@ -52,11 +52,11 @@ export class SocialSharing {
    */
   shareMonthlyReport(report, platform) {
     const message = `
-🎯 Meu Relatório de Aderência - ${report.monthName} ${report.year}
+ðŸŽ¯ Meu RelatÃ³rio de aderência - ${report.monthName} ${report.year}
 
-📊 Aderência: ${report.metrics.adherencePercent}%
-✅ Dias Perfeitos: ${report.metrics.perfectDays}
-📈 Tendência: ${report.metrics.trend === 'improving' ? 'Melhorando ✨' : 'Atenção ⚠️'}
+ðŸ“Š aderência: ${report.metrics.adherencePercent}%
+âœ… Dias Perfeitos: ${report.metrics.perfectDays}
+ðŸ“ˆ TendÃªncia: ${report.metrics.trend === 'improving' ? 'Melhorando âœ¨' : 'AtenÃ§Ã£o âš ï¸'}
 
 Estou acompanhando minha saúde com #SupliList!
     `;
@@ -81,7 +81,7 @@ Estou acompanhando minha saúde com #SupliList!
       `${icons.fire} ${streak} dias de aderência perfeita! ${icons.fire}\n\nMantendo minha saúde em dia com #SupliList!`,
       `${icons.star} Consegui ${adherence}% de aderência este mês! ${icons.trophy}\n\nTomando meus suplementos regularmente com #SupliList!`,
       `${icons.calendar} ${streak} dias consecutivos tomando meus suplementos!\n\n${icons.success} Consistência leva a resultados! #SupliList`,
-      `${icons.trophy} Desbloqueei o troféu de ${streak} dias de aderência!\n\nStayinig consistent with #SupliList!`
+      `${icons.trophy} Desbloqueei o troféu de ${streak} dias de aderência!\n\nStaying consistent with #SupliList!`
     ];
 
     return messages[Math.floor(Math.random() * messages.length)];
@@ -101,7 +101,7 @@ Estou acompanhando minha saúde com #SupliList!
   shareReferralLink(platform) {
     const profile = stateManager.select(s => s.profile);
     const message = encodeURIComponent(
-      `Oi! 👋 Você toma suplementos regularmente? Veja o SupliList - um app incrível para acompanhar sua aderência.\n\nQual é seu melhor dia para tomar suplementos? ${this.generateReferralLink(profile?.id)}`
+      `Oi! ðŸ‘‹ VocÃª toma suplementos regularmente? Veja o SupliList - um app incrÃ­vel para acompanhar sua aderência.\n\nQual Ã© seu melhor dia para tomar suplementos? ${this.generateReferralLink(profile?.id)}`
     );
 
     if (platform === 'whatsapp') {
@@ -192,11 +192,11 @@ Estou acompanhando minha saúde com #SupliList!
     return `
       <div class="share-buttons">
         <button class="share-btn whatsapp" onclick="socialSharing.shareStreakWhatsApp(${streak}, ${adherence})">
-          <span class="icon">💬</span>
+          <span class="icon">ðŸ’¬</span>
           <span>WhatsApp</span>
         </button>
         <button class="share-btn twitter" onclick="socialSharing.shareStreakTwitter(${streak}, ${adherence})">
-          <span class="icon">𝕏</span>
+          <span class="icon">ð•</span>
           <span>Twitter</span>
         </button>
         <button class="share-btn linkedin" onclick="socialSharing.shareStreakLinkedIn(${streak}, ${adherence})">
@@ -218,13 +218,13 @@ Estou acompanhando minha saúde com #SupliList!
   /**
    * Get share prompt message
    */
-  getSharePromptMessage(streak) {
+    getSharePromptMessage(streak) {
     const messages = {
       7: '🎉 Parabéns! Você atingiu 7 dias de aderência! Compartilhe seu sucesso?',
       14: '🌟 Incrível! 2 semanas de consistência! Inspire amigos a cuidarem da saúde.',
-      30: '🏆 Um mês perfeito! Você é consistente. Divida essa vitória!',
+      30: '🏆 Um mês perfeito (30 dias)! Você é consistente. Divida essa vitória!',
       60: '👏 60 dias! Você é uma máquina de dedicação. Mostre seus resultados!',
-      90: '💪 3 meses! Você é inspirador. Compartilhe sua jornada!',
+      90: '💪 3 meses (90 dias)! Você é inspirador. Compartilhe sua jornada!',
       100: '🚀 100 dias! Você é uma lenda! Influencie outros!'
     };
 
@@ -233,3 +233,5 @@ Estou acompanhando minha saúde com #SupliList!
 }
 
 export default new SocialSharing();
+
+

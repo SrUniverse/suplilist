@@ -5,8 +5,13 @@
  * Validates API key and performs test scrapes
  */
 
-const API_KEY = 'FIRECRAWL_KEY_REMOVED';
+const API_KEY = process.env.FIRECRAWL_API_KEY;
 const BASE_URL = 'https://api.firecrawl.dev/v1';
+
+if (!API_KEY) {
+  console.error('FIRECRAWL_API_KEY not set. Export it before running this script.');
+  process.exit(1);
+}
 
 async function testFirecrawlConnection() {
   console.log('\n🔍 Testing Firecrawl Connection...\n');
@@ -108,7 +113,7 @@ async function testFirecrawlConnection() {
   } catch (error) {
     console.error('❌ Error:', error.message);
     console.log('\nTroubleshooting:');
-    console.log('  1. Check API key: FIRECRAWL_KEY_REMOVED');
+    console.log('  1. Check API key is set in FIRECRAWL_API_KEY env var');
     console.log('  2. Verify .env.local file exists');
     console.log('  3. Check Firecrawl dashboard for usage limits');
     console.log('  4. Visit: https://app.firecrawl.dev\n');

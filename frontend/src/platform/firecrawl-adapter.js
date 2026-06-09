@@ -3,7 +3,7 @@
  * Integrates Firecrawl API for intelligent data extraction
  */
 
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
 export class FirecrawlAdapter {
   constructor(apiKey) {

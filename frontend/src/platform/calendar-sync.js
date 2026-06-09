@@ -3,7 +3,7 @@
  * Syncs supplement reminders to user's calendar automatically
  */
 
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 
 export class CalendarSync {
   constructor() {

@@ -139,8 +139,9 @@ describe('API Integration Tests', () => {
   });
 
   it('should handle concurrent requests', async () => {
-    global.fetch.mockResolvedValue(
-      new Response(JSON.stringify({ data: [] }))
+    // Each call needs its own Response instance — a body can only be read once
+    global.fetch.mockImplementation(() =>
+      Promise.resolve(new Response(JSON.stringify({ data: [] })))
     );
 
     await Promise.all([

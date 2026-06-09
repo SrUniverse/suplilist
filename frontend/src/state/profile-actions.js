@@ -1,9 +1,9 @@
-/**
- * Profile Actions — State management for profile updates
+﻿/**
+ * Profile Actions â€” State management for profile updates
  */
 
 import { stateManager } from './state-manager.js';
-import logger from '../platform/logger.js';
+import { logger } from '../utils/logger.js';
 
 export const PROFILE_ACTIONS = {
   UPDATE_PROFILE: 'UPDATE_PROFILE',
@@ -86,3 +86,5 @@ export default {
   setLoading,
   setError
 };
+
+

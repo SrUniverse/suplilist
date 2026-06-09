@@ -232,12 +232,11 @@ describe('IntelligentPriceFetcher', () => {
 
     const fetchPromise = fetcher.fetchPrices('Vitamin D');
 
-    // Simulate timeout
     const timeoutPromise = new Promise((resolve) =>
-      setTimeout(() => resolve({ error: 'timeout' }), 5000)
+      setTimeout(() => resolve({ error: 'timeout' }), 100)
     );
 
     const result = await Promise.race([fetchPromise, timeoutPromise]);
     expect(result || {}).toBeDefined();
-  });
+  }, 2000);
 });

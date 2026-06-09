@@ -125,19 +125,19 @@ describe('PerformanceMonitor', () => {
 
   // Test 11: Report metric to backend
   it('should report metrics to backend in production', () => {
-    const sendBeaconMock = vi.fn();
-    global.navigator.sendBeacon = sendBeaconMock;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
     import.meta.env.PROD = true;
 
     monitor.trackApiResponse('/api/test', 250);
 
-    expect(sendBeaconMock).toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalled();
   });
 
   // Test 12: Does not report in development
   it('should not report metrics to backend in development', () => {
-    const sendBeaconMock = vi.fn();
-    global.navigator.sendBeacon = sendBeaconMock;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
     import.meta.env.PROD = false;
 
     monitor.trackApiResponse('/api/test', 250);

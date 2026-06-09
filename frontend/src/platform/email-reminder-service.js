@@ -5,7 +5,7 @@
 
 import { ReportGenerator } from '../features/reports/report-generator.js';
 import { stateManager } from '../state/state-manager.js';
-import logger from './logger.js';
+import { logger } from '../utils/logger.js';
 import { sanitizeHtml } from './html-sanitizer.js';  // FIX C1: Add HTML sanitization
 
 export class EmailReminderService {

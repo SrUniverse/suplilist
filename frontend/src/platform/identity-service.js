@@ -192,6 +192,8 @@ class IdentityService {
         // Network down, no cookie, or cookie expired — not an error, just a visitor.
         if (err instanceof ApiError && err.status !== 0) {
           logger.info('[IdentityService] No active session —', err.error);
+          eventBus.emit(EVENTS.AUTH_LOGOUT);
+          stateManager.dispatch(ACTIONS.AUTH_LOGOUT);
         } else if (err?.status === 0) {
           logger.warn('[IdentityService] Network unavailable during session probe.');
         }

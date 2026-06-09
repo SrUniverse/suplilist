@@ -112,14 +112,22 @@ export function handleError(error, context = 'unknown', options = {}) {
   logger.error(`[ErrorHandler] ${ctx}:`, errorLog);
 
   // 2. Log para servidor em produção
-  if (logServer && import.meta.env.MODE === 'production') {
+  if (logServer && import.meta.env.PROD) {
     try {
-      navigator.sendBeacon(
+      fetch(
         `${import.meta.env.VITE_API_BASE_URL || ''}/api/logs/errors`,
-        JSON.stringify(errorLog)
-      );
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-SupliList-Client': '1'
+          },
+          body: JSON.stringify(errorLog),
+          keepalive: true
+        }
+      ).catch(() => {});
     } catch (e) {
-      // Ignore beacon failures
+      // Silent fail for logging errors
     }
   }
 

@@ -248,13 +248,15 @@ export class PerformanceMonitor {
           url: window.location.href,
         };
 
-        // Use sendBeacon for reliability
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(
-            `${import.meta.env.VITE_API_BASE_URL || ''}/api/metrics/performance`,
-            JSON.stringify(payload)
-          );
-        }
+        fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/metrics/performance`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-SupliList-Client': '1'
+          },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(() => {}); // silently ignore errors
       } catch (error) {
         // Silently fail to not impact app
       }

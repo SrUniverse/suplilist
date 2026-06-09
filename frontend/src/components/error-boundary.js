@@ -206,21 +206,19 @@ export class ErrorBoundary {
         url: this.errorInfo.url,
       };
 
-      // Use sendBeacon for offline-safe reporting
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(
-          `${import.meta.env.VITE_API_BASE_URL || ''}/api/logs/errors`,
-          JSON.stringify(payload)
-        );
-      } else {
-        // Fallback to fetch
-        await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/logs/errors`, {
+      // Use fetch keepalive for offline-safe reporting with custom headers
+      fetch(
+        `${import.meta.env.VITE_API_BASE_URL || ''}/api/logs/errors`,
+        {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-SupliList-Client': '1'
+          },
           body: JSON.stringify(payload),
-          keepalive: true,
-        });
-      }
+          keepalive: true
+        }
+      ).catch(() => {}); // silently ignore
 
       btnReport.textContent = 'Reportado! Obrigado';
     } catch (err) {

@@ -151,23 +151,18 @@ async function flush() {
   logger.debug(`[ErrorTracking] Sending ${toSend.length} errors to server`);
 
   try {
-    if (navigator.sendBeacon) {
-      // Use sendBeacon for offline-safe delivery
-      navigator.sendBeacon(
-        config.endpoint,
-        JSON.stringify({ errors: toSend })
-      );
-    } else {
-      // Fallback to fetch with keepalive
-      await fetch(config.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ errors: toSend }),
-        keepalive: true,
-      });
-    }
-  } catch (err) {
-    logger.error('[ErrorTracking] Failed to send errors:', err);
+    // Use fetch keepalive for offline-safe delivery with custom headers
+    fetch(config.endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-SupliList-Client': '1'
+      },
+      body: JSON.stringify({ errors: toSend }),
+      keepalive: true
+    }).catch(() => {});
+  } catch (e) {
+    logger.error('[ErrorTracking] Failed to send errors:', e);
     // Re-queue the errors if send failed (but limit queue size)
     if (state.errors.length < config.maxErrors) {
       state.errors.unshift(...toSend);

@@ -29,6 +29,7 @@ const routes = [
   { path: '/',           load: () => import('../features/home/home-page.js') },
   { path: '/home',       load: () => import('../features/home/home-page.js') },
   { path: '/list',       load: () => import('../features/supplements/list-page.js') },
+  { path: '/lista',      load: () => import('../features/supplements/list-page.js') },
   { path: '/my-stack',   load: () => import('../features/stack/my-stack-page.js') },
   { path: '/checkin',    load: () => import('../features/checkin/checkin-page.js') },
   { path: '/history',    load: () => import('../features/history/history-page.js') },
@@ -67,6 +68,11 @@ const PAGE_METADATA = {
     keywords: 'suplementos, creatina, whey protein, vitaminas, comparador de preços, dosagem, suplementação, stack de suplementos'
   },
   '/list': {
+    title: 'Catálogo de Suplementos | SupliList',
+    description: 'Veja o catálogo completo com 57+ suplementos esportivos e fitoterápicos. Classificados por Nível de Evidência Científica (Grau A, B, C) e comparação de preços.',
+    keywords: 'catalogo de suplementos, whey protein barato, creatina pura, comprar suplementos'
+  },
+  '/lista': {
     title: 'Catálogo de Suplementos | SupliList',
     description: 'Veja o catálogo completo com 57+ suplementos esportivos e fitoterápicos. Classificados por Nível de Evidência Científica (Grau A, B, C) e comparação de preços.',
     keywords: 'catalogo de suplementos, whey protein barato, creatina pura, comprar suplementos'

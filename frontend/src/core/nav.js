@@ -122,7 +122,8 @@ export class Nav {
 
   static updateActive(pathname) {
     const currentPath = pathname.split('?')[0] || '/';
-    const normalized = currentPath === '/home' ? '/' : currentPath;
+    let normalized = currentPath === '/home' ? '/' : currentPath;
+    if (normalized === '/lista') normalized = '/list'; // handle alias
 
     Nav.updateSubtitle(normalized);
 
@@ -292,6 +293,7 @@ export class Nav {
   static _getSidebarSubtitle(path) {
     const routeMap = {
       '/list':      'Supplement Catalog',
+      '/lista':     'Supplement Catalog',
       '/my-stack':  'Precision Management',
       '/history':   'Vitals Optimized',
       '/dosage':    'Clinical Access',

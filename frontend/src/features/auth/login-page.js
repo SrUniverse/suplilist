@@ -144,9 +144,7 @@ export default class LoginPage {
   // ── Renderização ─────────────────────────────────────────────────────────────
 
   _render() {
-    const errorHtml = this._errorMessage
-      ? `<div class="onboarding-error" data-testid="login-error" role="alert">${escapeHtml(this._errorMessage)}</div>`
-      : '';
+    const errorHtml = `<div class="onboarding-error" data-testid="login-error" role="alert"${this._errorMessage ? '' : ' hidden'}>${this._errorMessage ? escapeHtml(this._errorMessage) : ''}</div>`;
 
     this.container.innerHTML = `
       <div class="onboarding-wrap">
@@ -816,6 +814,7 @@ export default class LoginPage {
     let el = this.container.querySelector('.onboarding-error');
     if (el) {
       el.textContent = message;
+      el.removeAttribute('hidden');
       return;
     }
     el = document.createElement('div');

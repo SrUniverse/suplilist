@@ -1,4 +1,6 @@
 {
+  "installCommand": "npm install",
+  "buildCommand": "vite build && node ../scripts/prerender.cjs",
   "rewrites": [
     {
       "source": "/api/(.*)",

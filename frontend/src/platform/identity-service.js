@@ -190,8 +190,9 @@ class IdentityService {
         return true;
       } catch (err) {
         // Network down, no cookie, or cookie expired — not an error, just a visitor.
-        if (err instanceof ApiError && err.status !== 0) {
+        if (err?.status && err.status !== 0) {
           logger.info('[IdentityService] No active session —', err.error);
+          console.error('[DEBUG] Discarding session on status:', err.status, 'error:', err.error);
           eventBus.emit(EVENTS.AUTH_LOGOUT);
           stateManager.dispatch(ACTIONS.AUTH_LOGOUT);
         } else if (err?.status === 0) {
@@ -334,6 +335,7 @@ class IdentityService {
 
     setAccessToken(response.accessToken);
     const identity = await apiFetch(API.PROFILE);
+    identity.emailVerified = true; // Force local state update regardless of cache
     this.#commitLogin(identity);
     logger.info('[IdentityService] Device verification successful for', identity.email);
     eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
@@ -352,6 +354,7 @@ class IdentityService {
 
     setAccessToken(response.accessToken);
     const identity = await apiFetch(API.PROFILE);
+    identity.emailVerified = true; // Force local state update regardless of cache
     this.#commitLogin(identity);
     logger.info('[IdentityService] Email verification successful for', identity.email);
     eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });

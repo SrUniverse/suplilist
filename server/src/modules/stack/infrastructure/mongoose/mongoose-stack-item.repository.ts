@@ -66,4 +66,48 @@ export class MongooseStackItemRepository implements IStackItemRepository {
     const result = await StackItemModel.deleteOne({ _id: id, userId });
     return result.deletedCount > 0;
   }
+
+  async bulkUpsert(userId: string, items: any[]): Promise<{ upserted: number, modified: number }> {
+    if (!items || items.length === 0) return { upserted: 0, modified: 0 };
+    
+    const bulkOps = items.map(item => {
+      // Determine dose value considering the legacy 'dosage' object format vs number
+      let doseVal = item.dose ?? 0;
+      if (item.dosage !== undefined) {
+        if (typeof item.dosage === 'number') {
+          doseVal = item.dosage;
+        } else if (typeof item.dosage === 'object' && item.dosage !== null) {
+          doseVal = item.dosage.amount ?? 0;
+        }
+      }
+
+      return {
+        updateOne: {
+          filter: { userId, supplementId: item.supplementId },
+          update: {
+            $set: {
+              userId,
+              supplementId: item.supplementId,
+              dose: doseVal,
+              frequency: item.frequency === 'weekly' || item.frequency === 'custom' ? item.frequency : 'daily',
+              timeOfDay: item.timeOfDay || 'anytime',
+              notes: item.notes || item.name || null, // save name in notes if available for backward compat
+              updatedAt: new Date()
+            },
+            $setOnInsert: {
+              createdAt: new Date(),
+              __v: 0
+            }
+          },
+          upsert: true
+        }
+      };
+    });
+
+    const result = await StackItemModel.bulkWrite(bulkOps, { ordered: false });
+    return {
+      upserted: result.upsertedCount || 0,
+      modified: result.modifiedCount || 0
+    };
+  }
 }

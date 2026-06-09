@@ -3,14 +3,31 @@ import { GetMyStackUseCase } from '../../application/use-cases/get-my-stack.use-
 import { AddItemToStackUseCase } from '../../application/use-cases/add-item-to-stack.use-case.js';
 import { UpdateStackItemUseCase } from '../../application/use-cases/update-stack-item.use-case.js';
 import { RemoveStackItemUseCase } from '../../application/use-cases/remove-stack-item.use-case.js';
+import { BulkSetStackUseCase } from '../../application/use-cases/bulk-set-stack.use-case.js';
 
 export class StackController {
   constructor(
     private getMyStackUseCase: GetMyStackUseCase,
     private addItemToStackUseCase: AddItemToStackUseCase,
     private updateStackItemUseCase: UpdateStackItemUseCase,
-    private removeStackItemUseCase: RemoveStackItemUseCase
+    private removeStackItemUseCase: RemoveStackItemUseCase,
+    private bulkSetStackUseCase: BulkSetStackUseCase
   ) {}
+
+  async bulkSet(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) return res.status(401).json({ success: false, error: 'unauthenticated' });
+
+      // req.body should be an array of items for stack migration
+      const items = Array.isArray(req.body) ? req.body : [];
+      const result = await this.bulkSetStackUseCase.execute(userId, items);
+      
+      return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   async getMyStack(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {

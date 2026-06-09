@@ -6,4 +6,5 @@ export interface IStackItemRepository {
   save(item: StackItem): Promise<StackItem>;
   updateWithConcurrency(id: string, userId: string, expectedVersion: number, updates: Partial<StackItem>): Promise<StackItem | null>;
   remove(id: string, userId: string): Promise<boolean>;
+  bulkUpsert(userId: string, items: any[]): Promise<{ upserted: number, modified: number }>;
 }

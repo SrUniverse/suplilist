@@ -50,12 +50,9 @@ export class FirecrawlService {
   constructor() {
     const apiKey = process.env.FIRECRAWL_API_KEY;
     if (!apiKey) {
-      throw new Error(
-        'FIRECRAWL_API_KEY environment variable is not configured. ' +
-        'Set it before starting the server.'
-      );
+      console.warn('[FirecrawlService] FIRECRAWL_API_KEY not configured — price crawling disabled');
     }
-    this.apiKey = apiKey;
+    this.apiKey = apiKey || '';
 
     // Load affiliate codes from environment variables
     const amazonCode = process.env.AFFILIATE_CODE_AMAZON;

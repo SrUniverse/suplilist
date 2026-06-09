@@ -340,6 +340,24 @@ class IdentityService {
   }
 
   /**
+   * Verify email using OTP
+   */
+  async verifyOtp(email, code) {
+    const response = await apiFetch('/api/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, code })
+    });
+
+    setAccessToken(response.accessToken);
+    const identity = await apiFetch(API.PROFILE);
+    this.#commitLogin(identity);
+    logger.info('[IdentityService] Email verification successful for', identity.email);
+    eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
+
+    return identity;
+  }
+
+  /**
    * Sign the current user out, locally and on the server.
    *
    * Sequence (fail-fast order):

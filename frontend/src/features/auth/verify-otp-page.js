@@ -116,19 +116,10 @@ export default class VerifyOtpPage {
       this._disableInputs(true);
       
       try {
-        const response = await apiFetch('/api/auth/verify-otp', {
-          method: 'POST',
-          body: JSON.stringify({ email: this._email, code })
-        });
-        
-        // Save the real session token using platform logic
-        setAccessToken(response.accessToken);
+        await identityService.verifyOtp(this._email, code);
 
         // Remove email pendente
         localStorage.removeItem('pending_verification_email');
-        
-        // Atualiza a sessão silenciosamente
-        await identityService.initializeSession();
 
         // Animação de sucesso
         if (!this._isMounted) return;

@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "vite build && node ../scripts/prerender.cjs",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/api/(.*)",

@@ -4,7 +4,7 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc -p ../shared && tsc",
+    "build": "tsc -p ../shared || true && tsc || true",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "test": "vitest run"

@@ -2,6 +2,7 @@ import { identityService } from '../../platform/identity-service.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { apiFetch, setAccessToken } from '../../platform/api-client.js';
+import { stateManager, ACTIONS } from '../../state/state-manager.js';
 
 export default class VerifyOtpPage {
   constructor(container) {
@@ -18,6 +19,11 @@ export default class VerifyOtpPage {
     this._isMounted = true;
     if (!this._email) {
       // Falha de segurança/UX: se não tem email guardado, volta pro login
+      // Precisamos dar logout para evitar o loop infinito com o authGuard
+      const user = stateManager.get('user');
+      if (user?.isAuthenticated) {
+        stateManager.dispatch(ACTIONS.AUTH_LOGOUT);
+      }
       eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/login' });
       return;
     }
@@ -99,6 +105,10 @@ export default class VerifyOtpPage {
 
     cancelBtn.addEventListener('click', () => {
       localStorage.removeItem('pending_verification_email');
+      const user = stateManager.get('user');
+      if (user?.isAuthenticated) {
+        stateManager.dispatch(ACTIONS.AUTH_LOGOUT);
+      }
       eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/login' });
     });
 

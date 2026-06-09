@@ -110,8 +110,11 @@ async function cacheFirstStrategy(request) {
 
   try {
     const response = await fetch(request);
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(request, response.clone());
+    if (response.ok || response.type === 'opaque') {
+      const responseToCache = response.clone();
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, responseToCache);
+    }
     return response;
   } catch (error) {
     return new Response('Resource not found', {
@@ -128,9 +131,14 @@ async function staleWhileRevalidateStrategy(request) {
   const cached = await caches.match(request);
 
   const fetchPromise = fetch(request).then((response) => {
-    const cache = caches.open(CACHE_NAME);
-    cache.then((c) => c.put(request, response.clone()));
+    if (response.ok || response.type === 'opaque') {
+      const responseToCache = response.clone();
+      caches.open(CACHE_NAME).then((c) => c.put(request, responseToCache));
+    }
     return response;
+  }).catch(() => {
+    // If network fails, return cached version or undefined
+    return cached;
   });
 
   return cached || fetchPromise;

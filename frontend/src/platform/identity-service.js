@@ -169,11 +169,12 @@ class IdentityService {
 
     this.#initPromise = (async () => {
       try {
-        /**
-         * @type {UserIdentityDTO}
-         * apiFetch unwraps the ApiResponse envelope — we receive the `data` field directly.
-         */
-        const identity = await apiFetch(API.PROFILE);
+        // TIMEOUT SAFETY HATCH: If apiFetch hangs forever, this will reject after 10s
+        const fetchPromise = apiFetch(API.PROFILE);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Session probe timed out after 10s')), 10000)
+        );
+        const identity = await Promise.race([fetchPromise, timeoutPromise]);
         this.#commitLogin(identity);
         logger.info('[IdentityService] Session restored for', identity.email);
 
@@ -189,14 +190,14 @@ class IdentityService {
 
         return true;
       } catch (err) {
-        // Network down, no cookie, or cookie expired — not an error, just a visitor.
         if (err?.status && err.status !== 0) {
           logger.info('[IdentityService] No active session —', err.error);
-          console.error('[DEBUG] Discarding session on status:', err.status, 'error:', err.error);
           eventBus.emit(EVENTS.AUTH_LOGOUT);
           stateManager.dispatch(ACTIONS.AUTH_LOGOUT);
         } else if (err?.status === 0) {
           logger.warn('[IdentityService] Network unavailable during session probe.');
+        } else {
+          logger.warn('[IdentityService] Unexpected error during session probe:', err?.message ?? err);
         }
         return false;
       } finally {

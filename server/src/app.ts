@@ -24,16 +24,25 @@ import { initializeCheckinModule } from './modules/checkin/checkin.module.js';
 import { initializeNotificationsModule } from './modules/notifications/notifications.module.js';
 import { initializeReportsModule } from './modules/reports/reports.module.js';
 import { initializeAdminModule } from './modules/admin/admin.module.js';
+import { initializeSupplementsModule } from './modules/supplements/supplements.module.js';
 import { csrfGuard } from './shared/middleware/csrf-guard.js';
 import { env } from './shared/config/env.config.js';
+import { metricsService } from './shared/services/metrics.service.js';
+import { tracingInitMiddleware } from './middleware/tracing.middleware.js';
+import { rateLimitHeadersMiddleware } from './middleware/rate-limit.middleware.js';
+import { createHealthRouter } from './routes/health.route.js';
 
 export function createApp() {
   const app = express();
 
   // ── Trust Proxy for Load Balancer ──────────────────────────────────────────
-  // Impede que o Express seja enganado por headers X-Forwarded-For injetados por clientes, 
+  // Impede que o Express seja enganado por headers X-Forwarded-For injetados por clientes,
   // confiando apenas no que o Load Balancer da AWS repassa.
   app.set('trust proxy', 1);
+
+  // ── Distributed Tracing ────────────────────────────────────────────────────
+  // Add trace ID to all requests and responses for end-to-end debugging
+  app.use(tracingInitMiddleware as express.RequestHandler);
 
   // ── Security headers ───────────────────────────────────────────────────────
   app.use(helmet());
@@ -75,6 +84,10 @@ export function createApp() {
   // ── CSRF defence (custom-header strategy, OWASP compliant) ────────────────
   app.use(csrfGuard);
 
+  // ── Rate Limit Headers Middleware ──────────────────────────────────────────
+  // Ensures X-RateLimit-* and Retry-After headers are present in responses
+  app.use(rateLimitHeadersMiddleware);
+
   // ── Global rate limiter ────────────────────────────────────────────────────
   const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -89,13 +102,16 @@ export function createApp() {
   });
   app.use(globalLimiter);
 
-  // ── Health check ───────────────────────────────────────────────────────────
-  app.get('/health', (_req: Request, res: Response) => {
-    res.status(200).json({
-      status: 'healthy',
-      timestamp: new Date(),
-      uptime: process.uptime(),
-    });
+  // ── Health check endpoints (Kubernetes compatible) ────────────────────────
+  // GET /health/live - liveness probe (simple 200 OK)
+  // GET /health/ready - readiness probe (checks dependencies)
+  // GET /health - generic health check (backward compatible)
+  app.use('/health', createHealthRouter());
+
+  // ── Prometheus metrics endpoint ─────────────────────────────────────────────
+  app.get('/metrics', (_req: Request, res: Response) => {
+    res.set('Content-Type', 'text/plain; version=0.0.4');
+    res.send(metricsService.getMetrics());
   });
 
   // ── Modular monolith routers ───────────────────────────────────────────────
@@ -108,6 +124,7 @@ export function createApp() {
   app.use('/api/checkin', initializeCheckinModule());
   app.use('/api/notifications', initializeNotificationsModule());
   app.use('/api/reports', initializeReportsModule());
+  app.use('/api/supplements', initializeSupplementsModule());
   app.use('/api/admin', initializeAdminModule());
 
   // ── 404 catch-all ─────────────────────────────────────────────────────────

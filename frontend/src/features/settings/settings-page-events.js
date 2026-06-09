@@ -7,8 +7,8 @@
  * @module settings-page-events
  */
 
-import { StorageManager, STORAGE_KEYS } from '../../platform/storage-manager.js';
-import { stateManager, ACTIONS } from '../../state/state-manager.js';
+import { StorageManager } from '../../platform/storage-manager.js';
+import { stateManager, ACTIONS, STORAGE_KEYS } from '../../state/state-manager.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
 import { MfaSetupModal } from '../auth/mfa-setup-modal.js';
 import { settingsService } from './settings-service.js';

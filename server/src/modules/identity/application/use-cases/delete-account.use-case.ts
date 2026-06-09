@@ -52,7 +52,8 @@ export class DeleteAccountUseCase {
       await this.refreshTokenRepo.revokeAllForUser(validated.userId);
 
       // 5. Block the current JWT immediately (prevent concurrent HTTP calls using same JWT)
-      await this.tokenBlocklist.block(validated.jti, validated.jwtExpiresAt);
+      const ttlSeconds = Math.max(0, Math.floor((validated.jwtExpiresAt.getTime() - Date.now()) / 1000));
+      await this.tokenBlocklist.block(validated.jti, ttlSeconds);
     });
   }
 }

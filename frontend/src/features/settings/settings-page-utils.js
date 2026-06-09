@@ -7,7 +7,8 @@
  * @module settings-page-utils
  */
 
-import { StorageManager, STORAGE_KEYS } from '../../platform/storage-manager.js';
+import { StorageManager } from '../../platform/storage-manager.js';
+import { STORAGE_KEYS } from '../../state/state-manager.js';
 
 /**
  * Get current theme state

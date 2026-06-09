@@ -11,6 +11,10 @@ import '../platform/mobile-keyboard-handler.js';
 import '../platform/mobile-utilities.js';
 import '../platform/pwa-handler.js';
 import '../platform/performance-monitor.js';
+import ErrorBoundary from '../components/error-boundary.js';
+import GlobalErrorModal from '../components/global-error-modal.js';
+import errorTracker from '../platform/error-tracking.js';
+import perfMonitor from '../platform/performance-monitor.js';
 import NotificationService from '../features/notifications/notification-service.js';
 import { identityService } from '../platform/identity-service.js';
 
@@ -176,6 +180,14 @@ function applyLandingMode() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // P2: Error boundary, global error modal, error tracking, performance monitoring
+  const errorBoundary = new ErrorBoundary(document.body);
+  const errorModal = new GlobalErrorModal(document.body);
+  errorBoundary.mount('#app');
+  errorModal.mount();
+  errorTracker.init();
+  // perfMonitor auto-inits on module load; explicit init is a no-op if already running
+
   // Inicializar IndexedDB (não bloqueia, mas prepara para uso)
   StorageManager.init().catch(e => {
     logger.warn('[App] IndexedDB init falhou, usando fallback:', e);

@@ -509,7 +509,7 @@ export default class HomePage {
         display: flex; flex-direction: column; gap: 14px;
       }
       .lp-mock-card {
-        background: linear-gradient(145deg, var(--color-surface-primary, #13161C), rgba(18,22,30,0.98));
+        background: linear-gradient(145deg, var(--color-surface-primary, #13161C), var(--color-surface-secondary, #191D25));
         border: 1px solid var(--color-border, rgba(255,255,255,0.06));
         border-radius: 16px; padding: 20px 22px;
         display: flex; flex-direction: column; gap: 6px;

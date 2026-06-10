@@ -49,7 +49,9 @@ export class MyStackPageReplenishment {
         return `
           <div style="padding:8px;border-bottom:1px solid var(--color-border);font-size:12px;">
             <p style="margin:0;font-weight:600;">${escapeHtml(item.name)}</p>
-            <p style="margin:0;color:var(--color-text-muted);font-size:11px;">Faltam ${daysLeft ?? '?'} dias</p>
+            ${daysLeft != null
+              ? `<p style="margin:0;color:var(--color-text-muted);font-size:11px;">Faltam ${daysLeft} dias</p>`
+              : ''}
             <p style="margin:4px 0 0;font-weight:700;">${formatBRL(bestPrice.price)} · ${escapeHtml(bestPrice.label ?? 'Marketplace')}</p>
           </div>
         `;

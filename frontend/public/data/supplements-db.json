@@ -61,7 +61,7 @@
       "upperLimit": 60,
       "timing": "Pós-treino ou como substituto de lanche"
     },
-    "pricePerGram": 0.15,
+    "pricePerGram": 0.19,
     "safetyScore": 98,
     "benefits": [
       "Apoio à síntese de proteína muscular",
@@ -97,7 +97,7 @@
       "upperLimit": 400,
       "timing": "30-45 minutos antes do treino"
     },
-    "pricePerGram": 0.005,
+    "pricePerGram": 2.9,
     "safetyScore": 85,
     "benefits": [
       "Foco e alerta mental sem a ansiedade da cafeína isolada",
@@ -142,7 +142,7 @@
       "upperLimit": 10000,
       "timing": "Com a maior refeição do dia (gorduras solúveis)"
     },
-    "pricePerGram": 0.0001,
+    "pricePerGram": 5.4,
     "safetyScore": 95,
     "benefits": [
       "Melhora na absorção de cálcio e saúde óssea",
@@ -178,7 +178,7 @@
       "upperLimit": 3000,
       "timing": "Com as principais refeições"
     },
-    "pricePerGram": 0.0005,
+    "pricePerGram": 0.75,
     "safetyScore": 98,
     "benefits": [
       "Poderosa ação anti-inflamatória sistêmica",
@@ -250,7 +250,7 @@
       "upperLimit": 4,
       "timing": "Pela manhã ou 30 minutos antes do treino com carboidratos"
     },
-    "pricePerGram": 0.22,
+    "pricePerGram": 0.585,
     "safetyScore": 92,
     "benefits": [
       "Acelera o transporte de ácidos graxos para as mitocôndrias",
@@ -286,7 +286,7 @@
       "upperLimit": 500,
       "timing": "30-60 minutos antes de dormir"
     },
-    "pricePerGram": 0.001,
+    "pricePerGram": 3.3429,
     "safetyScore": 97,
     "benefits": [
       "Melhora acentuada na qualidade do sono profundo",
@@ -322,7 +322,7 @@
       "upperLimit": 2000,
       "timing": "Pela manhã com refeição"
     },
-    "pricePerGram": 0.0003,
+    "pricePerGram": 0.84,
     "safetyScore": 98,
     "benefits": [
       "Poderoso antioxidante protetor celular",
@@ -358,7 +358,7 @@
       "upperLimit": 1000,
       "timing": "À noite com água ou refeição leve"
     },
-    "pricePerGram": 0.002,
+    "pricePerGram": 2.7833,
     "safetyScore": 90,
     "benefits": [
       "Redução drástica nos níveis circulantes de cortisol (estresse)",
@@ -395,7 +395,7 @@
       "unit": "mg",
       "timing": "30-60 min antes do treino ou pela manhã"
     },
-    "pricePerGram": 0.8,
+    "pricePerGram": 6.6667,
     "safetyScore": 88,
     "benefits": [
       "Aumento da síntese de acetilcolina cerebral",
@@ -431,7 +431,7 @@
       "unit": "mg",
       "timing": "30-60 min antes de dormir"
     },
-    "pricePerGram": 2,
+    "pricePerGram": 23.4,
     "safetyScore": 85,
     "benefits": [
       "Inibidor natural da aromatase (bloqueia conversão de testosterona em estrogênio)",
@@ -467,7 +467,7 @@
       "unit": "mg",
       "timing": "Com refeição — efeitos acumulam em 4-6 semanas de uso contínuo"
     },
-    "pricePerGram": 0.15,
+    "pricePerGram": 4.7333,
     "safetyScore": 88,
     "benefits": [
       "Melhora de memória e consolidação de aprendizado",
@@ -505,7 +505,7 @@
       "unit": "mg",
       "timing": "Antes das principais refeições (fracionado 2-3x/dia)"
     },
-    "pricePerGram": 0.25,
+    "pricePerGram": 3.16,
     "safetyScore": 82,
     "benefits": [
       "Potente sensibilizador de insulina (ação similar à metformina)",
@@ -548,7 +548,7 @@
       "unit": "mg",
       "timing": "Com refeição, pela manhã"
     },
-    "pricePerGram": 1.5,
+    "pricePerGram": 250,
     "safetyScore": 90,
     "benefits": [
       "Aumento dos níveis livres de testosterona",
@@ -584,7 +584,7 @@
       "unit": "mg",
       "timing": "Com refeição — fracionado, máximo 500mg por dose"
     },
-    "pricePerGram": 0.003,
+    "pricePerGram": 2,
     "safetyScore": 95,
     "benefits": [
       "Formação e manutenção da massa óssea",
@@ -621,7 +621,7 @@
       "unit": "mg",
       "timing": "Pela manhã ou 60 min antes de atividade física"
     },
-    "pricePerGram": 0.06,
+    "pricePerGram": 1.16,
     "safetyScore": 85,
     "benefits": [
       "Estímulo à libido e função sexual",
@@ -657,7 +657,7 @@
       "unit": "mg",
       "timing": "30 min antes do treino ou com refeições (forma extrato EGCG)"
     },
-    "pricePerGram": 0.05,
+    "pricePerGram": 2.075,
     "safetyScore": 88,
     "benefits": [
       "Aumento da oxidação de gordura durante exercício",
@@ -700,7 +700,7 @@
       "unit": "mg",
       "timing": "Com refeição rica em gorduras (lipossolúvel)"
     },
-    "pricePerGram": 2,
+    "pricePerGram": 18.3,
     "safetyScore": 95,
     "benefits": [
       "Cofator essencial na produção de ATP mitocondrial",
@@ -737,7 +737,7 @@
       "unit": "mg",
       "timing": "30-60 min antes do treino ou pela manhã com vitamina C"
     },
-    "pricePerGram": 0.05,
+    "pricePerGram": 0.18,
     "safetyScore": 97,
     "benefits": [
       "Síntese e reparo de cartilagem, tendões e ligamentos",
@@ -774,7 +774,7 @@
       "unit": "mg",
       "timing": "Com água, preferencialmente com refeição"
     },
-    "pricePerGram": 0.1,
+    "pricePerGram": 1.675,
     "safetyScore": 95,
     "benefits": [
       "Prevenção de infecções do trato urinário (ITU)",
@@ -810,7 +810,7 @@
       "unit": "mcg",
       "timing": "Com refeição principal do dia"
     },
-    "pricePerGram": 5,
+    "pricePerGram": 2500,
     "safetyScore": 88,
     "benefits": [
       "Potencialização da sinalização de insulina",
@@ -846,7 +846,7 @@
       "unit": "mg",
       "timing": "Com refeição gordurosa — combine com piperina para absorção"
     },
-    "pricePerGram": 0.3,
+    "pricePerGram": 2.66,
     "safetyScore": 92,
     "benefits": [
       "Potente anti-inflamatório sistêmico (inibidor de NF-kB)",
@@ -882,7 +882,7 @@
       "unit": "mg",
       "timing": "Durante ou imediatamente pós-treino"
     },
-    "pricePerGram": 0.12,
+    "pricePerGram": 0.33,
     "safetyScore": 97,
     "benefits": [
       "Estimulação máxima da síntese proteica muscular",
@@ -918,7 +918,7 @@
       "unit": "mg",
       "timing": "Com refeição — pré ou pós-treino"
     },
-    "pricePerGram": 1.5,
+    "pricePerGram": 4.34,
     "safetyScore": 88,
     "benefits": [
       "Ação anabolizante via receptor de estrogênio beta sem efeitos androgênicos",
@@ -955,7 +955,7 @@
       "unit": "mg",
       "timing": "Com refeição, pela manhã"
     },
-    "pricePerGram": 0.04,
+    "pricePerGram": 0.8333,
     "safetyScore": 87,
     "benefits": [
       "Suporte à testosterona livre (inibição de aromatase e 5-alfa-redutase)",
@@ -993,7 +993,7 @@
       "unit": "mg",
       "timing": "Longe de café, chá e laticínios — idealmente com vitamina C"
     },
-    "pricePerGram": 0.2,
+    "pricePerGram": 22.3333,
     "safetyScore": 88,
     "benefits": [
       "Formação de hemoglobina e transporte de oxigênio",
@@ -1031,7 +1031,7 @@
       "unit": "mg",
       "timing": "30-60 min antes de dormir"
     },
-    "pricePerGram": 0.02,
+    "pricePerGram": 0.13,
     "safetyScore": 98,
     "benefits": [
       "Melhora da qualidade do sono profundo (reduz temperatura corporal central)",
@@ -1069,7 +1069,7 @@
       "unit": "mg",
       "timing": "Com refeição — efeitos levam 4-8 semanas para aparecer"
     },
-    "pricePerGram": 0.04,
+    "pricePerGram": 0.8867,
     "safetyScore": 90,
     "benefits": [
       "Manutenção e regeneração da cartilagem articular",
@@ -1107,7 +1107,7 @@
       "unit": "mg",
       "timing": "Distribuído ao longo do dia — incluindo pré e pós-treino"
     },
-    "pricePerGram": 0.5,
+    "pricePerGram": 0.5567,
     "safetyScore": 95,
     "benefits": [
       "Redução do catabolismo muscular em treinos de alta carga",
@@ -1143,7 +1143,7 @@
       "unit": "mg",
       "timing": "Pode ser dividido ao longo do dia"
     },
-    "pricePerGram": 0.02,
+    "pricePerGram": 0.2,
     "safetyScore": 95,
     "benefits": [
       "Melhora da resistência à insulina (especialmente em SOP)",
@@ -1179,7 +1179,7 @@
       "unit": "mg",
       "timing": "Pela manhã com refeição — efeitos cognitivos acumulam em semanas"
     },
-    "pricePerGram": 0.3,
+    "pricePerGram": 4,
     "safetyScore": 92,
     "benefits": [
       "Estimulação da producao de NGF (fator de crescimento nervoso)",
@@ -1216,7 +1216,7 @@
       "unit": "mg",
       "timing": "30-60 min antes do treino"
     },
-    "pricePerGram": 0.06,
+    "pricePerGram": 0.27,
     "safetyScore": 96,
     "benefits": [
       "Aumento de oxido nítrico e vasodilatação (pump muscular)",
@@ -1252,7 +1252,7 @@
       "unit": "mg",
       "timing": "Pela manhã (sozinha ou com cafeína) ou antes de dormir"
     },
-    "pricePerGram": 0.25,
+    "pricePerGram": 4.6,
     "safetyScore": 98,
     "benefits": [
       "Relaxamento sem sedação — aumenta ondas alfa cerebrais",
@@ -1288,7 +1288,7 @@
       "unit": "mg",
       "timing": "1-2h antes de dormir"
     },
-    "pricePerGram": 0.5,
+    "pricePerGram": 17.9167,
     "safetyScore": 95,
     "benefits": [
       "Única forma de magnésio que atravessa eficientemente a barreira hematoencefálica",
@@ -1325,7 +1325,7 @@
       "unit": "mg",
       "timing": "Pela manhã ou antes de atividade física"
     },
-    "pricePerGram": 0.05,
+    "pricePerGram": 0.5,
     "safetyScore": 84,
     "benefits": [
       "Tonico sexual e afrodisiaco da medicina tradicional amazônica",
@@ -1361,7 +1361,7 @@
       "unit": "mg",
       "timing": "30-60 min antes de dormir no escuro total"
     },
-    "pricePerGram": 0.5,
+    "pricePerGram": 1160,
     "safetyScore": 92,
     "benefits": [
       "Sincronização do ritmo circadiano",
@@ -1399,7 +1399,7 @@
       "unit": "mg",
       "timing": "Pela manhã com estômago vazio para máxima absorção de L-DOPA"
     },
-    "pricePerGram": 0.08,
+    "pricePerGram": 2.66,
     "safetyScore": 82,
     "benefits": [
       "Fonte natural de L-DOPA (precursor de dopamina)",
@@ -1443,7 +1443,7 @@
       "unit": "mg",
       "timing": "Pela manhã com refeição"
     },
-    "pricePerGram": 0.5,
+    "pricePerGram": 4.84,
     "safetyScore": 90,
     "benefits": [
       "Blend de cogumelos medicinais (Reishi, Chaga, Shiitake)",
@@ -1479,7 +1479,7 @@
       "unit": "mg",
       "timing": "Com refeição — longe do pré-treino imediato"
     },
-    "pricePerGram": 0.08,
+    "pricePerGram": 1.95,
     "safetyScore": 90,
     "benefits": [
       "Precursor de glutationa (principal antioxidante intracelular)",
@@ -1517,7 +1517,7 @@
       "unit": "mg",
       "timing": "Com refeição gordurosa"
     },
-    "pricePerGram": 0.05,
+    "pricePerGram": 0.92,
     "safetyScore": 88,
     "benefits": [
       "Rico em GLA (ácido gama-linolênico) — precursor de prostaglandinas anti-inflamatórias",
@@ -1554,7 +1554,7 @@
       "unit": "mg",
       "timing": "Pela manhã — cicle 8 semanas on / 4 semanas off"
     },
-    "pricePerGram": 0.2,
+    "pricePerGram": 3.95,
     "safetyScore": 87,
     "benefits": [
       "Redução da fadiga física e mental (ginsenosídeos)",
@@ -1593,7 +1593,7 @@
       "unit": "bi UFC",
       "timing": "Em jejum ou 30 min antes do café da manhã"
     },
-    "pricePerGram": 5,
+    "pricePerGram": 0.3,
     "safetyScore": 95,
     "benefits": [
       "Modulação da microbiota intestinal",
@@ -1630,7 +1630,7 @@
       "unit": "mg",
       "timing": "30 min antes das refeições principais com bastante água (300ml ou mais)"
     },
-    "pricePerGram": 0.01,
+    "pricePerGram": 0.12,
     "safetyScore": 97,
     "benefits": [
       "Fibra solúvel que reduz glicemia pós-prandial",
@@ -1668,7 +1668,7 @@
       "unit": "mg",
       "timing": "Com refeição e vitamina C (aumenta biodisponibilidade)"
     },
-    "pricePerGram": 0.3,
+    "pricePerGram": 2.84,
     "safetyScore": 92,
     "benefits": [
       "Potente antioxidante e anti-inflamatório (inibidor de histamina e mastócitos)",
@@ -1704,7 +1704,7 @@
       "unit": "mg",
       "timing": "Com refeição"
     },
-    "pricePerGram": 1,
+    "pricePerGram": 6.68,
     "safetyScore": 90,
     "benefits": [
       "Ativação de sirtuínas (vias de longevidade celular)",
@@ -1741,7 +1741,7 @@
       "unit": "mg",
       "timing": "Pela manhã em jejum — 30 min antes do café"
     },
-    "pricePerGram": 0.25,
+    "pricePerGram": 3.95,
     "safetyScore": 90,
     "benefits": [
       "Redução de fadiga física e mental (rosavinas e salidrosida)",
@@ -1779,7 +1779,7 @@
       "unit": "mg",
       "timing": "Com refeição principal do dia"
     },
-    "pricePerGram": 0.3,
+    "pricePerGram": 4.1563,
     "safetyScore": 90,
     "benefits": [
       "Inibição da 5-alfa-redutase (conversão de testosterona em DHT)",
@@ -1816,7 +1816,7 @@
       "unit": "mg",
       "timing": "Com refeição, 1-2x ao dia"
     },
-    "pricePerGram": 0.1,
+    "pricePerGram": 2,
     "safetyScore": 88,
     "benefits": [
       "Tonico reprodutivo feminino da medicina Ayurvedica",
@@ -1853,7 +1853,7 @@
       "unit": "mg",
       "timing": "Com refeição ou batido pré-treino"
     },
-    "pricePerGram": 0.04,
+    "pricePerGram": 0.14,
     "safetyScore": 92,
     "benefits": [
       "Fonte densa de proteína vegetal (60-70% do peso seco)",
@@ -1891,7 +1891,7 @@
       "unit": "mg",
       "timing": "30-60 min antes do treino ou com refeição"
     },
-    "pricePerGram": 0.02,
+    "pricePerGram": 0.1,
     "safetyScore": 97,
     "benefits": [
       "Melhora da resistência muscular e redução de cãibras",
@@ -1927,7 +1927,7 @@
       "unit": "mg",
       "timing": "30-60 min antes do treino ou situações de alto estresse cognitivo"
     },
-    "pricePerGram": 0.05,
+    "pricePerGram": 0.5,
     "safetyScore": 93,
     "benefits": [
       "Precursor de dopamina, adrenalina e noradrenalina",
@@ -1964,7 +1964,7 @@
       "unit": "mg",
       "timing": "Pela manhã em jejum — use extrato 200:1"
     },
-    "pricePerGram": 2,
+    "pricePerGram": 10,
     "safetyScore": 85,
     "benefits": [
       "Aumento de testosterona livre via redução de SHBG",
@@ -2002,7 +2002,7 @@
       "unit": "mg",
       "timing": "30-60 min antes de dormir"
     },
-    "pricePerGram": 0.04,
+    "pricePerGram": 1.6667,
     "safetyScore": 88,
     "benefits": [
       "Redução da latência do sono (tempo para adormecer)",
@@ -2046,7 +2046,7 @@
       "unit": "mg",
       "timing": "Longe de ferro e cálcio — à noite ou entre refeições"
     },
-    "pricePerGram": 0.5,
+    "pricePerGram": 44.6667,
     "safetyScore": 92,
     "benefits": [
       "Cofator em mais de 300 enzimas do metabolismo",

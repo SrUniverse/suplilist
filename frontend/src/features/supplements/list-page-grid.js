@@ -296,9 +296,9 @@ export class ListPageGrid {
         <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.18) 0%, transparent 65%); pointer-events: none;"></div>
         <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);"></div>
         <div style="padding: 20px; position: relative; z-index: 1;">
-          <p style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-brand, #A78BFA); margin: 0 0 10px 0;">PRO</p>
-          <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 16px; margin: 0 0 6px 0; color: var(--color-text-primary); letter-spacing: -0.02em; line-height: 1.2;">Histórico Avançado + Sem Anúncios</p>
-          <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 16px 0; line-height: 1.5;">Gráficos de adesão, relatórios Excel e experiência limpa.</p>
+          <p style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A78BFA; margin: 0 0 10px 0;">PRO</p>
+          <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 16px; margin: 0 0 6px 0; color: #F1F5F9; letter-spacing: -0.02em; line-height: 1.2;">Histórico Avançado + Sem Anúncios</p>
+          <p style="font-size: 12px; color: #A8B0C0; margin: 0 0 16px 0; line-height: 1.5;">Gráficos de adesão, relatórios Excel e experiência limpa.</p>
           <button class="lp-upgrade-btn" style="width: 100%; height: 38px; font-size: 12px; font-weight: 700; background: var(--color-brand, #8B5CF6); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; letter-spacing: 0.01em;" data-action="upgrade-now">Ativar PRO</button>
         </div>
       </div>

@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "installCommand": "npm install",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "framework": null,
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 30,
+      "runtime": "@vercel/node@5"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/cron/:path*", "destination": "/api/cron/:path*" },
+    { "source": "/api/:path*",      "destination": "/api/index" },
+    { "source": "/:path*",          "destination": "/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/cron/outbox", "schedule": "* * * * *"    },
+    { "path": "/api/cron/audit",  "schedule": "*/5 * * * *"  },
+    { "path": "/api/cron/purge",  "schedule": "0 2 * * *"    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+    }
+  ]
+}

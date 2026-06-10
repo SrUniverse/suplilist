@@ -35,11 +35,18 @@ const envSchema = z.object({
     .optional()
     .describe('Additional comma-separated CORS origins'),
 
-  // Database - PostgreSQL (PHASE 1)
+  // Database - MongoDB (primary)
+  MONGO_URI: z
+    .string()
+    .url()
+    .describe('MongoDB Atlas connection string'),
+
+  // Database - PostgreSQL (planned migration, not yet active)
   DATABASE_URL: z
     .string()
     .url()
-    .describe('PostgreSQL connection string'),
+    .optional()
+    .describe('PostgreSQL connection string (reserved for future migration)'),
   POSTGRES_USER: z
     .string()
     .min(1)
@@ -132,6 +139,13 @@ const envSchema = z.object({
   VITE_GA_MEASUREMENT_ID: z
     .string()
     .optional(),
+
+  // Error Tracking - Sentry
+  SENTRY_DSN: z
+    .string()
+    .url()
+    .optional()
+    .describe('Sentry DSN for backend error reporting'),
 
   // Development
   DEBUG: z

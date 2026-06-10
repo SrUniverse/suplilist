@@ -15,6 +15,7 @@
  * @module platform/error-tracking
  */
 
+import * as Sentry from '@sentry/browser';
 import { logger } from '../utils/logger.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 
@@ -53,6 +54,7 @@ const config = {
 const state = {
   errors: [],
   isInitialized: false,
+  sentryInitialized: false,
   batchTimer: null,
   traceIdCounter: 0,
 };
@@ -116,6 +118,11 @@ function captureError(error, type = 'UNCAUGHT_ERROR', context = {}) {
 
   state.errors.push(errorData);
   logger.debug('[ErrorTracking] Captured error:', errorData);
+
+  // Forward to Sentry as parallel sink (no-op if not initialized)
+  if (state.sentryInitialized) {
+    Sentry.captureException(error, { extra: { type, trace_id: traceId, ...context } });
+  }
 
   // Flush if we hit max errors
   if (state.errors.length >= config.maxErrors) {
@@ -196,6 +203,17 @@ export function init() {
   }
 
   state.isInitialized = true;
+
+  // 0. Initialize Sentry if DSN is configured
+  const sentryDsn = import.meta.env?.VITE_SENTRY_DSN;
+  if (sentryDsn && !state.sentryInitialized) {
+    Sentry.init({
+      dsn: sentryDsn,
+      environment: import.meta.env?.MODE ?? 'production',
+      tracesSampleRate: 0.1,
+    });
+    state.sentryInitialized = true;
+  }
 
   // 1. Unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {

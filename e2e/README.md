@@ -295,7 +295,7 @@ npx playwright test --list
     path: test-results/
 ```
 
-### Render.com / Vercel Example
+### Vercel Example
 
 Set environment variables in dashboard:
 ```

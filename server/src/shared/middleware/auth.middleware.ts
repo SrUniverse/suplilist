@@ -249,6 +249,19 @@ export const requireVerifiedEmail = (req: Request, res: Response, next: NextFunc
   next();
 };
 
+// Convenience aliases for route definitions that prefer explicit naming
+export const authenticateToken = requireAuth;
+
+// Composed guard: validates JWT first, then enforces admin role.
+// If the JWT check fails, requireAuth sends the 401 response directly and
+// the role check never runs.
+export const requireAdmin: (req: Request, res: Response, next: NextFunction) => void =
+  (req, res, next) => {
+    requireAuth(req, res, () => {
+      requireRole(['admin'])(req, res, next);
+    });
+  };
+
 export const requirePreAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = extractTokenFromHeader(req);

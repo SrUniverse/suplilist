@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
 import SupplementService from '../../application/supplement.service.js';
+import { SupplementDataModel } from '../../infrastructure/mongoose/supplement-data.model.js';
 
 type AuthenticatedRequest = Request;
 
@@ -59,6 +61,18 @@ const crawlBodySchema = z.object({
     .max(100, 'Supplement name cannot exceed 100 characters')
     .regex(/^[a-záéíóúãõç\w\s\-]+$/i, 'Supplement name contains invalid characters'),
 });
+
+const createSupplementSchema = z.object({
+  supplementId: z.string().trim().min(1).max(100),
+  name: z.string().trim().min(1).max(200),
+  prices: z.object({
+    amazon: z.object({ price: z.number().positive(), url: z.string().url() }).optional(),
+    mercadolivre: z.object({ price: z.number().positive(), url: z.string().url() }).optional(),
+    shopee: z.object({ price: z.number().positive(), url: z.string().url() }).optional(),
+  }).optional(),
+});
+
+const updateSupplementSchema = createSupplementSchema.partial().omit({ supplementId: true });
 
 export class SupplementController {
   /**
@@ -200,6 +214,94 @@ export class SupplementController {
       // );
 
       res.json({ success: true, data: prices });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/supplements
+   * Create a new supplement catalog entry — admin only
+   */
+  async createSupplement(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const validation = createSupplementSchema.safeParse(req.body);
+      if (!validation.success) {
+        const message = validation.error.errors[0]?.message || 'Invalid request body';
+        res.status(400).json({ success: false, error: 'invalid_body', message });
+        return;
+      }
+
+      const { supplementId, name, prices } = validation.data;
+      const existing = await SupplementDataModel.findOne({ supplementId }).lean();
+      if (existing) {
+        res.status(409).json({ success: false, error: 'conflict', message: 'Supplement with this ID already exists.' });
+        return;
+      }
+
+      const doc = await SupplementDataModel.create({
+        _id: uuidv4(),
+        supplementId,
+        name,
+        prices: prices ?? {},
+        bestPrice: 'amazon',
+        bestPriceValue: prices?.amazon?.price ?? prices?.mercadolivre?.price ?? prices?.shopee?.price ?? 0,
+        priceHistory: [],
+        lastCrawled: new Date(),
+      });
+
+      res.status(201).json({ success: true, data: doc });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * PUT /api/supplements/:id
+   * Update supplement catalog entry — admin only
+   */
+  async updateSupplement(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const validation = updateSupplementSchema.safeParse(req.body);
+      if (!validation.success) {
+        const message = validation.error.errors[0]?.message || 'Invalid request body';
+        res.status(400).json({ success: false, error: 'invalid_body', message });
+        return;
+      }
+
+      const { id } = req.params;
+      const updated = await SupplementDataModel.findOneAndUpdate(
+        { supplementId: id },
+        { $set: validation.data },
+        { new: true }
+      ).lean();
+
+      if (!updated) {
+        res.status(404).json({ success: false, error: 'not_found' });
+        return;
+      }
+
+      res.json({ success: true, data: updated });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * DELETE /api/supplements/:id
+   * Delete supplement catalog entry — admin only
+   */
+  async deleteSupplement(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const deleted = await SupplementDataModel.findOneAndDelete({ supplementId: id }).lean();
+
+      if (!deleted) {
+        res.status(404).json({ success: false, error: 'not_found' });
+        return;
+      }
+
+      res.status(204).end();
     } catch (error) {
       next(error);
     }

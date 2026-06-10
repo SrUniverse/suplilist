@@ -12,7 +12,7 @@ import 'express-async-errors';
 import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { initializeIdentityModule } from './modules/identity/identity.module.js';
 import { initializeProfileModule } from './modules/profile/profile.module.js';
 import { initializeSettingsModule } from './modules/settings/settings.module.js';
@@ -117,6 +117,17 @@ export function createApp() {
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
+    // Under serverless-http (Vercel) req.ip is undefined — the default
+    // keyGenerator's validation then hangs the request with a 504. Resolve the
+    // client IP from proxy headers, normalizing IPv6 via ipKeyGenerator.
+    keyGenerator: (req: Request) => {
+      const raw =
+        (req.headers['x-real-ip'] as string) ||
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+        req.ip;
+      return raw ? ipKeyGenerator(raw) : 'unknown-ip';
+    },
+    validate: { ip: false },
     message: {
       success: false,
       error: 'too_many_requests',

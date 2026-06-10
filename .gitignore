@@ -93,3 +93,7 @@ Thumbs.db
 .claude/
 
 # (service-worker.js é fonte do PWA — commitado intencionalmente)
+
+# Diretórios de runtime de ferramentas de IA (não pertencem ao repo)
+.claude-flow/
+..bfg-report/

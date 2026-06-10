@@ -164,10 +164,32 @@ export function rateLimitHeadersMiddleware(req: Request, res: Response, next: Ne
   next();
 }
 
+/**
+ * Affiliate JIT Endpoint Rate Limiter: 100 requests per minute
+ * More relaxed than other endpoints since affiliate redirects are lightweight
+ */
+export const affiliateJitLimiter = enhanceRateLimitHeaders(
+  rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    store: makeRedisStore('rl:affiliate:jit:'),
+    keyGenerator: ipKey,
+    skip: (req: Request) => req.method === 'OPTIONS',
+    message: {
+      success: false,
+      error: 'affiliate_jit_rate_limit_exceeded',
+      message: 'Rate limit exceeded (100/minute). Please try again later.',
+    },
+  })
+);
+
 export default {
   supplementSearchLimiter,
   supplementCrawlLimiter,
   supplementPricesLimiter,
   apiRateLimiter,
+  affiliateJitLimiter,
   rateLimitHeadersMiddleware,
 };

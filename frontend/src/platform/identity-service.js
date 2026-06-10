@@ -27,7 +27,7 @@
  * identityService.initializeSession(); // fire-and-forget
  */
 
-import { apiFetch, setAccessToken, clearAccessToken, ApiError } from './api-client.js';
+import { apiFetch, setAccessToken, clearAccessToken } from './api-client.js';
 import { stateManager, ACTIONS } from '../state/state-manager.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 import { logger } from '../utils/logger.js';

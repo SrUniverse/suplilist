@@ -477,6 +477,7 @@ export class Nav {
         justify-content: space-around;
         box-shadow: 0 -30px 40px -10px rgba(0,0,0,0.7);
         transition: transform 0.25s ease, visibility 0.25s ease;
+        padding-bottom: env(safe-area-inset-bottom);
       }
       /* Desktop: esconder bottom nav completamente */
       @media (min-width: 768px) {
@@ -498,6 +499,17 @@ export class Nav {
       }
       .bn-item:hover { color: var(--color-text-secondary, #9A9A9A); }
       .bn-item.is-active { color: var(--color-brand, #8B5CF6); }
+      .bn-item.is-active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 3px;
+        background: var(--color-brand, #8B5CF6);
+        border-radius: 2px;
+      }
       .bn-item--featured { flex: 0 0 68px; }
       .bn-item--featured .bn-icon {
         width: 48px; height: 48px; border-radius: 50%;

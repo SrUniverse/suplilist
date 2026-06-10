@@ -5,7 +5,6 @@
 
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { escapeHtml } from '../../utils/escape.js';
-import { EVIDENCE_COLORS } from '../../utils/evidence.js';
 import affiliateEngine from '../../monetization/affiliate-engine.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
 import { sanitizeUrl, isProductUrl, formatPrice, getPriceLabel, getEffectiveCost } from './list-page-utils.js';
@@ -20,6 +19,7 @@ export class ListPageModal {
 
     // Modal state
     this._modalOpen = null;
+    this._currentIndex = -1;
     this._scrollLockStack = []; // Stack of scroll lock sources
     this._boundKeydown = this._onKeydown.bind(this);
     this._allItems = [];
@@ -66,16 +66,19 @@ export class ListPageModal {
     const item = this._allItems.find(s => s.id === supplementId);
     if (!item) return;
     this._modalOpen = supplementId;
+    this._currentIndex = this._allItems.findIndex(s => s.id === supplementId);
 
     const ev = item.evidenceLevel;
-    const _evStyle = EVIDENCE_COLORS[ev] ?? EVIDENCE_COLORS['C'];
+    const evLabels = { A: 'Evidência Robusta', B: 'Evidência Moderada', C: 'Evidência Limitada', D: 'Evidência Preliminar' };
+    const evLabel = ev ? (evLabels[String(ev).toUpperCase()] ?? `Evidência ${ev}`) : null;
+    const studiesCount = Array.isArray(item.studies) && item.studies.length > 0 ? item.studies.length : 0;
     const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
     const stack = stateManager.stack ?? [];
     const inStack = stack.some(s => s.supplementId === item.id);
 
-    // Build price cards
+    // ── Price rows (Stripe-inspired table format) ─────────────────────────
     const affLinks = affiliateEngine.getLinks(item.name, item.id);
-    let priceCardsHtml = '';
+    let priceRowsHtml = '';
     const priceKey = item.id;
     if (this._prices && this._prices[priceKey]) {
       const stores = this._prices[priceKey];
@@ -83,29 +86,27 @@ export class ListPageModal {
         getEffectiveCost(s) < getEffectiveCost(stores[best]) ? k : best,
         Object.keys(stores)[0]
       );
-      priceCardsHtml = Object.entries(stores).map(([storeKey, store]) => {
+      priceRowsHtml = Object.entries(stores).map(([storeKey, store]) => {
         const isBest = storeKey === bestStoreKey;
         const qtyLabel = store.qty && store.unit
           ? `${store.qty}${store.unit} · R$ ${(store.pricePerUnit ?? store.price).toFixed(2).replace('.', ',')}/${store.unit}`
           : '';
         return `
-        <div class="lp-price-card${isBest ? ' lp-price-card--best' : ''}">
-          <div class="lp-price-card-left">
-            <div class="lp-price-card-store-row">
-              <span class="lp-price-card-store">${escapeHtml(String(store.label ?? ''))}</span>
-              ${isBest ? '<span class="lp-price-best-badge">✓ Melhor custo-benefício</span>' : ''}
-            </div>
-            <span class="lp-price-card-val">${formatPrice(store.price)}</span>
-            ${qtyLabel ? `<span class="lp-price-qty">${escapeHtml(qtyLabel)}</span>` : ''}
+        <div class="lp-price-row${isBest ? ' lp-price-row--best' : ''}">
+          <div class="lp-price-row-meta">
+            <span class="lp-price-row-store">${escapeHtml(String(store.label ?? storeKey))}</span>
+            ${isBest ? '<span class="lp-price-row-best-tag">Melhor custo</span>' : ''}
+            ${qtyLabel ? `<span class="lp-price-row-qty">${escapeHtml(qtyLabel)}</span>` : ''}
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            ${store.saving ? `<span class="lp-price-saving">-R$ ${escapeHtml(String(store.saving))}</span>` : ''}
-            <a class="lp-price-link"
+          <div class="lp-price-row-right">
+            <span class="lp-price-row-amount">${formatPrice(store.price)}</span>
+            ${store.saving ? `<span class="lp-price-row-saving">−R$&nbsp;${escapeHtml(String(store.saving))}</span>` : ''}
+            <a class="lp-price-row-link"
                href="${sanitizeUrl(isProductUrl(store.url) ? store.url : affLinks[storeKey])}"
                target="_blank"
                rel="noopener noreferrer"
                data-aff-id="${escapeHtml(item.id)}"
-               data-aff-mp="${escapeHtml(storeKey)}">Ver Oferta →</a>
+               data-aff-mp="${escapeHtml(storeKey)}">Ver →</a>
           </div>
         </div>`;
       }).join('');
@@ -116,125 +117,280 @@ export class ListPageModal {
         { key: 'mercadolivre', label: 'Mercado Livre' },
         { key: 'shopee',       label: 'Shopee' },
       ];
-      priceCardsHtml = MP_LIST.map(({ key, label }) => `
-        <div class="lp-price-card">
-          <div class="lp-price-card-left">
-            <span class="lp-price-card-store">${escapeHtml(label)}</span>
-            <span class="lp-price-card-val">${formatPrice(priceInfo.price)}</span>
+      priceRowsHtml = MP_LIST.map(({ key, label }) => `
+        <div class="lp-price-row">
+          <div class="lp-price-row-meta">
+            <span class="lp-price-row-store">${escapeHtml(label)}</span>
           </div>
-          <a class="lp-price-link"
-             href="${sanitizeUrl(affLinks[key])}"
-             target="_blank"
-             rel="noopener noreferrer"
-             data-aff-id="${escapeHtml(item.id)}"
-             data-aff-mp="${escapeHtml(key)}">Ver Oferta →</a>
+          <div class="lp-price-row-right">
+            <span class="lp-price-row-amount">${formatPrice(priceInfo.price)}</span>
+            <a class="lp-price-row-link"
+               href="${sanitizeUrl(affLinks[key])}"
+               target="_blank"
+               rel="noopener noreferrer"
+               data-aff-id="${escapeHtml(item.id)}"
+               data-aff-mp="${escapeHtml(key)}">Ver →</a>
+          </div>
         </div>
       `).join('');
     }
 
-    // Warnings and side effects
+    // ── Tab content ────────────────────────────────────────────────────────
     const warnings = item.warnings?.length
-      ? `<ul>${item.warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul>`
-      : '<p style="color:var(--color-text-muted)">Nenhum aviso registrado.</p>';
+      ? `<ul class="lp-info-list">${item.warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul>`
+      : '<p class="lp-info-empty">Nenhum aviso registrado.</p>';
     const sideEffects = item.sideEffects?.length
-      ? `<p style="font-weight:600;color:var(--color-text-secondary);margin:10px 0 4px;">Efeitos Colaterais</p><ul>${item.sideEffects.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>`
+      ? `<p class="lp-info-subtitle">Efeitos Colaterais</p><ul class="lp-info-list">${item.sideEffects.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>`
       : '';
 
+    // ── Overlay ────────────────────────────────────────────────────────────
     const overlay = document.createElement('div');
     overlay.id = 'lp-modal-overlay';
+    overlay.setAttribute('role', 'presentation');
     overlay.innerHTML = `
-      <div id="lp-modal-box" role="dialog" aria-modal="true" aria-label="${item.name}">
-        <button id="lp-modal-close" aria-label="Fechar">✕</button>
+      <div id="lp-modal-box" role="dialog" aria-modal="true" aria-labelledby="lp-modal-title">
 
-        <div class="lp-modal-top">
-          <div class="lp-modal-img-col">
-            <div class="lp-modal-img-wrap">
-              <img class="lp-modal-img skeleton-loading" src="${img}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async" onload="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none';" onerror="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none'; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiMyMjIiLz48dGV4dCB4PSI1MCUiIHk9IjU1JSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzU1NSIgZm9udC1zaXplPSIyOCI+8JOEijwvdGV4dD48L3N2Zz4='" />
-            </div>
-            <p class="lp-modal-img-col-name">${escapeHtml(item.name)}</p>
-            <p class="lp-modal-img-col-cat">${escapeHtml(item.category ?? '')}</p>
-            ${ev ? `<span class="ev-badge ev-badge--${String(ev).toLowerCase()}">Evidência ${escapeHtml(String(ev))}</span>` : ''}
-            <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin:4px 0 0;">${escapeHtml(item.benefits?.join(' · ') ?? '')}</p>
-          </div>
+        <!-- Drag handle (mobile swipe hint) -->
+        <div class="lp-modal-drag-handle" aria-hidden="true"></div>
 
-          <div class="lp-modal-info-col">
-            <div>
-              <h3>Comparação de Preços</h3>
-              <div class="lp-price-cards">${priceCardsHtml}</div>
-            </div>
-
-            <div>
-              <div class="lp-tabs">
-                <button class="lp-tab active" data-tab="dose" role="tab" aria-selected="true" tabindex="0">Dose Clínica</button>
-                <button class="lp-tab" data-tab="benefits" role="tab" aria-selected="false" tabindex="-1">Benefícios</button>
-                <button class="lp-tab" data-tab="safety" role="tab" aria-selected="false" tabindex="-1">Segurança</button>
-              </div>
-              <div class="lp-tab-content">
-                <div class="lp-tab-pane active" id="lp-tab-dose">
-                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Dose de manutenção:</strong> ${escapeHtml(String(item.dosage?.maintenance ?? '—'))} ${escapeHtml(item.dosage?.unit ?? '')}</p>
-                  <p style="margin:0 0 6px;"><strong style="color:var(--color-text-primary);">Limite superior:</strong> ${escapeHtml(String(item.dosage?.upperLimit ?? '—'))} ${escapeHtml(item.dosage?.unit ?? '')}</p>
-                  <p style="margin:0;"><strong style="color:var(--color-text-primary);">Quando tomar:</strong> ${escapeHtml(item.dosage?.timing ?? '—')}</p>
-                </div>
-                <div class="lp-tab-pane" id="lp-tab-benefits">
-                  <ul>${(item.benefits || []).map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>
-                </div>
-                <div class="lp-tab-pane" id="lp-tab-safety">
-                  <p style="font-weight:600;color:var(--color-text-secondary);margin:0 0 8px;">Avisos</p>
-                  ${warnings}
-                  ${sideEffects}
-                </div>
-              </div>
-            </div>
+        <!-- Hero image with gradient overlay -->
+        <div class="lp-modal-hero">
+          <img class="lp-modal-hero-img" src="${escapeHtml(img)}"
+            alt="${escapeHtml(item.name)}"
+            loading="lazy" decoding="async"
+            onerror="this.parentElement.classList.add('lp-modal-hero--error'); this.remove();" />
+          <div class="lp-modal-hero-gradient" aria-hidden="true"></div>
+          <button id="lp-modal-close" class="lp-modal-close-btn" aria-label="Fechar modal" type="button">✕</button>
+          ${this._allItems.length > 1 ? `
+          <div class="lp-modal-nav" aria-label="Navegar suplementos">
+            <button class="lp-modal-nav-btn lp-modal-prev" aria-label="Suplemento anterior" type="button" ${this._currentIndex <= 0 ? 'disabled' : ''}>&#8592;</button>
+            <button class="lp-modal-nav-btn lp-modal-next" aria-label="Próximo suplemento" type="button" ${this._currentIndex >= this._allItems.length - 1 ? 'disabled' : ''}>&#8594;</button>
+          </div>` : ''}
+          <div class="lp-modal-hero-footer">
+            ${ev ? `<span class="ev-badge ev-badge--${escapeHtml(String(ev).toLowerCase())}">EV. ${escapeHtml(String(ev))}${evLabel ? ` — ${escapeHtml(evLabel)}` : ''}${studiesCount > 0 ? ` · ${studiesCount} estudos` : ''}</span>` : ''}
+            <h2 class="lp-modal-title" id="lp-modal-title">${escapeHtml(item.name)}</h2>
+            ${item.category ? `<p class="lp-modal-hero-cat">${escapeHtml(item.category)}</p>` : ''}
           </div>
         </div>
 
-        <div class="lp-modal-bottom">
-          <button id="lp-modal-add-btn" class="lp-modal-add-btn${inStack ? ' in-stack' : ''}" data-id="${item.id}">
+        <!-- Scrollable content body -->
+        <div class="lp-modal-body">
+
+          <!-- Price table -->
+          <section class="lp-modal-section">
+            <h3 class="lp-modal-section-heading">Preços</h3>
+            <div class="lp-price-table">${priceRowsHtml}</div>
+          </section>
+
+          <!-- Segmented tabs -->
+          <div class="lp-seg-tabs" role="tablist" aria-label="Informações do suplemento">
+            <div class="lp-seg-tabs-track">
+              <div class="lp-seg-pill" aria-hidden="true"></div>
+              <button class="lp-seg-tab active" role="tab" data-tab="dose" aria-selected="true" tabindex="0">Dose Clínica</button>
+              <button class="lp-seg-tab" role="tab" data-tab="benefits" aria-selected="false" tabindex="-1">Benefícios${(item.benefits || []).length > 0 ? ` <span class="lp-tab-count">${(item.benefits || []).length}</span>` : ''}</button>
+              <button class="lp-seg-tab" role="tab" data-tab="safety" aria-selected="false" tabindex="-1">Segurança${((item.warnings || []).length + (item.sideEffects || []).length) > 0 ? ` <span class="lp-tab-count">${(item.warnings || []).length + (item.sideEffects || []).length}</span>` : ''}</button>
+            </div>
+          </div>
+
+          <!-- Tab panels -->
+          <div class="lp-tab-panels">
+            <div class="lp-tab-panel active" id="lp-tab-dose" role="tabpanel" tabindex="-1">
+              ${(() => {
+                const minDose = item.dosage?.min ?? 1;
+                const maintDose = item.dosage?.maintenance ?? 5;
+                const maxDose = item.dosage?.max ?? item.dosage?.upperLimit ?? (maintDose * 3);
+                const unit = item.dosage?.unit ?? 'g';
+                const pct = Math.min(100, Math.round((maintDose / maxDose) * 100));
+                const minPct = Math.min(100, Math.round((minDose / maxDose) * 100));
+                return `<div class="lp-dose-bar-wrap">
+                  <div class="lp-dose-bar-header">
+                    <span class="lp-dose-bar-label">Dose de Manutenção</span>
+                    <span class="lp-dose-bar-value">${escapeHtml(String(maintDose))}${escapeHtml(unit)}</span>
+                  </div>
+                  <div class="lp-dose-bar-track" role="progressbar" aria-valuenow="${maintDose}" aria-valuemin="${minDose}" aria-valuemax="${maxDose}" aria-label="Dose de manutenção">
+                    <div class="lp-dose-bar-fill" style="width: ${pct}%"></div>
+                    <div class="lp-dose-bar-min-marker" style="left: ${minPct}%" aria-hidden="true">
+                      <span class="lp-dose-bar-tick-label">${escapeHtml(String(minDose))}${escapeHtml(unit)}</span>
+                    </div>
+                  </div>
+                  <div class="lp-dose-bar-range">
+                    <span>Mín: ${escapeHtml(String(minDose))}${escapeHtml(unit)}</span>
+                    <span>Máx: ${escapeHtml(String(maxDose))}${escapeHtml(unit)}</span>
+                  </div>
+                </div>`;
+              })()}
+              <dl class="lp-dose-list">
+                <div class="lp-dose-row">
+                  <dt>Dose de manutenção</dt>
+                  <dd>${escapeHtml(String(item.dosage?.maintenance ?? '—'))} ${escapeHtml(item.dosage?.unit ?? '')}</dd>
+                </div>
+                <div class="lp-dose-row">
+                  <dt>Limite superior</dt>
+                  <dd>${escapeHtml(String(item.dosage?.upperLimit ?? '—'))} ${escapeHtml(item.dosage?.unit ?? '')}</dd>
+                </div>
+                <div class="lp-dose-row">
+                  <dt>Quando tomar</dt>
+                  <dd>${escapeHtml(item.dosage?.timing ?? '—')}</dd>
+                </div>
+              </dl>
+            </div>
+            <div class="lp-tab-panel" id="lp-tab-benefits" role="tabpanel" tabindex="-1">
+              <ul class="lp-info-list">${(item.benefits || []).map(b => `<li class="lp-benefit-item"><svg class="lp-benefit-check" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="6.5" stroke="var(--color-brand)" stroke-opacity="0.3"/><polyline points="4,7 6,9 10,5" stroke="var(--color-brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>${escapeHtml(b)}</span></li>`).join('')}</ul>
+            </div>
+            <div class="lp-tab-panel" id="lp-tab-safety" role="tabpanel" tabindex="-1">
+              <p class="lp-info-subtitle">Avisos</p>
+              ${warnings}
+              ${sideEffects}
+            </div>
+          </div>
+
+        </div><!-- /lp-modal-body -->
+
+        <!-- aria-live announcement region -->
+        <div class="lp-modal-announce" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- Sticky footer -->
+        <div class="lp-modal-footer">
+          <button id="lp-modal-add-btn" class="lp-modal-add-btn${inStack ? ' in-stack' : ''}" data-id="${escapeHtml(item.id)}" type="button">
             ${inStack ? '✓ Já no Stack' : '+ Adicionar ao Stack'}
           </button>
         </div>
+
       </div>
     `;
 
     document.body.appendChild(overlay);
     this._pushScrollLock('modal');
 
-    // Tab switching
-    const tabs = [...overlay.querySelectorAll('.lp-tab')];
+    // ── M6: Sticky header on scroll ──────────────────────────────────────────
+    const stickyHeader = document.createElement('div');
+    stickyHeader.className = 'lp-modal-sticky-header';
+    stickyHeader.innerHTML = `
+      <span class="lp-modal-sticky-title">${escapeHtml(item.name)}</span>
+      <button class="lp-modal-sticky-close" aria-label="Fechar modal" type="button">✕</button>
+    `;
+    const modalBox = overlay.querySelector('#lp-modal-box');
+    const modalBody = overlay.querySelector('.lp-modal-body');
+    modalBox.insertBefore(stickyHeader, modalBody);
+
+    stickyHeader.querySelector('.lp-modal-sticky-close').addEventListener('click', () => this.close());
+
+    modalBody.addEventListener('scroll', () => {
+      stickyHeader.classList.toggle('visible', modalBody.scrollTop > 160);
+    }, { passive: true });
+
+    // ── Segmented tab switching with sliding pill ──────────────────────────
+    const segTabs = [...overlay.querySelectorAll('.lp-seg-tab')];
+    const pill = overlay.querySelector('.lp-seg-pill');
+
+    const movePill = (tab) => {
+      pill.style.left   = `${tab.offsetLeft}px`;
+      pill.style.width  = `${tab.offsetWidth}px`;
+    };
+
     const activateTab = (tab) => {
-      tabs.forEach(t => {
+      segTabs.forEach(t => {
         t.classList.remove('active');
         t.setAttribute('aria-selected', 'false');
         t.tabIndex = -1;
       });
-      overlay.querySelectorAll('.lp-tab-pane').forEach(p => p.classList.remove('active'));
+      overlay.querySelectorAll('.lp-tab-panel').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
       tab.tabIndex = 0;
-      tab.focus();
-      const pane = overlay.querySelector(`#lp-tab-${tab.dataset.tab}`);
-      if (pane) pane.classList.add('active');
+      movePill(tab);
+      const panel = overlay.querySelector(`#lp-tab-${tab.dataset.tab}`);
+      if (panel) panel.classList.add('active');
     };
 
-    tabs.forEach((tab, i) => {
-      tab.addEventListener('click', () => activateTab(tab));
+    segTabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        activateTab(tab);
+        tab.focus();
+      });
       tab.addEventListener('keydown', e => {
-        if (e.key === 'ArrowRight') { e.preventDefault(); activateTab(tabs[(i + 1) % tabs.length]); }
-        if (e.key === 'ArrowLeft')  { e.preventDefault(); activateTab(tabs[(i - 1 + tabs.length) % tabs.length]); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); activateTab(segTabs[(i + 1) % segTabs.length]); segTabs[(i + 1) % segTabs.length].focus(); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); activateTab(segTabs[(i - 1 + segTabs.length) % segTabs.length]); segTabs[(i - 1 + segTabs.length) % segTabs.length].focus(); }
       });
     });
 
-    // Close button and backdrop click
+    // Position pill on active tab — suppress transition for initial placement
+    // so the pill doesn't animate from width:auto to the correct size.
+    // Re-enable transition after the first paint so subsequent switches animate.
+    requestAnimationFrame(() => {
+      const activeTab = overlay.querySelector('.lp-seg-tab.active');
+      if (activeTab && pill) {
+        pill.style.transition = 'none';
+        movePill(activeTab);
+        requestAnimationFrame(() => {
+          pill.style.transition = '';
+        });
+      }
+    });
+
+    // ── Focus trap ──────────────────────────────────────────────────────────
+    const focusable = () => [...modalBox.querySelectorAll(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )];
+
+    overlay.addEventListener('keydown', e => {
+      if (e.key !== 'Tab') return;
+      const els = focusable();
+      if (!els.length) return;
+      const first = els[0];
+      const last  = els[els.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+
+    // Set initial focus on close button
+    requestAnimationFrame(() => {
+      const closeBtn = overlay.querySelector('#lp-modal-close');
+      if (closeBtn) closeBtn.focus();
+    });
+
+    // ── Swipe-to-close (mobile) ─────────────────────────────────────────────
+    let touchStartY = 0;
+    modalBox.addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    modalBox.addEventListener('touchend', e => {
+      const delta = e.changedTouches[0].clientY - touchStartY;
+      if (delta > 80) this.close();
+    }, { passive: true });
+
+    // ── Close button and backdrop click ────────────────────────────────────
     overlay.querySelector('#lp-modal-close').addEventListener('click', () => this.close());
     overlay.addEventListener('click', e => { if (e.target === overlay) this.close(); });
 
-    // Track affiliate clicks
+    // ── Prev/Next navigation ────────────────────────────────────────────────
+    const prevBtn = overlay.querySelector('.lp-modal-prev');
+    const nextBtn = overlay.querySelector('.lp-modal-next');
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = this._currentIndex;
+        if (idx > 0) this.open(this._allItems[idx - 1].id);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = this._currentIndex;
+        if (idx < this._allItems.length - 1) this.open(this._allItems[idx + 1].id);
+      });
+    }
+
+    // ── Affiliate click tracking ────────────────────────────────────────────
     overlay.addEventListener('click', e => {
       const affLink = e.target.closest('[data-aff-mp]');
       if (affLink) affiliateEngine.trackClick(affLink.dataset.affId, affLink.dataset.affMp);
     });
 
-    // Disable add button when offline
+    // ── Offline guard ───────────────────────────────────────────────────────
     const isOffline = stateManager.state?.ui?.isOffline === true;
     const addBtn = overlay.querySelector('#lp-modal-add-btn');
     if (isOffline) {
@@ -244,15 +400,13 @@ export class ListPageModal {
       addBtn.style.cursor = 'not-allowed';
     }
 
+    // ── Add-to-stack button ─────────────────────────────────────────────────
+    const announce = overlay.querySelector('.lp-modal-announce');
     addBtn.addEventListener('click', e => {
       e.stopPropagation();
 
-      // Guard: offline mode — no writes allowed
-      if (stateManager.state?.ui?.isOffline === true) {
-        return;
-      }
+      if (stateManager.state?.ui?.isOffline === true) return;
 
-      // Guard: unauthenticated — redirect to login instead of a 401
       const isAuthenticated = stateManager.state?.user?.isAuthenticated === true;
       if (!isAuthenticated) {
         this.close();
@@ -265,9 +419,13 @@ export class ListPageModal {
       const id = addBtn.dataset.id;
       const sup = this._allItems.find(s => s.id === id);
       if (!sup) return;
+
       const inStackNow = (stateManager.stack ?? []).some(s => s.supplementId === id);
       if (inStackNow) {
         stateManager.dispatch(ACTIONS.REMOVE_FROM_STACK, { supplementId: id });
+        addBtn.classList.remove('in-stack');
+        addBtn.textContent = '+ Adicionar ao Stack';
+        if (announce) announce.textContent = `${sup.name} removido do stack.`;
       } else {
         stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
           supplementId: sup.id,
@@ -276,7 +434,11 @@ export class ListPageModal {
           unit: sup.dosage?.unit ?? 'g',
           quantity: 0,
         });
+        addBtn.classList.add('in-stack');
+        addBtn.textContent = '✓ Já no Stack';
+        if (announce) announce.textContent = `${sup.name} adicionado ao stack!`;
       }
+
       if (this.callbacks?.onCardStateRefresh) {
         this.callbacks.onCardStateRefresh();
       }

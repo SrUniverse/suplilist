@@ -5,6 +5,8 @@ export const logger = {
   info:  isDev ? (msg, ...args) => console.info(PREFIX, msg, ...args)  : () => {},
   warn:  isDev ? (msg, ...args) => console.warn(PREFIX, msg, ...args)  : () => {},
   debug: isDev ? (msg, ...args) => console.debug(PREFIX, msg, ...args) : () => {},
+  // Alias para compatibilidade com código legado/cacheado que chama logger.log
+  log:   isDev ? (msg, ...args) => console.log(PREFIX, msg, ...args)   : () => {},
   // P7: erros sempre capturados — console em dev, buffer em produção para diagnóstico
   error: (msg, ...args) => {
     if (isDev) {

@@ -7,8 +7,8 @@ import {
 
 const codes: AffiliateCodes = {
   amazon: 'suplilist01-20',
-  mercadolivre: 'FULZ93-PCG7',
-  shopee: 'CLH-CZB-PNR',
+  mercadolivre: 'matt:suplilist:35217033',
+  shopee: '',
 };
 
 describe('isDirectProductUrl', () => {
@@ -78,19 +78,39 @@ describe('buildAffiliateLink — Amazon', () => {
 });
 
 describe('buildAffiliateLink — Mercado Livre', () => {
-  it('returns the direct URL unchanged and reports not credited', () => {
-    const url = 'https://produto.mercadolivre.com.br/MLB-123456789-creatina';
-    const result = buildAffiliateLink(url, 'mercadolivre', codes);
-    expect(result.url).toBe(url);
-    expect(result.affiliateApplied).toBe(false);
-    expect(result.reason).toMatch(/affiliate-portal\/API/i);
+  const mlUrl = 'https://produto.mercadolivre.com.br/MLB-123456789-creatina';
+
+  it('appends matt_word and matt_tool to a direct product URL', () => {
+    const result = buildAffiliateLink(mlUrl, 'mercadolivre', codes);
+    expect(result.affiliateApplied).toBe(true);
+    expect(result.url).toContain('matt_word=suplilist');
+    expect(result.url).toContain('matt_tool=35217033');
+    expect(result.reason).toBeNull();
   });
 
-  it('does NOT inject the legacy non-crediting path format', () => {
-    const url = 'https://produto.mercadolivre.com.br/MLB-123456789-creatina';
-    const result = buildAffiliateLink(url, 'mercadolivre', codes);
-    // The old broken format embedded the code in the path; ensure we never do that.
-    expect(result.url).not.toContain('FULZ93-PCG7');
+  it('preserves the original product path', () => {
+    const result = buildAffiliateLink(mlUrl, 'mercadolivre', codes);
+    expect(result.url).toContain('produto.mercadolivre.com.br/MLB-123456789');
+  });
+
+  it('overwrites existing matt params rather than duplicating', () => {
+    const urlWithParams = `${mlUrl}?matt_word=old&matt_tool=99`;
+    const result = buildAffiliateLink(urlWithParams, 'mercadolivre', codes);
+    const matches = result.url.match(/matt_tool=/g) || [];
+    expect(matches.length).toBe(1);
+    expect(result.url).toContain('matt_tool=35217033');
+  });
+
+  it('reports not applied when code is not configured', () => {
+    const result = buildAffiliateLink(mlUrl, 'mercadolivre', { ...codes, mercadolivre: '' });
+    expect(result.affiliateApplied).toBe(false);
+    expect(result.reason).toMatch(/not configured/i);
+    expect(result.url).toBe(mlUrl);
+  });
+
+  it('does NOT inject the legacy broken path format', () => {
+    const result = buildAffiliateLink(mlUrl, 'mercadolivre', codes);
+    expect(result.url).not.toContain('FULZ93');
   });
 });
 

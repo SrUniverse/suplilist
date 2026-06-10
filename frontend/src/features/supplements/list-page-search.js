@@ -291,6 +291,10 @@ export class ListPageSearch {
     // Search
     const searchEl = this.container.querySelector('#lp-search');
     if (searchEl) {
+      searchEl.addEventListener('focus', () => {
+        if (window.innerWidth >= 600) return;
+        this._openSearchOverlay();
+      });
       searchEl.addEventListener('input', e => {
         clearTimeout(this._debounceTimer);
         this._debounceTimer = setTimeout(() => {
@@ -446,6 +450,83 @@ export class ListPageSearch {
         if (this.callbacks?.onGridRender) this.callbacks.onGridRender();
       });
     }
+  }
+
+  /**
+   * Open full-screen search overlay on mobile.
+   * @returns {void}
+   */
+  _openSearchOverlay() {
+    // Remove existing overlay
+    document.querySelector('.lp-search-overlay')?.remove();
+
+    const history = this._getSearchHistory();
+    const overlay = document.createElement('div');
+    overlay.className = 'lp-search-overlay';
+    overlay.innerHTML = `
+      <div class="lp-search-overlay-header">
+        <input class="lp-search-overlay-input"
+               type="search"
+               placeholder="Buscar suplemento..."
+               autocomplete="off"
+               autocorrect="off"
+               spellcheck="false"
+               inputmode="search"
+               value="${escapeHtml(this._query || '')}"
+               aria-label="Buscar suplemento" />
+        <button class="lp-search-overlay-cancel" type="button">Cancelar</button>
+      </div>
+      <div class="lp-search-overlay-body">
+        ${history.length > 0 ? `
+          <p class="lp-search-history-title">Buscas recentes</p>
+          ${history.slice(0, 8).map(q => `
+            <button class="lp-search-history-item" data-query="${escapeHtml(q)}">
+              <span class="lp-search-history-icon">⏱</span>
+              <span>${escapeHtml(q)}</span>
+            </button>
+          `).join('')}
+        ` : '<p style="color:var(--color-text-muted);font-size:14px;">Nenhuma busca recente.</p>'}
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const input = overlay.querySelector('.lp-search-overlay-input');
+    const cancelBtn = overlay.querySelector('.lp-search-overlay-cancel');
+
+    // Focus input immediately
+    requestAnimationFrame(() => input.focus());
+
+    // Cancel button
+    cancelBtn.addEventListener('click', () => {
+      overlay.remove();
+    });
+
+    // Typing in overlay syncs with real search
+    input.addEventListener('input', () => {
+      this._query = input.value;
+      const realInput = this.container.querySelector('#lp-search');
+      if (realInput) realInput.value = input.value;
+      this._applyFilters();
+      if (input.value) overlay.remove(); // close overlay and show filtered results
+    });
+
+    // History item click
+    overlay.querySelectorAll('.lp-search-history-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const q = btn.dataset.query;
+        input.value = q;
+        this._query = q;
+        const realInput = this.container.querySelector('#lp-search');
+        if (realInput) realInput.value = q;
+        this._applyFilters();
+        overlay.remove();
+      });
+    });
+
+    // ESC closes
+    const onKey = e => { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); } };
+    document.addEventListener('keydown', onKey);
   }
 
   /**

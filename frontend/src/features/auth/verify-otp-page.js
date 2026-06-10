@@ -1,7 +1,7 @@
 import { identityService } from '../../platform/identity-service.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
-import { apiFetch, setAccessToken } from '../../platform/api-client.js';
+import { apiFetch } from '../../platform/api-client.js';
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 
 export default class VerifyOtpPage {

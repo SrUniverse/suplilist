@@ -101,12 +101,19 @@ describe('FirecrawlService.parseSupplements — Mercado Livre', () => {
     results.forEach((p) => expect(p.price).toBeGreaterThan(10));
   });
 
-  it('does NOT inject the legacy non-crediting path format', () => {
-    results.forEach((p) => expect(p.url).not.toContain('FULZ93-PCG7'));
+  it('appends matt_word and matt_tool affiliate params', () => {
+    results.forEach((p) => {
+      expect(p.url).toContain('matt_word=suplilist');
+      expect(p.url).toContain('matt_tool=35217033');
+    });
   });
 
-  it('marks affiliate as not applied (requires ML affiliate API)', () => {
-    results.forEach((p) => expect(p.affiliateApplied).toBe(false));
+  it('marks affiliate as applied', () => {
+    results.forEach((p) => expect(p.affiliateApplied).toBe(true));
+  });
+
+  it('does NOT inject the legacy broken path format', () => {
+    results.forEach((p) => expect(p.url).not.toContain('FULZ93'));
   });
 });
 

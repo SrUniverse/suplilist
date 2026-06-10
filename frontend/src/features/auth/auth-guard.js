@@ -5,7 +5,13 @@
 
 export const authGuard = {
   // Rotas que não exigem login
-  publicRoutes: ['/login', '/register', '/forgot-password', '/verify-otp', '/reset-password', '/'],
+  publicRoutes: [
+    '/login', '/register', '/forgot-password', '/verify-otp', '/reset-password',
+    '/', '/home',
+    '/list', '/lista',   // catálogo — acessível sem conta
+    '/faq', '/legal',    // conteúdo informativo
+    '/onboarding',       // fluxo de entrada
+  ],
 
   /**
    * Checa o acesso à rota atual com base no usuário logado

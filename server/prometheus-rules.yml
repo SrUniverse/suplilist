@@ -1,0 +1,247 @@
+# Prometheus Alert Rules for SupliList
+# Rules trigger when conditions are met for the specified duration
+
+groups:
+  - name: suplilist_alerts
+    interval: 30s
+    rules:
+      # ─────────────────────────────────────────────────────────────
+      # JIT Timeout Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: JITTimeoutRateTooHigh
+        expr: |
+          (
+            increase(jit_timeout_total[5m]) /
+            (increase(http_requests_total{endpoint=~"/api/jit.*"}[5m]) + 1)
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: jit
+        annotations:
+          summary: "JIT timeout rate exceeds 10%"
+          description: |
+            JIT endpoint timeout rate is {{ $value | humanizePercentage }} over 5 minutes.
+            This may indicate timeouts are too aggressive or the conversion service is slow.
+
+      - alert: JITTimeoutRateCritical
+        expr: |
+          (
+            increase(jit_timeout_total[5m]) /
+            (increase(http_requests_total{endpoint=~"/api/jit.*"}[5m]) + 1)
+          ) > 0.25
+        for: 2m
+        labels:
+          severity: critical
+          component: jit
+        annotations:
+          summary: "JIT timeout rate critically high (>25%)"
+          description: |
+            JIT endpoint timeout rate is {{ $value | humanizePercentage }} over 5 minutes.
+            Immediate action required: check conversion service health.
+
+      # ─────────────────────────────────────────────────────────────
+      # Conversion Error Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: ConversionErrorRateTooHigh
+        expr: |
+          (
+            increase(conversion_errors_total[5m]) /
+            (increase(conversion_latency_seconds_count[5m]) + 1)
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          component: conversion
+        annotations:
+          summary: "Conversion error rate exceeds 1%"
+          description: |
+            Conversion error rate is {{ $value | humanizePercentage }} over 5 minutes.
+            Check conversion service logs for details.
+
+      # ─────────────────────────────────────────────────────────────
+      # Cache Hit Rate Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: CacheHitRateLow
+        expr: |
+          (
+            increase(cache_hits_total[5m]) /
+            (increase(cache_hits_total[5m]) + increase(cache_misses_total[5m]) + 1)
+          ) < 0.7
+        for: 10m
+        labels:
+          severity: info
+          component: cache
+        annotations:
+          summary: "Cache hit rate is below 70%"
+          description: |
+            Cache efficiency has dropped to {{ $value | humanizePercentage }}.
+            Consider increasing cache TTL or preheating cache on startup.
+
+      # ─────────────────────────────────────────────────────────────
+      # Worker Queue Depth Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: WorkerQueueDepthTooHigh
+        expr: worker_queue_depth > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: worker
+        annotations:
+          summary: "Worker queue depth exceeds 1000 jobs"
+          description: |
+            Queue {{ $labels.queue_name }} has {{ $value }} jobs pending.
+            Consider scaling workers or reducing rate of job submissions.
+
+      - alert: WorkerQueueDepthCritical
+        expr: worker_queue_depth > 5000
+        for: 2m
+        labels:
+          severity: critical
+          component: worker
+        annotations:
+          summary: "Worker queue depth critically high (>5000)"
+          description: |
+            Queue {{ $labels.queue_name }} has {{ $value }} jobs pending.
+            Immediate action required: scale workers or pause submissions.
+
+      # ─────────────────────────────────────────────────────────────
+      # Worker Job Failure Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: WorkerJobFailureRate
+        expr: |
+          (
+            increase(worker_jobs_total{status="failed"}[5m]) /
+            (increase(worker_jobs_total{status="success"}[5m]) +
+             increase(worker_jobs_total{status="failed"}[5m]) + 1)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: worker
+        annotations:
+          summary: "Worker job failure rate exceeds 5%"
+          description: |
+            Job type {{ $labels.job_type }} failure rate is {{ $value | humanizePercentage }}.
+            Check worker logs and failed job details.
+
+      # ─────────────────────────────────────────────────────────────
+      # HTTP Error Rate Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: HighErrorRate
+        expr: |
+          (
+            increase(http_requests_total{status=~"5.."}[5m]) /
+            increase(http_requests_total[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: http
+        annotations:
+          summary: "High 5xx error rate"
+          description: |
+            5xx error rate is {{ $value | humanizePercentage }} over 5 minutes.
+            Check server logs for details.
+
+      # ─────────────────────────────────────────────────────────────
+      # Database Connection Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: DatabaseConnectionPoolNearMax
+        expr: active_connections{database="postgresql"} > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connections approaching limit"
+          description: |
+            PostgreSQL has {{ $value }} active connections.
+            Consider increasing pool size or optimizing queries.
+
+      # ─────────────────────────────────────────────────────────────
+      # Request Latency Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: HighRequestLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: http
+        annotations:
+          summary: "High request latency (p95 > 2s)"
+          description: |
+            Endpoint {{ $labels.endpoint }} p95 latency is {{ $value }}s.
+            Investigate performance bottlenecks or database slow queries.
+
+      - alert: CriticalRequestLatency
+        expr: |
+          histogram_quantile(0.99,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 5
+        for: 2m
+        labels:
+          severity: critical
+          component: http
+        annotations:
+          summary: "Critical request latency (p99 > 5s)"
+          description: |
+            Endpoint {{ $labels.endpoint }} p99 latency is {{ $value }}s.
+            Immediate performance investigation required.
+
+      # ─────────────────────────────────────────────────────────────
+      # Outbox Event Processing Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: OutboxEventsProcessingFailed
+        expr: |
+          (
+            increase(outbox_events_processed_total{status="failed"}[5m]) /
+            increase(outbox_events_processed_total[5m])
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: outbox
+        annotations:
+          summary: "Outbox event processing failure rate exceeds 10%"
+          description: |
+            Outbox processor is failing {{ $value | humanizePercentage }} of events.
+            Check event processing logs and database connectivity.
+
+      # ─────────────────────────────────────────────────────────────
+      # Infrastructure Alerts
+      # ─────────────────────────────────────────────────────────────
+
+      - alert: PrometheusScrapeFailed
+        expr: up{job="suplilist-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: prometheus
+        annotations:
+          summary: "Cannot scrape SupliList API metrics"
+          description: "Prometheus has been unable to scrape the SupliList API for 2 minutes."
+
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          component: process
+        annotations:
+          summary: "High memory usage (>512MB)"
+          description: |
+            Process is using {{ $value }}MB of memory.
+            Consider investigating memory leaks or scaling.

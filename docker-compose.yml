@@ -1,45 +1,124 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:7.0
+  postgresql:
+    image: postgres:15-alpine
+    container_name: suplilist-postgres
     ports:
-      - "27017:27017"
-    # Replica Set obrigatório para suportar Mongoose ClientSession (Rollbacks/Transactions)
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-suplilist}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-suplilist_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-suplilist}
+      POSTGRES_INITDB_ARGS: "--locale=pt_BR.UTF-8"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./server/database/migrations:/docker-entrypoint-initdb.d:ro
+      - ./server/database/scripts:/scripts:ro
     healthcheck:
-      # Inicia o Replica Set usando 127.0.0.1 (permitindo que o Node.js no host acesse)
-      test: >
-        mongosh --eval "try { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: '127.0.0.1:27017' }] }) } catch(e) { rs.status() }"
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-suplilist} -d $${POSTGRES_DB:-suplilist}"]
       interval: 5s
       timeout: 5s
       retries: 5
-    volumes:
-      - mongodb_data:/data/db
+      start_period: 10s
+    networks:
+      - suplilist-network
+    restart: unless-stopped
 
   redis:
-    image: redis:7.2-alpine
+    image: redis:7-alpine
+    container_name: suplilist-redis
     ports:
       - "6379:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
     volumes:
+      - ./server/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - suplilist-network
+    restart: unless-stopped
 
   api:
     image: node:20-alpine
+    container_name: suplilist-api
     working_dir: /app/server
     volumes:
       - .:/app
     ports:
       - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-suplilist}:${POSTGRES_PASSWORD:-suplilist_dev}@postgresql:5432/${POSTGRES_DB:-suplilist}
+      REDIS_URL: redis://redis:6379/0
+      METRICS_ENABLED: "true"
     command: npm run dev
     env_file:
       - ./server/.env
     depends_on:
-      mongodb:
+      postgresql:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+    networks:
+      - suplilist-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: suplilist-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./server/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./server/prometheus-rules.yml:/etc/prometheus/prometheus-rules.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    environment:
+      TZ: UTC
+    networks:
+      - suplilist-network
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: suplilist-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./server/grafana-dashboard.json:/etc/grafana/provisioning/dashboards/suplilist.json:ro
+      - ./server/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    networks:
+      - suplilist-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+networks:
+  suplilist-network:
+    driver: bridge
 
 volumes:
-  mongodb_data:
+  postgresql_data:
   redis_data:
+  prometheus_data:
+  grafana_data:

@@ -120,16 +120,21 @@ export function getDosePrice(item, prices) {
       const dose = item.dosage?.maintenance ?? 5;
       const doseInGrams = dosageToGrams(dose, cheapest.unit);
       const dosePrice = cheapest.pricePerUnit * doseInGrams;
+      if (dosePrice <= 0) return '';
       return `R$ ${dosePrice.toFixed(2).replace('.', ',')} / dose`;
     }
-    return `R$ ${(cheapest.price / DAYS_PER_MONTH).toFixed(2).replace('.', ',')} / dose`;
+    const monthlyDose = cheapest.price / DAYS_PER_MONTH;
+    if (monthlyDose <= 0) return '';
+    return `R$ ${monthlyDose.toFixed(2).replace('.', ',')} / dose`;
   }
 
   const dose = item.dosage?.maintenance ?? 5;
   const unit = item.dosage?.unit || 'g';
   const ppg = item.pricePerGram ?? 0.3;
   const doseInGrams = dosageToGrams(dose, unit);
-  return `R$ ${(doseInGrams * ppg).toFixed(2).replace('.', ',')} / dose`;
+  const estimatedPrice = doseInGrams * ppg;
+  if (estimatedPrice <= 0) return '';
+  return `R$ ${estimatedPrice.toFixed(2).replace('.', ',')} / dose`;
 }
 
 /**

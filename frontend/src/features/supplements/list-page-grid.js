@@ -53,6 +53,17 @@ export class ListPageGrid {
   }
 
   /**
+   * Determine number of grid columns based on viewport.
+   * @returns {number} Number of columns
+   */
+  _getColumns() {
+    const w = this.container.offsetWidth || window.innerWidth;
+    if (w < 480) return 1;
+    if (w < 900) return 3;
+    return 4;
+  }
+
+  /**
    * Update filtered items and re-render grid.
    * @param {Array} filtered - New filtered items
    * @returns {void}
@@ -116,10 +127,9 @@ export class ListPageGrid {
     // Clear grid and prepare for virtual scroller
     grid.innerHTML = '';
 
-    // Columns responsive: 2 mobile, 3 tablet, 4 desktop
-    const vw = window.innerWidth;
-    const cols = vw >= 1024 ? 4 : vw >= 640 ? 3 : 2;
-    const cardHeight = 405; // image 185px (fixed) + info ~220px
+    const cols = this._getColumns();
+    // Taller cards when single-column on mobile (bigger image area)
+    const cardHeight = cols === 1 ? 320 : 330;
 
     // Create virtual scroller with filtered items
     this._scroller = new VirtualScroller(
@@ -172,10 +182,34 @@ export class ListPageGrid {
    * @private
    */
   _renderCardHTML(item, index = 0) {
+    const CATEGORY_COLORS = {
+      'Proteínas':   { hue: '#A78BFA', bg: 'rgba(167,139,250,0.15)' },
+      'Creatinas':   { hue: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
+      'Vitaminas':   { hue: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
+      'Aminoácidos': { hue: '#34D399', bg: 'rgba(52,211,153,0.15)' },
+      'Cognitivos':  { hue: '#F472B6', bg: 'rgba(244,114,182,0.15)' },
+      'Performance': { hue: '#FB923C', bg: 'rgba(251,146,60,0.15)' },
+      'Adaptógenos': { hue: '#A3E635', bg: 'rgba(163,230,53,0.15)' },
+      'Minerais':    { hue: '#22D3EE', bg: 'rgba(34,211,238,0.15)' },
+    };
+    const catColor = CATEGORY_COLORS[item.category] ?? null;
+    const catStyle = catColor ? ` style="--cat-color: ${catColor.hue}; --cat-bg: ${catColor.bg}"` : '';
+
+    const OBJ_POS = {
+      'Proteínas':   'center 20%',
+      'Creatinas':   'center 30%',
+      'Vitaminas':   'center 15%',
+      'Aminoácidos': 'center 25%',
+      'Cognitivos':  'center 30%',
+      'Performance': 'center 30%',
+      'Adaptógenos': 'center 25%',
+      'Minerais':    'center 20%',
+    };
+    const objPos = OBJ_POS[item.category] ?? 'center 35%';
+
     const favs = getFavoritesFromState();
     const isFav = favs.has(item.id);
     const ev = item.evidenceLevel;
-    const desc = item.benefits?.[0] ?? '';
     const img = item.image || `/assets/${item.id.replace(/-/g, '_')}.png`;
     const isAboveFold = index < 8;
     const loadingAttr = isAboveFold ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"';
@@ -184,46 +218,51 @@ export class ListPageGrid {
     const priceInfo = getPriceLabel(item, this._prices);
     const doseStr = getDosePrice(item, this._prices);
 
-    const evClass = ev ? `lp-card-ev-badge--${String(ev).toLowerCase()}` : '';
-    const evLabel = ev ? `NÍVEL ${escapeHtml(String(ev))}` : '';
-
-    const savingsBadge = saving
-      ? `<span class="lp-card-savings">ECONOMIZE R$ ${escapeHtml(String(saving))}</span>`
+    const evBadge = ev
+      ? `<span class="lp-card-ev-pill ev-badge ev-badge--${String(ev).toLowerCase()}">EV. ${escapeHtml(String(ev))}</span>`
       : '';
 
-    const evBadge = ev
-      ? `<span class="lp-card-ev-badge ${evClass}">${evLabel}</span>`
+    const savingsBadge = saving
+      ? `<span class="lp-card-savings-pill">−R$ ${escapeHtml(String(saving))}</span>`
       : '';
 
     return `
-      <div class="lp-card" role="listitem" data-id="${item.id}" data-testid="catalog-card-${escapeHtml(item.id)}">
+      <div class="lp-card" role="listitem" data-id="${item.id}" data-category="${escapeHtml(item.category ?? '')}" data-testid="catalog-card-${escapeHtml(item.id)}"${catStyle}>
+        <!-- Full-bleed image with gradient overlay -->
         <div class="lp-card-img-wrap">
-          <img class="lp-card-img skeleton-loading"
+          <img class="lp-card-img"
             src="${escapeHtml(img)}"
             alt="${escapeHtml(item.name)}"
+            style="object-position: ${objPos}"
             ${loadingAttr}
-            onload="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none';"
-            onerror="this.classList.remove('skeleton-loading'); this.parentElement.style.animation='none'; this.parentElement.style.background='none'; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMjIyIi8+PHRleHQgeD0iNTAlIiB5PSI1NSUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM1NTUiIGZvbnQtc2l6ZT0iMjgiPvCThIo8L3RleHQ+PC9zdmc+'"
+            onerror="this.parentElement.classList.add('img-error'); this.remove();"
           />
-          ${savingsBadge}
+          <div class="lp-card-img-gradient"></div>
           ${evBadge}
-        </div>
-        <div class="lp-card-info">
-          <div class="lp-card-badges">
-            ${item.category ? `<span class="lp-card-cat-pill">${escapeHtml(item.category)}</span>` : ''}
+          ${savingsBadge}
+          <div class="lp-card-overlay-footer">
+            <p class="lp-card-name">${escapeHtml(item.name)}</p>
+            ${item.category ? `<p class="lp-card-cat">${escapeHtml(item.category)}</p>` : ''}
           </div>
-          <p class="lp-card-name">${escapeHtml(item.name)}</p>
-          ${desc ? `<p class="lp-card-desc">${escapeHtml(desc)}</p>` : ''}
-          <div class="lp-card-price-row">
+        </div>
+        <!-- Card body below image -->
+        <div class="lp-card-body">
+          <div class="lp-card-price-area">
             <span class="lp-card-price">${formatPrice(priceInfo.price)}</span>
             <span class="lp-card-dose">${doseStr}</span>
           </div>
           <div class="lp-card-actions">
-            <button class="lp-btn-fav${isFav ? ' faved' : ''}" data-action="toggle-fav" data-id="${item.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Favoritar'}" type="button" data-testid="catalog-fav-btn-${escapeHtml(item.id)}">
+            <button
+              class="lp-btn-fav${isFav ? ' faved' : ''}"
+              data-action="toggle-fav"
+              data-id="${item.id}"
+              aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"
+              type="button"
+              data-testid="catalog-fav-btn-${escapeHtml(item.id)}">
               ${isFav ? '♥' : '♡'}
             </button>
-            <button class="lp-btn-ver-precos" data-action="open-modal" data-id="${item.id}" type="button">
-              VER PREÇOS →
+            <button class="lp-btn-detail" data-action="open-modal" data-id="${item.id}" type="button">
+              Ver Detalhes →
             </button>
           </div>
         </div>
@@ -398,12 +437,12 @@ export class ListPageGrid {
 
       // Add savings badge if available
       const saving = getMaxSaving(item, this._prices);
-      if (saving && !card.querySelector('.lp-card-savings')) {
+      if (saving && !card.querySelector('.lp-card-savings-pill')) {
         const imgWrap = card.querySelector('.lp-card-img-wrap');
         if (imgWrap) {
           const badge = document.createElement('span');
-          badge.className = 'lp-card-savings';
-          badge.textContent = `ECONOMIZE R$ ${saving}`;
+          badge.className = 'lp-card-savings-pill';
+          badge.textContent = `−R$ ${saving}`;
           imgWrap.appendChild(badge);
         }
       }

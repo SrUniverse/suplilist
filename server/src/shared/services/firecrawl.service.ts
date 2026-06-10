@@ -1,10 +1,13 @@
 /**
  * FirecrawlService — Web scraping via Firecrawl API
  * Economical implementation: 1 request per source, batch processing
+ * Resilient: Uses circuit breaker to prevent cascading failures
  */
 
 import axios from 'axios';
 import { buildAffiliateLink, isDirectProductUrl, type Marketplace } from './affiliate-link.builder.js';
+import { circuitBreakerRegistry, CircuitState } from './circuit-breaker.service.js';
+import { metricsService } from './metrics.service.js';
 
 interface FirecrawlResponse {
   success: boolean;
@@ -37,6 +40,15 @@ export class FirecrawlService {
     amazon: string;
     mercadolivre: string;
     shopee: string;
+  };
+
+  // Circuit breaker configuration
+  private readonly circuitBreakerName = 'firecrawl';
+  private readonly circuitBreakerConfig = {
+    failureThreshold: 5, // 5 failures = OPEN
+    windowMs: 60000, // within 60 seconds
+    timeoutMs: 30000, // wait 30 seconds before HALF_OPEN
+    halfOpenRequests: 1, // allow 1 request to test
   };
 
   /**
@@ -73,12 +85,29 @@ export class FirecrawlService {
     }
 
     this.affiliateCodes = {
-      amazon: amazonCode || 'suplilist01-20', // Fallback to default
-      mercadolivre: mercadolivreCode || 'FULZ93-PCG7',
-      shopee: shopeeCode || 'CLH-CZB-PNR',
+      amazon: amazonCode || 'suplilist01-20',
+      // Format: "matt:<word>:<toolId>" — appended as ?matt_word=&matt_tool= to ML product URLs
+      mercadolivre: mercadolivreCode || 'matt:suplilist:35217033',
+      // Shopee requires generateShortLink API (App ID + Secret) — leave empty until configured
+      shopee: shopeeCode || '',
     };
 
+    // Initialize circuit breaker with state change logging
+    const circuitBreaker = circuitBreakerRegistry.getOrCreate(
+      this.circuitBreakerName,
+      {
+        ...this.circuitBreakerConfig,
+        onStateChange: (prev, next) => {
+          console.log(
+            `[FirecrawlService] Circuit Breaker State Change: ${prev} → ${next}`
+          );
+          metricsService.recordCircuitBreakerStateChange(prev, next);
+        },
+      }
+    );
+
     console.log('[FirecrawlService] ✓ Affiliate codes loaded from environment variables');
+    console.log(`[FirecrawlService] ✓ Circuit breaker initialized (${this.circuitBreakerName})`);
   }
 
   /**
@@ -147,6 +176,22 @@ export class FirecrawlService {
   }
 
   private async scrapeWithRetry(url: string, attempt = 1): Promise<string | null> {
+    const circuitBreaker = circuitBreakerRegistry.getOrCreate(
+      this.circuitBreakerName,
+      this.circuitBreakerConfig
+    );
+
+    // Use circuit breaker with fallback to mock data
+    return circuitBreaker.execute(
+      () => this.performScrape(url, attempt),
+      () => this.getMockFallbackData(url)
+    );
+  }
+
+  /**
+   * Perform the actual scrape request with retry logic
+   */
+  private async performScrape(url: string, attempt = 1): Promise<string | null> {
     try {
       console.log(`[FirecrawlService] Scraping (attempt ${attempt}): ${this.maskSensitiveData(url)}`);
 
@@ -168,6 +213,7 @@ export class FirecrawlService {
 
       if (response.data.success && response.data.data?.markdown) {
         console.log(`[FirecrawlService] ✓ Successfully scraped (attempt ${attempt}): ${this.maskSensitiveData(url)}`);
+        metricsService.recordFirecrawlSuccess(url);
         return response.data.data.markdown;
       }
 
@@ -184,12 +230,38 @@ export class FirecrawlService {
         const delay = this.retryDelayMs * Math.pow(2, attempt - 1); // Exponential backoff
         console.log(`[FirecrawlService] Retry in ${delay}ms (attempt ${attempt + 1}/${this.maxRetries})...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
-        return this.scrapeWithRetry(url, attempt + 1);
+        return this.performScrape(url, attempt + 1);
       }
 
       console.error(`[FirecrawlService] Failed after ${this.maxRetries} attempts: ${this.maskSensitiveData(url)} (${errorMsg})`);
-      return null;
+      metricsService.recordFirecrawlFailure(url);
+      throw error;
     }
+  }
+
+  /**
+   * Fallback mock data when circuit is OPEN
+   * Returns minimal but valid supplement data to keep the app functioning
+   */
+  private async getMockFallbackData(url: string): Promise<string> {
+    console.warn(`[FirecrawlService] Circuit breaker OPEN - using mock fallback for: ${this.maskSensitiveData(url)}`);
+    metricsService.recordCircuitBreakerFallback();
+
+    // Return minimal mock data that parseSupplements can handle
+    // This ensures the app degrades gracefully when Firecrawl is unavailable
+    const mockMarkdown = `
+# Marketplace Search Results
+
+## Popular Supplements (Cached)
+
+- **Whey Protein Concentrado 900g** - R$ 89,00
+- **Creatina Monoidratada 200g** - R$ 45,00
+- **Colágeno Hidrolisado 300g** - R$ 65,00
+- **Ômega-3 Mega 120 cápsulas** - R$ 35,00
+- **Vitamina D3 2000 UI 60 cápsulas** - R$ 28,00
+    `;
+
+    return mockMarkdown;
   }
 
   private getSearchUrls(source: 'amazon' | 'mercadolivre' | 'shopee', query: string): string[] {

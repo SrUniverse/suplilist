@@ -21,6 +21,7 @@ describe('ErrorTracking', () => {
     // Reset error buffer
     getBufferedErrors().length = 0;
     init();
+    enable();
   });
 
   afterEach(() => {

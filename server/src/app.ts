@@ -11,7 +11,6 @@
 import 'express-async-errors';
 import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { initializeIdentityModule } from './modules/identity/identity.module.js';
@@ -30,7 +29,11 @@ import { env } from './shared/config/env.config.js';
 import { metricsService } from './shared/services/metrics.service.js';
 import { tracingInitMiddleware } from './middleware/tracing.middleware.js';
 import { rateLimitHeadersMiddleware } from './middleware/rate-limit.middleware.js';
+import { createCorsMiddleware, logCorsConfiguration } from './middleware/cors.middleware.js';
 import { createHealthRouter } from './routes/health.route.js';
+import { metricsMiddleware, startErrorRateCleanup } from './middleware/metrics.middleware.js';
+import { createMetricsRouter } from './routes/metrics.route.js';
+import { logMaskingMiddleware } from './middleware/log-masking.middleware.js';
 
 export function createApp() {
   const app = express();
@@ -44,19 +47,21 @@ export function createApp() {
   // Add trace ID to all requests and responses for end-to-end debugging
   app.use(tracingInitMiddleware as express.RequestHandler);
 
+  // ── Log Masking (GDPR/Security) ────────────────────────────────────────────
+  // Sanitize sensitive data from logs: IPs, tokens, URLs with affiliate IDs, PII
+  // Must be early in stack to mask IPs before other middleware access them
+  app.use(logMaskingMiddleware);
+
   // ── Security headers ───────────────────────────────────────────────────────
   app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
   }));
 
-  // ── CORS (OWASP & W3C compliant) ──────────────────────────────────────────
-  // credentials: true requires an explicit origin — never wildcard '*'.
-  app.use(cors({
-    origin: env.FRONTEND_ORIGIN, // Zod guaranteed
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-SupliList-Client', 'If-Match'],
-    credentials: true,
-  }));
+  // ── CORS (OWASP & W3C compliant, explicit whitelist) ────────────────────────
+  // Explicit domain whitelist with no wildcards
+  // Logs rejected CORS requests for security monitoring
+  logCorsConfiguration();
+  app.use(createCorsMiddleware());
 
   // ── Cloudflare Edge Shield (Direct Origin Bypass Protection) ────────────────
   // Bloqueia qualquer tráfego que tente contornar o Cloudflare acessando a URL direta do Render,
@@ -90,6 +95,13 @@ export function createApp() {
   // Ensures X-RateLimit-* and Retry-After headers are present in responses
   app.use(rateLimitHeadersMiddleware);
 
+  // ── Prometheus Metrics Collection Middleware ────────────────────────────────
+  // Collects HTTP latency, request counts, error rates for all endpoints
+  app.use(metricsMiddleware);
+
+  // Start periodic cleanup of error rate counters
+  startErrorRateCleanup();
+
   // ── Global rate limiter ────────────────────────────────────────────────────
   const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -111,10 +123,9 @@ export function createApp() {
   app.use('/health', createHealthRouter());
 
   // ── Prometheus metrics endpoint ─────────────────────────────────────────────
-  app.get('/metrics', (_req: Request, res: Response) => {
-    res.set('Content-Type', 'text/plain; version=0.0.4');
-    res.send(metricsService.getMetrics());
-  });
+  // Prometheus scrapes this endpoint to collect application metrics
+  // Supports: http_requests_total, latency histograms, cache metrics, worker metrics, etc.
+  app.use('/metrics', createMetricsRouter());
 
   // ── Frontend performance metrics receiver ────────────────────────────────────
   app.post('/api/metrics/performance', (_req: Request, res: Response) => {

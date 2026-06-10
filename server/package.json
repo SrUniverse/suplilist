@@ -7,7 +7,10 @@
     "build": "rm -rf dist && tsc -p ../shared || true && tsc || true",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seed:stage1": "tsx src/scripts/seed-stage1.ts",
+    "seed:stage2": "tsx src/scripts/seed-stage2.ts",
+    "workers:start": "tsx src/workers/affiliate.worker.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1059.0",
@@ -16,6 +19,7 @@
     "@types/node-cron": "^3.0.11",
     "axios": "^1.6.0",
     "bcrypt": "^5.1.1",
+    "bullmq": "^5.11.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -29,10 +33,12 @@
     "mongoose": "^8.3.1",
     "node-cron": "^3.0.3",
     "otplib": "^13.4.1",
+    "prom-client": "^15.1.0",
     "rate-limit-redis": "^5.0.0",
     "resend": "^6.12.4",
     "sanitize-html": "^2.17.4",
     "uuid": "^9.0.0",
+    "winston": "^3.14.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

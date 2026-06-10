@@ -5,27 +5,25 @@
  * search page), return the best link to send a user to, plus whether an
  * affiliate identifier that actually credits the sale was applied.
  *
- * Per-marketplace reality (researched against current affiliate programs):
+ * Per-marketplace implementation:
  *
  *   Amazon Associates — appending `?tag=<assoc-id>` to ANY amazon.com.br URL
- *     (product or search) credits the sale. This is the documented, reliable
- *     mechanism and is implemented here.
+ *     (product or search) credits the sale. Documented, reliable mechanism.
  *
- *   Mercado Livre — affiliate links are generated ONLY through the affiliate
- *     portal ("Criar link") or the affiliate API. There is NO query parameter
- *     you can append to a product URL that credits. We therefore return the
- *     direct product URL unchanged and report affiliateApplied = false until
- *     ML affiliate-API integration (credentials) is added.
+ *   Mercado Livre — uses Impact affiliate network. Appending
+ *     `?matt_word=<word>&matt_tool=<toolId>` directly to a product URL is
+ *     sufficient for tracking — no signed `ref` token required. Confirmed by
+ *     community implementations (github.com/DeivianDS/mercadolivre-afiliados).
+ *     Configure AFFILIATE_CODE_MERCADOLIVRE as "matt:<word>:<toolId>",
+ *     e.g. "matt:suplilist:35217033".
  *
  *   Shopee — requires a tracked deep link generated via the Affiliate API
  *     (`generateShortLink` with originUrl + subIds), which needs an App ID and
  *     Secret. A `&affid=` query param on a product/search URL does NOT credit.
- *     We return the direct URL unchanged and report affiliateApplied = false
- *     until Shopee Affiliate-API integration (credentials) is added.
+ *     Returns the direct URL unchanged until Shopee API credentials are added.
  *
  * This module is intentionally pure (no network, no env reads) so it is fully
- * unit-testable. Network-based link generation (Shopee/ML APIs) belongs in a
- * separate service that calls into this one for the Amazon path.
+ * unit-testable.
  */
 
 export type Marketplace = 'amazon' | 'mercadolivre' | 'shopee';
@@ -89,6 +87,35 @@ function applyAmazonTag(rawUrl: string, tag: string): string {
 }
 
 /**
+ * Parse a Mercado Livre affiliate code in "matt:<word>:<toolId>" format.
+ * Returns null when the code is missing or not in the expected format.
+ *
+ * Example: "matt:suplilist:35217033" → { word: "suplilist", toolId: "35217033" }
+ */
+function parseMlCode(code: string): { word: string; toolId: string } | null {
+  if (!code || !code.startsWith('matt:')) return null;
+  const parts = code.split(':');
+  if (parts.length < 3 || !parts[1] || !parts[2]) return null;
+  return { word: parts[1], toolId: parts[2] };
+}
+
+/**
+ * Append `?matt_word=<word>&matt_tool=<toolId>` to a Mercado Livre product URL.
+ * This is the Impact-network tracking mechanism used by ML's affiliate program.
+ */
+function applyMlAffiliateParams(rawUrl: string, word: string, toolId: string): string {
+  try {
+    const u = new URL(rawUrl);
+    u.searchParams.set('matt_word', word);
+    u.searchParams.set('matt_tool', toolId);
+    return u.toString();
+  } catch {
+    const sep = rawUrl.includes('?') ? '&' : '?';
+    return `${rawUrl}${sep}matt_word=${encodeURIComponent(word)}&matt_tool=${encodeURIComponent(toolId)}`;
+  }
+}
+
+/**
  * Build the best affiliate link for a marketplace URL.
  *
  * @param rawUrl Direct product URL when available, otherwise a search URL.
@@ -108,14 +135,24 @@ export function buildAffiliateLink(
         reason: codes.amazon ? null : 'amazon affiliate tag not configured',
       };
 
-    case 'mercadolivre':
+    case 'mercadolivre': {
+      const ml = parseMlCode(codes.mercadolivre);
+      if (!ml) {
+        return {
+          url: rawUrl,
+          affiliateApplied: false,
+          reason:
+            'Mercado Livre affiliate code not configured. ' +
+            'Set AFFILIATE_CODE_MERCADOLIVRE=matt:<word>:<toolId> ' +
+            '(e.g. matt:suplilist:35217033).',
+        };
+      }
       return {
-        url: rawUrl,
-        affiliateApplied: false,
-        reason:
-          'Mercado Livre crediting requires affiliate-portal/API link generation; ' +
-          'a query parameter on a product URL does not credit.',
+        url: applyMlAffiliateParams(rawUrl, ml.word, ml.toolId),
+        affiliateApplied: true,
+        reason: null,
       };
+    }
 
     case 'shopee':
       return {

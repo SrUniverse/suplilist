@@ -270,7 +270,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize Offline Handler (detects network changes, disables edit controls in offline mode)
   const offlineHandler = new OfflineHandler(stateManager, eventBus);
-  offlineHandler.init();
+  try {
+    offlineHandler.init();
+  } catch (offlineErr) {
+    logger.warn('[App] OfflineHandler init failed (non-critical):', offlineErr);
+  }
 
   // Restaurar tema salvo
   const savedTheme = StorageManager.getItem(STORAGE_KEYS.THEME) || StorageManager.getItem('theme');
@@ -304,12 +308,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Hide loading screen
-  const loading = document.getElementById('app-loading');
-  if (loading) {
-    loading.style.opacity = '0';
-    setTimeout(() => { loading.style.display = 'none'; }, 300);
+  // Hide loading screen — always runs, even if earlier init steps fail
+  function _hideLoadingScreen() {
+    const loading = document.getElementById('app-loading');
+    if (loading && loading.style.display !== 'none') {
+      loading.style.opacity = '0';
+      setTimeout(() => { loading.style.display = 'none'; }, 300);
+    }
   }
+  _hideLoadingScreen();
+  // Fallback: if something above delayed execution, force-hide after 3s
+  setTimeout(_hideLoadingScreen, 3000);
 
   // Toast events — both 'toast:show' (pages) and 'ui:toastRequested' (stateManager/profile)
   function _showToast({ message, type = 'info', duration = 3000 }) {

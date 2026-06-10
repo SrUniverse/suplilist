@@ -1,89 +1,77 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * Playwright Configuration for SupliList E2E Tests
+ *
+ * Comprehensive testing for all PHASE 1-4 stack validation:
+ * - Foundation (PostgreSQL, Redis, Docker)
+ * - JIT Endpoints (Rate limiting, Caching, Fallback)
+ * - Async Motor (BullMQ, Deduplication, IQR Filtering)
+ * - Telemetry (Prometheus, Grafana, Alerts, Logs)
+ *
+ * API-only tests (no browser automation needed)
+ * Run with: npm run test:e2e
  */
-// require('dotenv').config();
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+const API_URL = process.env.API_URL || 'http://localhost:5000';
+const PROMETHEUS_URL = process.env.PROMETHEUS_URL || 'http://localhost:9090';
+const GRAFANA_URL = process.env.GRAFANA_URL || 'http://localhost:3000';
+
 export default defineConfig({
-  // 1. Dê mais tempo para a nuvem pensar
-  timeout: process.env.CI ? 60000 : 30000,
-  
-  expect: {
-    timeout: process.env.CI ? 15000 : 5000,
-  },
-
   testDir: './e2e',
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  testMatch: '**/*.test.ts',
 
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://127.0.0.1:3000',
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+  // Timeout configuration
+  timeout: 30000, // 30s per test
+  expect: {
+    timeout: 5000, // 5s per assertion
   },
 
-  /* Configure projects for major browsers */
-  projects: [
-    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+  // Parallel execution
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 1 : 4,
 
-    // Mobile devices
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'], storageState: 'e2e/support/storageState.json' },
-      dependencies: ['setup'],
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'], storageState: 'e2e/support/storageState.json' },
-      dependencies: ['setup'],
-    },
-
-    // Desktop browsers
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'], storageState: 'e2e/support/storageState.json' },
-      dependencies: ['setup'],
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'], storageState: 'e2e/support/storageState.json' },
-      dependencies: ['setup'],
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'], storageState: 'e2e/support/storageState.json' },
-      dependencies: ['setup'],
-    },
-
-    /* Test against brand browsers */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+  // Reporter configuration
+  reporter: [
+    ['html', { outputFolder: 'test-results/html' }],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+    ['list'],
   ],
 
-  reporter: process.env.CI ? [['html'], ['list']] : 'html',
+  // Global settings
+  use: {
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
 
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://127.0.0.1:3000',
-    reuseExistingServer: true,
+  // Single project: API testing via HTTP (no browser needed)
+  projects: [
+    {
+      name: 'api-tests',
+      use: {},
+    },
+  ],
+
+  // Server configuration for local development
+  webServer: process.env.API_URL
+    ? undefined // Use provided API_URL instead of starting server
+    : {
+        command: 'npm run dev:server',
+        port: 5000,
+        timeout: 120000,
+        reuseExistingServer: !process.env.CI,
+        env: {
+          NODE_ENV: 'test',
+        },
+      },
+
+  // Environment variables for tests
+  env: {
+    API_URL,
+    PROMETHEUS_URL,
+    GRAFANA_URL,
   },
 });

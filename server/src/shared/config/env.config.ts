@@ -1,25 +1,178 @@
+/**
+ * Environment Configuration Validation
+ * Version: 1.0.0
+ *
+ * Uses Zod to validate and type-check all environment variables at startup.
+ * Fails fast if any required variable is missing or invalid.
+ */
+
 import { z } from 'zod';
 import dotenv from 'dotenv';
 
-// Carrega o arquivo correspondente ao NODE_ENV, se não fornecido usa .env
+// Load .env file
 dotenv.config();
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().default('5000'),
-  MONGO_URI: z.string().url('A MONGO_URI deve ser uma URL de conexão válida'),
-  REDIS_URI: z.string().url('A REDIS_URI deve ser uma URL de conexão válida').optional(),
-  FIRECRAWL_API_KEY: z.string().min(10).optional(),
-  JWT_SECRET: z.string().min(32, 'O JWT_SECRET de produção exige pelo menos 32 caracteres para entropia segura.'),
-  ENCRYPTION_KEY: z.string().length(64, 'ENCRYPTION_KEY must be a 64-character hex string (32 bytes)'),
-  FRONTEND_ORIGIN: z.string().url('A ORIGIN do Frontend deve ser informada para os headers de CORS')
+  // Server Configuration
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+  PORT: z.coerce.number().default(5000),
+
+  // CORS Configuration - Explicit Domain Whitelist
+  CORS_ORIGIN_DEV: z
+    .string()
+    .url()
+    .default('http://localhost:5173')
+    .describe('Development frontend URL for CORS'),
+  CORS_ORIGIN_PROD: z
+    .string()
+    .url()
+    .default('https://suplilist.app')
+    .describe('Production frontend URL for CORS'),
+  CORS_ORIGINS: z
+    .string()
+    .optional()
+    .describe('Additional comma-separated CORS origins'),
+
+  // Database - PostgreSQL (PHASE 1)
+  DATABASE_URL: z
+    .string()
+    .url()
+    .describe('PostgreSQL connection string'),
+  POSTGRES_USER: z
+    .string()
+    .min(1)
+    .default('suplilist'),
+  POSTGRES_PASSWORD: z
+    .string()
+    .min(1)
+    .default('suplilist_dev'),
+  POSTGRES_DB: z
+    .string()
+    .min(1)
+    .default('suplilist'),
+  POSTGRES_HOST: z
+    .string()
+    .default('localhost'),
+  POSTGRES_PORT: z
+    .coerce
+    .number()
+    .default(5432),
+
+  // Cache - Redis
+  REDIS_URL: z
+    .string()
+    .url()
+    .default('redis://localhost:6379/0'),
+
+  // Authentication - JWT
+  JWT_SECRET: z
+    .string()
+    .min(32, 'JWT_SECRET must be at least 32 characters for production security')
+    .describe('Secret key for JWT signing'),
+  JWT_EXPIRES_IN: z
+    .string()
+    .default('24h'),
+  REFRESH_TOKEN_SECRET: z
+    .string()
+    .min(32, 'REFRESH_TOKEN_SECRET must be at least 32 characters')
+    .describe('Secret key for refresh token signing'),
+  REFRESH_TOKEN_EXPIRES_IN: z
+    .string()
+    .default('7d'),
+
+  // OAuth - Google
+  GOOGLE_CLIENT_ID: z
+    .string()
+    .optional(),
+  GOOGLE_CLIENT_SECRET: z
+    .string()
+    .optional(),
+
+  // File Storage - AWS S3
+  AWS_ACCESS_KEY_ID: z
+    .string()
+    .optional(),
+  AWS_SECRET_ACCESS_KEY: z
+    .string()
+    .optional(),
+  AWS_S3_BUCKET: z
+    .string()
+    .optional(),
+  AWS_S3_REGION: z
+    .string()
+    .default('us-east-1'),
+
+  // Email Service - Resend
+  RESEND_API_KEY: z
+    .string()
+    .optional(),
+
+  // Affiliate Programs
+  VITE_AMAZON_AFFILIATE_ID: z
+    .string()
+    .optional(),
+  VITE_ML_AFFILIATE_ID: z
+    .string()
+    .optional(),
+  VITE_SHOPEE_AFFILIATE_ID: z
+    .string()
+    .optional(),
+
+  // Push Notifications - Firebase
+  FCM_SERVER_KEY: z
+    .string()
+    .optional(),
+  VITE_FCM_VAPID_KEY: z
+    .string()
+    .optional(),
+
+  // Analytics
+  VITE_GA_MEASUREMENT_ID: z
+    .string()
+    .optional(),
+
+  // Development
+  DEBUG: z
+    .string()
+    .optional(),
+  SKIP_EMAIL_VERIFICATION: z
+    .string()
+    .transform((v) => v === 'true')
+    .default('false'),
 });
 
 const envResult = envSchema.safeParse(process.env);
 
 if (!envResult.success) {
-  const formatted = JSON.stringify(envResult.error.format(), null, 2);
-  throw new Error(`Invalid ENV — missing or invalid variables:\n${formatted}`);
+  console.error('\n❌ Environment Validation Failed\n');
+  const errors = envResult.error.flatten();
+
+  // Print field errors
+  if (Object.keys(errors.fieldErrors).length > 0) {
+    console.error('Invalid Fields:');
+    Object.entries(errors.fieldErrors).forEach(([field, messages]) => {
+      console.error(`  • ${field}: ${messages?.join(', ')}`);
+    });
+  }
+
+  // Print form-level errors
+  if (errors.formErrors.length > 0) {
+    console.error('\nForm Errors:');
+    errors.formErrors.forEach((error) => {
+      console.error(`  • ${error}`);
+    });
+  }
+
+  console.error(
+    '\nPlease check your .env file and ensure all required variables are set.\n',
+  );
+  process.exit(1);
 }
 
 export const env = envResult.data;
+export type Environment = z.infer<typeof envSchema>;
+
+// Export schema for testing
+export { envSchema };

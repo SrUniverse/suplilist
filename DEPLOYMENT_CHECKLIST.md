@@ -1,338 +1,533 @@
-# SupliList Firecrawl Integration — Deployment Checklist
+# SupliList Deployment Checklist
 
-**Status**: READY FOR PRODUCTION  
-**Feature**: Firecrawl Web Scraping + Supplement Price Tracking  
-**Heart of the Site**: ✅ CRITICAL FEATURE COMPLETE
+Pre-deployment validation for all PHASE 1-4 stack components before going to production.
 
----
-
-## Pre-Deployment Audit
-
-### ✅ Code Integration
-- [x] `SupplementService` — All 5 core methods implemented
-  - [x] `crawlAllSources()` - Daily crawl scheduled at 02:00 UTC
-  - [x] `crawlSupplementOnDemand()` - On-demand user searches
-  - [x] `processCrawledData()` - Data deduplication & history tracking
-  - [x] `calculateSavings()` - Price comparison metrics
-  - [x] `checkPriceAlerts()` - Price drop detection (>20%)
-- [x] `FirecrawlService` — Web scraping with affiliate links
-  - [x] Amazon affiliate tag parameter (suplilist01-20)
-  - [x] Mercado Livre affiliate code in path (FULZ93-PCG7)
-  - [x] Shopee affid parameter (CLH-CZB-PNR)
-  - [x] Flexible price parsing (R$, . or , separators)
-  - [x] Product name extraction with Portuguese keyword matching
-  - [x] Duplicate deduplication via normalized names
-- [x] `SchedulerService` — Background task scheduling
-  - [x] Singleton pattern with proper import fixes
-  - [x] Daily crawl at 02:00 UTC via node-cron
-  - [x] Graceful shutdown support
-  - [x] Test environment skip
-- [x] `Express Routes` — All API endpoints implemented
-  - [x] GET `/api/supplements/:id` - Price comparison
-  - [x] GET `/api/supplements/search?q=` - Supplement search
-  - [x] GET `/api/supplements/prices?ids=` - Bulk price fetch
-  - [x] GET `/api/supplements/:id/price-history` - Historical data
-  - [x] POST `/api/supplements/crawl-on-demand` - User-triggered crawl
-  - [x] GET `/api/supplements/:id/price-alerts` - Price drop alerts
-
-### ✅ Database Schema
-- [x] MongoDB `supplements_data` collection
-  - [x] TTL index: 48h auto-cleanup (172800 seconds)
-  - [x] Compound index: `{supplementId: 1, lastCrawled: -1}`
-  - [x] Price history schema: date, price, source
-  - [x] Price schema: price, url, lastUpdated
-- [x] Mongoose Model: `SupplementDataModel`
-  - [x] Interfaces: `ISupplementData`, `IPriceHistory`, `ISupplementPrice`
-  - [x] Proper typing with TypeScript
-
-### ✅ Frontend Integration
-- [x] Price overlay on supplement catalog
-  - [x] Fallback to static `/data/prices.json` on API failure
-  - [x] Format conversion from API to frontend structure
-  - [x] Bulk fetch via `/api/supplements/prices?ids=...`
-
-### ✅ Security & Validation
-- [x] Price range validation: R$10–1000
-- [x] Product name validation: 8+ chars, Portuguese keywords
-- [x] Affiliate URL validation for all 3 marketplaces
-- [x] Auth middleware on protected routes
-- [x] Error handling with graceful fallbacks
-- [x] No hardcoded secrets in source (API key via env var)
-
-### ✅ Logging & Observability
-- [x] Structured logging in SupplementService
-- [x] Firecrawl request/response logging
-- [x] Scheduler startup and error logging
-- [x] Duplicate detection logging
-- [x] Exponential backoff retry logging
+**Last Updated:** 2025-06-09  
+**Version:** 1.0.0
 
 ---
 
-## Environment Variables Required
+## PHASE 1: Foundation Validation
 
-### Critical (Must Set Before Deploy)
+### PostgreSQL Database
 
+- [ ] PostgreSQL container is running (`docker compose ps postgresql`)
+- [ ] Database version is 15+ (check: `psql --version`)
+- [ ] All 11+ core tables are created:
+  - [ ] `users`
+  - [ ] `profiles`
+  - [ ] `affiliate_links`
+  - [ ] `products`
+  - [ ] `categories`
+  - [ ] `suppliers`
+  - [ ] `checkins`
+  - [ ] `favorites`
+  - [ ] `audit_logs`
+  - [ ] `sessions`
+  - [ ] `settings`
+- [ ] Connection pooling is configured (min 5, max 20 connections)
+- [ ] Backup jobs are scheduled and tested
+- [ ] Foreign key constraints are enabled
+- [ ] Indexes are created on all lookup fields
+- [ ] Database health check passes: `curl http://localhost:5000/health/db`
+- [ ] Migrations have been executed: `npm run migrate`
+- [ ] Initial seed data is loaded: `npm run seed:stage1 && npm run seed:stage2`
+
+**Command to verify:**
 ```bash
-# Firecrawl API
-FIRECRAWL_API_KEY=<your-key>        # Firecrawl API key (from dashboard)
-
-# Database
-MONGO_URI=<mongodb-uri>              # MongoDB connection string (Atlas or local)
-
-# Server
-NODE_ENV=production                  # Set to 'production'
-PORT=3000                            # Server port
-FRONTEND_ORIGIN=<frontend-url>       # CORS origin (e.g., https://suplilist.com)
+npm run test:e2e -- phase1-validation.test.ts
 ```
 
-### Optional (Recommended for Production)
+---
 
+### Redis Cache
+
+- [ ] Redis container is running (`docker compose ps redis`)
+- [ ] Redis version is 7+ (check: `redis-cli INFO server`)
+- [ ] Memory allocation is at least 512MB: `redis-cli CONFIG GET maxmemory`
+- [ ] Eviction policy is `allkeys-lru`: `redis-cli CONFIG GET maxmemory-policy`
+- [ ] Persistence is configured (RDB + AOF)
+- [ ] Connection pooling is configured for application
+- [ ] Redis health check passes: `curl http://localhost:5000/health/redis`
+- [ ] TTL is working: `redis-cli PEXPIRE test-key 5000`
+- [ ] No stale keys are accumulating
+- [ ] Memory usage is below 80% of max
+
+**Command to verify:**
 ```bash
-# Cloudflare Edge Shield
-CF_EDGE_TOKEN=<token>               # Protect against direct IP access
-
-# Observability
-LOG_LEVEL=info                       # Logging verbosity
-SENTRY_DSN=<sentry-url>             # Error tracking (optional)
+redis-cli PING  # Should return PONG
+redis-cli INFO stats
 ```
+
+---
+
+### Docker Orchestration
+
+- [ ] Docker version is 20.10+: `docker --version`
+- [ ] Docker Compose version is 2.0+: `docker-compose --version`
+- [ ] All containers are healthy: `docker compose ps`
+  - [ ] `suplilist-postgres` - healthy
+  - [ ] `suplilist-redis` - healthy
+  - [ ] `suplilist-api` - healthy
+  - [ ] `suplilist-prometheus` - healthy
+  - [ ] `suplilist-grafana` - healthy
+- [ ] Health checks are passing:
+  ```bash
+  docker compose exec postgresql pg_isready -U suplilist
+  docker compose exec redis redis-cli ping
+  ```
+- [ ] Network connectivity: `docker compose exec api curl http://redis:6379/`
+- [ ] Volume mounts are correct and writable
+- [ ] No zombie or orphaned containers
+
+**Command to verify:**
+```bash
+docker compose ps --all
+```
+
+---
+
+## PHASE 2: JIT Endpoints
+
+### Affiliate Endpoint
+
+- [ ] Endpoint is accessible: `curl -X POST http://localhost:5000/api/affiliate/out -H "Content-Type: application/json" -d '{"url":"https://example.com","source":"amazon"}'`
+- [ ] Accepts valid Amazon URLs
+- [ ] Accepts valid Shopee URLs
+- [ ] Accepts valid Mercado Livre URLs
+- [ ] Rejects invalid sources (400 error)
+- [ ] Rejects malformed URLs (400 error)
+- [ ] Request validation is working
+
+**Test Coverage:**
+```bash
+npm run test:e2e -- phase2-jit.test.ts --grep "Affiliate Endpoint"
+```
+
+---
+
+### Rate Limiting (100 req/min)
+
+- [ ] Rate limit headers are present: `X-RateLimit-Limit`
+- [ ] Rate limit is set to 100: `X-RateLimit-Limit: 100`
+- [ ] Rate limit counter decreases per request
+- [ ] 429 Too Many Requests is returned when exceeded
+- [ ] `Retry-After` header is present on 429 responses
+- [ ] Rate limit window is 60 seconds
+- [ ] Per-IP rate limiting is enforced
+- [ ] Rate limit is applied to `/api/affiliate/out` endpoint
+
+**Test Coverage:**
+```bash
+npm run test:e2e -- phase2-jit.test.ts --grep "Rate Limiting"
+```
+
+---
+
+### Crawler Blocking
+
+- [ ] Googlebot User-Agent is blocked (403)
+- [ ] Bingbot User-Agent is blocked (403)
+- [ ] Other common crawlers are blocked:
+  - [ ] Amazonbot
+  - [ ] MJ12bot
+  - [ ] SEMrushBot
+  - [ ] Ahrefs
+- [ ] Normal browser User-Agents are allowed
+- [ ] Crawler blocking doesn't break normal users
+
+**Test Coverage:**
+```bash
+npm run test:e2e -- phase2-jit.test.ts --grep "Crawler Blocking"
+```
+
+---
+
+### JIT Timeout (1s) & Fallback
+
+- [ ] JIT timeout is set to 1 second
+- [ ] 408 Request Timeout is returned when timeout occurs
+- [ ] Fallback data is returned on timeout
+- [ ] No requests hang indefinitely
+- [ ] Timeout behavior is consistent
+
+**Test Coverage:**
+```bash
+npm run test:e2e -- phase2-jit.test.ts --grep "JIT Timeout"
+```
+
+---
+
+### Caching (24h TTL)
+
+- [ ] Cache-Control header is present
+- [ ] Cache max-age is set correctly (86400s = 24h)
+- [ ] Cache hits are indicated in response headers
+- [ ] Stale content is not served
+- [ ] Cache is invalidated on data updates
+- [ ] Conditional requests (If-Match, If-None-Match) work
+
+**Test Coverage:**
+```bash
+npm run test:e2e -- phase2-jit.test.ts --grep "Caching"
+```
+
+---
+
+## PHASE 3: Async Motor (BullMQ)
+
+### Queue Management
+
+- [ ] BullMQ is initialized
+- [ ] Affiliate sync queue is created
+- [ ] Queue accepts new jobs
+- [ ] Queue status endpoint works: `GET /api/admin/queues`
+- [ ] Queue retry logic is configured (minimum 3 retries)
+- [ ] Max stale count is configured
+- [ ] Dead letter queue exists for failed jobs
+
+**Command to verify:**
+```bash
+curl http://localhost:5000/api/admin/queues
+```
+
+---
+
+### Worker Job Processing
+
+- [ ] Workers are running: `GET /api/admin/workers`
+- [ ] Workers process jobs successfully
+- [ ] Jobs move from pending -> processing -> completed
+- [ ] Failed jobs are retried
+- [ ] Worker logs are structured
+- [ ] Job progress is trackable
+- [ ] Worker respects timeout limits
+
+**Commands:**
+```bash
+# Check worker status
+curl http://localhost:5000/api/admin/workers
+
+# Check job status
+curl http://localhost:5000/api/jobs/{jobId}
+```
+
+---
+
+### Deduplication
+
+- [ ] Duplicate URLs are detected
+- [ ] Deduplication window is 24h (configurable)
+- [ ] Deduplication can be bypassed with `force: true`
+- [ ] Duplicate detection doesn't cause false positives
+
+**Test Coverage:**
+```bash
+npm run test:e2e -- phase3-async.test.ts --grep "Deduplication"
+```
+
+---
+
+### IQR Filtering & Outlier Detection
+
+- [ ] IQR is calculated correctly (Q1, Q3)
+- [ ] Price outliers are detected
+- [ ] Outliers are flagged in product data
+- [ ] Lower/upper bounds are configurable
+- [ ] Filtering is applied during worker processing
+- [ ] Outlier thresholds are reasonable
+
+**Command to verify:**
+```bash
+curl http://localhost:5000/api/products/analytics/iqr
+```
+
+---
+
+### Seed Script Completion
+
+- [ ] Seed stage 1 is complete: `curl http://localhost:5000/api/admin/seed-status/stage1`
+- [ ] Seed stage 2 is complete: `curl http://localhost:5000/api/admin/seed-status/stage2`
+- [ ] Seed data integrity verified: `curl http://localhost:5000/api/admin/seed-integrity`
+- [ ] Total records are > 0
+- [ ] No duplicate data in seed
+- [ ] All required fields are populated
+
+**Commands:**
+```bash
+npm run seed:stage1
+npm run seed:stage2
+npm run test:e2e -- phase3-async.test.ts --grep "Seed Script"
+```
+
+---
+
+## PHASE 4: Telemetry & Monitoring
+
+### Prometheus Metrics
+
+- [ ] `/metrics` endpoint is accessible: `curl http://localhost:5000/metrics`
+- [ ] Metrics are in Prometheus format (text/plain, # HELP, # TYPE)
+- [ ] HTTP request counter (`http_requests_total`) is tracked
+- [ ] HTTP request duration histogram is tracked
+- [ ] Error rate metrics are tracked
+- [ ] Memory usage metrics are collected
+- [ ] Process uptime is tracked
+- [ ] Custom business metrics are exported
+- [ ] Queue statistics are exported
+
+**Command to verify:**
+```bash
+curl http://localhost:5000/metrics | head -30
+```
+
+---
+
+### Prometheus Server
+
+- [ ] Prometheus container is running
+- [ ] Prometheus can scrape targets: `http://localhost:9090/api/v1/targets`
+- [ ] API endpoint is in active targets
+- [ ] Metrics are being collected: `http://localhost:9090/api/v1/query?query=up`
+- [ ] Retention period is configured (15d minimum)
+- [ ] Service discovery is working
+
+**Commands:**
+```bash
+curl http://localhost:9090/api/v1/targets
+curl http://localhost:9090/api/v1/query?query=http_requests_total
+```
+
+---
+
+### Grafana Dashboards
+
+- [ ] Grafana container is running
+- [ ] Grafana is accessible: `http://localhost:3000`
+- [ ] Default admin password is changed
+- [ ] Prometheus datasource is configured
+- [ ] SupliList dashboard is provisioned
+- [ ] Dashboard displays real-time metrics
+- [ ] Alerts are visible in dashboard
+
+**Commands:**
+```bash
+curl http://localhost:3000/api/health
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/api/datasources
+```
+
+---
+
+### Alerting Rules
+
+- [ ] High error rate alert is configured (> 5% errors)
+- [ ] High latency alert is configured (p95 > 1s)
+- [ ] Resource exhaustion alerts exist:
+  - [ ] Memory > 80%
+  - [ ] CPU > 80%
+  - [ ] Disk > 85%
+- [ ] Queue health alerts exist:
+  - [ ] Queue stalled for > 5 min
+  - [ ] Failed job count > 100
+- [ ] Alert severity levels are set:
+  - [ ] Critical (page immediately)
+  - [ ] Warning (notify)
+  - [ ] Info (log only)
+
+**Command to verify:**
+```bash
+curl http://localhost:9090/api/v1/rules
+```
+
+---
+
+### Structured Logging
+
+- [ ] Application logs are JSON formatted
+- [ ] Logs include trace IDs
+- [ ] Logs include request/response context:
+  - [ ] HTTP method
+  - [ ] Path
+  - [ ] Status code
+  - [ ] Response time
+- [ ] Sensitive data is redacted:
+  - [ ] No passwords in logs
+  - [ ] No API keys in logs
+  - [ ] No auth tokens in logs
+- [ ] Error stack traces are included
+- [ ] Log level is set to INFO (production)
+
+**Command to verify:**
+```bash
+docker compose logs api | head -20
+```
+
+---
+
+### Monitoring Dashboard Health
+
+- [ ] Key metrics are visible
+- [ ] Health metrics are accurate
+- [ ] Error metrics reflect actual errors
+- [ ] All critical paths are instrumented
+
+---
+
+## Pre-Deployment Verification
+
+### Code Quality
+
+- [ ] No console.log statements in production code
+- [ ] TypeScript compilation succeeds: `npm run build`
+- [ ] ESLint passes: `npm run lint:js`
+- [ ] CSS linting passes: `npm run lint:css`
+- [ ] All tests pass: `npm test`
+- [ ] E2E tests pass: `npm run test:e2e`
+
+### Security
+
+- [ ] All dependencies are up-to-date: `npm audit`
+- [ ] No critical vulnerabilities: `npm audit --audit-level=moderate`
+- [ ] CORS is properly configured
+- [ ] CSRF protection is enabled
+- [ ] Security headers are present: Helmet.js
+- [ ] Rate limiting is enforced
+- [ ] Input validation is implemented
+- [ ] SQL injection prevention is working (parameterized queries)
+- [ ] XSS protection is enabled
+- [ ] HTTPS is enforced (in production)
+
+### Configuration
+
+- [ ] Environment variables are set:
+  - [ ] `NODE_ENV=production`
+  - [ ] `DATABASE_URL` is correct
+  - [ ] `REDIS_URL` is correct
+  - [ ] `METRICS_ENABLED=true`
+  - [ ] `FRONTEND_ORIGIN` is set
+- [ ] Secrets are not in code:
+  - [ ] No hardcoded API keys
+  - [ ] No hardcoded credentials
+  - [ ] Secrets are in .env or secret manager
+- [ ] Log level is appropriate for environment
+- [ ] Timezone is set correctly (UTC)
+
+### Documentation
+
+- [ ] README is up-to-date
+- [ ] API documentation is complete
+- [ ] Deployment guide is accurate
+- [ ] Runbook for common issues exists
+- [ ] Architecture documentation is current
 
 ---
 
 ## Deployment Steps
 
-### 1. Prepare Environment
+### 1. Pre-Deployment (24 hours before)
 
 ```bash
-# ✅ Set all required env vars in your deployment platform
-# (AWS Lambda env vars, Render environment, Docker secrets, etc.)
+# Run full test suite
+npm run test:e2e
 
-# ✅ Verify MongoDB can be reached
-node -e "require('mongoose').connect(process.env.MONGO_URI).then(() => console.log('✅ MongoDB OK')).catch(e => console.error('❌', e))"
-
-# ✅ Verify Firecrawl API key works
-curl -X POST https://api.firecrawl.dev/v1/scrape \
-  -H "Authorization: Bearer $FIRECRAWL_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com", "formats": ["markdown"]}'
-```
-
-### 2. Build & Test
-
-```bash
-# ✅ Install dependencies
-npm install
-
-# ✅ TypeScript type check
-npm run type-check
-
-# ✅ Run test suite
-npm test
-
-# ✅ Build for production
+# Check code quality
 npm run build
+npm run lint:js
+npm run lint:css
+
+# Verify no critical vulnerabilities
+npm audit
 ```
 
-### 3. Staging Verification
+### 2. Final Validation (before deploy)
 
 ```bash
-# ✅ Start server in staging
-NODE_ENV=staging npm start
+# Run PHASE 1 tests
+npm run test:e2e -- phase1-validation.test.ts
 
-# ✅ Verify health endpoint
-curl http://localhost:3000/health
+# Verify all containers are healthy
+docker compose ps
 
-# ✅ Test supplement search (should fail gracefully if no data)
-curl "http://localhost:3000/api/supplements/search?q=creatina"
-
-# ✅ Test price endpoint with empty IDs (should return empty map)
-curl "http://localhost:3000/api/supplements/prices?ids="
-
-# ✅ Verify scheduler initialized (check logs for "[Scheduler] Daily supplement crawl scheduled")
+# Check recent logs for errors
+docker compose logs --tail=50 api
 ```
 
-### 4. Production Deployment
+### 3. Deployment
 
 ```bash
-# ✅ Deploy updated code to production
-# (via your CI/CD pipeline: GitHub Actions, AWS CodeDeploy, etc.)
+# Build and push images to registry
+docker compose build
+docker compose push
 
-# ✅ Verify container/instance health
-# (check Docker logs, CloudWatch, etc.)
+# Deploy to production
+# (Use your deployment tool: Render, Vercel, AWS, etc.)
 
-# ✅ Monitor for errors in first 5 minutes
-# (watch logs for "[SupplementService]" errors)
-
-# ✅ Check MongoDB connection
-# (verify "✅ MongoDB connected successfully" in logs)
-
-# ✅ Check scheduler initialization
-# (verify "[Scheduler] Daily supplement crawl scheduled for 02:00 UTC" in logs)
+# Verify deployment
+curl https://api.suplilist.com/health
+npm run test:e2e -- complete-integration.test.ts
 ```
 
-### 5. Data Initialization (First Run)
+### 4. Post-Deployment (first 24 hours)
 
 ```bash
-# ✅ Trigger first manual crawl (optional, to populate DB)
-curl -X POST http://localhost:3000/api/supplements/crawl-on-demand \
-  -H "Authorization: Bearer <admin-token>" \
-  -H "Content-Type: application/json" \
-  -d '{"supplementName": "creatina"}'
+# Monitor key metrics
+# - Error rate < 1%
+# - Response time p95 < 500ms
+# - Queue processing latency < 2s
 
-# Wait 30 seconds for crawl to complete...
-# Then verify data:
-curl "http://localhost:3000/api/supplements/search?q=creatina"
+# Check logs for errors
+docker compose logs api | grep -i error
+
+# Verify all PHASE tests pass
+npm run test:e2e
+
+# Monitor with Grafana dashboard
+# Open: http://grafana.suplilist.com
 ```
 
 ---
 
-## Post-Deployment Verification
+## Rollback Criteria
 
-### ✅ Monitor for 24 Hours
+Deploy should be rolled back if:
 
-- [ ] No error spikes in logs
-- [ ] No MongoDB connection timeouts
-- [ ] Scheduled crawl runs at 02:00 UTC (check logs next morning)
-- [ ] API response times < 200ms
-- [ ] Price data appears in frontend after first crawl
-- [ ] Affiliate links are formatted correctly (check network tab)
+- [ ] Error rate exceeds 5% for > 5 minutes
+- [ ] Response time p95 exceeds 5 seconds
+- [ ] Database connectivity is lost
+- [ ] Redis connectivity is lost
+- [ ] Critical alerts are firing
+- [ ] Queue is backed up (> 10,000 jobs)
+- [ ] Memory usage exceeds 90%
 
-### ✅ Test Critical Paths
-
-```bash
-# 1. Search for supplement (triggers on-demand crawl if empty)
-curl "https://suplilist.com/api/supplements/search?q=creatina"
-
-# 2. Get price history
-curl "https://suplilist.com/api/supplements/creatina/price-history?days=30"
-
-# 3. Check alerts for price drops
-curl -H "Authorization: Bearer <token>" \
-  "https://suplilist.com/api/supplements/creatina/price-alerts?supplementIds=creatina"
-
-# 4. Bulk fetch prices (used by frontend)
-curl "https://suplilist.com/api/supplements/prices?ids=creatina,whey-protein,omega3"
-```
-
-### ✅ Verify Affiliate Links
+### Rollback Command
 
 ```bash
-# Check that affiliate codes are embedded in URLs
-curl -s "https://suplilist.com/api/supplements/search?q=creatina" \
-  | grep -o 'https://[^"]*' | head -5
+# Switch to previous version
+docker compose down
+git checkout previous-version
+docker compose up -d
 
-# Expected formats:
-# Amazon: https://www.amazon.com.br/s?k=...&tag=suplilist01-20
-# ML: https://lista.mercadolivre.com.br/FULZ93-PCG7/...
-# Shopee: https://shopee.com.br/search?keyword=...&affid=CLH-CZB-PNR
+# Verify rollback
+npm run test:e2e -- complete-integration.test.ts
 ```
-
----
-
-## Rollback Plan
-
-### If Critical Errors Occur
-
-1. **Scheduler failing**: Disable cron job and revert to manual crawls
-   ```bash
-   # Set NODE_ENV=test to skip scheduler initialization
-   # Or comment out scheduler.initialize() in server.ts
-   ```
-
-2. **API 500 errors**: Check for:
-   - MongoDB connectivity (connection string, IP whitelist)
-   - Firecrawl API key expired or quota exceeded
-   - Missing environment variables
-
-3. **Data corruption**: Restore from MongoDB backup
-   ```bash
-   mongorestore --uri="$MONGO_URI" --archive=supplements_backup.archive
-   ```
-
-4. **Immediate rollback**:
-   ```bash
-   # Revert to previous version
-   git revert <commit-hash>
-   git push
-   # Re-deploy previous version
-   ```
-
----
-
-## Long-Term Maintenance
-
-### Daily (Automated)
-- ✅ Scheduler runs daily at 02:00 UTC
-- ✅ TTL index auto-deletes data older than 48h
-- ✅ Price history tracked (max 90 days per supplement)
-
-### Weekly
-- [ ] Check supplement data volume (MongoDB size)
-- [ ] Monitor Firecrawl API usage and costs
-- [ ] Verify affiliate link formats haven't changed
-
-### Monthly
-- [ ] Review price trend accuracy
-- [ ] Check for duplicate supplement names (manual dedup if needed)
-- [ ] Update price range thresholds if needed (currently R$10–1000)
-- [ ] Audit affiliate code performance via marketplace dashboards
-
-### Quarterly
-- [ ] Review Firecrawl API pricing vs. usage
-- [ ] Evaluate adding new marketplaces (Drogasil, Natura, etc.)
-- [ ] Benchmark crawler performance (crawl time, success rate)
-
----
-
-## Troubleshooting
-
-### Symptoms → Solutions
-
-| Symptom | Likely Cause | Fix |
-|---------|-------------|-----|
-| API returns empty prices | No data crawled yet | Trigger manual crawl or wait for 02:00 UTC scheduler |
-| "500 Internal Server Error" | MongoDB connection failed | Verify MONGO_URI, IP whitelist, credentials |
-| Firecrawl times out | API overload or network issue | Check Firecrawl status page, retry with backoff |
-| Affiliate links broken | URL formatting error | Check `addAffiliateParams()` in FirecrawlService |
-| Duplicate supplements in search | Normalization issue | Check `normalizeProductName()` in FirecrawlService |
-| Price validation fails | Price out of range | Expand range in `parseSupplements()` (currently R$10–1000) |
-| Scheduler not running | Test environment or misconfiguration | Check NODE_ENV, verify `SchedulerService.initialize()` called |
-
----
-
-## Success Criteria
-
-✅ **PRODUCTION READY** when:
-1. All code merged and tested
-2. Environment variables configured
-3. MongoDB indices created
-4. API returns valid supplement data
-5. Affiliate links formatted correctly
-6. Scheduler logs show daily runs
-7. Frontend displays prices correctly
-8. No errors in monitoring/logging
-9. Affiliate tracking confirmed (via marketplace dashboards)
 
 ---
 
 ## Sign-Off
 
-- **Developer**: Implementation complete ✅
-- **QA**: Testing complete ✅
-- **DevOps**: Infrastructure ready ✅
-- **Product**: Feature validated ✅
-
-**Ready to deploy to production.**
+- [ ] QA Lead: ___________________ Date: ___________
+- [ ] Backend Lead: ___________________ Date: ___________
+- [ ] DevOps Lead: ___________________ Date: ___________
+- [ ] Product Owner: ___________________ Date: ___________
 
 ---
 
-## Contact & Escalation
+## Notes & Observations
 
-- **Firecrawl API issues**: https://firecrawl.dev/docs
-- **MongoDB issues**: MongoDB Atlas support or internal DBA
-- **Affiliate tracking**: Contact each marketplace's affiliate program
-- **Performance issues**: Check application logs and monitoring dashboard
+(Space for notes from deployment)
 
----
+_____________________________________________________________________
 
-**Last Updated**: 2026-06-08  
-**Version**: 1.0 - Initial Production Deployment
+_____________________________________________________________________
+
+_____________________________________________________________________

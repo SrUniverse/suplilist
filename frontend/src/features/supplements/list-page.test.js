@@ -164,14 +164,14 @@ describe('ListPage — Supplement Catalog', () => {
     listPage.mount();
     await new Promise(resolve => setTimeout(resolve, 50));
 
-    const firstBtn = container.querySelector('.lp-btn-ver-precos');
+    const firstBtn = container.querySelector('.lp-btn-detail');
     firstBtn?.click();
 
     const modal = document.getElementById('lp-modal-overlay');
     expect(modal).not.toBeNull();
 
     // Click benefits tab
-    const benefitsTab = modal.querySelector('.lp-tab[data-tab="benefits"]');
+    const benefitsTab = modal.querySelector('.lp-seg-tab[data-tab="benefits"]');
     if (benefitsTab) {
       benefitsTab.click();
       expect(benefitsTab.classList.contains('active')).toBe(true);
@@ -182,7 +182,7 @@ describe('ListPage — Supplement Catalog', () => {
     listPage.mount();
     await new Promise(resolve => setTimeout(resolve, 50));
 
-    const firstBtn = container.querySelector('.lp-btn-ver-precos');
+    const firstBtn = container.querySelector('.lp-btn-detail');
     firstBtn?.click();
 
     const modal = document.getElementById('lp-modal-overlay');

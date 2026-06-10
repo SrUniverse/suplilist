@@ -142,6 +142,11 @@ export class VirtualScroller {
           rowItems += `<div class="virtual-col" style="flex:1;min-width:0;display:flex;flex-direction:column;">${this.renderItem(item, i)}</div>`;
         }
       }
+      // Fill remaining columns in partial rows with invisible placeholders
+      // so flex:1 distributes evenly and the last item doesn't stretch full-width
+      for (let i = endItem; i < startItem + cols; i++) {
+        rowItems += `<div class="virtual-col" style="flex:1;min-width:0;" aria-hidden="true"></div>`;
+      }
 
       html.push(`
         <div class="virtual-item" data-row="${row}" style="

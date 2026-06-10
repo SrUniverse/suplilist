@@ -6,8 +6,7 @@
   "framework": null,
   "functions": {
     "api/**/*.ts": {
-      "maxDuration": 30,
-      "runtime": "@vercel/node@5"
+      "maxDuration": 30
     }
   },
   "rewrites": [

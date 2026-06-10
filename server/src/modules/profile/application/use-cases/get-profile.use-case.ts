@@ -1,6 +1,7 @@
 import { IProfileRepository } from '../../domain/repositories/profile.repository.interface.js';
 import { PrivateProfileDTO } from '@suplilist/shared';
 import { Profile } from '../../domain/entities/profile.entity.js';
+import { UserIdentityModel } from '../../../identity/infrastructure/mongoose/user-identity.model.js';
 
 export interface GetProfileResult {
   profile: PrivateProfileDTO;
@@ -11,8 +12,14 @@ export class GetProfileUseCase {
   constructor(private profileRepo: IProfileRepository) {}
 
   async execute(userId: string): Promise<GetProfileResult> {
-    const profile = await this.profileRepo.findByUserId(userId);
-    
+    const [profile, identity] = await Promise.all([
+      this.profileRepo.findByUserId(userId),
+      UserIdentityModel
+        .findById(userId)
+        .select('tier subscriptionStatus currentPeriodEnd')
+        .lean(),
+    ]);
+
     if (!profile) {
       throw new Error('profile_not_found');
     }
@@ -29,6 +36,11 @@ export class GetProfileUseCase {
       migrationVersion: profile.migrationVersion,
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),
+      tier: identity?.tier ?? 'free',
+      subscriptionStatus: identity?.subscriptionStatus ?? 'incomplete',
+      currentPeriodEnd: identity?.currentPeriodEnd
+        ? identity.currentPeriodEnd.toISOString()
+        : null,
     };
 
     return { profile: dto, version: profile.version };

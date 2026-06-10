@@ -1,4 +1,10 @@
-import type { AvatarStatus, PublicProfileDTO, PrivateProfileDTO, BiometricsDTO } from '@suplilist/shared';
+import type { AvatarStatus, PublicProfileDTO, PrivateProfileDTO, BiometricsDTO, SubscriptionTier, SubscriptionStatus } from '@suplilist/shared';
+
+export interface SubscriptionSnapshot {
+  tier: SubscriptionTier;
+  subscriptionStatus: SubscriptionStatus;
+  currentPeriodEnd: string | null;
+}
 
 // Os DTOs de wire vêm do pacote compartilhado (fonte única da verdade do contrato
 // frontend↔backend). A entidade de domínio abaixo permanece local — usa `Date` e
@@ -34,7 +40,10 @@ export class ProfileMapper {
     };
   }
 
-  static toPrivate(profile: UserProfile): PrivateProfileDTO {
+  static toPrivate(
+    profile: UserProfile,
+    subscription: SubscriptionSnapshot = { tier: 'free', subscriptionStatus: 'incomplete', currentPeriodEnd: null },
+  ): PrivateProfileDTO {
     return {
       userId: profile.userId,
       displayName: profile.displayName,
@@ -45,11 +54,12 @@ export class ProfileMapper {
       onboardingState: profile.onboardingState,
       goals: profile.goals,
       biometrics: profile.biometrics,
-      // Serializa Date → string ISO (formato de wire do contrato compartilhado)
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),
-      // undefined é omitido pelo JSON.stringify — clientes legados não veem o campo
       migrationVersion: profile.migrationVersion,
+      tier: subscription.tier,
+      subscriptionStatus: subscription.subscriptionStatus,
+      currentPeriodEnd: subscription.currentPeriodEnd,
     };
   }
 }

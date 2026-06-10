@@ -1,5 +1,6 @@
 import { IProfileRepository } from '../../domain/repositories/profile.repository.interface.js';
 import { UpdateProfileRequestDTO, PrivateProfileDTO } from '@suplilist/shared';
+import { UserIdentityModel } from '../../../identity/infrastructure/mongoose/user-identity.model.js';
 
 export interface UpdateProfileInput {
   userId: string;
@@ -18,12 +19,15 @@ export class UpdateProfileUseCase {
   async execute(input: UpdateProfileInput): Promise<UpdateProfileResult> {
     const { userId, expectedVersion, data } = input;
 
-    // Use repository method that encapsulates the optimistic concurrency logic
-    const updatedProfile = await this.profileRepo.updateWithConcurrency(userId, expectedVersion, data);
-    
+    const [updatedProfile, identity] = await Promise.all([
+      this.profileRepo.updateWithConcurrency(userId, expectedVersion, data),
+      UserIdentityModel
+        .findById(userId)
+        .select('tier subscriptionStatus currentPeriodEnd')
+        .lean(),
+    ]);
+
     if (!updatedProfile) {
-      // If it returns null, it means either the user doesn't exist OR the version mismatched.
-      // In a real scenario, we might want to disambiguate. But for OCC, it's 412.
       throw new Error('precondition_failed');
     }
 
@@ -40,6 +44,11 @@ export class UpdateProfileUseCase {
       migrationVersion: updatedProfile.migrationVersion,
       createdAt: updatedProfile.createdAt.toISOString(),
       updatedAt: updatedProfile.updatedAt.toISOString(),
+      tier: identity?.tier ?? 'free',
+      subscriptionStatus: identity?.subscriptionStatus ?? 'incomplete',
+      currentPeriodEnd: identity?.currentPeriodEnd
+        ? identity.currentPeriodEnd.toISOString()
+        : null,
     };
 
     return { profile: dto, version: updatedProfile.version };

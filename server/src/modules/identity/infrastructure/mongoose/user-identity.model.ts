@@ -2,6 +2,15 @@ import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { UserStatus, UserRole } from '../../domain/user-identity.entity.js';
 
+export type UserTier = 'free' | 'pro' | 'elite';
+export type StripeSubscriptionStatus =
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'trialing'
+  | 'incomplete'
+  | 'incomplete_expired';
+
 export interface IOAuthProviderDocument {
   provider: 'google';
   providerId: string;
@@ -39,10 +48,17 @@ export interface IUserIdentityDocument extends Document {
     expiresAt: Date | null;
   };
   
+  // Assinatura SaaS
+  tier: UserTier;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  subscriptionStatus: StripeSubscriptionStatus;
+  currentPeriodEnd: Date | null;
+
   // Controle de Infraestrutura (Expurgo)
   purgeAttempts: number;
   purgeFailed: boolean;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -161,6 +177,29 @@ const userIdentitySchema = new Schema<IUserIdentityDocument>({
       default: null,
     }
   },
+  tier: {
+    type: String,
+    enum: ['free', 'pro', 'elite'],
+    default: 'free',
+    required: true,
+  },
+  stripeCustomerId: {
+    type: String,
+    default: null,
+  },
+  stripeSubscriptionId: {
+    type: String,
+    default: null,
+  },
+  subscriptionStatus: {
+    type: String,
+    enum: ['active', 'past_due', 'canceled', 'trialing', 'incomplete', 'incomplete_expired'],
+    default: 'incomplete',
+  },
+  currentPeriodEnd: {
+    type: Date,
+    default: null,
+  },
   purgeAttempts: {
     type: Number,
     default: 0,
@@ -186,6 +225,9 @@ userIdentitySchema.index(
 
 // Índice composto otimizado estritamente para o loop de paginação do Purge Job
 userIdentitySchema.index({ status: 1, deletedAt: 1, purgeFailed: 1, _id: 1 });
+
+// Índice sparse para lookup ultra-rápido no webhook do Stripe (customer -> userId)
+userIdentitySchema.index({ stripeCustomerId: 1 }, { sparse: true });
 
 // Índice para otimização da busca de redefinição de senha (e expiração nativa)
 userIdentitySchema.index({ 'passwordReset.tokenHash': 1, 'passwordReset.expiresAt': 1 });

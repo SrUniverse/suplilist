@@ -7,6 +7,14 @@
  */
 
 export type AvatarStatus = 'none' | 'synced' | 'pending_moderation' | 'approved' | 'rejected';
+export type SubscriptionTier = 'free' | 'pro' | 'elite';
+export type SubscriptionStatus =
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'trialing'
+  | 'incomplete'
+  | 'incomplete_expired';
 
 /** Dados biométricos básicos, cruciais para a calculadora de dosagem. */
 export interface BiometricsDTO {
@@ -47,6 +55,12 @@ export interface PrivateProfileDTO extends PublicProfileDTO {
    * MigrationService on the client may write it via PATCH /api/profile/me.
    */
   migrationVersion?: number;
+
+  // Campos de assinatura SaaS — fonte única de verdade para o frontend
+  tier: SubscriptionTier;
+  subscriptionStatus: SubscriptionStatus;
+  /** ISO 8601 string ou null se nunca assinou */
+  currentPeriodEnd: string | null;
 }
 
 /** Payload para atualizar o perfil. A versão de concorrência não viaja aqui, mas no header If-Match. */

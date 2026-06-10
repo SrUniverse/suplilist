@@ -215,7 +215,7 @@ export class PWAOfflineManager {
    * Sync checkin with server
    */
   async syncCheckin(checkin) {
-    const response = await fetch('/api/checkins', {
+    const response = await fetch('/api/checkin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(checkin)
@@ -243,7 +243,7 @@ export class PWAOfflineManager {
    * Sync profile with server
    */
   async syncProfile(profile) {
-    const response = await fetch('/api/profile', {
+    const response = await fetch('/api/profile/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(profile)

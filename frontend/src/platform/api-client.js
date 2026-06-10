@@ -32,18 +32,11 @@
 
 import { eventBus, EVENTS } from '../core/event-bus.js';
 import { logger } from '../utils/logger.js';
+import { auth } from '../features/auth/firebase-client.js';
 
 /** @type {string} Backend origin — set via VITE_API_BASE_URL in .env.local */
 const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL)
   ?? '';
-
-// ── In-memory token ────────────────────────────────────────────────────────────
-/** @type {string | null} */
-let _accessToken = null;
-
-// ── Single-flight refresh coordination ────────────────────────────────────────
-/** @type {Promise<void> | null} */
-let _refreshPromise = null;
 
 // ── Custom error type ──────────────────────────────────────────────────────────
 
@@ -61,26 +54,6 @@ export class ApiError extends Error {
     this.error = error;
     this.data = data;
   }
-}
-
-// ── Token accessors ────────────────────────────────────────────────────────────
-// Only identity-service.js should call these. No other module needs the token.
-
-/**
- * Store the access token received from POST /api/auth/login or /api/auth/refresh.
- * Called by identity-service immediately after a successful auth response.
- * @param {string} token
- */
-export function setAccessToken(token) {
-  _accessToken = token;
-}
-
-/**
- * Clear the in-memory access token.
- * Called by identity-service on logout or when AUTH_EXPIRED fires.
- */
-export function clearAccessToken() {
-  _accessToken = null;
 }
 
 // ── Core fetch wrapper ─────────────────────────────────────────────────────────
@@ -118,9 +91,18 @@ export async function apiFetch(path, options = {}) {
     headers.set('Content-Type', 'application/json');
   }
 
-  // Inject access token if we have one
-  if (_accessToken) {
-    headers.set('Authorization', `Bearer ${_accessToken}`);
+  // Aguardar a restauração da sessão do IndexedDB (Evita race condition no F5)
+  await auth.authStateReady();
+
+  // Inject access token if we have a logged-in user
+  if (auth.currentUser) {
+    try {
+      // getIdToken() automatically handles refresh logic for us.
+      const token = await auth.currentUser.getIdToken();
+      headers.set('Authorization', `Bearer ${token}`);
+    } catch (e) {
+      logger.warn('[ApiClient] Failed to get Firebase token', e);
+    }
   }
 
   let response;
@@ -128,7 +110,7 @@ export async function apiFetch(path, options = {}) {
     response = await fetch(`${BASE_URL}${path}`, {
       ...fetchOptions,
       headers,
-      credentials: 'include', // sends HttpOnly refresh cookie automatically
+      credentials: 'omit', // Firebase sent in header, cookies no longer used for auth
     });
   } catch (networkError) {
     logger.error('[ApiClient] Network error on', path, networkError);
@@ -143,22 +125,25 @@ export async function apiFetch(path, options = {}) {
     throw new ApiError(response.status, 'invalid_response', 'Non-JSON body from server');
   }
 
-  // ── 401: attempt silent token refresh ─────────────────────────────────────
+  // ── 401: Invalid Token from Backend ───────────────────────────────────────
   if (response.status === 401 && !_isRetry) {
     const serverError = envelope?.error;
 
-    if (serverError === 'expired_token' || serverError === 'missing_token') {
+    if (serverError === 'expired_token' || serverError === 'invalid_token' || serverError === 'missing_token') {
       try {
-        await _doTokenRefresh();
-        // Retry the original request — new token is now in _accessToken
-        return apiFetch(path, { ...options, _isRetry: true });
+        if (auth.currentUser) {
+          // Força refresh (true = forceRefresh)
+          const newToken = await auth.currentUser.getIdToken(true);
+          headers.set('Authorization', `Bearer ${newToken}`);
+          // Tenta novamente com o token forçado
+          return apiFetch(path, { ...options, _isRetry: true });
+        }
       } catch (refreshError) {
-        // Refresh failed — session is unrecoverable. Notify the app to log out.
         logger.warn('[ApiClient] Refresh failed, emitting AUTH_EXPIRED');
         eventBus.emit(EVENTS.AUTH_EXPIRED, {
-          reason: refreshError instanceof ApiError ? refreshError.error : 'refresh_failed',
+          reason: 'refresh_failed',
         });
-        throw refreshError;
+        throw new ApiError(401, 'auth_expired', 'Authentication expired');
       }
     }
   }
@@ -183,62 +168,23 @@ export async function apiFetch(path, options = {}) {
   return payloadData;
 }
 
-// ── Internal: single-flight token refresh ─────────────────────────────────────
-
-/**
- * Fire POST /api/auth/refresh exactly once, regardless of how many callers race.
- *
- * The HttpOnly refreshToken cookie is sent automatically via credentials: 'include'.
- * On success, stores the new accessToken in the closure and emits AUTH_SESSION_REFRESHED.
- * On failure, clears _refreshPromise and re-throws so callers can handle the error.
- *
- * @returns {Promise<void>}
- * @throws {ApiError}
- */
-async function _doTokenRefresh() {
-  // Multiple concurrent callers share the same Promise — one real HTTP call
-  if (_refreshPromise) {
-    return _refreshPromise;
-  }
-
-  _refreshPromise = (async () => {
-    try {
-      // _isRetry: true prevents apiFetch from recursively calling _doTokenRefresh
-      // if this refresh call itself returns a 401.
-      const data = await apiFetch('/api/auth/refresh', {
-        method: 'POST',
-        _isRetry: true,
-      });
-
-      /**
-       * @type {{ accessToken: string }}
-       * Matches AuthResponseDTO from @suplilist/shared/identity.
-       */
-      const accessToken = data?.accessToken ?? data?.data?.accessToken;
-      if (!accessToken) {
-        throw new ApiError(0, 'refresh_no_token', 'Refresh succeeded but no accessToken in body');
-      }
-
-      setAccessToken(accessToken);
-      eventBus.emit(EVENTS.AUTH_SESSION_REFRESHED, null);
-    } finally {
-      // Always clear the promise so the next expiry triggers a fresh refresh
-      _refreshPromise = null;
-    }
-  })();
-
-  return _refreshPromise;
-}
-
 // ── Simple API client object (for consumers that want get/post/put/del interface) ──
 
 async function _request(path, options = {}) {
   const headers = {};
   headers['X-SupliList-Client'] = '1';
-  if (_accessToken) headers['Authorization'] = `Bearer ${_accessToken}`;
+  
+  await auth.authStateReady();
+  if (auth.currentUser) {
+    try {
+      const token = await auth.currentUser.getIdToken();
+      headers['Authorization'] = `Bearer ${token}`;
+    } catch (e) {}
+  }
+  
   if (options.body) headers['Content-Type'] = 'application/json';
 
-  const resp = await fetch(path, { ...options, headers });
+  const resp = await fetch(path, { ...options, headers, credentials: 'omit' });
   if (!resp.ok) {
     throw new ApiError(resp.status, 'error', `HTTP ${resp.status}`);
   }

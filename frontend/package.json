@@ -31,6 +31,7 @@
   "dependencies": {
     "@sentry/browser": "^10.57.0",
     "exceljs": "^4.4.0",
+    "firebase": "^12.14.0",
     "fuse.js": "^7.3.0",
     "qrcode": "^1.5.4"
   }

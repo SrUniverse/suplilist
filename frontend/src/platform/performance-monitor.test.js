@@ -109,7 +109,7 @@ describe('PerformanceMonitor', () => {
   it('should accumulate API metrics for multiple endpoints', () => {
     monitor.trackApiResponse('/api/users', 200);
     monitor.trackApiResponse('/api/products', 300);
-    monitor.trackApiResponse('/api/orders', 150);
+    monitor.trackApiResponse('/api/payments', 150);
 
     expect(monitor.apiMetrics.size).toBe(3);
   });

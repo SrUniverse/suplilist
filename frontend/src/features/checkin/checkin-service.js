@@ -28,7 +28,7 @@ class CheckinService {
 
     try {
       // Tenta a API direta primeiro usando a identificação sintética
-      await apiFetch('/api/checkins', {
+      await apiFetch('/api/checkin', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
@@ -84,21 +84,19 @@ class CheckinService {
 
     // Se online, tenta em lote (se o backend tivesse batch endpoint, usaríamos aqui.
     // Como é chamadas individuais, vamos paralelizar via Promise.allSettled)
+    // Se online, manda tudo pro endpoint batch
     try {
-      const results = await Promise.allSettled(
-        payloads.map(payload => 
-          apiFetch('/api/checkins', { method: 'POST', body: JSON.stringify(payload) })
-        )
-      );
+      const result = await apiFetch('/api/checkin/bulk', { method: 'POST', body: JSON.stringify(payloads) });
+      const results = result.results || [];
 
       let hasOfflineFallback = false;
 
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
+      results.forEach((res, index) => {
+        if (res.success) {
           // Deu certo online, reflete na UI final
           stateManager.dispatch(ACTIONS.ADD_CHECKIN, { supplementId: payloads[index].supplementId, date: today });
         } else {
-          // Caiu no catch por item, manda pra syncQueue local
+          // Caiu no erro por item (apesar do 200 geral), manda pra syncQueue local
           hasOfflineFallback = true;
           syncQueue.enqueue(payloads[index]).catch(logger.error);
         }

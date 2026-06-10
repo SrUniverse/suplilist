@@ -1,6 +1,6 @@
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
-import { apiFetch } from '../../platform/api-client.js';
+import { auth, confirmPasswordReset } from './firebase-client.js';
 import { validatePassword, validatePasswordConfirm } from '../../platform/form-validators.js';
 
 export default class ResetPasswordPage {
@@ -17,7 +17,7 @@ export default class ResetPasswordPage {
     
     // Captura o token da URL
     const params = new URLSearchParams(window.location.search);
-    this._token = params.get('token');
+    this._token = params.get('oobCode') || params.get('token');
 
     if (!this._token) {
       alert("Token inválido ou ausente.");
@@ -129,10 +129,7 @@ export default class ResetPasswordPage {
     this._syncButtonState();
 
     try {
-      await apiFetch('/api/auth/reset-password', {
-        method: 'POST',
-        body: JSON.stringify({ token: this._token, newPassword: password })
-      });
+      await confirmPasswordReset(auth, this._token, password);
       
       alert("Senha alterada com sucesso!");
       if (this._isMounted) {

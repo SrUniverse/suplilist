@@ -26,6 +26,7 @@ export class PerformanceMonitor {
     };
     this.apiMetrics = new Map(); // Track individual API calls
     this.isInitialized = false;
+    this.metricQueue = []; // Queue for batching metrics
 
     // Thresholds for warnings
     this.thresholds = {
@@ -43,6 +44,13 @@ export class PerformanceMonitor {
     this._trackTTFB();
     this._trackFCP();
     this._trackNavigationTiming();
+
+    // Setup flush on visibilitychange (backgrounding/closing)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this._flushMetrics();
+      }
+    });
 
     this.isInitialized = true;
   }
@@ -235,31 +243,54 @@ export class PerformanceMonitor {
   }
 
   /**
-   * Report performance metrics to backend
+   * Report performance metrics to backend (queued)
    * @private
    */
   _reportToBackend(metricName, value) {
     if (import.meta.env.PROD) {
-      try {
-        const payload = {
-          metric: metricName,
-          value: Math.round(value),
-          timestamp: new Date().toISOString(),
-          url: window.location.href,
-        };
+      this.metricQueue.push({
+        metric: metricName,
+        value: Math.round(value),
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+      });
 
-        fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/metrics/performance`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-SupliList-Client': '1'
-          },
-          body: JSON.stringify(payload),
-          keepalive: true
-        }).catch(() => {}); // silently ignore errors
-      } catch (error) {
-        // Silently fail to not impact app
+      // Flush if queue gets too large to prevent memory issues
+      if (this.metricQueue.length >= 20) {
+        this._flushMetrics();
       }
+    }
+  }
+
+  /**
+   * Flushes queued metrics using sendBeacon
+   * @private
+   */
+  _flushMetrics() {
+    if (!this.metricQueue.length) return;
+
+    try {
+      const payload = JSON.stringify(this.metricQueue);
+      const url = `${import.meta.env.VITE_API_BASE_URL || ''}/api/metrics/performance/batch`;
+      
+      // Use sendBeacon for reliable delivery during page unload
+      if (navigator.sendBeacon) {
+        // Blob required to send application/json via sendBeacon
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(url, blob);
+      } else {
+        // Fallback for older browsers
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).catch(() => {});
+      }
+      
+      this.metricQueue = []; // clear queue
+    } catch (e) {
+      // fail silently
     }
   }
 

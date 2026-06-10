@@ -97,3 +97,5 @@ Thumbs.db
 # Diretórios de runtime de ferramentas de IA (não pertencem ao repo)
 .claude-flow/
 ..bfg-report/
+
+.vercel

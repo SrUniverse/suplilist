@@ -72,7 +72,7 @@ function isSupplementsRequest(url) {
 function isDynamicDataRequest(url) {
   return (
     url.pathname.includes('/api/history') ||
-    url.pathname.includes('/api/checkins') ||
+    url.pathname.includes('/api/checkin') ||
     url.pathname.includes('/api/sync') ||
     url.pathname.includes('/share')
   );

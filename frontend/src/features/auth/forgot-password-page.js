@@ -1,6 +1,6 @@
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
-import { apiFetch } from '../../platform/api-client.js';
+import { auth, sendPasswordResetEmail } from './firebase-client.js';
 import { validateEmail } from '../../platform/form-validators.js';
 
 export default class ForgotPasswordPage {
@@ -95,13 +95,10 @@ export default class ForgotPasswordPage {
     this._syncButtonState();
 
     try {
-      await apiFetch('/api/auth/forgot-password', {
-        method: 'POST',
-        body: JSON.stringify({ email })
-      });
+      await sendPasswordResetEmail(auth, email);
     } catch (_err) {
       // Ignorar erros silenciosamente para evitar Account Enumeration
-      console.warn('Opaque forgot password handling.');
+      console.warn('Opaque forgot password handling.', _err);
     } finally {
       if (this._isMounted) {
         this._isLoading = false;

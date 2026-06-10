@@ -124,7 +124,7 @@ describe('End-to-End Integration Tests', () => {
       }))
     );
 
-    const checkout = await fetch('/api/checkout', {
+    const checkout = await fetch('/api/subscriptions/checkout', {
       method: 'POST',
       body: JSON.stringify({ items: cartItems })
     }).then(r => r.json());
@@ -139,7 +139,7 @@ describe('End-to-End Integration Tests', () => {
       }))
     );
 
-    const payment = await fetch('/api/payment', {
+    const payment = await fetch('/api/payments', {
       method: 'POST',
       body: JSON.stringify({
         amount: 4199,
@@ -157,7 +157,7 @@ describe('End-to-End Integration Tests', () => {
       }))
     );
 
-    const order = await fetch('/api/orders', {
+    const order = await fetch('/api/payments', {
       method: 'POST'
     }).then(r => r.json());
 

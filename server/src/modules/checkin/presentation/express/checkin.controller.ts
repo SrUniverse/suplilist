@@ -29,6 +29,38 @@ export class CheckinController {
       next(error);
     }
   }
+  async bulkLog(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ success: false, error: 'unauthenticated' });
+        return;
+      }
+      
+      const payloads = req.body;
+      if (!Array.isArray(payloads)) {
+        res.status(400).json({ success: false, error: 'body must be an array' });
+        return;
+      }
+
+      const results = [];
+      for (const payload of payloads) {
+        try {
+          const result = await this.logCheckinUseCase.execute(userId, payload);
+          results.push({ success: true, payloadId: payload.id, data: result.data });
+        } catch (err) {
+          results.push({ success: false, payloadId: payload.id, error: (err as Error).message });
+        }
+      }
+      
+      res.status(200).json({
+        success: true,
+        results
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   async getHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

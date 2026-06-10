@@ -9,7 +9,7 @@
 
 
 
-import { identityService } from '../../platform/identity-service.js';
+import { auth, createUserWithEmailAndPassword } from './firebase-client.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { validateEmail, validatePassword } from '../../platform/form-validators.js';
@@ -139,12 +139,11 @@ export default class RegisterPage {
     this._syncButtonState();
 
     try {
-      await identityService.register(email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       
       if (!this._isMounted) return;
       
-      // O registro agora pede verificação OTP, e o email está salvo no localStorage
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-otp' });
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/' });
     } catch (err) {
       if (!this._isMounted) return;
 

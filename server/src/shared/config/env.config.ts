@@ -73,21 +73,7 @@ const envSchema = z.object({
     .url()
     .default('redis://localhost:6379/0'),
 
-  // Authentication - JWT
-  JWT_SECRET: z
-    .string()
-    .min(32, 'JWT_SECRET must be at least 32 characters for production security')
-    .describe('Secret key for JWT signing'),
-  JWT_EXPIRES_IN: z
-    .string()
-    .default('24h'),
-  REFRESH_TOKEN_SECRET: z
-    .string()
-    .min(32, 'REFRESH_TOKEN_SECRET must be at least 32 characters')
-    .describe('Secret key for refresh token signing'),
-  REFRESH_TOKEN_EXPIRES_IN: z
-    .string()
-    .default('7d'),
+
 
   // OAuth - Google
   GOOGLE_CLIENT_ID: z

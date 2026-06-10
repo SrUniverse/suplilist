@@ -25,6 +25,7 @@ export function initializeCheckinModule(): Router {
   router.use(requireAuth);
 
   router.post('/', (req, res, next) => controller.log(req, res, next));
+  router.post('/bulk', (req, res, next) => controller.bulkLog(req, res, next));
   router.get('/', (req, res, next) => controller.getHistory(req, res, next));
 
   return router;

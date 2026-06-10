@@ -172,12 +172,6 @@ export class Router {
         return;
       }
 
-      if (typeof window.plausible === 'function') {
-        window.plausible('pageview', {
-          u: 'https://suplilist.com' + pathname + search,
-        });
-      }
-
       // Update meta tags for SEO
       MetaManager.updateMeta(pathname);
     } catch (mountErr) {

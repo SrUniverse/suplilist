@@ -135,6 +135,36 @@ const envSchema = z.object({
     .string()
     .optional(),
 
+  // Stripe Billing
+  STRIPE_SECRET_KEY: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('Stripe secret key (sk_live_* or sk_test_*)'),
+  STRIPE_WEBHOOK_SECRET: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('Stripe webhook signing secret (whsec_*) — required for Sprint 4.3'),
+  STRIPE_PRO_PRICE_ID: z
+    .string()
+    .optional()
+    .describe('Stripe Price ID for the Pro plan'),
+  STRIPE_ELITE_PRICE_ID: z
+    .string()
+    .optional()
+    .describe('Stripe Price ID for the Elite plan'),
+  STRIPE_SUCCESS_URL: z
+    .string()
+    .url()
+    .optional()
+    .describe('Redirect URL after successful checkout'),
+  STRIPE_CANCEL_URL: z
+    .string()
+    .url()
+    .optional()
+    .describe('Redirect URL after cancelled checkout'),
+
   // Analytics
   VITE_GA_MEASUREMENT_ID: z
     .string()

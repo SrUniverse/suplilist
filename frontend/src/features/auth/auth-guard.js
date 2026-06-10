@@ -13,10 +13,15 @@ export const authGuard = {
     '/onboarding',       // fluxo de entrada
   ],
 
+  // Rotas que exigem role === 'admin' (além de estar logado e verificado)
+  adminRoutes: [
+    '/admin', '/admin/products', '/admin/orders',
+  ],
+
   /**
    * Checa o acesso à rota atual com base no usuário logado
    * @param {string} currentPath Rota atual (ex: '/dashboard')
-   * @param {Object|null} user O objeto user (com emailVerified, etc) ou null
+   * @param {Object|null} user O objeto user (com emailVerified, role, etc) ou null
    * @returns {boolean} true se o acesso for permitido, false se interceptado
    */
   checkAccess(currentPath, user) {
@@ -40,6 +45,13 @@ export const authGuard = {
     // 3. Caso o usuário já esteja verificado e tente acessar a tela de OTP ou Login
     if (isAuth && isVerified && (currentPath === '/login' || currentPath === '/verify-otp' || currentPath === '/register')) {
       window.history.replaceState(null, null, '/my-stack'); // 'my-stack' is the dashboard in this app
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      return false;
+    }
+
+    // 4. Rotas admin: exigem role === 'admin' — não-admin recebe redirecionamento ao login
+    if (this.adminRoutes.includes(currentPath) && user?.role !== 'admin') {
+      window.history.replaceState(null, null, '/login');
       window.dispatchEvent(new PopStateEvent('popstate'));
       return false;
     }

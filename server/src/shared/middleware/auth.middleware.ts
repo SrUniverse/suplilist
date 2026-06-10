@@ -252,15 +252,52 @@ export const requireVerifiedEmail = (req: Request, res: Response, next: NextFunc
 // Convenience aliases for route definitions that prefer explicit naming
 export const authenticateToken = requireAuth;
 
-// Composed guard: validates JWT first, then enforces admin role.
-// If the JWT check fails, requireAuth sends the 401 response directly and
-// the role check never runs.
-export const requireAdmin: (req: Request, res: Response, next: NextFunction) => void =
-  (req, res, next) => {
-    requireAuth(req, res, () => {
-      requireRole(['admin'])(req, res, next);
-    });
-  };
+// Composed guard: validates JWT first, then re-validates the admin role
+// directly from MongoDB — never trusting the role embedded in the token.
+//
+// Why real-time DB check? If an admin account is compromised or the user
+// is removed from the team, a still-valid JWT would otherwise grant full
+// catalog-mutation access until token expiry. Querying the DB here closes
+// that window to zero.
+export const requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
+  requireAuth(req, res, async () => {
+    try {
+      const userDoc = await UserIdentityModel
+        .findById(req.user!.id)
+        .select('role status')
+        .lean();
+
+      if (!userDoc) {
+        return res.status(401).json({ success: false, error: 'user_not_found' });
+      }
+
+      if (userDoc.status !== 'active') {
+        return res.status(403).json({
+          success: false,
+          error: 'account_inactive',
+          message: 'Your account is not active.',
+        });
+      }
+
+      if (userDoc.role !== 'admin') {
+        logSecurityEvent('auth.role_denied', {
+          userId: req.user!.id,
+          requiredRole: 'admin',
+          actualRole: userDoc.role,
+        });
+        return res.status(403).json({
+          success: false,
+          error: 'forbidden',
+          message: 'You do not have permission to access this resource.',
+        });
+      }
+
+      next();
+    } catch (err) {
+      next(err);
+    }
+  });
+};
 
 export const requirePreAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {

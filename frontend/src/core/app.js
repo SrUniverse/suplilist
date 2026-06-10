@@ -39,6 +39,9 @@ const routes = [
   { path: '/settings',   load: () => import('../features/settings/settings-page.js') },
   { path: '/faq',        load: () => import('../features/legal/faq-page.js') },
   { path: '/legal',      load: () => import('../features/legal/legal-page.js') },
+  { path: '/admin',          load: () => import('../features/admin/admin-products-page.js') },
+  { path: '/admin/products', load: () => import('../features/admin/admin-products-page.js') },
+  { path: '/admin/orders',   load: () => import('../features/admin/admin-orders-page.js') },
 ];
 
 const PAGE_METADATA = {

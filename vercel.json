@@ -11,6 +11,7 @@
   },
   "rewrites": [
     { "source": "/api/cron/:path*", "destination": "/api/cron/:path*" },
+    { "source": "/api/webhooks/:path*", "destination": "/api/webhooks/:path*" },
     { "source": "/api/:path*",      "destination": "/api/index" },
     { "source": "/:path*",          "destination": "/index.html" }
   ],

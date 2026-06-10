@@ -545,8 +545,9 @@ function reducer(state, action) {
     case ACTIONS.AUTH_LOGIN: {
       const {
         id, email, role, isMfaEnabled, emailVerified,
-        displayName, avatarUrl, avatarStatus,
+        displayName, avatarUrl, avatarStatus, tier,
       } = action.payload;
+      const VALID_TIERS = ['free', 'pro', 'elite'];
       return {
         ...state,
         user: {
@@ -560,6 +561,7 @@ function reducer(state, action) {
           isAuthenticated: true,
           avatarUrl: avatarUrl ?? state.user.avatarUrl ?? null,
           avatarStatus: avatarStatus ?? state.user.avatarStatus ?? 'none',
+          tier: VALID_TIERS.includes(tier) ? tier : state.user.tier,
         },
       };
     }

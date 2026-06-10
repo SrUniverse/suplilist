@@ -154,6 +154,7 @@ class IdentityService {
       displayName: profile.displayName ?? null,
       avatarUrl: profile.avatarUrl ?? null,
       avatarStatus: profile.avatarStatus ?? 'none',
+      tier: profile.tier ?? 'free',
     };
 
     // Step 4: single state update — UI transitions from loading to complete in one frame
@@ -278,6 +279,7 @@ class IdentityService {
         displayName: profile.displayName ?? null,
         avatarUrl: profile.avatarUrl ?? null,
         avatarStatus: profile.avatarStatus ?? 'none',
+        tier: profile.tier ?? 'free',
       };
 
       stateManager.dispatch(ACTIONS.AUTH_LOGIN, identity);

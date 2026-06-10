@@ -25,6 +25,7 @@ import { initializeReportsModule } from './modules/reports/reports.module.js';
 import { initializeAdminModule } from './modules/admin/admin.module.js';
 import { initializePaymentsModule } from './modules/payments/payments.module.js';
 import { initializeSubscriptionsModule } from './modules/subscriptions/subscriptions.module.js';
+import { createStripeWebhookRouter } from './modules/subscriptions/stripe-webhook.route.js';
 import { initializeSupplementsModule } from './modules/supplements/supplements.module.js';
 import { csrfGuard } from './shared/middleware/csrf-guard.js';
 import { env } from './shared/config/env.config.js';
@@ -85,6 +86,12 @@ export function createApp() {
     
     next();
   });
+
+  // ── Stripe webhook (raw body — must precede express.json and csrfGuard) ────
+  // Signature verification requires the exact bytes Stripe sent; express.json
+  // would consume/transform them. csrfGuard would also reject Stripe's request
+  // (no custom header), so this route is mounted before both.
+  app.use('/api/webhooks', createStripeWebhookRouter());
 
   // ── Body parsers ───────────────────────────────────────────────────────────
   app.use(express.json({ limit: '10kb' })); // 10 kb cap mitigates payload-size DoS

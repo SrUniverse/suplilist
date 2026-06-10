@@ -5,6 +5,7 @@ import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { syncQueue } from '../../platform/sync-queue.js';
 import { checkinService } from './checkin-service.js';
+import { StreakCelebration } from './streak-celebration.js';
 
 /**
  * CheckinPage — Daily supplement adherence tracking
@@ -180,22 +181,31 @@ export default class CheckinPage {
           <!-- Streak badge -->
           <div style="
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             background: var(--color-brand-muted, rgba(139,92,246,0.15));
             border: 1px solid var(--color-border-brand, rgba(139,92,246,0.35));
             border-radius: 10px;
             padding: 8px 14px;
             flex-shrink: 0;
           ">
-            <span style="font-size:20px;line-height:1;">🔥</span>
-            <span style="
-              font-weight: 800;
-              font-size: 17px;
-              color: var(--color-brand);
-              letter-spacing: -0.02em;
-              line-height: 1;
-            ">${streak} ${streak === 1 ? 'dia' : 'dias'}</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:20px;line-height:1;">🔥</span>
+              <span style="
+                font-weight: 800;
+                font-size: 17px;
+                color: var(--color-brand);
+                letter-spacing: -0.02em;
+                line-height: 1;
+              ">${streak} ${streak === 1 ? 'dia' : 'dias'}</span>
+            </div>
+            ${(() => {
+              const next = StreakCelebration.nextMilestone(streak);
+              if (!next) return '';
+              const missing = next - streak;
+              return `<span style="font-size:10px;font-weight:600;color:var(--color-text-secondary);line-height:1;">${missing === 1 ? 'falta 1 dia' : `faltam ${missing} dias`} p/ ${next} 🏆</span>`;
+            })()}
           </div>
         </header>
 
@@ -542,8 +552,9 @@ export default class CheckinPage {
           await checkinService.logMultiple(pendingItems);
           
           // Devolve a função original (a fonte da verdade fará o resto)
-          delete this._getCheckedIds; 
+          delete this._getCheckedIds;
           this._refresh();
+          this._maybeCelebrateStreak();
         }
       });
     }
@@ -580,6 +591,18 @@ export default class CheckinPage {
     // Restaura fonte da verdade e sincroniza com o state/queue real
     delete this._getCheckedIds;
     this._refresh();
+    this._maybeCelebrateStreak();
+  }
+
+  /**
+   * Fire the streak milestone celebration when today's protocol is complete
+   * and the streak just crossed a milestone (3/7/14/30/60/100/365 days).
+   * @private
+   */
+  _maybeCelebrateStreak() {
+    const total = stateManager.stack.length;
+    if (total === 0 || this._getCheckedIds().size < total) return;
+    StreakCelebration.maybeCelebrate(stateManager.calculateStreak());
   }
 
   /**

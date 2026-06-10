@@ -11,6 +11,9 @@ export const authGuard = {
     '/list', '/lista',   // catálogo — acessível sem conta
     '/faq', '/legal',    // conteúdo informativo
     '/onboarding',       // fluxo de entrada
+    // Retorno do Stripe Hosted Checkout — a sessão é restaurada de forma
+    // assíncrona no boot; bloquear aqui perderia a página de confirmação.
+    '/subscription/success', '/subscription/cancel',
   ],
 
   // Rotas que exigem role === 'admin' (além de estar logado e verificado)

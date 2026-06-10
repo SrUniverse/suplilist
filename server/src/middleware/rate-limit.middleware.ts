@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import { redisClient } from '../shared/infrastructure/redis/redis.client.js';
 import crypto from 'crypto';
@@ -31,9 +31,11 @@ function ipKey(req: Request): string {
   const raw =
     (req.headers['cf-connecting-ip'] as string) ||
     (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-    req.ip ||
-    'unknown-ip';
-  return crypto.createHash('sha256').update(raw).digest('hex');
+    req.ip;
+  // ipKeyGenerator normalizes IPv6 to its /56 subnet so a single user cannot
+  // rotate through their 2^72 addresses to bypass limits (ERR_ERL_KEY_GEN_IPV6).
+  const normalized = raw ? ipKeyGenerator(raw) : 'unknown-ip';
+  return crypto.createHash('sha256').update(normalized).digest('hex');
 }
 
 /**

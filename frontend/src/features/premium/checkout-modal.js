@@ -2,6 +2,7 @@ import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus } from '../../core/event-bus.js';
 import { StorageManager } from '../../platform/storage-manager.js';
 import { logger } from '../../utils/logger.js';
+import { apiFetch, ApiError } from '../../platform/api-client.js';
 
 export class CheckoutModal {
   static _activeOverlay = null;
@@ -37,6 +38,10 @@ export class CheckoutModal {
       logger.warn(`[CheckoutModal] Invalid tier "${tier}", defaulting to "pro"`);
     }
     const initialTier = tier === 'elite' ? 'elite' : 'pro';
+
+    // Real Stripe checkout requires an authenticated session; otherwise the
+    // modal runs in offline demo mode (local-first users without an account).
+    const isRealCheckout = stateManager.getState().user?.isAuthenticated === true;
 
     // Inject styles
     this._injectStyles();
@@ -84,13 +89,14 @@ export class CheckoutModal {
           </div>
         </div>
 
+        ${isRealCheckout ? '' : `
         <div class="demo-notice">
-          <p class="demo-notice__text">Este é um modo de demonstração. Nenhum pagamento real será processado. Clique no botão abaixo para simular a ativação do plano.</p>
-        </div>
+          <p class="demo-notice__text">Crie uma conta para assinar de verdade. Sem login, este modal roda em modo demonstração — nenhum pagamento real será processado.</p>
+        </div>`}
 
         <div id="checkout-form">
           <button type="button" id="checkout-submit-btn">
-            <span class="btn-text" id="checkout-btn-label">Ativar PRO (Demo)</span>
+            <span class="btn-text" id="checkout-btn-label">${isRealCheckout ? 'Assinar PRO' : 'Ativar PRO (Demo)'}</span>
           </button>
         </div>
 
@@ -100,7 +106,9 @@ export class CheckoutModal {
         </div>
 
         <div class="checkout-footer">
-          🔒 Pagamento simulado 100% offline-first. Nenhuma cobrança real será realizada.
+          ${isRealCheckout
+            ? '🔒 Pagamento processado com segurança pelo Stripe. Cancele quando quiser.'
+            : '🔒 Pagamento simulado 100% offline-first. Nenhuma cobrança real será realizada.'}
         </div>
       </div>
     `;
@@ -110,7 +118,7 @@ export class CheckoutModal {
     document.body.appendChild(overlay);
 
     // Attach listeners
-    this._attachListeners(overlay, initialTier);
+    this._attachListeners(overlay, initialTier, isRealCheckout);
   }
 
   /**
@@ -451,7 +459,7 @@ export class CheckoutModal {
    * @param {string} initialTier - Initially selected tier ('pro' | 'elite')
    * @returns {void}
    */
-  static _attachListeners(overlay, initialTier) {
+  static _attachListeners(overlay, initialTier, isRealCheckout = false) {
     let selectedTier = initialTier;
 
     // Close button
@@ -476,7 +484,9 @@ export class CheckoutModal {
         card.classList.add('active');
         selectedTier = card.dataset.tier;
         const planLabel = selectedTier === 'elite' ? 'Elite' : 'PRO';
-        if (btnLabel) btnLabel.textContent = `Ativar ${planLabel} (Demo)`;
+        if (btnLabel) {
+          btnLabel.textContent = isRealCheckout ? `Assinar ${planLabel}` : `Ativar ${planLabel} (Demo)`;
+        }
       });
     });
 
@@ -488,6 +498,31 @@ export class CheckoutModal {
     submitBtn.addEventListener('click', async () => {
       submitBtn.disabled = true;
       statusPanel.className = ''; // Remove hidden class to show panel
+
+      // ── Real Stripe Hosted Checkout (authenticated users) ──────────────────
+      if (isRealCheckout) {
+        statusMsg.textContent = 'Redirecionando para o pagamento seguro...';
+        try {
+          const { url } = await apiFetch('/api/subscriptions/checkout', {
+            method: 'POST',
+            body: JSON.stringify({ tier: selectedTier }),
+          });
+          if (!url) throw new Error('missing_checkout_url');
+          window.location.href = url; // leaves the SPA — Stripe Hosted Checkout
+          return;
+        } catch (error) {
+          logger.error('[CheckoutModal] Stripe checkout failed:', error);
+          const friendly = error instanceof ApiError && error.error === 'plan_not_configured'
+            ? 'Plano indisponível no momento. Tente novamente mais tarde.'
+            : 'Não foi possível iniciar o pagamento. Verifique sua conexão e tente novamente.';
+          statusMsg.textContent = friendly;
+          submitBtn.disabled = false;
+          eventBus.emit('toast:show', { message: friendly, type: 'error', duration: 4000 });
+          setTimeout(() => { statusPanel.className = 'status-panel-hidden'; }, 3000);
+          return;
+        }
+      }
+
       statusMsg.textContent = 'Ativando plano...';
 
       // PATCH 5: Add comprehensive error handling for activation flow

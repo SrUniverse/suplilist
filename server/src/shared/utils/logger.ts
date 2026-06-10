@@ -63,26 +63,35 @@ const jsonFormat = winston.format.combine(
   }),
 );
 
+// Serverless platforms (Vercel/Lambda) have a read-only filesystem — creating
+// logs/ crashes the function at import time. Use console (captured by the
+// platform's log drain) there; files only on writable hosts.
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+const fileTransports = isServerless
+  ? [new winston.transports.Console({ format: jsonFormat })]
+  : [
+      // File transport for errors
+      new winston.transports.File({
+        filename: 'logs/error.log',
+        level: 'error',
+        maxsize: 5242880, // 5MB
+        maxFiles: 5,
+      }),
+      // File transport for all logs
+      new winston.transports.File({
+        filename: 'logs/combined.log',
+        maxsize: 5242880, // 5MB
+        maxFiles: 10,
+      }),
+    ];
+
 // Create logger instance
 export const logger = winston.createLogger({
   levels,
   format: jsonFormat,
   defaultMeta: { service: 'suplilist-api' },
-  transports: [
-    // File transport for errors
-    new winston.transports.File({
-      filename: 'logs/error.log',
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    // File transport for all logs
-    new winston.transports.File({
-      filename: 'logs/combined.log',
-      maxsize: 5242880, // 5MB
-      maxFiles: 10,
-    }),
-  ],
+  transports: fileTransports,
 });
 
 // Add console transport in development

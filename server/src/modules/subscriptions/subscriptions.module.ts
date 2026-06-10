@@ -8,9 +8,15 @@ import {
 } from '../identity/infrastructure/mongoose/user-identity.model.js';
 import { env } from '../../shared/config/env.config.js';
 
-const CheckoutBodySchema = z.object({
-  priceId: z.string().min(1),
-});
+const CheckoutBodySchema = z.union([
+  z.object({ priceId: z.string().min(1) }),
+  z.object({ tier: z.enum(['pro', 'elite']) }),
+]);
+
+function tierToPriceId(tier: 'pro' | 'elite'): string | null {
+  if (tier === 'pro') return env.STRIPE_PRO_PRICE_ID ?? null;
+  return env.STRIPE_ELITE_PRICE_ID ?? null;
+}
 
 function getStripe(): Stripe {
   if (!env.STRIPE_SECRET_KEY) {
@@ -43,16 +49,29 @@ export function initializeSubscriptionsModule(): Router {
       });
     }
 
-    const { priceId } = parsed.data;
-    const allowedPrices = buildAllowedPrices();
+    let priceId: string;
+    if ('tier' in parsed.data) {
+      const mapped = tierToPriceId(parsed.data.tier);
+      if (!mapped) {
+        return res.status(503).json({
+          success: false,
+          error: 'plan_not_configured',
+          message: `No Stripe price configured for tier "${parsed.data.tier}".`,
+        });
+      }
+      priceId = mapped;
+    } else {
+      priceId = parsed.data.priceId;
+      const allowedPrices = buildAllowedPrices();
 
-    // Whitelist check — enforced when env vars are set; permissive in dev if not configured
-    if (allowedPrices.size > 0 && !allowedPrices.has(priceId)) {
-      return res.status(400).json({
-        success: false,
-        error: 'invalid_price_id',
-        message: 'The provided price ID is not a valid subscription plan.',
-      });
+      // Whitelist check — enforced when env vars are set; permissive in dev if not configured
+      if (allowedPrices.size > 0 && !allowedPrices.has(priceId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'invalid_price_id',
+          message: 'The provided price ID is not a valid subscription plan.',
+        });
+      }
     }
 
     const userId = req.user!.id;

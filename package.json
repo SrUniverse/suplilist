@@ -1,6 +1,7 @@
 {
   "name": "suplilist",
   "private": true,
+  "type": "module",
   "workspaces": [
     "frontend",
     "server",

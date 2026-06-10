@@ -30,6 +30,8 @@ export const ipAuthRateLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  // Redis indisponível não pode derrubar o auth — degrada para "sem limite"
+  passOnStoreError: true,
   store: makeRedisStore('rl:ip-auth:'),
   keyGenerator: ipKey,
   message: {
@@ -47,6 +49,8 @@ export const emailAuthRateLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  // Redis indisponível não pode derrubar o auth — degrada para "sem limite"
+  passOnStoreError: true,
   store: makeRedisStore('rl:email-auth:'),
   keyGenerator: (req: Request) => {
     const email = req.body?.email
@@ -69,6 +73,8 @@ export const messagingIpLimiter = rateLimit({
   max: 3,
   standardHeaders: true,
   legacyHeaders: false,
+  // Redis indisponível não pode derrubar o auth — degrada para "sem limite"
+  passOnStoreError: true,
   store: makeRedisStore('rl:msg-ip:'),
   keyGenerator: ipKey,
   message: {
@@ -86,6 +92,8 @@ export const messagingEmailLimiter = rateLimit({
   max: 3,
   standardHeaders: true,
   legacyHeaders: false,
+  // Redis indisponível não pode derrubar o auth — degrada para "sem limite"
+  passOnStoreError: true,
   store: makeRedisStore('rl:msg-email:'),
   keyGenerator: (req: Request) => {
     const email = req.body?.email
@@ -108,6 +116,8 @@ export const authApiLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  // Redis indisponível não pode derrubar o auth — degrada para "sem limite"
+  passOnStoreError: true,
   store: makeRedisStore('rl:api:'),
   keyGenerator: ipKey,
   message: {

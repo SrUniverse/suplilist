@@ -4,8 +4,12 @@ import { Redis } from 'ioredis';
 const redisUri = process.env.REDIS_URI!;
 
 export const redisClient = new Redis(redisUri, {
-  maxRetriesPerRequest: 3,
-  connectTimeout: 5000,
+  maxRetriesPerRequest: 1,
+  connectTimeout: 3000,
+  // Fail fast when Redis is unreachable: without this, commands queue forever
+  // while ioredis reconnects, hanging every request that touches Redis
+  // (rate limiters, OTP, blocklist) until the serverless 30s timeout (504).
+  enableOfflineQueue: false,
 });
 
 redisClient.on('error', (err: Error) => {

@@ -72,6 +72,7 @@ export const supplementSearchLimiter = enhanceRateLimitHeaders(
     max: 10,
     standardHeaders: true, // Return RateLimit-* headers
     legacyHeaders: false, // Disable X-RateLimit-* (we use standard)
+    passOnStoreError: true, // Redis down → allow request instead of 500
     store: makeRedisStore('rl:supplement:search:'),
     keyGenerator: ipKey,
     skip: (req: Request) => req.method === 'OPTIONS',
@@ -92,6 +93,7 @@ export const supplementCrawlLimiter = enhanceRateLimitHeaders(
     max: 5,
     standardHeaders: true,
     legacyHeaders: false,
+    passOnStoreError: true, // Redis down → allow request instead of 500
     store: makeRedisStore('rl:supplement:crawl:'),
     keyGenerator: ipKey,
     skip: (req: Request) => req.method === 'OPTIONS',
@@ -112,6 +114,7 @@ export const supplementPricesLimiter = enhanceRateLimitHeaders(
     max: 50,
     standardHeaders: true,
     legacyHeaders: false,
+    passOnStoreError: true, // Redis down → allow request instead of 500
     store: makeRedisStore('rl:supplement:prices:'),
     keyGenerator: ipKey,
     skip: (req: Request) => req.method === 'OPTIONS',
@@ -132,6 +135,7 @@ export const apiRateLimiter = enhanceRateLimitHeaders(
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
+    passOnStoreError: true, // Redis down → allow request instead of 500
     store: makeRedisStore('rl:api:general:'),
     keyGenerator: ipKey,
     skip: (req: Request) => req.method === 'OPTIONS',
@@ -176,6 +180,7 @@ export const affiliateJitLimiter = enhanceRateLimitHeaders(
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
+    passOnStoreError: true, // Redis down → allow request instead of 500
     store: makeRedisStore('rl:affiliate:jit:'),
     keyGenerator: ipKey,
     skip: (req: Request) => req.method === 'OPTIONS',

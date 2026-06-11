@@ -79,7 +79,16 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
       await newProfile.save();
     }
 
-    res.json({ success: true });
+    res.json({ 
+      success: true,
+      data: {
+        userId: userIdentity._id.toString(),
+        email: userIdentity.email,
+        role: userIdentity.role,
+        emailVerified: userIdentity.emailVerified,
+        status: userIdentity.status,
+      }
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err?.message, stack: err?.stack });
   }

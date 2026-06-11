@@ -249,18 +249,17 @@ export default class LoginPage {
     try {
       // Login via Firebase
       await signInWithEmailAndPassword(auth, email, password);
-      // Synchronize with backend
-      await apiFetch('/api/auth/sync', { method: 'POST' });
+      // Synchronize with backend — returns userId, email, role, emailVerified
+      const syncData = await apiFetch('/api/auth/sync', { method: 'POST' });
       
-      const identity = await apiFetch('/api/profile/me');
       stateManager.dispatch(ACTIONS.AUTH_LOGIN, {
-        id:            identity.userId || identity.id,
-        email:         identity.email,
-        role:          identity.role,
-        isMfaEnabled:  identity.isMfaEnabled,
-        emailVerified: identity.emailVerified,
+        id:            syncData.userId,
+        email:         syncData.email,
+        role:          syncData.role,
+        isMfaEnabled:  false,
+        emailVerified: syncData.emailVerified,
       });
-      eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
+      eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: syncData });
       
       eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
     } catch (err) {
@@ -335,17 +334,18 @@ export default class LoginPage {
     try {
       const credential = GoogleAuthProvider.credential(response.credential);
       await signInWithCredential(auth, credential);
-      await apiFetch('/api/auth/sync', { method: 'POST' });
       
-      const identity = await apiFetch('/api/profile/me');
+      // Synchronize with backend — returns userId, email, role, emailVerified
+      const syncData = await apiFetch('/api/auth/sync', { method: 'POST' });
+      
       stateManager.dispatch(ACTIONS.AUTH_LOGIN, {
-        id:            identity.userId || identity.id,
-        email:         identity.email,
-        role:          identity.role,
-        isMfaEnabled:  identity.isMfaEnabled,
-        emailVerified: identity.emailVerified,
+        id:            syncData.userId,
+        email:         syncData.email,
+        role:          syncData.role,
+        isMfaEnabled:  false,
+        emailVerified: syncData.emailVerified,
       });
-      eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
+      eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: syncData });
       
       // Suppress One Tap for 24 hours on successful login
       localStorage.setItem('suplilist_suppress_onetap', Date.now().toString());

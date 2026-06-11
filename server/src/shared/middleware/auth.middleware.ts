@@ -67,7 +67,12 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     // Lookup user in MongoDB to populate req.user for role/admin guards
-    const userDoc = await UserIdentityModel.findOne({ firebaseUid: req.firebaseUser.uid }).select('role status').lean();
+    const userDoc = await UserIdentityModel.findOne({ 
+      $or: [
+        { email: req.firebaseUser.email },
+        { 'providers.providerId': req.firebaseUser.uid }
+      ]
+    }).select('role status').lean();
     if (userDoc) {
       req.user = {
         id: userDoc._id.toString(),
@@ -112,7 +117,12 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
         sign_in_provider: decoded.firebase?.sign_in_provider || 'password'
       };
       
-      const userDoc = await UserIdentityModel.findOne({ firebaseUid: decoded.uid }).select('role status').lean();
+      const userDoc = await UserIdentityModel.findOne({ 
+        $or: [
+          { email: decoded.email },
+          { 'providers.providerId': decoded.uid }
+        ]
+      }).select('role status').lean();
       if (userDoc) {
         req.user = {
           id: userDoc._id.toString(),

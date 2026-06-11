@@ -57,7 +57,8 @@ export function createApp() {
 
   // ── Security headers ───────────────────────────────────────────────────────
   app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
   }));
 
   // ── CORS (OWASP & W3C compliant, explicit whitelist) ────────────────────────
@@ -96,6 +97,12 @@ export function createApp() {
   // ── Body parsers ───────────────────────────────────────────────────────────
   app.use(express.json({ limit: '10kb' })); // 10 kb cap mitigates payload-size DoS
   app.use(cookieParser());
+
+  // ── Frontend performance metrics receiver ────────────────────────────────────
+  // Must be before csrfGuard because navigator.sendBeacon cannot set custom headers
+  app.post(['/api/metrics/performance', '/api/metrics/performance/batch'], (_req: Request, res: Response) => {
+    res.status(202).json({ success: true, message: 'metrics_accepted' });
+  });
 
   // ── CSRF defence (custom-header strategy, OWASP compliant) ────────────────
   app.use(csrfGuard);
@@ -146,12 +153,6 @@ export function createApp() {
   // Prometheus scrapes this endpoint to collect application metrics
   // Supports: http_requests_total, latency histograms, cache metrics, worker metrics, etc.
   app.use('/metrics', createMetricsRouter());
-
-  // ── Frontend performance metrics receiver ────────────────────────────────────
-  app.post('/api/metrics/performance', (_req: Request, res: Response) => {
-    // Currently a dummy sink to prevent 404s and console spam from frontend telemetry
-    res.status(202).json({ success: true, message: 'metrics_accepted' });
-  });
 
   // ── Modular monolith routers ───────────────────────────────────────────────
   app.use('/api/auth', initializeIdentityModule());

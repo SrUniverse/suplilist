@@ -342,11 +342,15 @@ export default class LoginPage {
         await signOut(auth).catch(() => {});
       }
 
+      console.error('[Google Sign-In Error]', err);
+      console.error('[Google Sign-In Error Code]', err.code);
+      console.error('[Google Sign-In Error Message]', err.message);
+      
       this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       
       // Override misleading generic message for Google Sign In
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/configuration-not-found') {
-        this._errorMessage = 'Erro ao conectar com Google. Verifique a configuração no Firebase.';
+        this._errorMessage = `Erro Google: ${err.code} - ${err.message}`;
       }
 
       this._isLoading = false;

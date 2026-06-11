@@ -7,8 +7,8 @@
  */
 
 import { Worker, Job } from 'bullmq';
-import { getRedisClient } from '../shared/config/redis.config';
-import firecrawlService from '../shared/services/firecrawl.service';
+import { getRedisClient } from '../shared/config/redis.config.js';
+import firecrawlService from '../shared/services/firecrawl.service.js';
 import {
   getScrapeQueue,
   getDedupQueue,
@@ -16,9 +16,9 @@ import {
   type ScrapeJobData,
   type DedupJobData,
   type FilterJobData,
-} from '../queue/affiliate.queue';
-import { deduplicateProducts } from '../services/deduplication.service';
-import { filterOutliers } from '../services/filtering.service';
+} from '../queue/affiliate.queue.js';
+import { deduplicateProducts } from '../services/deduplication.service.js';
+import { filterOutliers } from '../services/filtering.service.js';
 
 interface ProcessedProduct {
   name: string;

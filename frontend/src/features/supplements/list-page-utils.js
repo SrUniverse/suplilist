@@ -149,7 +149,14 @@ export function getMaxSaving(item, prices) {
   if (!prices || !prices[key]) return null;
   const entries = Object.values(prices[key]);
   const maxSaving = Math.max(...entries.map(e => e.saving || 0));
-  return maxSaving > 0 ? maxSaving : null;
+  if (maxSaving <= 0) return null;
+  // Badge só aparece quando a economia é significativa (>5% do melhor preço);
+  // economia em todo card vira ruído e perde credibilidade.
+  const validPrices = entries.map(e => e.price).filter(p => p > 0);
+  if (!validPrices.length) return null;
+  const bestPrice = Math.min(...validPrices);
+  if (maxSaving / bestPrice <= 0.05) return null;
+  return maxSaving;
 }
 
 /**

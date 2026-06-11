@@ -73,6 +73,7 @@ assets/logo2.jpeg
 Thumbs.db
 *.db
 *.sqlite
+*.rdb
 
 # IDEs e Editores
 .vscode/

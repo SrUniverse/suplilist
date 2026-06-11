@@ -19,9 +19,9 @@ export const createMetricsRouter = (): Router => {
    * Returns metrics in Prometheus text exposition format
    * Content-Type: text/plain; charset=utf-8; version=0.0.4
    */
-  router.get('/', (_req: Request, res: Response) => {
+  router.get('/', async (_req: Request, res: Response) => {
     try {
-      const metrics = getMetrics();
+      const metrics = await getMetrics();
       const contentType = getMetricsContentType();
 
       res.setHeader('Content-Type', contentType);

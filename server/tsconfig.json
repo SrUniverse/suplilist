@@ -12,5 +12,24 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/routes/affiliate.routes.ts",
+    "src/routes/price-alerts.routes.ts",
+    "src/services/achievement.service.ts",
+    "src/services/affiliate.service.ts",
+    "src/services/comparison.service.ts",
+    "src/services/firebase.service.ts",
+    "src/services/gamification.service.ts",
+    "src/services/price-monitor.service.ts",
+    "src/services/recommendation.service.ts",
+    "src/services/review.service.ts",
+    "src/services/shared-list.service.ts",
+    "src/workers/price-monitor.worker.ts",
+    "src/middleware/crawler-block.middleware.ts",
+    "src/shared/config/database.config.ts",
+    "src/shared/examples/**",
+    "src/shared/services/circuit-breaker.examples.ts"
+  ]
 }

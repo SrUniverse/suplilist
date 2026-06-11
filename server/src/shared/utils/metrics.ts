@@ -238,7 +238,7 @@ export function recordDbMetrics(
 /**
  * Get Prometheus metrics in text format
  */
-export function getMetrics(): string {
+export function getMetrics(): Promise<string> {
   return register.metrics();
 }
 

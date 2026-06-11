@@ -1,7 +1,7 @@
-import { db } from '../database';
-import { logger } from '../utils/logger';
-import { gamificationService } from './gamification.service';
-import { firebaseService } from './firebase.service';
+import { db } from '../database.js';
+import { logger } from '../utils/logger.js';
+import { gamificationService } from './gamification.service.js';
+import { firebaseService } from './firebase.service.js';
 
 interface Achievement {
   id: string;

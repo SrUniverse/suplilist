@@ -1,5 +1,5 @@
-import { db } from '../database';
-import { logger } from '../utils/logger';
+import { db } from '../database.js';
+import { logger } from '../utils/logger.js';
 
 interface RecommendationInput {
   userId: string;

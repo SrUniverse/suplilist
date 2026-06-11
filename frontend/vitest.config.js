@@ -1,6 +1,14 @@
 import { defineConfig } from 'vitest/config'
+import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      // Stubs do Firebase: o SDK real rejeita a API key fake (auth/invalid-api-key)
+      'firebase/app': fileURLToPath(new URL('./tests/mocks/firebase-app.js', import.meta.url)),
+      'firebase/auth': fileURLToPath(new URL('./tests/mocks/firebase-auth.js', import.meta.url)),
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

@@ -1,6 +1,6 @@
-import { db } from '../database';
-import { logger } from '../utils/logger';
-import { firebaseService } from './firebase.service';
+import { db } from '../database.js';
+import { logger } from '../utils/logger.js';
+import { firebaseService } from './firebase.service.js';
 import axios from 'axios';
 
 interface PriceData {

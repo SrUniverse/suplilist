@@ -31,7 +31,7 @@ const jsonFormat = winston.format.combine(
   winston.format.json(),
   winston.format.printf((info) => {
     // Mask the log message
-    const maskedMessage = maskLogEntry(info.message);
+    const maskedMessage = maskLogEntry(String(info.message));
 
     const base = {
       timestamp: info.timestamp,
@@ -42,7 +42,7 @@ const jsonFormat = winston.format.combine(
 
     if (info.stack) {
       // Mask stack trace to remove sensitive paths/URLs
-      const maskedStack = maskLogEntry(info.stack);
+      const maskedStack = maskLogEntry(String(info.stack));
       return JSON.stringify({
         ...base,
         error: {
@@ -101,7 +101,7 @@ if (process.env.NODE_ENV !== 'production') {
       format: winston.format.combine(
         winston.format.colorize(),
         winston.format.printf((info) => {
-          const timestamp = new Date(info.timestamp).toISOString();
+          const timestamp = new Date(String(info.timestamp)).toISOString();
           return `${timestamp} [${info.level}]: ${info.message}`;
         }),
       ),

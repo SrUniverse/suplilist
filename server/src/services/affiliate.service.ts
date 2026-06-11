@@ -6,8 +6,8 @@
  * for multiple platforms with caching via Redis.
  */
 
-import { getRedisClient } from '../shared/config/redis.config';
-import { logger } from '../utils/logger';
+import { getRedisClient } from '../shared/config/redis.config.js';
+import { logger } from '../utils/logger.js';
 
 interface AffiliateResult {
   affiliateUrl: string;

@@ -267,7 +267,7 @@ export function updateHitRatio(cacheType: string, ratio: number): void {
 /**
  * Get all cache metrics as text
  */
-export function getCacheMetrics(): string {
+export function getCacheMetrics(): Promise<string> {
   return cacheRegistry.metrics();
 }
 

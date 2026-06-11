@@ -18,6 +18,8 @@ declare global {
         id: string;
         role: UserRole;
         status: string;
+        /** JWT ID — presente apenas em fluxos autenticados por JWT próprio (MFA, delete account). */
+        jti?: string;
       };
     }
   }

@@ -10,16 +10,16 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { rateLimitMiddleware } from '../middleware/rate-limit.middleware';
-import { crawlerBlockMiddleware } from '../middleware/crawler-block.middleware';
-import { validateAffiliateInput } from '../validators/affiliate.validator';
+import { rateLimitMiddleware } from '../middleware/rate-limit.middleware.js';
+import { crawlerBlockMiddleware } from '../middleware/crawler-block.middleware.js';
+import { validateAffiliateInput } from '../validators/affiliate.validator.js';
 import {
   convertAmazonLink,
   convertShopeeLink,
   convertMercadoLivreLink,
-} from '../services/affiliate.service';
-import { logTelemetry } from '../services/telemetry.service';
-import { logger } from '../utils/logger';
+} from '../services/affiliate.service.js';
+import { logTelemetry } from '../services/telemetry.service.js';
+import { logger } from '../utils/logger.js';
 
 export const affiliateRouter = Router();
 

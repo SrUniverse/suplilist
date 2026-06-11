@@ -104,9 +104,10 @@ router.post(
         deleted = 1;
       } else if (entityType) {
         // Invalidate all of entity type
-        const typePattern = INVALIDATION_PATTERNS[
-          entityType.toUpperCase() + '_COLLECTION' as keyof typeof INVALIDATION_PATTERNS
-        ] || `cache:${entityType}:*`;
+        const patternEntry = INVALIDATION_PATTERNS[
+          (entityType.toUpperCase() + '_COLLECTION') as keyof typeof INVALIDATION_PATTERNS
+        ];
+        const typePattern = typeof patternEntry === 'string' ? patternEntry : `cache:${entityType}:*`;
 
         deleted = await queryCacheService.invalidatePattern(typePattern);
       }

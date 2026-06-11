@@ -55,7 +55,7 @@ export async function validateAffiliateInput(
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> {
+): Promise<Response | void> {
   try {
     // Validate request body
     const result = affiliateRequestSchema.safeParse(req.body);

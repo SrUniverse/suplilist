@@ -9,9 +9,9 @@
  */
 
 import dotenv from 'dotenv';
-import { addScrapeJob, initializeQueues, closeQueues } from '../queue/affiliate.queue';
-import { startWorkers, stopWorkers } from '../workers/affiliate.worker';
-import { getRedisClient } from '../shared/config/redis.config';
+import { addScrapeJob, initializeQueues, closeQueues } from '../queue/affiliate.queue.js';
+import { startWorkers, stopWorkers } from '../workers/affiliate.worker.js';
+import { getRedisClient } from '../shared/config/redis.config.js';
 
 dotenv.config();
 

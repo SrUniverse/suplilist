@@ -42,7 +42,7 @@ export function Cacheable(options: CacheableOptions = {}): MethodDecorator {
     const keyPrefix = options.keyPrefix ?? 'cache:method';
     const cacheType = options.cacheType ?? 'unknown';
 
-    descriptor.value = async function (...args: any[]): Promise<any> {
+    descriptor.value = (async function (this: unknown, ...args: any[]): Promise<any> {
       const redis = getRedisClient();
 
       try {
@@ -92,7 +92,7 @@ export function Cacheable(options: CacheableOptions = {}): MethodDecorator {
         // Fallback: execute original method
         return originalMethod.apply(this, args);
       }
-    };
+    }) as typeof descriptor.value;
 
     return descriptor;
   };

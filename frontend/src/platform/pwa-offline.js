@@ -19,8 +19,8 @@ export class PWAOfflineManager {
    */
   async initialize() {
     try {
-      // Register service worker
-      if ('serviceWorker' in navigator) {
+      // Register service worker (nunca em dev — cache de SW serve bundle velho)
+      if ('serviceWorker' in navigator && !import.meta.env?.DEV) {
         await navigator.serviceWorker.register('/sw.js');
         logger.info('Service worker registered');
       }

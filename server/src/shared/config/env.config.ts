@@ -97,6 +97,13 @@ const envSchema = z.object({
     .string()
     .default('us-east-1'),
 
+  // Auth - JWT
+  JWT_SECRET: z
+    .string()
+    .min(32, 'JWT_SECRET must be at least 32 characters')
+    .default('dev-only-secret-change-me-in-production-0000')
+    .describe('Secret used to sign access/refresh tokens'),
+
   // Email Service - Resend
   RESEND_API_KEY: z
     .string()
@@ -202,6 +209,12 @@ if (!envResult.success) {
 }
 
 export const env = envResult.data;
+
+// Guard: o default de JWT_SECRET existe só para dev/test — produção exige valor real.
+if (env.NODE_ENV === 'production' && env.JWT_SECRET.startsWith('dev-only-secret')) {
+  console.error('❌ JWT_SECRET must be set explicitly in production.');
+  process.exit(1);
+}
 export type Environment = z.infer<typeof envSchema>;
 
 // Export schema for testing

@@ -1,6 +1,6 @@
-import { db } from '../database';
-import { logger } from '../utils/logger';
-import { AppError } from '../utils/app-error';
+import { db } from '../database.js';
+import { logger } from '../utils/logger.js';
+import { AppError } from '../utils/app-error.js';
 
 interface ComparisonData {
   productIds: string[];

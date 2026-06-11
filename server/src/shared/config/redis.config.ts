@@ -84,11 +84,11 @@ export async function initializeRedis(): Promise<void> {
     }
 
     // Verify configuration
-    const config = await client.config('GET', 'maxmemory');
+    const config = (await client.config('GET', 'maxmemory')) as string[];
 
     console.log(`Redis maxmemory: ${config[1]}`);
 
-    const policyConfig = await client.config('GET', 'maxmemory-policy');
+    const policyConfig = (await client.config('GET', 'maxmemory-policy')) as string[];
 
     console.log(`Redis eviction policy: ${policyConfig[1]}`);
   } catch (error) {

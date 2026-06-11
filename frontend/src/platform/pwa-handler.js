@@ -24,6 +24,8 @@ export class PWAHandler {
    * Register service worker for offline support
    */
   async _registerServiceWorker() {
+    // Em dev o SW serve bundle velho do cache e mascara mudanças de código.
+    if (import.meta.env?.DEV) return;
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js', {

@@ -7,7 +7,7 @@
 
 import { Queue, QueueEvents } from 'bullmq';
 import { z } from 'zod';
-import { getRedisClient } from '../shared/config/redis.config';
+import { getRedisClient } from '../shared/config/redis.config.js';
 import type Redis from 'ioredis';
 
 // === SCHEMAS ===

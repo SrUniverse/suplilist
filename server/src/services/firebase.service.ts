@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
-import { logger } from '../utils/logger';
-import { AppError } from '../utils/app-error';
+import { logger } from '../utils/logger.js';
+import { AppError } from '../utils/app-error.js';
 
 interface NotificationPayload {
   title: string;

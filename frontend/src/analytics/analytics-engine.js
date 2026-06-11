@@ -662,7 +662,9 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
       };
 
       logger.info('[AnalyticsEngine] Observability API exposed at window.analyticsAPI');
-      logger.info(`[AnalyticsEngine] API Token: ${SECRET_TOKEN}`);
+      if (import.meta.env?.DEV) {
+        logger.info(`[AnalyticsEngine] API Token: ${SECRET_TOKEN}`);
+      }
     }
   }
 }

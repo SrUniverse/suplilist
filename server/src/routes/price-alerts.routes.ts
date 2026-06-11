@@ -1,17 +1,17 @@
 import { Router, Request, Response } from 'express';
-import { db } from '../database';
-import { logger } from '../utils/logger';
-import { AppError } from '../utils/app-error';
-import { authMiddleware } from '../middlewares/auth.middleware';
-import { validateRequest } from '../middlewares/validation.middleware';
-import { priceMonitorService } from '../services/price-monitor.service';
-import { firebaseService } from '../services/firebase.service';
+import { db } from '../database.js';
+import { logger } from '../utils/logger.js';
+import { AppError } from '../utils/app-error.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validateRequest } from '../middlewares/validation.middleware.js';
+import { priceMonitorService } from '../services/price-monitor.service.js';
+import { firebaseService } from '../services/firebase.service.js';
 import {
   createPriceAlertSchema,
   updatePriceAlertSchema,
   priceHistoryQuerySchema,
   registerDeviceTokenSchema,
-} from '../validators/price-alert.validator';
+} from '../validators/price-alert.validator.js';
 
 const router = Router();
 

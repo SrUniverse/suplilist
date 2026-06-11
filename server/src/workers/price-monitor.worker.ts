@@ -1,7 +1,7 @@
 import { Queue, Worker } from 'bullmq';
-import { redisConnection } from '../database/redis';
-import { logger } from '../utils/logger';
-import { priceMonitorService } from '../services/price-monitor.service';
+import { redisConnection } from '../database/redis.js';
+import { logger } from '../utils/logger.js';
+import { priceMonitorService } from '../services/price-monitor.service.js';
 
 // Create the price monitoring queue
 export const priceMonitorQueue = new Queue('price-monitor', {

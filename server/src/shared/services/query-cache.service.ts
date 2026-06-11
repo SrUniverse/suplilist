@@ -20,7 +20,7 @@
  */
 
 import { createHash } from 'crypto';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { getRedisClient } from '../config/redis.config.js';
 import {
   recordCacheMetrics,

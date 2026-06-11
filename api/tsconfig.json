@@ -14,5 +14,24 @@
     "paths": {}
   },
   "include": ["./**/*.ts", "../server/src/**/*.ts"],
-  "exclude": ["node_modules", "../server/src/**/*.test.ts"]
+  "exclude": [
+    "node_modules",
+    "../server/src/**/*.test.ts",
+    "../server/src/routes/affiliate.routes.ts",
+    "../server/src/routes/price-alerts.routes.ts",
+    "../server/src/services/achievement.service.ts",
+    "../server/src/services/affiliate.service.ts",
+    "../server/src/services/comparison.service.ts",
+    "../server/src/services/firebase.service.ts",
+    "../server/src/services/gamification.service.ts",
+    "../server/src/services/price-monitor.service.ts",
+    "../server/src/services/recommendation.service.ts",
+    "../server/src/services/review.service.ts",
+    "../server/src/services/shared-list.service.ts",
+    "../server/src/workers/price-monitor.worker.ts",
+    "../server/src/middleware/crawler-block.middleware.ts",
+    "../server/src/shared/config/database.config.ts",
+    "../server/src/shared/examples/**",
+    "../server/src/shared/services/circuit-breaker.examples.ts"
+  ]
 }

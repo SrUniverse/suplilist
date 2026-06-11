@@ -568,15 +568,10 @@ function reducer(state, action) {
 
     case ACTIONS.AUTH_LOGOUT:
       return {
-        ...state,
-        user: {
-          ...state.user,
-          isAuthenticated: false,
-          role: null,
-          isMfaEnabled: false,
-          emailVerified: false,
-          // Keep local profile data (name, weight, etc.) — user can log back in
-        },
+        ...DEFAULT_STATE,
+        // Manter apenas preferências de UI (tema, idioma) — dados do usuário apagados
+        preferences: state.preferences,
+        ui: state.ui,
       };
 
     case ACTIONS.SET_OWNER_ID:

@@ -26,6 +26,7 @@ const routes = [
   { path: '/forgot-password', load: () => import('../features/auth/forgot-password-page.js') },
   { path: '/reset-password',  load: () => import('../features/auth/reset-password-page.js') },
   { path: '/verify-otp',      load: () => import('../features/auth/verify-otp-page.js') },
+  { path: '/phone-login',     load: () => import('../features/auth/phone-login-page.js') },
   { path: '/',           load: () => import('../features/home/home-page.js') },
   { path: '/home',       load: () => import('../features/home/home-page.js') },
   { path: '/list',       load: () => import('../features/supplements/list-page.js') },
@@ -186,7 +187,7 @@ function updateSEOMetadata() {
  */
 function applyLandingMode() {
   const path = window.location.pathname;
-  const isLanding = path === '/' || path === '/home' || path === '/onboarding' || path === '/login' || path === '/register';
+  const isLanding = path === '/' || path === '/home' || path === '/onboarding' || path === '/login' || path === '/register' || path === '/phone-login';
   document.body.classList.toggle('body--landing', isLanding);
 }
 
@@ -246,7 +247,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyLandingMode();
     updateSEOMetadata();
     // Nav.updateActive is already called by router.js handleRoute() — no duplicate needed
-    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding' || window.location.pathname === '/login' || window.location.pathname === '/register';
+    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding' || window.location.pathname === '/login' || window.location.pathname === '/register' || window.location.pathname === '/phone-login';
     isLanding ? Nav.hide() : Nav.show();
   });
 

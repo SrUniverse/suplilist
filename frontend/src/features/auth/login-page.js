@@ -180,6 +180,16 @@ export default class LoginPage {
                 style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 0 4px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
               >Cadastre-se</button>
             </div>
+
+            <div style="text-align: center; margin-top: 0.75rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+              Prefere entrar com o telefone?
+              <button
+                id="login-phone"
+                type="button"
+                aria-label="Login por SMS"
+                style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 0 4px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
+              >Entrar por SMS 📱</button>
+            </div>
           </div>
 
           <div id="login-step-mfa" style="display: none;">
@@ -216,9 +226,16 @@ export default class LoginPage {
 
     const btnCreateAccount = this.container.querySelector('#login-create-account');
     if (btnCreateAccount) {
-      const handler = () => eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/onboarding' });
+      const handler = () => eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/register' });
       btnCreateAccount.addEventListener('click', handler);
       this._listeners.set(btnCreateAccount, { type: 'click', handler });
+    }
+
+    const btnPhoneLogin = this.container.querySelector('#login-phone');
+    if (btnPhoneLogin) {
+      const handler = () => eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/phone-login' });
+      btnPhoneLogin.addEventListener('click', handler);
+      this._listeners.set(btnPhoneLogin, { type: 'click', handler });
     }
 
     const btnForgotPassword = this.container.querySelector('#login-forgot-password');

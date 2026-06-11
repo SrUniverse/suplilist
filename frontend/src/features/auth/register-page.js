@@ -1,15 +1,19 @@
 /**
  * register-page.js — Tela de registro de novos usuários.
  *
- * Responsabilidade: validar inputs rigorosamente no lado do cliente
- * usando Zod e invocar identityService.register().
+ * Fluxo:
+ *  1. Cria usuário no Firebase (email + senha)
+ *  2. Envia email de verificação
+ *  3. Chama /api/auth/sync para salvar no MongoDB
+ *  4. Popula stateManager com AUTH_LOGIN
+ *  5. Redireciona para /verify-otp (aguarda verificação de email)
  *
  * @module features/auth/register-page
  */
 
-
-
-import { auth, createUserWithEmailAndPassword } from './firebase-client.js';
+import { auth, createUserWithEmailAndPassword, sendEmailVerification, signOut } from './firebase-client.js';
+import { apiFetch } from '../../platform/api-client.js';
+import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { errorHandler } from '../../platform/error-handler.js';
@@ -41,9 +45,9 @@ export default class RegisterPage {
     const errorHtml = this._errorMessage
       ? `<div class="onboarding-error" data-testid="register-error" role="alert">${escapeHtml(this._errorMessage)}</div>`
       : '';
-      
+
     const successHtml = this._successMessage
-      ? `<div class="onboarding-success" style="color: green; text-align: center; margin-bottom: 1rem;" role="alert">${escapeHtml(this._successMessage)}</div>`
+      ? `<div class="onboarding-success" style="color: #4ade80; background: rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); border-radius:8px; padding:1rem; text-align:center; margin-bottom:1rem;" role="alert">${escapeHtml(this._successMessage)}</div>`
       : '';
 
     this.container.innerHTML = `
@@ -70,12 +74,12 @@ export default class RegisterPage {
               class="onboarding-input"
               type="password"
               name="password"
-              placeholder="Senha"
+              placeholder="Senha (mín. 8 caracteres)"
               autocomplete="new-password"
               aria-label="Senha"
               style="margin-top:0.75rem"
             />
-            <div style="font-size: 0.75rem; color: #666; margin-top: 0.5rem; text-align: left;">
+            <div style="font-size: 0.75rem; color: var(--color-text-secondary, #888); margin-top: 0.5rem; text-align: left;">
               A senha deve conter mínimo 8 caracteres, números e símbolos.
             </div>
             <div class="onboarding-actions" style="margin-top:1.75rem">
@@ -90,14 +94,16 @@ export default class RegisterPage {
               </button>
             </div>
           </form>
-          <p class="onboarding-switch" style="text-align:center;margin-top:1.25rem;font-size:0.9rem">
-            Já possui uma conta?
-            <button
-              id="register-goto-login"
-              class="onboarding-btn-link"
-              type="button"
-            >Entrar</button>
-          </p>
+
+          <div style="margin-top:1.25rem;text-align:center;">
+            <p style="font-size:0.85rem;color:var(--color-text-secondary,#888);margin-bottom:0.5rem;">Já possui uma conta?</p>
+            <button id="register-goto-login" class="onboarding-btn-link" type="button">Entrar</button>
+          </div>
+
+          <div style="margin-top:0.75rem;text-align:center;">
+            <p style="font-size:0.85rem;color:var(--color-text-secondary,#888);margin-bottom:0.5rem;">Prefere entrar com o telefone?</p>
+            <button id="register-goto-phone" class="onboarding-btn-link" type="button">Login por SMS</button>
+          </div>
         </div>
       </div>`;
 
@@ -117,6 +123,13 @@ export default class RegisterPage {
     if (btnGotoLogin) {
       btnGotoLogin.addEventListener('click', () => {
         eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/login' });
+      });
+    }
+
+    const btnGotoPhone = this.container.querySelector('#register-goto-phone');
+    if (btnGotoPhone) {
+      btnGotoPhone.addEventListener('click', () => {
+        eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/phone-login' });
       });
     }
   }
@@ -140,13 +153,38 @@ export default class RegisterPage {
     this._syncButtonState();
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      
+      // 1. Criar usuário no Firebase
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. Enviar email de verificação
+      await sendEmailVerification(user);
+
+      // 3. Sincronizar com o backend (cria registro no MongoDB)
+      const syncData = await apiFetch('/api/auth/sync', { method: 'POST' });
+
+      // 4. Popular stateManager (usuário está logado mas email não verificado)
+      stateManager.dispatch(ACTIONS.AUTH_LOGIN, {
+        id:            syncData.userId,
+        email:         syncData.email,
+        role:          syncData.role,
+        isMfaEnabled:  false,
+        emailVerified: false, // Forçar false — precisa verificar o email
+      });
+      eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: syncData });
+
       if (!this._isMounted) return;
-      
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/' });
+
+      // 5. Redirecionar para tela de verificação de email
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-otp' });
+
     } catch (err) {
       if (!this._isMounted) return;
+
+      // Se o Firebase criou o usuário mas algo deu errado depois, fazer logout
+      if (auth.currentUser) {
+        await signOut(auth).catch(() => {});
+      }
 
       this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       this._isLoading = false;

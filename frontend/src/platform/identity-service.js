@@ -3,11 +3,12 @@
  */
 
 import { apiFetch } from './api-client.js';
-import { stateManager, ACTIONS } from '../state/state-manager.js';
+import { stateManager, ACTIONS, STORAGE_KEY } from '../state/state-manager.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 import { logger } from '../utils/logger.js';
 import { migrationService } from './migration-service.js';
 import { auth, signOut, createUserWithEmailAndPassword } from '../features/auth/firebase-client.js';
+import { StorageManager } from './storage-manager.js';
 
 const API = Object.freeze({
   PROFILE:  '/api/profile/me',
@@ -128,6 +129,12 @@ class IdentityService {
   #commitLogout() {
     stateManager.dispatch(ACTIONS.AUTH_LOGOUT);
     stateManager.dispatch(ACTIONS.INVALIDATE_RECOMMENDATIONS);
+
+    // Apagar estado persistido (IndexedDB/localStorage) para não vazar dados entre sessões
+    try {
+      StorageManager.removeItem(STORAGE_KEY);
+    } catch (_) {}
+
     eventBus.emit(EVENTS.AUTH_LOGOUT, null);
     eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: ROUTE.ONBOARDING });
   }

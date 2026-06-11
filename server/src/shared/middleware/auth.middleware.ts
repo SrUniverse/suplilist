@@ -66,13 +66,13 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       });
     }
 
+    const queryConditions: any[] = [{ 'providers.providerId': req.firebaseUser.uid }];
+    if (req.firebaseUser.email) {
+      queryConditions.push({ email: req.firebaseUser.email });
+    }
+
     // Lookup user in MongoDB to populate req.user for role/admin guards
-    const userDoc = await UserIdentityModel.findOne({ 
-      $or: [
-        { email: req.firebaseUser.email },
-        { 'providers.providerId': req.firebaseUser.uid }
-      ]
-    }).select('role status').lean();
+    const userDoc = await UserIdentityModel.findOne({ $or: queryConditions }).select('role status').lean();
     if (userDoc) {
       req.user = {
         id: userDoc._id.toString(),

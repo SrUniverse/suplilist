@@ -19,6 +19,8 @@ export default class LoginPage {
     this._isLoading = false;
     this._errorMessage = null;
     this._listeners = new Map();
+    this._timers = new Set();
+    this._eventListeners = new Set();
   }
 
   mount() {
@@ -40,12 +42,49 @@ export default class LoginPage {
       } catch (e) { /* ignore */ }
     }
     this._listeners.clear();
+
+    for (const timerId of this._timers) {
+      clearTimeout(timerId);
+      clearInterval(timerId);
+    }
+    this._timers.clear();
+
+    for (const unsub of this._eventListeners) {
+      try { unsub(); } catch (e) { /* ignore */ }
+    }
+    this._eventListeners.clear();
+
     this._isLoading = false;
     this._errorMessage = null;
   }
 
+  _registerTimer(timerId) {
+    this._timers.add(timerId);
+    return timerId;
+  }
+
+  _registerEventListener(unsub) {
+    this._eventListeners.add(unsub);
+  }
+
+  _startMfaExpiryCountdown(ms) {
+    this._mfaExpiryTime = Date.now() + ms;
+    const timerId = setInterval(() => {
+      if (!this._isMfaTokenValid()) {
+        clearInterval(timerId);
+        this._timers.delete(timerId);
+      }
+    }, 1000);
+    this._registerTimer(timerId);
+  }
+
+  _isMfaTokenValid() {
+    if (!this._mfaExpiryTime) return false;
+    return Date.now() < this._mfaExpiryTime;
+  }
+
   _render() {
-    const errorHtml = `<div class="onboarding-error" data-testid="login-error" role="alert" style="margin-bottom: 1.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.9rem;"${this._errorMessage ? '' : ' hidden'}>${this._errorMessage ? escapeHtml(this._errorMessage) : ''}</div>`;
+    const errorHtml = `<div id="login-error-region" class="onboarding-error" data-testid="login-error" role="alert" style="margin-bottom: 1.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.9rem;"${this._errorMessage ? '' : ' hidden'}>${this._errorMessage ? escapeHtml(this._errorMessage) : ''}</div>`;
 
     this.container.innerHTML = `
       <div class="onboarding-wrap" style="background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.1), transparent 40%), var(--color-bg-primary);">
@@ -90,13 +129,16 @@ export default class LoginPage {
                     name="email"
                     placeholder="voce@exemplo.com"
                     autocomplete="email"
+                    aria-label="E-mail"
+                    aria-required="true"
+                    aria-describedby="login-error-region"
                     style="padding: 0.875rem 1rem;"
                   />
                 </div>
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <label for="login-password" style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Senha</label>
-                    <button id="login-forgot-password" type="button" style="background: none; border: none; color: var(--color-brand); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Esqueceu?</button>
+                    <button id="login-forgot-password" type="button" aria-label="Esqueceu a senha" style="background: none; border: none; color: var(--color-brand); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Esqueceu?</button>
                   </div>
                   <input
                     id="login-password"
@@ -106,6 +148,8 @@ export default class LoginPage {
                     name="password"
                     placeholder="••••••••"
                     autocomplete="current-password"
+                    aria-label="Senha"
+                    aria-required="true"
                     style="padding: 0.875rem 1rem;"
                   />
                 </div>
@@ -118,6 +162,7 @@ export default class LoginPage {
                   type="submit"
                   class="onboarding-btn-next"
                   style="width: 100%; padding: 0.875rem; font-weight: 700; letter-spacing: 0.02em; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);"
+                  aria-label="Entrar"
                   ${this._isLoading ? 'disabled' : ''}
                 >
                   ${this._isLoading ? '<span class="spinner" style="display:inline-block; width:1rem; height:1rem; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px;"></span> Entrando...' : 'Entrar na Conta'}
@@ -130,9 +175,20 @@ export default class LoginPage {
               <button
                 id="login-create-account"
                 type="button"
+                aria-label="Criar conta"
                 style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 0 4px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
               >Cadastre-se</button>
             </div>
+          </div>
+
+          <div id="login-step-mfa" style="display: none;">
+            <div role="status" aria-live="polite">Verificação em duas etapas</div>
+            <input id="mfa-code" aria-label="Código MFA" aria-required="true" inputmode="numeric" />
+            <div data-mfa-timer aria-live="polite" aria-atomic="true"></div>
+          </div>
+          
+          <div id="login-step-device" style="display: none;">
+            <input id="device-code" aria-label="Device Code" aria-required="true" />
           </div>
         </div>
       </div>
@@ -319,5 +375,30 @@ export default class LoginPage {
     this._errorMessage = null;
     const el = this.container.querySelector('.onboarding-error');
     if (el) el.remove();
+  }
+
+  _showStep(step) {
+    this._clearError();
+    const stepCreds = this.container.querySelector('#login-step-credentials');
+    const stepMfa = this.container.querySelector('#login-step-mfa');
+    const stepDevice = this.container.querySelector('#login-step-device');
+    
+    if (stepCreds) stepCreds.style.display = 'none';
+    if (stepMfa) stepMfa.style.display = 'none';
+    if (stepDevice) stepDevice.style.display = 'none';
+
+    if (step === 'mfa' && stepMfa) {
+      stepMfa.style.display = 'block';
+      const mfaCodeInput = stepMfa.querySelector('#mfa-code');
+      if (mfaCodeInput) mfaCodeInput.focus();
+    } else if (step === 'device' && stepDevice) {
+      stepDevice.style.display = 'block';
+      const devCodeInput = stepDevice.querySelector('#device-code');
+      if (devCodeInput) devCodeInput.focus();
+    } else if (stepCreds) {
+      stepCreds.style.display = 'block';
+      const emailInput = stepCreds.querySelector('#login-email');
+      if (emailInput) emailInput.focus();
+    }
   }
 }

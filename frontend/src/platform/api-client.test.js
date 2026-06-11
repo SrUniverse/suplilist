@@ -1,19 +1,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { auth } from './../features/auth/firebase-client.js';
+
+vi.mock('./../features/auth/firebase-client.js', () => ({
+  auth: {
+    authStateReady: vi.fn().mockResolvedValue(),
+    currentUser: null
+  }
+}));
 
 global.fetch = vi.fn();
 
 describe('ApiClient', () => {
-  let apiFetch, setAccessToken, clearAccessToken, ApiError;
+  let apiFetch, ApiError;
 
   beforeEach(async () => {
+    // Reset modules to clear singleton states
+    vi.resetModules();
     const module = await import('./api-client.js');
     apiFetch = module.apiFetch;
-    setAccessToken = module.setAccessToken;
-    clearAccessToken = module.clearAccessToken;
     ApiError = module.ApiError;
 
     fetch.mockClear();
-    clearAccessToken(); // Clear any previous token
+    auth.currentUser = null;
   });
 
   afterEach(() => {
@@ -31,7 +39,7 @@ describe('ApiClient', () => {
 
     expect(fetch).toHaveBeenCalledWith('/api/test', expect.any(Object));
     const [, options] = fetch.mock.calls[0];
-    expect(options.credentials).toBe('include');
+    expect(options.credentials).toBe('omit');
     expect(result).toEqual({ id: 1 });
   });
 
@@ -54,7 +62,9 @@ describe('ApiClient', () => {
   });
 
   it('should include auth headers when token is set', async () => {
-    setAccessToken('test-token-123');
+    auth.currentUser = {
+      getIdToken: vi.fn().mockResolvedValue('test-token-123')
+    };
 
     fetch.mockResolvedValue({
       ok: true,
@@ -67,7 +77,6 @@ describe('ApiClient', () => {
     expect(fetch).toHaveBeenCalled();
     const [, options] = fetch.mock.calls[0];
     const headers = options.headers;
-    // Headers is a Web API Headers object, check via get()
     expect(headers.get('Authorization')).toBe('Bearer test-token-123');
   });
 

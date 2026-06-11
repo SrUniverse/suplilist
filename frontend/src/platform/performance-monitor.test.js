@@ -123,15 +123,23 @@ describe('PerformanceMonitor', () => {
     expect(monitor.thresholds.pageLoad).toBe(2000);
   });
 
-  // Test 11: Report metric to backend
   it('should report metrics to backend in production', () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true });
     global.fetch = fetchMock;
+    
+    // Force fallback to fetch if sendBeacon exists in jsdom
+    const originalSendBeacon = navigator.sendBeacon;
+    navigator.sendBeacon = undefined;
+    
     import.meta.env.PROD = true;
 
     monitor.trackApiResponse('/api/test', 250);
+    monitor._flushMetrics(); // manually flush queue
 
     expect(fetchMock).toHaveBeenCalled();
+    
+    // Restore
+    navigator.sendBeacon = originalSendBeacon;
   });
 
   // Test 12: Does not report in development

@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import { requireAuth } from '../../../../shared/middleware/auth.middleware.js';
 import { UserIdentityModel } from '../../infrastructure/mongoose/user-identity.model.js';
+import { ProfileModel } from '../../../profile/infrastructure/mongoose/profile.model.js';
 
 import { RedisStore } from 'rate-limit-redis';
 import { getRedisClient } from '../../../../shared/config/redis.config.js';
@@ -31,21 +32,52 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
     const isTrustedProvider = sign_in_provider !== 'password';
     const isVerified = email_verified || isTrustedProvider;
 
-    await UserIdentityModel.findOneAndUpdate(
-      { firebaseUid: uid },
-      {
-        $set: { email: email || '' },
-        $setOnInsert: {
-          name: name || '',
-          picture: picture || '',
-          role: 'user',
-          status: isVerified ? 'active' : 'pending_verification',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-      },
-      { upsert: true, new: true }
-    );
+    let userIdentity = await UserIdentityModel.findOne({ email });
+
+    if (!userIdentity) {
+      userIdentity = new UserIdentityModel({
+        email: email || '',
+        emailVerified: isVerified,
+        emailVerifiedAt: isVerified ? new Date() : null,
+        role: 'user',
+        status: isVerified ? 'active' : 'pending_verification',
+        tier: 'free',
+        providers: [{
+          provider: 'google',
+          providerId: uid,
+          providerEmail: email,
+          linkedAt: new Date()
+        }]
+      });
+      await userIdentity.save();
+    } else {
+      const hasProvider = userIdentity.providers.some(p => p.provider === 'google' && p.providerId === uid);
+      if (!hasProvider) {
+        userIdentity.providers.push({
+          provider: 'google',
+          providerId: uid,
+          providerEmail: email,
+          linkedAt: new Date()
+        });
+        await userIdentity.save();
+      }
+    }
+
+    const userId = userIdentity._id.toString();
+    const existingProfile = await ProfileModel.findOne({ userId });
+
+    if (!existingProfile) {
+      const newProfile = new ProfileModel({
+        userId,
+        firstName: name ? name.split(' ')[0] : null,
+        lastName: name && name.includes(' ') ? name.split(' ').slice(1).join(' ') : null,
+        displayName: name || email?.split('@')[0] || 'Usuário',
+        avatarUrl: picture || null,
+        avatarStatus: picture ? 'approved' : 'none',
+        onboardingState: 'pending'
+      });
+      await newProfile.save();
+    }
 
     res.json({ success: true });
   } catch (err: any) {

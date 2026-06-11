@@ -141,6 +141,7 @@ export class ListPageGrid {
         bufferSize: 8,
         columns: cols,
         gap: 12,
+        scrollElement: document.getElementById('lp-body')
       }
     );
 

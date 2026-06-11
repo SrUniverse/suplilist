@@ -12,7 +12,7 @@ export type StripeSubscriptionStatus =
   | 'incomplete_expired';
 
 export interface IOAuthProviderDocument {
-  provider: 'google';
+  provider: 'google' | 'phone' | 'password';
   providerId: string;
   providerEmail?: string;
   linkedAt: Date;
@@ -67,7 +67,7 @@ const oauthProviderSchema = new Schema<IOAuthProviderDocument>({
   provider: {
     type: String,
     required: true,
-    enum: ['google'],
+    enum: ['google', 'phone', 'password'],
   },
   providerId: {
     type: String,

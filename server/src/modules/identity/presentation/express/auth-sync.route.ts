@@ -32,18 +32,30 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
     const isTrustedProvider = sign_in_provider !== 'password';
     const isVerified = email_verified || isTrustedProvider;
 
-    let userIdentity = await UserIdentityModel.findOne({ email });
+    let userIdentity = await UserIdentityModel.findOne({
+      'providers.providerId': uid
+    });
+
+    if (!userIdentity && email) {
+      userIdentity = await UserIdentityModel.findOne({ email });
+    }
+
+    const mappedProvider = ['google', 'phone', 'password'].includes(sign_in_provider) 
+      ? sign_in_provider 
+      : (email ? 'google' : 'phone');
+      
+    const finalEmail = email || `${uid}@phone.suplilist.com`;
 
     if (!userIdentity) {
       userIdentity = new UserIdentityModel({
-        email: email || '',
+        email: finalEmail,
         emailVerified: isVerified,
         emailVerifiedAt: isVerified ? new Date() : null,
         role: 'user',
         status: isVerified ? 'active' : 'pending_verification',
         tier: 'free',
         providers: [{
-          provider: 'google',
+          provider: mappedProvider,
           providerId: uid,
           providerEmail: email,
           linkedAt: new Date()
@@ -51,10 +63,10 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
       });
       await userIdentity.save();
     } else {
-      const hasProvider = userIdentity.providers.some(p => p.provider === 'google' && p.providerId === uid);
+      const hasProvider = userIdentity.providers.some(p => p.provider === mappedProvider && p.providerId === uid);
       if (!hasProvider) {
         userIdentity.providers.push({
-          provider: 'google',
+          provider: mappedProvider,
           providerId: uid,
           providerEmail: email,
           linkedAt: new Date()

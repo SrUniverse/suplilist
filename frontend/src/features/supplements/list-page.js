@@ -174,12 +174,26 @@ export default class ListPage {
     fab.setAttribute('aria-label', 'Voltar ao topo');
     fab.textContent = '↑';
     document.body.appendChild(fab);
-    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    fab.addEventListener('click', () => {
+      const scrollEl = document.getElementById('lp-body');
+      if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
     const onScrollFab = () => {
-      fab.classList.toggle('visible', window.scrollY > window.innerHeight * 2);
+      const scrollEl = document.getElementById('lp-body');
+      if (scrollEl) {
+        fab.classList.toggle('visible', scrollEl.scrollTop > window.innerHeight * 2);
+      }
     };
-    window.addEventListener('scroll', onScrollFab, { passive: true });
+    
+    // Attaching directly in mount but using event delegation or just picking it up
+    // Wait for next tick so #lp-body is in DOM
+    setTimeout(() => {
+      const scrollEl = document.getElementById('lp-body');
+      if (scrollEl) {
+        scrollEl.addEventListener('scroll', onScrollFab, { passive: true });
+      }
+    }, 0);
     this._fabEl = fab;
     this._fabScrollHandler = onScrollFab;
 
@@ -213,8 +227,12 @@ export default class ListPage {
     this._grid.unmount();
     this._modal.unmount();
     // M9: cleanup FAB
-    this._fabEl?.remove();
-    if (this._fabScrollHandler) window.removeEventListener('scroll', this._fabScrollHandler);
+    if (this._fabEl) {
+      const scrollEl = document.getElementById('lp-body');
+      if (scrollEl) scrollEl.removeEventListener('scroll', this._fabScrollHandler);
+      this._fabEl.remove();
+      this._fabEl = null;
+    }
     this.container.innerHTML = '';
   }
 

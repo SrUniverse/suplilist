@@ -52,7 +52,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       };
     } catch (err: any) {
       const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress;
-      logSecurityEvent('auth.invalid_token' as any, { ip, error: err.message });
+      logSecurityEvent('auth.invalid_token' as any, { ip, message: err.message } as any);
       return res.status(401).json({
         success: false,
         error: 'invalid_token',

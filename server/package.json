@@ -4,7 +4,7 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "build": "rm -rf dist && tsc -p ../shared || true && tsc || true",
+    "build": "rimraf dist && tsc -p ../shared && tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "test": "vitest run",
@@ -57,6 +57,7 @@
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.0",
     "mongodb-memory-server": "^10.1.4",
+    "rimraf": "^2.7.1",
     "supertest": "^7.0.0",
     "tsx": "^4.7.2",
     "typescript": "^5.4.5",

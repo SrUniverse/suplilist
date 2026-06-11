@@ -40,9 +40,9 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
       userIdentity = await UserIdentityModel.findOne({ email });
     }
 
-    const mappedProvider = ['google', 'phone', 'password'].includes(sign_in_provider) 
+    const mappedProvider: 'google' | 'phone' | 'password' = (['google', 'phone', 'password'].includes(sign_in_provider) 
       ? sign_in_provider 
-      : (email ? 'google' : 'phone');
+      : (email ? 'google' : 'phone')) as 'google' | 'phone' | 'password';
       
     const finalEmail = email || `${uid}@phone.suplilist.com`;
 

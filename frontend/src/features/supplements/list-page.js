@@ -545,7 +545,7 @@ export default class ListPage {
         .lp-chip {
           padding: 9px 14px;
           font-size: 13px;
-          min-height: 38px;
+          min-height: 44px;
         }
       }
 
@@ -869,6 +869,18 @@ export default class ListPage {
       }
 
       .lp-skeleton-line {
+        height: 14px;
+        background: var(--color-surface-secondary);
+        border-radius: 4px;
+        animation: lp-shimmer 1.6s infinite linear;
+        background-image: linear-gradient(90deg,
+          var(--color-surface-secondary) 25%,
+          color-mix(in oklch, var(--color-surface-secondary) 70%, white) 50%,
+          var(--color-surface-secondary) 75%
+        );
+        background-size: 1200px 100%;
+      }
+
       /* Catalog error / empty state */
       .lp-catalog-error {
         display: flex;
@@ -1092,6 +1104,17 @@ export default class ListPage {
       .lp-modal-nav-btn:focus-visible {
         outline: 2px solid var(--color-brand);
         outline-offset: 2px;
+      }
+
+      @media (max-width: 600px) {
+        .lp-modal-close-btn {
+          width: 44px;
+          height: 44px;
+        }
+        .lp-modal-nav-btn {
+          width: 44px;
+          height: 44px;
+        }
       }
 
       /* Name / category overlay at bottom of hero */

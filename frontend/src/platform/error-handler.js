@@ -148,7 +148,7 @@ export function handleError(error, context = 'unknown', options = {}) {
           keepalive: true
         }
       ).catch(() => {});
-    } catch (e) {
+    } catch (_e) {
       // Silent fail for logging errors
     }
   }

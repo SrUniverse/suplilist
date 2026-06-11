@@ -115,9 +115,8 @@ describe('ToastService', () => {
       toastService.warning('Test 3');
 
       // Subscribe to verify toasts are present before cleanup
-      let toastCount = 0;
       const unsub = eventBus.on('toast:show', () => {
-        toastCount++;
+        // 
       });
 
       toastService.cleanup();

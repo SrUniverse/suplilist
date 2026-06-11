@@ -143,7 +143,7 @@ export async function apiFetch(path, options = {}) {
           // Tenta novamente com o token forçado
           return apiFetch(path, { ...options, _isRetry: true });
         }
-      } catch (refreshError) {
+      } catch (_refreshError) {
         logger.warn('[ApiClient] Refresh failed, emitting AUTH_EXPIRED');
         eventBus.emit(EVENTS.AUTH_EXPIRED, {
           reason: 'refresh_failed',
@@ -195,7 +195,7 @@ async function _request(path, options = {}) {
     try {
       const token = await auth.currentUser.getIdToken();
       headers['Authorization'] = `Bearer ${token}`;
-    } catch (e) { /* ignore */ }
+    } catch (_e) { /* ignore */ }
   }
   
   if (options.body) headers['Content-Type'] = 'application/json';

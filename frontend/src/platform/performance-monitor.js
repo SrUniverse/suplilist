@@ -289,7 +289,7 @@ export class PerformanceMonitor {
       }
       
       this.metricQueue = []; // clear queue
-    } catch (e) {
+    } catch (_e) {
       // fail silently
     }
   }

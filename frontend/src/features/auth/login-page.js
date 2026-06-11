@@ -139,7 +139,7 @@ export default class LoginPage {
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                     <label for="login-password" style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Senha</label>
-                    <button id="login-forgot-password" type="button" aria-label="Esqueceu a senha" style="background: none; border: none; color: var(--color-brand); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Esqueceu?</button>
+                    <button id="login-forgot-password" type="button" aria-label="Esqueceu a senha" style="background: none; border: none; color: var(--color-brand); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 12px 8px; margin: -12px -8px;">Esqueceu?</button>
                   </div>
                   <input
                     id="login-password"
@@ -177,7 +177,7 @@ export default class LoginPage {
                 id="login-create-account"
                 type="button"
                 aria-label="Criar conta"
-                style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 0 4px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
+                style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 12px 8px; margin: -12px -8px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
               >Cadastre-se</button>
             </div>
 
@@ -187,7 +187,7 @@ export default class LoginPage {
                 id="login-phone"
                 type="button"
                 aria-label="Login por SMS"
-                style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 0 4px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
+                style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 12px 8px; margin: -12px -8px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
               >Entrar por SMS 📱</button>
             </div>
           </div>

@@ -126,17 +126,11 @@ export async function retrySimple(operation, maxAttempts = 3, delayMs = 1000) {
  *
  * @template T
  * @param {() => Promise<T>} operation
- * @param {RetryOptions & { jitterFactor?: number }} options
+ * @param {RetryOptions} options
  * @returns {Promise<T>}
  */
 export async function retryWithJitter(operation, options = {}) {
-  const { jitterFactor = 0.1, ...retryOptions } = options;
-
-  return retryAsync(async () => {
-    // Adicionar jitter ao delay para evitar sincronização
-    const randomJitter = Math.random() * jitterFactor;
-    return operation();
-  }, retryOptions);
+  return retryAsync(operation, options);
 }
 
 export const retryHelper = Object.freeze({

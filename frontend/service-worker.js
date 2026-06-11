@@ -4,7 +4,7 @@
  * background sync para check-ins offline, push notifications de recompra e offline fallback page.
  */
 
-const CACHE_VERSION = 'v4.0.0';
+const CACHE_VERSION = 'v4.0.1';
 const STATIC_CACHE = `suplilist-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `suplilist-dynamic-${CACHE_VERSION}`;
 const SUPPLEMENTS_CACHE = `suplilist-supplements-${CACHE_VERSION}`;

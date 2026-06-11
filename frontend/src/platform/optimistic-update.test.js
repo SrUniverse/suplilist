@@ -5,7 +5,7 @@ describe('performOptimisticUpdate', () => {
   it('should call all 4 functions in order on success', async () => {
     const order = [];
     const snapshotFn = vi.fn(() => { order.push('snapshot'); return { value: 1 }; });
-    const dispatchFn = vi.fn((backup) => { order.push('dispatch'); });
+    const dispatchFn = vi.fn((_backup) => { order.push('dispatch'); });
     const networkFn = vi.fn(async () => { order.push('network'); return 'response'; });
     const rollbackFn = vi.fn();
 

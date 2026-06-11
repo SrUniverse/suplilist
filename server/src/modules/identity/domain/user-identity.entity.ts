@@ -2,7 +2,7 @@ export type UserStatus = 'active' | 'pending_verification' | 'suspended' | 'dele
 export type UserRole = 'user' | 'moderator' | 'admin';
 
 export interface OAuthProvider {
-  provider: 'google';
+  provider: 'google' | 'phone' | 'password';
   providerId: string;
   providerEmail?: string;
   linkedAt: Date;

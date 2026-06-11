@@ -455,7 +455,7 @@ export class Nav {
         text-align: left;
         position: relative;
         transition: background 0.15s ease, color 0.15s ease;
-        min-height: 40px;
+        min-height: 44px;
       }
       .sb-item:hover {
         background: var(--color-surface-hover, rgba(255,255,255,0.04));
@@ -502,7 +502,7 @@ export class Nav {
         color: var(--color-text-secondary, #9A9A9A);
         font-family: 'Inter', sans-serif; font-size: 13px;
         cursor: pointer; transition: background 0.15s ease; width: 100%;
-        min-height: 40px;
+        min-height: 44px;
       }
       .sb-theme-btn:hover { background: var(--color-surface-hover, rgba(255,255,255,0.04)); color: var(--color-text-primary); }
       .sb-fab {

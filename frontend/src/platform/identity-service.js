@@ -71,7 +71,7 @@ class IdentityService {
 
           this.#initSettled = true;
           resolve(true);
-        } catch (err) {
+        } catch (_err) {
           logger.warn('[IdentityService] Could not fetch profile on boot, signing out.');
           await signOut(auth).catch(() => {});
           this.#commitLogout();
@@ -98,7 +98,7 @@ class IdentityService {
     return identity;
   }
 
-  async login(email, password) {
+  async login(_email, _password) {
     // Already handled by login-page.js but keeping it for compatibility if tests call it
     // Cannot be executed cleanly here since we want to avoid circular dependencies
     throw new Error('Use Firebase Auth directly for login.');
@@ -140,7 +140,7 @@ class IdentityService {
   }
 
   #registerApocalypseListener() {
-    eventBus.on(EVENTS.AUTH_EXPIRED, async (payload) => {
+    eventBus.on(EVENTS.AUTH_EXPIRED, async (_payload) => {
       if (this.#handlingExpiry) return;
       this.#handlingExpiry = true;
 
@@ -148,7 +148,7 @@ class IdentityService {
       
       try {
         await signOut(auth);
-      } catch (e) { /* ignore */ }
+      } catch (_e) { /* ignore */ }
 
       eventBus.emit(EVENTS.TOAST_SHOW, {
         message: 'Sua sessão expirou. Por favor, entre novamente.',

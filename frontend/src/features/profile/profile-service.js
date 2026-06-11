@@ -116,7 +116,7 @@ class ProfileService {
 
     try {
       const { data: confirmed, headers } = await apiFetch(API.ME, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: this.#currentVersion ? { 'If-Match': `"${this.#currentVersion}"` } : {},
         body: JSON.stringify(data),
         returnHeaders: true

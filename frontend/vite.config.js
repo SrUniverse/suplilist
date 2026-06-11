@@ -8,6 +8,10 @@ export default defineConfig({
     port: 5173,
     host: '127.0.0.1',
     historyApiFallback: true,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Cross-Origin-Embedder-Policy': 'unsafe-none'
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
@@ -18,7 +22,10 @@ export default defineConfig({
   },
   preview: {
     port: 3000,
-    historyApiFallback: true
+    historyApiFallback: true,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
+    }
   },
   plugins: [
     process.env.ANALYZE && visualizer({

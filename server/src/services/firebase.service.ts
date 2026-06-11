@@ -1,6 +1,8 @@
-import admin from 'firebase-admin';
+import { getMessaging, Messaging } from 'firebase-admin/messaging';
+import { getApps } from 'firebase-admin/app';
 import { logger } from '../utils/logger.js';
 import { AppError } from '../utils/app-error.js';
+import { initializeFirebaseAdmin } from '../shared/config/firebase.config.js';
 
 interface NotificationPayload {
   title: string;
@@ -24,49 +26,18 @@ interface TopicOperationResult {
 }
 
 class FirebaseService {
-  private initialized = false;
-  private app: admin.app.App | null = null;
-  private messaging: admin.messaging.Messaging | null = null;
+  private messaging: Messaging | null = null;
 
   constructor() {
     this.initializeFirebase();
   }
 
   private initializeFirebase(): void {
+    initializeFirebaseAdmin();
     try {
-      if (!process.env.FIREBASE_PROJECT_ID) {
-        throw new Error('FIREBASE_PROJECT_ID environment variable not set');
-      }
-
-      if (!process.env.FIREBASE_PRIVATE_KEY) {
-        throw new Error('FIREBASE_PRIVATE_KEY environment variable not set');
-      }
-
-      if (!process.env.FIREBASE_CLIENT_EMAIL) {
-        throw new Error('FIREBASE_CLIENT_EMAIL environment variable not set');
-      }
-
-      const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
-
-      if (!admin.apps.length) {
-        this.app = admin.initializeApp({
-          credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            privateKey,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          }),
-        });
-      } else {
-        this.app = admin.app();
-      }
-
-      this.messaging = admin.messaging(this.app);
-      this.initialized = true;
-
-      logger.info('Firebase Admin SDK initialized successfully');
+      this.messaging = getMessaging();
     } catch (error) {
-      logger.error('Failed to initialize Firebase Admin SDK', { error });
-      throw error;
+      logger.error('Failed to initialize Firebase Messaging', { error });
     }
   }
 
@@ -77,7 +48,7 @@ class FirebaseService {
     deviceToken: string,
     payload: NotificationPayload
   ): Promise<SendNotificationResult> {
-    if (!this.initialized || !this.messaging) {
+    if (!this.isInitialized() || !this.messaging) {
       return {
         success: false,
         error: 'Firebase not initialized',
@@ -154,7 +125,7 @@ class FirebaseService {
     failed: number;
     errors: Array<{ token: string; error: string }>;
   }> {
-    if (!this.initialized || !this.messaging) {
+    if (!this.isInitialized() || !this.messaging) {
       throw new AppError('Firebase not initialized', 500);
     }
 
@@ -224,7 +195,7 @@ class FirebaseService {
     deviceToken: string,
     topic: string
   ): Promise<TopicOperationResult> {
-    if (!this.initialized || !this.messaging) {
+    if (!this.isInitialized() || !this.messaging) {
       return {
         success: false,
         error: 'Firebase not initialized',
@@ -260,7 +231,7 @@ class FirebaseService {
     deviceTokens: string[],
     topic: string
   ): Promise<TopicOperationResult> {
-    if (!this.initialized || !this.messaging) {
+    if (!this.isInitialized() || !this.messaging) {
       return {
         success: false,
         error: 'Firebase not initialized',
@@ -297,7 +268,7 @@ class FirebaseService {
     deviceToken: string,
     topic: string
   ): Promise<TopicOperationResult> {
-    if (!this.initialized || !this.messaging) {
+    if (!this.isInitialized() || !this.messaging) {
       return {
         success: false,
         error: 'Firebase not initialized',
@@ -333,7 +304,7 @@ class FirebaseService {
     topic: string,
     payload: NotificationPayload
   ): Promise<SendNotificationResult> {
-    if (!this.initialized || !this.messaging) {
+    if (!this.isInitialized() || !this.messaging) {
       return {
         success: false,
         error: 'Firebase not initialized',
@@ -435,7 +406,7 @@ class FirebaseService {
    * Check if Firebase is initialized
    */
   isInitialized(): boolean {
-    return this.initialized;
+    return getApps().length > 0;
   }
 }
 

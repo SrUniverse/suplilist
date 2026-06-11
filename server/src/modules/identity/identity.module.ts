@@ -11,11 +11,12 @@ import { DeleteAccountUseCase } from './application/use-cases/delete-account.use
 import { CancelDeletionUseCase } from './application/use-cases/cancel-deletion.use-case.js';
 import { GetSessionIdentityUseCase } from './application/use-cases/get-session-identity.use-case.js';
 
-import { AuthController } from './presentation/express/auth.controller.js';
+
 import { ipAuthRateLimiter, emailAuthRateLimiter, messagingIpLimiter, messagingEmailLimiter, authApiLimiter } from '../../shared/middleware/auth-rate-limiter.js';
 import { requireAuth, requirePreAuth } from '../../shared/middleware/auth.middleware.js';
 
 import authSyncRoute from './presentation/express/auth-sync.route.js';
+import accountRoute from './presentation/express/account.route.js';
 
 export function initializeIdentityModule(): Router {
   const router = Router();
@@ -34,6 +35,9 @@ export function initializeIdentityModule(): Router {
 
   // Rota de Sincronização Firebase Auth -> MongoDB
   router.use(authSyncRoute);
+
+  // Rota de gerenciamento de conta (ex: deletar conta)
+  router.use(accountRoute);
 
   return router;
 }

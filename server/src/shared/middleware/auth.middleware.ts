@@ -13,6 +13,8 @@ declare global {
         email?: string;
         name: string;
         picture: string;
+        email_verified: boolean;
+        sign_in_provider: string;
       };
       user?: {
         id: string;
@@ -50,7 +52,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         uid: decoded.uid,
         email: decoded.email,
         name: decoded.name || '',
-        picture: decoded.picture || ''
+        picture: decoded.picture || '',
+        email_verified: decoded.email_verified || false,
+        sign_in_provider: decoded.firebase?.sign_in_provider || 'password'
       };
     } catch (err: any) {
       const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress;
@@ -70,6 +74,12 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         role: userDoc.role as UserRole,
         status: userDoc.status
       };
+    } else if (!req.originalUrl.includes('/auth/sync')) {
+      return res.status(401).json({
+        success: false,
+        error: 'user_not_synced',
+        message: 'User profile not synchronized with database.',
+      });
     }
 
     next();
@@ -96,7 +106,9 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
         uid: decoded.uid,
         email: decoded.email,
         name: decoded.name || '',
-        picture: decoded.picture || ''
+        picture: decoded.picture || '',
+        email_verified: decoded.email_verified || false,
+        sign_in_provider: decoded.firebase?.sign_in_provider || 'password'
       };
       
       const userDoc = await UserIdentityModel.findOne({ firebaseUid: decoded.uid }).select('role status').lean();
@@ -146,9 +158,7 @@ export const requireRole = (allowedRoles: UserRole[]) => {
 };
 
 export const requireVerifiedEmail = (req: Request, res: Response, next: NextFunction) => {
-  // Verificação de email agora pode ser via Firebase Token (email_verified flag)
-  // Mas como migramos tudo para Firebase, mantemos o check simples:
-  if (!req.firebaseUser && !req.user) {
+  if (!req.firebaseUser) {
     return res.status(401).json({
       success: false,
       error: 'unauthenticated',
@@ -156,9 +166,12 @@ export const requireVerifiedEmail = (req: Request, res: Response, next: NextFunc
     });
   }
 
-  // Com Firebase Auth, se precisar bloquear, checamos decoded.email_verified no auth middleware.
-  // Por enquanto apenas deixamos passar se o status do mongo não for inactive.
-  if (req.user && req.user.status !== 'active') {
+  const { email_verified, sign_in_provider } = req.firebaseUser;
+  
+  // Trusted providers (like Google) automatically verify emails
+  const isTrustedProvider = sign_in_provider !== 'password';
+
+  if (!email_verified && !isTrustedProvider) {
     return res.status(403).json({
       success: false,
       error: 'email_not_verified',

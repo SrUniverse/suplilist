@@ -255,6 +255,11 @@ export default class LoginPage {
     } catch (err) {
       if (!this._isMounted) return;
 
+      // If sync failed but Firebase login succeeded, we must sign out to prevent a stuck session
+      if (auth.currentUser) {
+        await signOut(auth).catch(() => {});
+      }
+
       this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       
       this._isLoading = false;
@@ -330,6 +335,11 @@ export default class LoginPage {
 
       if (window.google?.accounts?.id) {
         window.google.accounts.id.cancel();
+      }
+
+      // If sync failed but Firebase login succeeded, we must sign out to prevent a stuck session
+      if (auth.currentUser) {
+        await signOut(auth).catch(() => {});
       }
 
       this._errorMessage = errorHandler.getUserFriendlyMessage(err);

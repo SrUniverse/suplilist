@@ -10,25 +10,17 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Auth não pode derrubar o app: sem config válida (ex.: dev sem .env),
-// páginas públicas continuam funcionando em modo guest.
-const guestAuth = {
-  currentUser: null,
-  authStateReady: () => Promise.resolve(),
-  onAuthStateChanged: (cb) => {
-    if (typeof cb === 'function') cb(null);
-    return () => {};
-  },
-  signOut: () => Promise.resolve(),
-};
+if (!firebaseConfig.apiKey) {
+  throw new Error('[Firebase] Missing VITE_FIREBASE_API_KEY. Authentication cannot be initialized.');
+}
 
 let resolvedAuth;
 try {
   const app = initializeApp(firebaseConfig);
   resolvedAuth = getAuth(app);
 } catch (error) {
-  console.warn('[Firebase] Auth indisponível — app em modo guest:', error?.code || error);
-  resolvedAuth = guestAuth;
+  console.error('[Firebase] Auth indisponível:', error?.code || error);
+  throw error;
 }
 
 export const auth = resolvedAuth;

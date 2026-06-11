@@ -13,6 +13,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import { initializeFirebaseAdmin } from './shared/config/firebase.config.js';
 import { initializeIdentityModule } from './modules/identity/identity.module.js';
 import { initializeProfileModule } from './modules/profile/profile.module.js';
 import { initializeSettingsModule } from './modules/settings/settings.module.js';
@@ -39,6 +40,7 @@ import { createMetricsRouter } from './routes/metrics.route.js';
 import { logMaskingMiddleware } from './middleware/log-masking.middleware.js';
 
 export function createApp() {
+  initializeFirebaseAdmin();
   const app = express();
 
   // ── Trust Proxy for Load Balancer ──────────────────────────────────────────

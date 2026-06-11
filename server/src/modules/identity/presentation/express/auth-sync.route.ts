@@ -26,7 +26,10 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
       return res.status(401).json({ success: false, error: 'unauthenticated' });
     }
 
-    const { uid, email, name, picture } = req.firebaseUser;
+    const { uid, email, name, picture, email_verified, sign_in_provider } = req.firebaseUser;
+
+    const isTrustedProvider = sign_in_provider !== 'password';
+    const isVerified = email_verified || isTrustedProvider;
 
     await UserIdentityModel.findOneAndUpdate(
       { firebaseUid: uid },
@@ -36,7 +39,7 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
           name: name || '',
           picture: picture || '',
           role: 'user',
-          status: 'active',
+          status: isVerified ? 'active' : 'pending_verification',
           createdAt: new Date(),
           updatedAt: new Date()
         }

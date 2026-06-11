@@ -6,6 +6,9 @@ import { ListPageSearch } from './list-page-search.js';
 import { ListPageGrid } from './list-page-grid.js';
 import { ListPageModal } from './list-page-modal.js';
 
+import { Skeleton } from '../../components/skeleton.js';
+import { identityService } from '../../platform/identity-service.js';
+
 /**
  * ListPage — Supplement catalog with search, filtering, and shopping features
  * Orchestrator for ListPageSearch, ListPageGrid, and ListPageModal sub-components
@@ -30,7 +33,6 @@ export default class ListPage {
     this._grid = new ListPageGrid(container, {
       onModalOpen: (id) => this._modal.open(id),
       onCheckout: () => this._modal.openCheckout(),
-      // onCardStateRefresh removed - creates infinite loop
     });
     this._modal = new ListPageModal(container, {
       onCardStateRefresh: () => this._grid._refreshCardStates(),
@@ -60,24 +62,16 @@ export default class ListPage {
     // Show skeleton cards while catalog data loads
     const grid = this.container.querySelector('#lp-grid');
     if (grid) {
-      grid.innerHTML = Array.from({ length: 8 }, () => `
-        <div class="lp-skeleton-card">
-          <div class="lp-skeleton-img"></div>
-          <div class="lp-skeleton-body">
-            <div class="lp-skeleton-line"></div>
-            <div class="lp-skeleton-line"></div>
-            <div class="lp-skeleton-line"></div>
-            <div class="lp-skeleton-line"></div>
-            <div class="lp-skeleton-line"></div>
-          </div>
-        </div>
-      `).join('');
+      grid.innerHTML = Array.from({ length: 8 }, () => Skeleton.supplementCard()).join('');
     }
 
+
     // Fetch catalog from static JSON (same URL pattern as future GET /api/supplements)
-    fetch('/data/supplements-db.json', { signal })
-      .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-      .then(catalogData => {
+    const catalogPromise = fetch('/data/supplements-db.json', { signal })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)));
+
+    Promise.all([catalogPromise, identityService.isReady()])
+      .then(([catalogData]) => {
         if (signal.aborted) return;
 
         const supplements = Array.isArray(catalogData) ? catalogData : (catalogData.supplements ?? SUPPLEMENTS_DB);
@@ -857,23 +851,6 @@ export default class ListPage {
       }
 
       .lp-skeleton-line {
-        height: 12px;
-        border-radius: 6px;
-        background: linear-gradient(90deg,
-          var(--color-surface-secondary) 25%,
-          color-mix(in oklch, var(--color-surface-secondary) 70%, white) 50%,
-          var(--color-surface-secondary) 75%
-        );
-        background-size: 1200px 100%;
-        animation: lp-shimmer 1.6s infinite linear;
-      }
-
-      .lp-skeleton-line:nth-child(1) { width: 40%; }
-      .lp-skeleton-line:nth-child(2) { width: 80%; }
-      .lp-skeleton-line:nth-child(3) { width: 60%; }
-      .lp-skeleton-line:nth-child(4) { width: 90%; height: 20px; margin-top: 6px; }
-      .lp-skeleton-line:nth-child(5) { width: 100%; height: 36px; margin-top: 8px; border-radius: 8px; }
-
       /* Catalog error / empty state */
       .lp-catalog-error {
         display: flex;

@@ -1,5 +1,6 @@
 @import "./design-system.css";
 @import "./loading-states.css";
+@import "./skeleton.css";
 
 /* Grid System Global Utilities */
 .grid {

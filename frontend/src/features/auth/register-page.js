@@ -12,6 +12,7 @@
 import { auth, createUserWithEmailAndPassword } from './firebase-client.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
+import { errorHandler } from '../../platform/error-handler.js';
 import { validateEmail, validatePassword } from '../../platform/form-validators.js';
 
 export default class RegisterPage {
@@ -147,9 +148,7 @@ export default class RegisterPage {
     } catch (err) {
       if (!this._isMounted) return;
 
-      // O backend já trata credenciais/existência enviando erro padronizado para mitigar user enumeration,
-      // que o apiFetch ou identityService repassa.
-      this._errorMessage = err.message || 'Falha ao registrar. Tente novamente.';
+      this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       this._isLoading = false;
       this._syncButtonState();
       this._showError(this._errorMessage);

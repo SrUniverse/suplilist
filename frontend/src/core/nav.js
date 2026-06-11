@@ -118,6 +118,55 @@ export class Nav {
         Nav.setBadge('checkin', false);
       }
     });
+
+    Nav._setupPwaInstallPrompt();
+  }
+
+  static _setupPwaInstallPrompt() {
+    window.addEventListener('pwa:install-available', (e) => {
+      const prompt = e.detail.prompt;
+      if (!prompt) return;
+
+      // Add install button to sidebar footer
+      const footer = document.querySelector('.sb-footer');
+      if (footer && !document.getElementById('pwa-install-btn')) {
+        const installBtn = document.createElement('button');
+        installBtn.id = 'pwa-install-btn';
+        installBtn.className = 'sb-theme-btn';
+        installBtn.innerHTML = `
+          <span class="sb-item__icon">📱</span>
+          <span style="font-weight:600; color:var(--color-brand)">Instalar App</span>
+        `;
+        installBtn.addEventListener('click', async () => {
+          prompt.prompt();
+          const result = await prompt.userChoice;
+          if (result.outcome === 'accepted') {
+            installBtn.remove();
+          }
+        });
+        footer.insertBefore(installBtn, footer.firstChild);
+      }
+      
+      // Also add to mobile topbar if we want
+      const topbar = document.getElementById('mobile-topbar');
+      if (topbar && !document.getElementById('mobile-pwa-install-btn')) {
+        const mobileBtn = document.createElement('button');
+        mobileBtn.id = 'mobile-pwa-install-btn';
+        mobileBtn.className = 'mt-icon-btn';
+        mobileBtn.innerHTML = `📱`;
+        mobileBtn.style.color = 'var(--color-brand)';
+        mobileBtn.addEventListener('click', async () => {
+          prompt.prompt();
+          const result = await prompt.userChoice;
+          if (result.outcome === 'accepted') {
+            mobileBtn.remove();
+            if (document.getElementById('pwa-install-btn')) document.getElementById('pwa-install-btn').remove();
+          }
+        });
+        const actions = topbar.querySelector('.mt-actions');
+        if (actions) actions.insertBefore(mobileBtn, actions.firstChild);
+      }
+    });
   }
 
   static updateActive(pathname) {

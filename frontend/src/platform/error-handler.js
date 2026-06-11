@@ -64,7 +64,7 @@ const ERROR_MESSAGE_MAP = {
 
 /**
  * Obter mensagem user-friendly para um erro
- * @param {ApiError | Error} error
+ * @param {ApiError | Error | any} error
  * @returns {string}
  */
 export function getUserFriendlyMessage(error) {
@@ -72,6 +72,28 @@ export function getUserFriendlyMessage(error) {
     const messages = ERROR_MESSAGE_MAP[error.status];
     if (messages && messages[error.error]) {
       return messages[error.error];
+    }
+  }
+
+  // Firebase Auth Error Handling
+  if (error && error.code && error.code.startsWith('auth/')) {
+    switch (error.code) {
+      case 'auth/invalid-credential':
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return 'E-mail ou senha incorretos.';
+      case 'auth/email-already-in-use':
+        return 'Este e-mail já está em uso.';
+      case 'auth/weak-password':
+        return 'A senha é muito fraca. Escolha uma senha mais forte.';
+      case 'auth/invalid-email':
+        return 'Formato de e-mail inválido.';
+      case 'auth/too-many-requests':
+        return 'Muitas tentativas fracassadas. Tente novamente mais tarde.';
+      case 'auth/network-request-failed':
+        return 'Erro de conexão. Verifique sua internet.';
+      default:
+        return 'Ocorreu um erro na autenticação. Tente novamente.';
     }
   }
 

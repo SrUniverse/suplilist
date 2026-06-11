@@ -199,6 +199,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   errorTracker.init();
   // perfMonitor auto-inits on module load; explicit init is a no-op if already running
 
+  // Capturar erros assíncronos que escapam do try-catch (promises/rede)
+  window.addEventListener('unhandledrejection', (event) => {
+    // Ignorar erros abortados pelo usuário ou de rede normais
+    if (event.reason?.name === 'AbortError') return;
+    logger.error('[App] Unhandled Promise Rejection:', event.reason);
+    
+    // Se for erro da aplicação, mostrar no ErrorBoundary
+    if (event.reason instanceof Error) {
+      errorBoundary.captureError(event.reason, 'UnhandledRejection');
+    }
+  });
+
   // Inicializar IndexedDB (não bloqueia, mas prepara para uso)
   StorageManager.init().catch(e => {
     logger.warn('[App] IndexedDB init falhou, usando fallback:', e);

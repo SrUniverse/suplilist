@@ -177,11 +177,7 @@ export default class LoginPage {
     } catch (err) {
       if (!this._isMounted) return;
 
-      if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-        this._errorMessage = 'E-mail ou senha incorretos.';
-      } else {
-        this._errorMessage = errorHandler.getUserFriendlyMessage(err);
-      }
+      this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       
       this._isLoading = false;
       this._syncButtonState();

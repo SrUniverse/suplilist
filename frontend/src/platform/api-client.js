@@ -114,6 +114,11 @@ export async function apiFetch(path, options = {}) {
     });
   } catch (networkError) {
     logger.error('[ApiClient] Network error on', path, networkError);
+    eventBus.emit(EVENTS.ERROR_CRITICAL, {
+      code: 0,
+      message: 'Falha na conexão. Verifique sua internet e tente novamente.',
+      timestamp: Date.now()
+    });
     throw new ApiError(0, 'network_error', networkError.message);
   }
 
@@ -150,12 +155,23 @@ export async function apiFetch(path, options = {}) {
 
   // ── HTTP error response ────────────────────────────────────────────────────
   if (!response.ok || envelope?.success === false) {
-    throw new ApiError(
+    const apiError = new ApiError(
       response.status,
       envelope?.error ?? 'unknown_error',
       envelope?.message ?? `HTTP ${response.status}`,
       envelope?.data
     );
+
+    if (response.status >= 500) {
+      eventBus.emit(EVENTS.ERROR_CRITICAL, {
+        code: response.status,
+        message: apiError.message,
+        traceId: envelope?.traceId || null,
+        timestamp: Date.now()
+      });
+    }
+
+    throw apiError;
   }
 
   // Unwrap envelope — callers receive data, not the wrapper

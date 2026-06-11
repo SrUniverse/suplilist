@@ -84,10 +84,14 @@ Thumbs.db
 *.sublime-*
 
 # Variáveis de ambiente (Segurança)
-# Ignora todos os arquivos .env, exceto os de exemplo.
+# Ignora todos os arquivos .env, exceto os de exemplo e o de produção.
+# NOTA: .env.production contém apenas chaves Firebase públicas (web SDK).
+# Chaves Firebase client-side são intencionalmente públicas — segurança
+# é feita via Firebase Security Rules, não por ocultar a config.
 .env*
 !.env.example
 !.env.template
+!frontend/.env.production
 
 # Claude Code (configs locais de sessão)
 .claude/

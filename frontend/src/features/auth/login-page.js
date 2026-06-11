@@ -45,79 +45,101 @@ export default class LoginPage {
   }
 
   _render() {
-    const errorHtml = `<div class="onboarding-error" data-testid="login-error" role="alert"${this._errorMessage ? '' : ' hidden'}>${this._errorMessage ? escapeHtml(this._errorMessage) : ''}</div>`;
+    const errorHtml = `<div class="onboarding-error" data-testid="login-error" role="alert" style="margin-bottom: 1.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.9rem;"${this._errorMessage ? '' : ' hidden'}>${this._errorMessage ? escapeHtml(this._errorMessage) : ''}</div>`;
 
     this.container.innerHTML = `
-      <div class="onboarding-wrap">
-        <div class="onboarding-card">
-          <h1 class="onboarding-title">Entrar no SupliList</h1>
-          <p class="onboarding-subtitle">Continue de onde parou.</p>
+      <div class="onboarding-wrap" style="background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.1), transparent 40%), var(--color-bg-primary);">
+        <div class="onboarding-card" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid var(--color-border); padding: 2.5rem 2rem; position: relative; overflow: hidden;">
+          
+          <!-- Decorative element -->
+          <div style="position: absolute; top: -50px; left: -50px; width: 100px; height: 100px; background: var(--color-brand); opacity: 0.2; filter: blur(40px); border-radius: 50%;"></div>
+
+          <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: rgba(139, 92, 246, 0.1); border-radius: 12px; margin-bottom: 1rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                <polyline points="10 17 15 12 10 7"/>
+                <line x1="15" y1="12" x2="3" y2="12"/>
+              </svg>
+            </div>
+            <h1 class="onboarding-title" style="font-size: 1.75rem; letter-spacing: -0.02em;">Bem-vindo de volta</h1>
+            <p class="onboarding-subtitle" style="margin-bottom: 0;">Acesse seu stack e continue evoluindo.</p>
+          </div>
+
           ${errorHtml}
           
           <div id="login-step-credentials">
-            <div id="google-btn-wrapper" style="margin-bottom: 1.5rem; display: flex; justify-content: center;"></div>
+            <!-- Google Button Wrapper -->
+            <div id="google-btn-wrapper" style="display: flex; justify-content: center; margin-bottom: 1.5rem; min-height: 40px; transition: transform 0.2s;"></div>
             
-            <div style="display: flex; align-items: center; text-align: center; color: #a1a1aa; margin-bottom: 1.5rem; font-size: 0.85rem;">
-              <hr style="flex: 1; border: none; border-top: 1px solid #3f3f46;">
-              <span style="padding: 0 10px;">ou com e-mail</span>
-              <hr style="flex: 1; border: none; border-top: 1px solid #3f3f46;">
+            <div style="display: flex; align-items: center; text-align: center; color: var(--color-text-muted); margin-bottom: 1.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+              <hr style="flex: 1; border: none; border-top: 1px solid var(--color-border);">
+              <span style="padding: 0 12px;">ou use seu e-mail</span>
+              <hr style="flex: 1; border: none; border-top: 1px solid var(--color-border);">
             </div>
 
             <form class="login-form" novalidate>
-              <input
-                id="login-email"
-                data-testid="login-email"
-                class="onboarding-input"
-                type="email"
-                name="email"
-                placeholder="E-mail"
-                autocomplete="email"
-                aria-label="E-mail"
-              />
-              <input
-                id="login-password"
-                data-testid="login-password"
-                class="onboarding-input"
-                type="password"
-                name="password"
-                placeholder="Senha"
-                autocomplete="current-password"
-                aria-label="Senha"
-                style="margin-top:0.75rem"
-              />
-              <div class="onboarding-actions" style="margin-top:1.75rem">
+              <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                  <label for="login-email" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 0.5rem;">E-mail</label>
+                  <input
+                    id="login-email"
+                    data-testid="login-email"
+                    class="onboarding-input"
+                    type="email"
+                    name="email"
+                    placeholder="voce@exemplo.com"
+                    autocomplete="email"
+                    style="padding: 0.875rem 1rem;"
+                  />
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label for="login-password" style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Senha</label>
+                    <button id="login-forgot-password" type="button" style="background: none; border: none; color: var(--color-brand); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Esqueceu?</button>
+                  </div>
+                  <input
+                    id="login-password"
+                    data-testid="login-password"
+                    class="onboarding-input"
+                    type="password"
+                    name="password"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                    style="padding: 0.875rem 1rem;"
+                  />
+                </div>
+              </div>
+
+              <div class="onboarding-actions" style="margin-top: 2rem;">
                 <button
                   id="login-submit"
                   data-testid="login-submit"
                   type="submit"
                   class="onboarding-btn-next"
+                  style="width: 100%; padding: 0.875rem; font-weight: 700; letter-spacing: 0.02em; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);"
                   ${this._isLoading ? 'disabled' : ''}
                 >
-                  ${this._isLoading ? 'Entrando...' : 'Entrar'}
+                  ${this._isLoading ? '<span class="spinner" style="display:inline-block; width:1rem; height:1rem; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 1s linear infinite; vertical-align:middle; margin-right:8px;"></span> Entrando...' : 'Entrar na Conta'}
                 </button>
               </div>
             </form>
-            
-            <div style="text-align: center; margin-top: 1rem;">
-              <button
-                id="login-forgot-password"
-                class="onboarding-btn-link"
-                type="button"
-                style="font-size: 0.85rem;"
-              >Esqueceu a senha?</button>
-            </div>
 
-            <p class="onboarding-switch" style="text-align:center;margin-top:1.25rem;font-size:0.9rem">
-              Novo por aqui?
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+              Ainda não tem uma conta? 
               <button
                 id="login-create-account"
-                class="onboarding-btn-link"
                 type="button"
-              >Criar conta</button>
-            </p>
+                style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 0 4px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
+              >Cadastre-se</button>
+            </div>
           </div>
         </div>
-      </div>`;
+      </div>
+      <style>
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #google-btn-wrapper:hover { transform: translateY(-1px); }
+      </style>`;
 
     this._attachListeners();
   }
@@ -255,6 +277,12 @@ export default class LoginPage {
       }
 
       this._errorMessage = errorHandler.getUserFriendlyMessage(err);
+      
+      // Override misleading generic message for Google Sign In
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/configuration-not-found') {
+        this._errorMessage = 'Erro ao conectar com Google. Verifique a configuração no Firebase.';
+      }
+
       this._isLoading = false;
       this._syncButtonState();
       this._showError(this._errorMessage);

@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { requireAuth } from '../../shared/middleware/auth.middleware.js';
-import { UserIdentityModel } from '../identity/infrastructure/mongoose/user-identity.model.js';
+import { requireAuth } from '../../../../shared/middleware/auth.middleware.js';
+import { UserIdentityModel } from '../../infrastructure/mongoose/user-identity.model.js';
 
 const router = Router();
 

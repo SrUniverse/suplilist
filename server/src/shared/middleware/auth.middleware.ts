@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import admin from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { UserIdentityModel } from '../../modules/identity/infrastructure/mongoose/user-identity.model.js';
 import { logSecurityEvent } from '../infrastructure/logging/security-event-logger.js';
 import { UserRole } from '../../modules/identity/domain/user-identity.entity.js';
@@ -43,7 +43,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     try {
-      const decoded = await admin.auth().verifyIdToken(token);
+      const decoded = await getAuth().verifyIdToken(token);
       req.firebaseUser = {
         uid: decoded.uid,
         email: decoded.email,
@@ -89,7 +89,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     }
 
     try {
-      const decoded = await admin.auth().verifyIdToken(token);
+      const decoded = await getAuth().verifyIdToken(token);
       req.firebaseUser = {
         uid: decoded.uid,
         email: decoded.email,

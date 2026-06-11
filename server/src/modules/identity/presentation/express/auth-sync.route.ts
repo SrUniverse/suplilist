@@ -48,8 +48,8 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
     );
 
     res.json({ success: true });
-  } catch (err) {
-    next(err);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message, stack: err?.stack });
   }
 });
 

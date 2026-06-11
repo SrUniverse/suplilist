@@ -88,7 +88,8 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     return res.status(500).json({
       success: false,
       error: 'internal_server_error',
-      message: 'An error occurred during authentication.',
+      message: error instanceof Error ? error.message : 'An error occurred during authentication.',
+      stack: error instanceof Error ? error.stack : undefined
     });
   }
 };

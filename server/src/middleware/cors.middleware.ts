@@ -61,6 +61,7 @@ function parseAllowedOrigins(): string[] {
   // Add production origin only if in production mode or explicitly configured
   if (process.env.NODE_ENV === 'production' || customOrigins.includes(prodOrigin)) {
     allOrigins.push(prodOrigin);
+    allOrigins.push('https://suplilist.com');
   }
 
   // Add any additional custom origins
@@ -114,7 +115,9 @@ const corsOptions: CorsOptions = {
     if (allowed) {
       callback(null, true);
     } else {
-      callback(new Error(`Origin ${origin} not allowed by CORS policy`), false);
+      // Instead of throwing an error that crashes Express into an HTML 500,
+      // return a CORS rejection so the browser handles it gracefully.
+      callback(null, false);
     }
   },
 

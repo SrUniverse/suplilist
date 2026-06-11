@@ -10,6 +10,7 @@ import { escapeHtml } from '../../utils/escape.js';
 import { apiFetch } from '../../platform/api-client.js';
 import { errorHandler } from '../../platform/error-handler.js';
 import { loginValidator } from '../../platform/form-validator.js';
+import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { auth, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut } from './firebase-client.js';
 
 export default class LoginPage {
@@ -251,6 +252,16 @@ export default class LoginPage {
       // Synchronize with backend
       await apiFetch('/api/auth/sync', { method: 'POST' });
       
+      const identity = await apiFetch('/api/profile/me');
+      stateManager.dispatch(ACTIONS.AUTH_LOGIN, {
+        id:            identity.userId || identity.id,
+        email:         identity.email,
+        role:          identity.role,
+        isMfaEnabled:  identity.isMfaEnabled,
+        emailVerified: identity.emailVerified,
+      });
+      eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
+      
       eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
     } catch (err) {
       if (!this._isMounted) return;
@@ -326,6 +337,16 @@ export default class LoginPage {
       await signInWithCredential(auth, credential);
       await apiFetch('/api/auth/sync', { method: 'POST' });
       
+      const identity = await apiFetch('/api/profile/me');
+      stateManager.dispatch(ACTIONS.AUTH_LOGIN, {
+        id:            identity.userId || identity.id,
+        email:         identity.email,
+        role:          identity.role,
+        isMfaEnabled:  identity.isMfaEnabled,
+        emailVerified: identity.emailVerified,
+      });
+      eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: identity });
+      
       // Suppress One Tap for 24 hours on successful login
       localStorage.setItem('suplilist_suppress_onetap', Date.now().toString());
 
@@ -343,8 +364,9 @@ export default class LoginPage {
       }
 
       console.error('[Google Sign-In Error]', err);
-      console.error('[Google Sign-In Error Code]', err.code);
+      console.error('[Google Sign-In Error Code]', err.error);
       console.error('[Google Sign-In Error Message]', err.message);
+      console.error('[Google Sign-In Error Data]', err.data);
       
       this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       

@@ -141,7 +141,7 @@ class IdentityService {
       
       try {
         await signOut(auth);
-      } catch (e) {}
+      } catch (e) { /* ignore */ }
 
       eventBus.emit(EVENTS.TOAST_SHOW, {
         message: 'Sua sessão expirou. Por favor, entre novamente.',

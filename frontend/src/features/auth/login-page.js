@@ -37,7 +37,7 @@ export default class LoginPage {
     for (const [element, { type, handler }] of this._listeners.entries()) {
       try {
         element.removeEventListener(type, handler);
-      } catch (e) {}
+      } catch (e) { /* ignore */ }
     }
     this._listeners.clear();
     this._isLoading = false;

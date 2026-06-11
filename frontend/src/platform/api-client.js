@@ -195,7 +195,7 @@ async function _request(path, options = {}) {
     try {
       const token = await auth.currentUser.getIdToken();
       headers['Authorization'] = `Bearer ${token}`;
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   }
   
   if (options.body) headers['Content-Type'] = 'application/json';

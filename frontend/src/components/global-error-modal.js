@@ -61,7 +61,7 @@ export class GlobalErrorModal {
     for (const [element, { type, handler }] of this._listeners.entries()) {
       try {
         element.removeEventListener(type, handler);
-      } catch (e) {
+      } catch (_e) {
         // Ignore
       }
     }

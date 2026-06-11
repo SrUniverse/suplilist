@@ -10,7 +10,7 @@ import { escapeHtml } from '../../utils/escape.js';
 import { apiFetch } from '../../platform/api-client.js';
 import { errorHandler } from '../../platform/error-handler.js';
 import { loginValidator } from '../../platform/form-validator.js';
-import { auth, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider } from './firebase-client.js';
+import { auth, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut } from './firebase-client.js';
 
 export default class LoginPage {
   constructor(container) {
@@ -39,7 +39,7 @@ export default class LoginPage {
     for (const [element, { type, handler }] of this._listeners.entries()) {
       try {
         element.removeEventListener(type, handler);
-      } catch (e) { /* ignore */ }
+      } catch (_e) { /* ignore */ }
     }
     this._listeners.clear();
 
@@ -50,7 +50,7 @@ export default class LoginPage {
     this._timers.clear();
 
     for (const unsub of this._eventListeners) {
-      try { unsub(); } catch (e) { /* ignore */ }
+      try { unsub(); } catch (_e) { /* ignore */ }
     }
     this._eventListeners.clear();
 

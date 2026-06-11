@@ -67,7 +67,7 @@ describe('LoginPage - Accessibility', () => {
     expect(document.activeElement).toBe(emailInput);
 
     // Simulate Tab key
-    const event = new KeyboardEvent('keydown', { key: 'Tab' });
+    const _event = new KeyboardEvent('keydown', { key: 'Tab' });
     passwordInput.addEventListener('focus', () => {
       expect(document.activeElement).toBe(passwordInput);
     });

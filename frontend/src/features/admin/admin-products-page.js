@@ -1,10 +1,6 @@
 import { apiFetch } from '../../platform/api-client.js';
 import { escapeHtml } from '../../utils/escape.js';
 
-const STATUS_BADGE = {
-  active:   { label: 'Ativo',    cls: 'badge--active' },
-  inactive: { label: 'Inativo',  cls: 'badge--inactive' },
-};
 
 export default class AdminProductsPage {
   constructor(container) {

@@ -35,8 +35,8 @@ describe('LoginPage', () => {
     it('should clear all timers on unmount', () => {
       loginPage.mount();
       // Register some timers
-      const timer1 = loginPage._registerTimer(setTimeout(() => {}, 5000));
-      const timer2 = loginPage._registerTimer(setInterval(() => {}, 1000));
+      loginPage._registerTimer(setTimeout(() => {}, 5000));
+      loginPage._registerTimer(setInterval(() => {}, 1000));
 
       expect(loginPage._timers.size).toBe(2);
 
@@ -108,8 +108,8 @@ describe('LoginPage', () => {
       loginPage.mount();
 
       // Add some resources
-      const timer1 = loginPage._registerTimer(setTimeout(() => {}, 5000));
-      const timer2 = loginPage._registerTimer(setInterval(() => {}, 1000));
+      loginPage._registerTimer(setTimeout(() => {}, 5000));
+      loginPage._registerTimer(setInterval(() => {}, 1000));
       const unsub = eventBus.on('test:event', () => {});
       loginPage._registerEventListener(unsub);
 

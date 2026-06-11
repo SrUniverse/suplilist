@@ -12,7 +12,7 @@
  * @module features/auth/phone-login-page
  */
 
-import { auth, signInWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider, signInWithCredential, signOut } from './firebase-client.js';
+import { auth, signInWithPhoneNumber, RecaptchaVerifier, signOut } from './firebase-client.js';
 import { apiFetch } from '../../platform/api-client.js';
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
@@ -44,7 +44,7 @@ export default class PhoneLoginPage {
     this._confirmationResult = null;
     // Limpar reCAPTCHA
     if (this._recaptchaVerifier) {
-      try { this._recaptchaVerifier.clear(); } catch (_) {}
+      try { this._recaptchaVerifier.clear(); } catch (_) { /* ignore */ }
       this._recaptchaVerifier = null;
     }
     this.container.innerHTML = '';
@@ -214,7 +214,7 @@ export default class PhoneLoginPage {
 
       // Resetar reCAPTCHA em caso de erro
       if (this._recaptchaVerifier) {
-        try { this._recaptchaVerifier.clear(); } catch (_) {}
+        try { this._recaptchaVerifier.clear(); } catch (_) { /* ignore */ }
         this._recaptchaVerifier = null;
       }
 

@@ -133,7 +133,7 @@ class IdentityService {
     // Apagar estado persistido (IndexedDB/localStorage) para não vazar dados entre sessões
     try {
       StorageManager.removeItem(STORAGE_KEY);
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
 
     eventBus.emit(EVENTS.AUTH_LOGOUT, null);
     eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: ROUTE.ONBOARDING });

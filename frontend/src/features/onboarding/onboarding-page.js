@@ -8,6 +8,18 @@ import { computeDailyDose, formatDose } from '../stack/stack-dose.js';
 /** Tamanho do stack curado sugerido no onboarding. */
 const ONBOARDING_STACK_SIZE = 6;
 
+/**
+ * Dispara um evento de funil no Plausible (custom events).
+ * O stub `window.plausible` é definido no index.html; seguro chamar sempre.
+ * @param {string} name
+ * @param {Object} [props]
+ */
+function trackFunnel(name, props) {
+  try {
+    window.plausible?.(name, props ? { props } : undefined);
+  } catch { /* analytics nunca pode quebrar o fluxo */ }
+}
+
 const GOALS = [
   { key: 'bulk',       emoji: '💪', label: 'Hipertrofia' },
   { key: 'strength',   emoji: '⚡', label: 'Força' },
@@ -33,6 +45,7 @@ export default class OnboardingPage {
       window.history.replaceState(null, null, '/onboarding');
     };
     window.addEventListener('popstate', this._popstateHandler);
+    trackFunnel('onboarding_start');
     this._render();
   }
 
@@ -188,6 +201,10 @@ export default class OnboardingPage {
         limit: ONBOARDING_STACK_SIZE,
       });
       this.data.selectedIds = new Set(this._suggestions.map(s => s.id));
+      trackFunnel('onboarding_stack_generated', {
+        objective: this.data.goal,
+        count: this._suggestions.length,
+      });
     }
 
     const profile = this._dosageProfile();
@@ -237,6 +254,7 @@ export default class OnboardingPage {
       this.container.querySelectorAll('[data-goal]').forEach(c => {
         c.classList.toggle('selected', c.dataset.goal === this.data.goal);
       });
+      trackFunnel('onboarding_objective', { objective: this.data.goal });
       const btn = this.container.querySelector('.onboarding-btn-next');
       if (btn) btn.disabled = !this._isStep2Valid();
       return;
@@ -278,6 +296,7 @@ export default class OnboardingPage {
     }
 
     if (e.target.closest('[data-action="skip-register"]')) {
+      trackFunnel('onboarding_skip_account', { stackSize: this.data.selectedIds.size });
       this._finalize();
       return;
     }
@@ -379,6 +398,7 @@ export default class OnboardingPage {
 
     try {
       await identityService.register(email, password);
+      trackFunnel('onboarding_signup', { stackSize: this.data.selectedIds.size });
       this._finalize();
       eventBus.emit('toast:show', {
         message: 'Conta criada! Verifique seu e-mail para ativar o acesso.',

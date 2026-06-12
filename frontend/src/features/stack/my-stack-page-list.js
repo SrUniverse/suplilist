@@ -7,7 +7,7 @@ import { renderEvidenceBadge } from '../../utils/evidence.js';
 import { getSupplementId } from '../../utils/stack.js';
 import { compareWithRecommended, getStatusColor } from '../calculator/dosage-optimizer.js';
 import { getSupplementImage, getEvidenceLevel, calcDaysLeft } from './my-stack-page-utils.js';
-import { resolveItemDose } from './stack-dose.js';
+import { resolveItemDose, formatDoseShort } from './stack-dose.js';
 
 export class MyStackPageList {
   constructor(container, callbacks) {
@@ -30,7 +30,7 @@ export class MyStackPageList {
       const ev = getEvidenceLevel(item);
       const daysLeft = calcDaysLeft(item);
       const dose = resolveItemDose(item);
-      const doseText = Number.isFinite(dose.daily) && dose.daily > 0 ? `${dose.daily} ${dose.unit}` : '—';
+      const doseText = formatDoseShort(dose);
       const comp = compareWithRecommended(item);
       const statusColor = comp && comp.status ? getStatusColor(comp.status) : '#666';
 

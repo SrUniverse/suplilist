@@ -79,11 +79,42 @@ export function dailyDoseInGrams(daily, unit) {
 }
 
 /**
- * Formata uma dose diária para exibição ("5 g/dia", "—" se indisponível).
+ * Normaliza dose+unidade para a unidade mais legível
+ * (1000mg → 1g, 1000mcg → 1mg) e arredonda.
+ * @param {number} daily
+ * @param {string} unit
+ * @returns {{ value: number, unit: string }}
+ */
+export function normalizeDose(daily, unit) {
+  let v = daily;
+  let u = (unit || 'g').toLowerCase();
+  if (u === 'mg' && v >= 1000) { v = v / 1000; u = 'g'; }
+  else if (u === 'mcg' && v >= 1000) { v = v / 1000; u = 'mg'; }
+  const rounded = v >= 100 ? Math.round(v) : Math.round(v * 10) / 10;
+  // Preserva 'UI' (e outras unidades não-mássicas) em maiúsculas como no banco
+  const displayUnit = u === 'ui' ? 'UI' : u;
+  return { value: rounded, unit: displayUnit };
+}
+
+/**
+ * Formata uma dose diária para exibição com sufixo "/dia"
+ * ("5 g/dia", "—" se indisponível).
  * @param {{ daily: number|null, unit: string }} dose
  * @returns {string}
  */
 export function formatDose(dose) {
   if (!dose || !Number.isFinite(dose.daily) || dose.daily <= 0) return '—';
-  return `${dose.daily}${dose.unit}/dia`;
+  const n = normalizeDose(dose.daily, dose.unit);
+  return `${n.value}${n.unit}/dia`;
+}
+
+/**
+ * Formata uma dose para exibição curta ("5 g", "—" se indisponível).
+ * @param {{ daily: number|null, unit: string }} dose
+ * @returns {string}
+ */
+export function formatDoseShort(dose) {
+  if (!dose || !Number.isFinite(dose.daily) || dose.daily <= 0) return '—';
+  const n = normalizeDose(dose.daily, dose.unit);
+  return `${n.value} ${n.unit}`;
 }

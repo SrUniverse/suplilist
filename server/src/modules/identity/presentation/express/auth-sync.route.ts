@@ -1,11 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { requireAuth } from '../../../../shared/middleware/auth.middleware.js';
 import { UserIdentityModel } from '../../infrastructure/mongoose/user-identity.model.js';
 import { ProfileModel } from '../../../profile/infrastructure/mongoose/profile.model.js';
 
 import { RedisStore } from 'rate-limit-redis';
-import { getRedisClient } from '../../../../shared/config/redis.config.js';
+import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
 
 const router = Router();
 
@@ -14,10 +14,22 @@ const syncLimiter = rateLimit({
   max: 20, // limit each IP to 20 requests per windowMs
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Redis indisponível não pode derrubar o auth — degrada para "sem limite".
+  // Sem isto, um erro do store propaga e quebra todo login/signup no Vercel.
+  passOnStoreError: true,
   store: new RedisStore({
+    prefix: 'rl:auth-sync:',
     // @ts-expect-error - Known issue with express-rate-limit and ioredis types mismatch
-    sendCommand: (...args: string[]) => getRedisClient().call(...args),
+    sendCommand: (...args: string[]) => redisClient.call(args[0], ...args.slice(1)),
   }),
+  keyGenerator: (req: Request) => {
+    const raw =
+      (req.headers['cf-connecting-ip'] as string) ||
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      req.ip ||
+      'unknown-ip';
+    return ipKeyGenerator(raw);
+  },
   message: { success: false, error: 'Too many requests, please try again later.' }
 });
 

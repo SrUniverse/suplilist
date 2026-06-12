@@ -163,20 +163,23 @@ export default class RegisterPage {
       // 3. Sincronizar com o backend (cria registro no MongoDB)
       const syncData = await apiFetch('/api/auth/sync', { method: 'POST' });
 
-      // 4. Popular stateManager (usuário está logado mas email não verificado)
+      // 4. Popular stateManager — usuário autenticado (e-mail ainda não verificado).
+      //    A verificação ocorre pelo link enviado por sendEmailVerification acima;
+      //    não bloqueia o acesso ao app (ver auth-guard.js).
       stateManager.dispatch(ACTIONS.AUTH_LOGIN, {
         id:            syncData.userId,
         email:         syncData.email,
         role:          syncData.role,
         isMfaEnabled:  false,
-        emailVerified: false, // Forçar false — precisa verificar o email
+        emailVerified: syncData.emailVerified,
       });
       eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: syncData });
 
       if (!this._isMounted) return;
 
-      // 5. Redirecionar para tela de verificação de email
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-otp' });
+      // 5. Entrar no app. O e-mail de verificação do Firebase já foi enviado;
+      //    um lembrete pode ser exibido no app sem trancar o usuário fora.
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
 
     } catch (err) {
       if (!this._isMounted) return;

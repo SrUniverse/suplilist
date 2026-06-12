@@ -6,6 +6,7 @@ import { stateManager } from '../../state/state-manager.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { offsetISO } from '../../utils/date.js';
 import { getSupplementId } from '../../utils/stack.js';
+import { resolveItemDose, dailyDoseInGrams } from './stack-dose.js';
 
 let PRICES_DB = null;
 
@@ -37,13 +38,11 @@ export function calcMonthlyInvestment(stack) {
   return stack.reduce((acc, item) => {
     const dbEntry = SUPPLEMENTS_DB.find(s => s.id === getSupplementId(item));
     const ppg = dbEntry?.pricePerGram ?? 0;
-    const dosage = parseFloat(item.dosage) || 0;
-    const unit = (item.unit || 'g').toLowerCase();
-    let dosageInGrams;
-    if (unit === 'g')         dosageInGrams = dosage;
-    else if (unit === 'mg')   dosageInGrams = dosage / 1000;
-    else if (unit === 'mcg')  dosageInGrams = dosage / 1_000_000;
-    else return acc;
+    // Resolve a dose mesmo quando o item foi salvo sem valor numérico
+    // (recomputa via DosageCalculator) — evita custo R$0,00 por dose undefined.
+    const { daily, unit } = resolveItemDose(item);
+    const dosageInGrams = dailyDoseInGrams(daily, unit);
+    if (dosageInGrams === null) return acc; // unidade não-mássica (ex.: UI)
     return acc + dosageInGrams * ppg * 30;
   }, 0);
 }

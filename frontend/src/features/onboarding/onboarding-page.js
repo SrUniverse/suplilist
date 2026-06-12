@@ -3,6 +3,10 @@ import recommender from '../stack/stack-recommender.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { identityService } from '../../platform/identity-service.js';
+import { computeDailyDose, formatDose } from '../stack/stack-dose.js';
+
+/** Tamanho do stack curado sugerido no onboarding. */
+const ONBOARDING_STACK_SIZE = 6;
 
 const GOALS = [
   { key: 'bulk',       emoji: '💪', label: 'Hipertrofia' },
@@ -16,7 +20,7 @@ export default class OnboardingPage {
   constructor(container) {
     this.container = container;
     this.step = 1;
-    this.data = { name: '', goal: null, selectedIds: new Set() };
+    this.data = { name: '', goal: null, weight: null, trainingFrequency: 3, selectedIds: new Set() };
     this._suggestions = [];
     this._clickHandler = null;
     this._popstateHandler = null;
@@ -105,38 +109,98 @@ export default class OnboardingPage {
         <span class="onboarding-goal-card__label">${g.label}</span>
       </button>`).join('');
 
+    const freqOptions = [
+      { v: 2, label: '1-2x' },
+      { v: 4, label: '3-4x' },
+      { v: 6, label: '5-6x' },
+    ];
+    const freqHtml = freqOptions.map(o => `
+      <button
+        class="onboarding-goal-card onboarding-freq-card${this.data.trainingFrequency === o.v ? ' selected' : ''}"
+        data-freq="${o.v}"
+        data-testid="onboarding-freq-${o.v}"
+        style="padding:0.75rem 0.5rem;"
+      >
+        <span class="onboarding-goal-card__label">${o.label}</span>
+      </button>`).join('');
+
     this.container.innerHTML = `
       <div class="onboarding-wrap">
         <div class="onboarding-card">
           <p class="onboarding-progress">2 / 4</p>
           <h1 class="onboarding-title">Qual é seu principal objetivo?</h1>
-          <p class="onboarding-subtitle">Vamos personalizar seu stack baseado nisso.</p>
+          <p class="onboarding-subtitle">Vamos calcular doses personalizadas pra você.</p>
           <div class="onboarding-goal-grid">${goalsHtml}</div>
-          <div class="onboarding-actions">
+
+          <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--color-text-secondary);margin:1.5rem 0 0.5rem;">Seu peso (kg)</label>
+          <input
+            class="onboarding-input onboarding-weight-input"
+            data-testid="onboarding-input-weight"
+            type="number" inputmode="numeric" min="30" max="250"
+            placeholder="Ex.: 75"
+            value="${this.data.weight ?? ''}"
+          />
+
+          <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--color-text-secondary);margin:1.25rem 0 0.5rem;">Treinos por semana</label>
+          <div class="onboarding-goal-grid" style="grid-template-columns:repeat(3,1fr);">${freqHtml}</div>
+
+          <div class="onboarding-actions" style="margin-top:1.75rem;">
             <button class="onboarding-btn-back" data-testid="onboarding-btn-back-2">← Voltar</button>
-            <button class="onboarding-btn-next" data-testid="onboarding-btn-next-2" ${this.data.goal ? '' : 'disabled'}>
+            <button class="onboarding-btn-next" data-testid="onboarding-btn-next-2" ${this._isStep2Valid() ? '' : 'disabled'}>
               Continuar →
             </button>
           </div>
         </div>
       </div>`;
+
+    const weightInput = this.container.querySelector('.onboarding-weight-input');
+    if (weightInput) {
+      weightInput.addEventListener('input', () => {
+        const v = parseFloat(weightInput.value);
+        this.data.weight = Number.isFinite(v) && v > 0 ? v : null;
+        // Mudar o peso invalida o stack já calculado.
+        this._suggestions = [];
+        const btn = this.container.querySelector('.onboarding-btn-next');
+        if (btn) btn.disabled = !this._isStep2Valid();
+      });
+    }
+  }
+
+  _isStep2Valid() {
+    return !!this.data.goal && Number.isFinite(this.data.weight) && this.data.weight > 0;
+  }
+
+  /** Perfil biométrico coletado, para o motor de dose. */
+  _dosageProfile() {
+    return {
+      weight: this.data.weight || 70,
+      trainingFrequency: this.data.trainingFrequency || 3,
+      objective: this.data.goal || 'general',
+      age: 25,
+    };
   }
 
   _renderStep3() {
     if (!this._suggestions.length) {
-      this._suggestions = recommender.getRecommendations({ objective: this.data.goal, weight: 70 });
+      this._suggestions = recommender.getRecommendations({
+        objective: this.data.goal,
+        weight: this.data.weight || 70,
+        limit: ONBOARDING_STACK_SIZE,
+      });
       this.data.selectedIds = new Set(this._suggestions.map(s => s.id));
     }
 
+    const profile = this._dosageProfile();
     const suppsHtml = this._suggestions.length
       ? this._suggestions.map(s => {
           const sel = this.data.selectedIds.has(s.id);
+          const dose = computeDailyDose(s, profile);
           return `
             <div class="onboarding-supp-card${sel ? ' selected' : ''}" data-supp="${escapeHtml(s.id)}" data-testid="onboarding-supp-${escapeHtml(s.id)}">
               <div class="onboarding-supp-card__check">${sel ? '✓' : ''}</div>
               <div class="onboarding-supp-card__info">
                 <div class="onboarding-supp-card__name">${escapeHtml(s.name)}</div>
-                <div class="onboarding-supp-card__meta">${escapeHtml(s.category)} · ${escapeHtml(String(s.dosage.daily))}${escapeHtml(s.dosage.unit)}/dia · Evidência ${escapeHtml(s.evidenceLevel ?? s.priority)}</div>
+                <div class="onboarding-supp-card__meta">${escapeHtml(s.category)} · ${escapeHtml(formatDose(dose))} · Evidência ${escapeHtml(s.evidenceLevel ?? s.priority)}</div>
               </div>
             </div>`;
         }).join('')
@@ -170,11 +234,21 @@ export default class OnboardingPage {
       this.data.goal = goalCard.dataset.goal;
       this._suggestions = [];
       this.data.selectedIds = new Set();
-      this.container.querySelectorAll('.onboarding-goal-card').forEach(c => {
+      this.container.querySelectorAll('[data-goal]').forEach(c => {
         c.classList.toggle('selected', c.dataset.goal === this.data.goal);
       });
       const btn = this.container.querySelector('.onboarding-btn-next');
-      if (btn) btn.disabled = false;
+      if (btn) btn.disabled = !this._isStep2Valid();
+      return;
+    }
+
+    const freqCard = e.target.closest('[data-freq]');
+    if (freqCard) {
+      this.data.trainingFrequency = parseInt(freqCard.dataset.freq, 10);
+      this._suggestions = []; // muda a dose
+      this.container.querySelectorAll('[data-freq]').forEach(c => {
+        c.classList.toggle('selected', parseInt(c.dataset.freq, 10) === this.data.trainingFrequency);
+      });
       return;
     }
 
@@ -328,16 +402,20 @@ export default class OnboardingPage {
     stateManager.dispatch(ACTIONS.SET_USER_PROFILE, {
       name: this.data.name.trim(),
       objective: this.data.goal,
+      ...(Number.isFinite(this.data.weight) && this.data.weight > 0 ? { weight: this.data.weight } : {}),
+      trainingFrequency: this.data.trainingFrequency,
     });
 
+    const profile = this._dosageProfile();
     this._suggestions
       .filter(s => this.data.selectedIds.has(s.id))
       .forEach(s => {
+        const dose = computeDailyDose(s, profile);
         stateManager.dispatch(ACTIONS.ADD_TO_STACK, {
           supplementId: s.id,
           name: s.name,
-          dosage: s.dosage.daily,
-          unit: s.dosage.unit,
+          dosage: dose.daily,
+          unit: dose.unit,
         });
       });
 

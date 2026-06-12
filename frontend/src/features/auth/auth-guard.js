@@ -4,11 +4,21 @@
  */
 
 export const authGuard = {
-  // Rotas que não exigem login
+  // Rotas que não exigem login.
+  // O SupliList é local-first ("100% offline, sem assinatura"): o app inteiro
+  // funciona anonimamente sobre o IndexedDB; a conta apenas adiciona sync na
+  // nuvem. Por isso as features core são públicas — só /profile e /admin (que
+  // dependem de identidade) ficam protegidas.
   publicRoutes: [
     '/login', '/register', '/forgot-password', '/verify-otp', '/reset-password',
     '/', '/home',
-    '/list', '/lista',   // catálogo — acessível sem conta
+    '/list', '/lista',   // catálogo
+    '/my-stack',         // stack local-first
+    '/checkin',          // check-in de adesão (local)
+    '/history',          // histórico (local)
+    '/favorites',        // favoritos (local)
+    '/dosage',           // calculadora de dose (local)
+    '/settings',         // preferências e dados locais (export/reset)
     '/faq', '/legal',    // conteúdo informativo
     '/onboarding',       // fluxo de entrada
     '/phone-login',      // login por SMS

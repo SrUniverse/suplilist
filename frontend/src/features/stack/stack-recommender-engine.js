@@ -5,22 +5,36 @@
 
 import { SUPPLEMENTS_DB } from './stack-recommender.js';
 
+/** Peso por nível de evidência — favorece A/B sobre C no ranking. */
+const EVIDENCE_WEIGHT = { A: 1.0, B: 0.7, C: 0.4 };
+
 /**
- * Get recommended supplements for a user profile
+ * Get recommended supplements for a user profile.
+ *
+ * @param {Object} profile
+ * @param {string} profile.objective
+ * @param {string[]} [profile.restrictions]
+ * @param {number} [profile.budget=300]
+ * @param {number} [profile.limit] - Se informado, retorna apenas os N melhores
+ *   (stack curado). Sem limit, retorna todos os compatíveis (catálogo filtrado).
+ * @returns {Array<Object>} Suplementos ordenados por relevância (alvo × evidência)
  */
 export function getRecommendations(profile) {
-  const { objective, restrictions = [], budget = 300 } = profile;
-  
-  return SUPPLEMENTS_DB.filter(s => {
+  const { objective, restrictions = [], budget = 300, limit } = profile;
+
+  const ranked = SUPPLEMENTS_DB.filter(s => {
     if (restrictions.includes(s.id)) return false;
     if (!s.targets?.[objective]) return false;
     const estimatedCost = s.pricePerGram * 30;
     return estimatedCost <= budget;
   }).sort((a, b) => {
-    const scoreA = a.targets?.[objective] ?? 0;
-    const scoreB = b.targets?.[objective] ?? 0;
+    // Relevância = afinidade com o objetivo ponderada pela força da evidência.
+    const scoreA = (a.targets?.[objective] ?? 0) * (EVIDENCE_WEIGHT[a.evidenceLevel] ?? 0.4);
+    const scoreB = (b.targets?.[objective] ?? 0) * (EVIDENCE_WEIGHT[b.evidenceLevel] ?? 0.4);
     return scoreB - scoreA;
   });
+
+  return (Number.isFinite(limit) && limit > 0) ? ranked.slice(0, limit) : ranked;
 }
 
 /**

@@ -7,6 +7,7 @@ import { renderEvidenceBadge } from '../../utils/evidence.js';
 import { getSupplementId } from '../../utils/stack.js';
 import { compareWithRecommended, getStatusColor } from '../calculator/dosage-optimizer.js';
 import { getSupplementImage, getEvidenceLevel, calcDaysLeft } from './my-stack-page-utils.js';
+import { resolveItemDose } from './stack-dose.js';
 
 export class MyStackPageList {
   constructor(container, callbacks) {
@@ -28,6 +29,8 @@ export class MyStackPageList {
       const img = getSupplementImage(item);
       const ev = getEvidenceLevel(item);
       const daysLeft = calcDaysLeft(item);
+      const dose = resolveItemDose(item);
+      const doseText = Number.isFinite(dose.daily) && dose.daily > 0 ? `${dose.daily} ${dose.unit}` : '—';
       const comp = compareWithRecommended(item);
       const statusColor = comp && comp.status ? getStatusColor(comp.status) : '#666';
 
@@ -36,7 +39,7 @@ export class MyStackPageList {
           <img src="${img}" alt="${escapeHtml(item.name)}" class="msp-item-img" loading="lazy" />
           <div class="msp-item-info">
             <h4 class="msp-item-name">${escapeHtml(item.name)}</h4>
-            <p class="msp-item-dosage">${item.dosage} ${item.unit ?? 'g'} · ${daysLeft ? daysLeft + ' dias' : '—'}</p>
+            <p class="msp-item-dosage">${doseText} · ${daysLeft ? daysLeft + ' dias' : '—'}</p>
             <div class="msp-item-badges">
               ${renderEvidenceBadge(ev)}
               ${comp && comp.status && comp.status !== 'not-recommended' ? `<span style="color:${statusColor};font-size:10px;font-weight:700;">✓</span>` : ''}

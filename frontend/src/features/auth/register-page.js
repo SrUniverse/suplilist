@@ -100,10 +100,8 @@ export default class RegisterPage {
             <button id="register-goto-login" class="onboarding-btn-link" type="button">Entrar</button>
           </div>
 
-          <div style="margin-top:0.75rem;text-align:center;">
-            <p style="font-size:0.85rem;color:var(--color-text-secondary,#888);margin-bottom:0.5rem;">Prefere entrar com o telefone?</p>
-            <button id="register-goto-phone" class="onboarding-btn-link" type="button">Login por SMS</button>
-          </div>
+          <!-- Login por SMS oculto até o reCAPTCHA (phone auth) ser provisionado
+               no Firebase/Google Cloud. Ver [[value-loop-funnel]]. -->
         </div>
       </div>`;
 

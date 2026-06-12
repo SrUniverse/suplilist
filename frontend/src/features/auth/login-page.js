@@ -181,15 +181,8 @@ export default class LoginPage {
               >Cadastre-se</button>
             </div>
 
-            <div style="text-align: center; margin-top: 0.75rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-              Prefere entrar com o telefone?
-              <button
-                id="login-phone"
-                type="button"
-                aria-label="Login por SMS"
-                style="background: none; border: none; color: var(--color-text-primary); font-weight: 700; cursor: pointer; padding: 12px 8px; margin: -12px -8px; text-decoration: underline; text-decoration-color: var(--color-brand); text-underline-offset: 4px;"
-              >Entrar por SMS 📱</button>
-            </div>
+            <!-- Login por SMS oculto até o reCAPTCHA (phone auth) ser provisionado
+                 no Firebase/Google Cloud. Ver [[value-loop-funnel]]. -->
           </div>
 
           <div id="login-step-mfa" style="display: none;">

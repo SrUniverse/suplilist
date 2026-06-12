@@ -365,12 +365,16 @@ export default class HomePage {
           .toFixed(2).replace('.', ',');
         const ev = item.evidenceLevel || 'A';
         const evLower = String(ev).toLowerCase();
+        const img = item.image ? escapeHtml(item.image) : '';
         return `
           <div class="lp-mock-card">
-            <div class="lp-mock-card__ev lp-mock-card__ev--${evLower}">NÍVEL ${escapeHtml(String(ev))}</div>
-            <div class="lp-mock-card__name">${escapeHtml(item.name)}</div>
-            <div class="lp-mock-card__cat">${escapeHtml(item.category || '')}</div>
-            <div class="lp-mock-card__price">R$ ${escapeHtml(monthPrice)}<span class="lp-mock-card__dose"> / mês</span></div>
+            ${img ? `<div class="lp-mock-card__media"><img src="${img}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async" /></div>` : ''}
+            <div class="lp-mock-card__info">
+              <div class="lp-mock-card__ev lp-mock-card__ev--${evLower}">NÍVEL ${escapeHtml(String(ev))}</div>
+              <div class="lp-mock-card__name">${escapeHtml(item.name)}</div>
+              <div class="lp-mock-card__cat">${escapeHtml(item.category || '')}</div>
+              <div class="lp-mock-card__price">R$ ${escapeHtml(monthPrice)}<span class="lp-mock-card__dose"> / mês</span></div>
+            </div>
           </div>`;
       }).join('')}
     </div>`;
@@ -445,9 +449,11 @@ export default class HomePage {
 
       /* ── HERO ── */
       .lp-hero {
-        position: relative; min-height: 100vh;
+        position: relative;
         display: flex; align-items: center; justify-content: center;
-        text-align: center; padding: 100px 24px 80px; overflow: hidden;
+        text-align: center;
+        padding: clamp(72px, 11vh, 120px) 24px clamp(64px, 8vh, 96px);
+        overflow: hidden;
       }
       .lp-hero__bg {
         position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -511,8 +517,8 @@ export default class HomePage {
       .lp-mock-card {
         background: linear-gradient(145deg, var(--color-surface-primary, #13161C), var(--color-surface-secondary, #191D25));
         border: 1px solid var(--color-border, rgba(255,255,255,0.06));
-        border-radius: 16px; padding: 20px 22px;
-        display: flex; flex-direction: column; gap: 6px;
+        border-radius: 18px; padding: 14px;
+        display: flex; align-items: center; gap: 16px;
         position: relative; overflow: hidden;
         transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
         box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset;
@@ -521,6 +527,24 @@ export default class HomePage {
         transform: translateX(-4px) translateY(-2px);
         border-color: rgba(139,92,246,0.22);
         box-shadow: 0 0 0 1px rgba(139,92,246,0.12), 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 16px -4px rgba(139,92,246,0.18);
+      }
+      .lp-mock-card__media {
+        flex-shrink: 0;
+        width: 84px; height: 84px;
+        border-radius: 14px; overflow: hidden;
+        background: radial-gradient(circle at 50% 30%, #1b1f27, #0c0e13);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        position: relative;
+      }
+      .lp-mock-card__media img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+        padding: 6px;
+        transition: transform .4s ease;
+      }
+      .lp-mock-card:hover .lp-mock-card__media img { transform: scale(1.06); }
+      .lp-mock-card__info {
+        display: flex; flex-direction: column; gap: 5px; min-width: 0; flex: 1;
       }
       .lp-mock-card__ev {
         font-size: 10px; font-weight: 700; letter-spacing: .08em;

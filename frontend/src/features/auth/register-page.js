@@ -6,7 +6,7 @@
  *  2. Envia email de verificação
  *  3. Chama /api/auth/sync para salvar no MongoDB
  *  4. Popula stateManager com AUTH_LOGIN
- *  5. Redireciona para /verify-otp (aguarda verificação de email)
+ *  5. Redireciona para /verify-email (verificação por link do Firebase, opcional)
  *
  * @module features/auth/register-page
  */
@@ -177,9 +177,9 @@ export default class RegisterPage {
 
       if (!this._isMounted) return;
 
-      // 5. Entrar no app. O e-mail de verificação do Firebase já foi enviado;
-      //    um lembrete pode ser exibido no app sem trancar o usuário fora.
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
+      // 5. Tela de verificação de e-mail (link do Firebase, opcional — não trava
+      //    o usuário fora; ele pode "Continuar mesmo assim").
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-email' });
 
     } catch (err) {
       if (!this._isMounted) return;

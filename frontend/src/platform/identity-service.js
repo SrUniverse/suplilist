@@ -7,7 +7,7 @@ import { stateManager, ACTIONS, STORAGE_KEY } from '../state/state-manager.js';
 import { eventBus, EVENTS } from '../core/event-bus.js';
 import { logger } from '../utils/logger.js';
 import { migrationService } from './migration-service.js';
-import { auth, signOut, createUserWithEmailAndPassword } from '../features/auth/firebase-client.js';
+import { auth, signOut, createUserWithEmailAndPassword, sendEmailVerification } from '../features/auth/firebase-client.js';
 import { StorageManager } from './storage-manager.js';
 
 const API = Object.freeze({
@@ -86,8 +86,15 @@ class IdentityService {
 
   async register(email, password) {
     // 1. Register with Firebase
-    await createUserWithEmailAndPassword(auth, email, password);
-    // 2. Sync to MongoDB
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // 2. Dispara o e-mail de verificação (link do Firebase). Best-effort:
+    //    uma falha de envio não deve abortar o cadastro (verificação é opcional).
+    if (cred?.user) {
+      await sendEmailVerification(cred.user).catch((e) =>
+        logger.warn('[IdentityService] sendEmailVerification failed', e)
+      );
+    }
+    // 3. Sync to MongoDB
     await apiFetch(API.SYNC, { method: 'POST' });
     
     // We fetch the profile immediately to log the user in locally

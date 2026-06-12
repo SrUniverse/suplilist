@@ -399,9 +399,10 @@ export default class OnboardingPage {
     try {
       await identityService.register(email, password);
       trackFunnel('onboarding_signup', { stackSize: this.data.selectedIds.size });
-      this._finalize();
+      // Salva o stack e leva à verificação de e-mail (link do Firebase, opcional).
+      this._finalize('/verify-email');
       eventBus.emit('toast:show', {
-        message: 'Conta criada! Verifique seu e-mail para ativar o acesso.',
+        message: 'Conta criada! Enviamos um link de verificação para o seu e-mail.',
         type: 'success',
         duration: 6000,
       });
@@ -418,7 +419,7 @@ export default class OnboardingPage {
     }
   }
 
-  _finalize() {
+  _finalize(navigateTo = '/my-stack') {
     stateManager.dispatch(ACTIONS.SET_USER_PROFILE, {
       name: this.data.name.trim(),
       objective: this.data.goal,
@@ -440,6 +441,6 @@ export default class OnboardingPage {
       });
 
     stateManager.dispatch(ACTIONS.COMPLETE_ONBOARDING);
-    eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
+    eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: navigateTo });
   }
 }

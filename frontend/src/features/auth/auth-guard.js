@@ -10,7 +10,7 @@ export const authGuard = {
   // nuvem. Por isso as features core são públicas — só /profile e /admin (que
   // dependem de identidade) ficam protegidas.
   publicRoutes: [
-    '/login', '/register', '/forgot-password', '/verify-otp', '/reset-password',
+    '/login', '/register', '/forgot-password', '/verify-email', '/reset-password',
     '/', '/home',
     '/list', '/lista',   // catálogo
     '/my-stack',         // stack local-first
@@ -48,14 +48,11 @@ export const authGuard = {
       return false;
     }
 
-    // 2. Usuário logado não deve ficar preso nas telas de autenticação → app.
-    //    A verificação de e-mail é feita pelo link de verificação do Firebase
-    //    (enviado no cadastro) e NÃO é um bloqueio rígido. O gate antigo
-    //    redirecionava para uma página de OTP não-funcional (endpoints de
-    //    backend inexistentes, código de 6 dígitos que o Firebase nunca envia),
-    //    trancando todas as contas novas para fora do app — voltando ao /login
-    //    sem qualquer feedback. Removido para que cadastro e login funcionem.
-    if (isAuth && (currentPath === '/login' || currentPath === '/register' || currentPath === '/verify-otp')) {
+    // 2. Usuário logado não deve ficar preso nas telas de login/cadastro → app.
+    //    A verificação de e-mail (/verify-email) é opcional e por LINK do Firebase;
+    //    NÃO entra aqui — o usuário autenticado precisa poder abrir essa tela. A
+    //    própria página redireciona para /my-stack se o e-mail já estiver verificado.
+    if (isAuth && (currentPath === '/login' || currentPath === '/register')) {
       window.history.replaceState(null, null, '/home');
       window.dispatchEvent(new PopStateEvent('popstate'));
       return false;

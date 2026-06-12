@@ -3,6 +3,7 @@ import { stateManager, STORAGE_KEYS, ACTIONS } from '../state/state-manager.js';
 import { eventBus, EVENTS } from './event-bus.js';
 import { Router } from './router.js';
 import { Nav } from './nav.js';
+import { initEmailVerificationBanner } from '../features/auth/email-verification-banner.js';
 import { StorageManager } from '../platform/storage-manager.js';
 import { OfflineHandler } from '../platform/offline-handler.js';
 import { syncQueue } from '../platform/sync-queue.js';
@@ -25,7 +26,7 @@ const routes = [
   { path: '/register',   load: () => import('../features/auth/register-page.js') },
   { path: '/forgot-password', load: () => import('../features/auth/forgot-password-page.js') },
   { path: '/reset-password',  load: () => import('../features/auth/reset-password-page.js') },
-  { path: '/verify-otp',      load: () => import('../features/auth/verify-otp-page.js') },
+  { path: '/verify-email',    load: () => import('../features/auth/verify-email-page.js') },
   { path: '/phone-login',     load: () => import('../features/auth/phone-login-page.js') },
   { path: '/',           load: () => import('../features/home/home-page.js') },
   { path: '/home',       load: () => import('../features/home/home-page.js') },
@@ -239,6 +240,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   Nav.init();
   Nav.updateActive(window.location.pathname);
+
+  // Lembrete global de verificação de e-mail (opcional, não bloqueia o app).
+  initEmailVerificationBanner();
 
   // Landing mode (initial + on every navigation)
   applyLandingMode();

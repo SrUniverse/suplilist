@@ -9,6 +9,7 @@ import { generateTimeline } from '../progress/before-after-tracker.js';
 import { profileService } from './profile-service.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { identityService } from '../../platform/identity-service.js';
+import { PhoneLinkSection } from '../auth/phone-link-section.js';
 
 const OBJECTIVES = [
   { value: 'bulk', label: 'Bulk', desc: 'Ganho de Massa' },
@@ -113,6 +114,7 @@ export default class ProfilePage {
 
   unmount() {
     this._isMounted = false;
+    if (this._phoneLink) { this._phoneLink.unmount(); this._phoneLink = null; }
     // Limpar referência local para evitar flash de cache antigo em re-mount rápido.
     this._userData = null;
     // Desarmar a bomba de memory leak: cancelar a assinatura reativa de rede.
@@ -455,7 +457,16 @@ export default class ProfilePage {
         </div>
         <button id="btn-profile-logout" style="background:transparent;color:var(--color-error);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Sair</button>
       </div>
-    `);
+    `) + cardWrap('Telefone 📱', `<div id="phone-link-container"></div>`);
+  }
+
+  /** (Re)monta a seção de vínculo de telefone no placeholder, se autenticado. */
+  _mountPhoneLinkSection() {
+    if (this._phoneLink) { this._phoneLink.unmount(); this._phoneLink = null; }
+    const host = this.container.querySelector('#phone-link-container');
+    if (!host) return;
+    this._phoneLink = new PhoneLinkSection(host);
+    this._phoneLink.mount();
   }
 
   _render() {
@@ -654,6 +665,9 @@ export default class ProfilePage {
   }
 
   _attachListeners() {
+    // Vínculo de telefone (componente auto-contido) — remontado a cada render.
+    this._mountPhoneLinkSection();
+
     // Inline name edit
     const btnEditName = this.container.querySelector('#btn-edit-name');
     const nameDisplay = this.container.querySelector('#name-display');

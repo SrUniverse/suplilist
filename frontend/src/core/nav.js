@@ -55,7 +55,13 @@ const ICONS = {
     moon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
   },
   plus: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  more: {
+    outlined: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
+  },
 };
+
+/** Itens que não cabem na bottom-nav e vivem no drawer "Mais" (mobile). */
+const DRAWER_ITEM_IDS = ['home', 'dosage', 'profile', 'faq', 'settings'];
 
 // ── NAV_CONFIG ───────────────────────────────────────────────
 export const NAV_CONFIG = [
@@ -279,7 +285,62 @@ export class Nav {
         </button>`;
     }).join('');
 
-    bn.innerHTML = itemsHtml;
+    const moreHtml = `
+      <button class="bn-item" data-nav-action="drawer" aria-label="Mais opções" aria-haspopup="true" aria-expanded="false">
+        <span class="bn-icon" style="width:22px;height:22px">${ICONS.more.outlined}</span>
+        <span class="bn-label">Mais</span>
+      </button>`;
+
+    bn.innerHTML = itemsHtml + moreHtml;
+    Nav._renderDrawer();
+  }
+
+  /** Bottom-sheet drawer (mobile) com as rotas que não cabem na bottom-nav. */
+  static _renderDrawer() {
+    let drawer = document.getElementById('nav-drawer');
+    if (!drawer) {
+      drawer = document.createElement('div');
+      drawer.id = 'nav-drawer';
+      drawer.hidden = true;
+      document.body.appendChild(drawer);
+    }
+
+    const allItems = NAV_CONFIG.flatMap(g => g.items);
+    const itemsHtml = DRAWER_ITEM_IDS.map(id => {
+      const item = allItems.find(i => i.id === id);
+      if (!item) return '';
+      return `
+        <button class="nd-item" data-nav-id="${item.id}" data-nav-path="${item.path}" aria-label="${item.label}">
+          <span class="nd-item__icon">${item.icon.outlined}</span>
+          <span class="nd-item__label">${item.label}</span>
+        </button>`;
+    }).join('');
+
+    drawer.innerHTML = `
+      <div class="nav-drawer__backdrop" data-nav-action="drawer-close"></div>
+      <div class="nav-drawer__sheet" role="dialog" aria-modal="true" aria-label="Mais opções">
+        <div class="nav-drawer__handle"></div>
+        <div class="nav-drawer__grid">${itemsHtml}</div>
+      </div>`;
+  }
+
+  static openDrawer() {
+    const d = document.getElementById('nav-drawer');
+    if (!d) return;
+    d.hidden = false;
+    // Força reflow antes de aplicar a classe para a transição animar de forma
+    // confiável (rAF pode ser throttled em abas em background).
+    void d.offsetWidth;
+    d.classList.add('is-open');
+    document.querySelector('[data-nav-action="drawer"]')?.setAttribute('aria-expanded', 'true');
+  }
+
+  static closeDrawer() {
+    const d = document.getElementById('nav-drawer');
+    if (!d) return;
+    d.classList.remove('is-open');
+    document.querySelector('[data-nav-action="drawer"]')?.setAttribute('aria-expanded', 'false');
+    setTimeout(() => { if (d && !d.classList.contains('is-open')) d.hidden = true; }, 280);
   }
 
   static _renderMobileTopbar() {
@@ -306,11 +367,27 @@ export class Nav {
       Nav._clickHandler = null;
     }
     Nav._clickHandler = (e) => {
+      // Drawer toggle/close (mobile "Mais")
+      const action = e.target.closest('[data-nav-action]');
+      if (action) {
+        e.preventDefault();
+        const kind = action.getAttribute('data-nav-action');
+        if (kind === 'drawer') {
+          const d = document.getElementById('nav-drawer');
+          d && d.classList.contains('is-open') ? Nav.closeDrawer() : Nav.openDrawer();
+        } else if (kind === 'drawer-close') {
+          Nav.closeDrawer();
+        }
+        return;
+      }
+
       const btn = e.target.closest('[data-nav-path]');
       if (!btn) return;
       e.preventDefault();
       const path = btn.getAttribute('data-nav-path');
       if (path) {
+        // Fecha o drawer se a navegação veio de dentro dele.
+        if (btn.closest('#nav-drawer')) Nav.closeDrawer();
         window.history.pushState(null, null, path);
         window.dispatchEvent(new PopStateEvent('popstate'));
       }
@@ -617,6 +694,53 @@ export class Nav {
         color: var(--color-brand, #8B5CF6);
         font-size: 12px; font-weight: 700;
         display: flex; align-items: center; justify-content: center;
+      }
+
+      /* ── MOBILE "MAIS" DRAWER ── */
+      #nav-drawer { position: fixed; inset: 0; z-index: 300; }
+      #nav-drawer[hidden] { display: none; }
+      .nav-drawer__backdrop {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,0.55);
+        opacity: 0; transition: opacity .25s ease;
+      }
+      #nav-drawer.is-open .nav-drawer__backdrop { opacity: 1; }
+      .nav-drawer__sheet {
+        position: absolute; left: 0; right: 0; bottom: 0;
+        background: var(--color-surface-primary, #13161C);
+        border-top: 1px solid var(--color-border, rgba(255,255,255,0.08));
+        border-radius: 22px 22px 0 0;
+        padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
+        box-shadow: 0 -16px 48px -12px rgba(0,0,0,0.75);
+        transform: translateY(100%);
+        transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #nav-drawer.is-open .nav-drawer__sheet { transform: translateY(0); }
+      .nav-drawer__handle {
+        width: 40px; height: 4px; border-radius: 999px;
+        background: var(--color-border-strong, rgba(255,255,255,0.18));
+        margin: 4px auto 16px;
+      }
+      .nav-drawer__grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      }
+      .nd-item {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 8px; padding: 16px 8px;
+        background: var(--color-surface-secondary, #191D25);
+        border: 1px solid var(--color-border, rgba(255,255,255,0.06));
+        border-radius: 16px;
+        color: var(--color-text-secondary, #9A9A9A);
+        cursor: pointer; font-family: inherit;
+        transition: background .15s ease, color .15s ease, transform .15s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .nd-item:active { transform: scale(0.96); }
+      .nd-item:hover { background: var(--color-surface-hover, rgba(255,255,255,0.05)); color: var(--color-text-primary, #F1F5F9); }
+      .nd-item__icon { display: flex; color: var(--color-brand, #8B5CF6); }
+      .nd-item__label { font-size: 12px; font-weight: 600; }
+      @media (prefers-reduced-motion: reduce) {
+        .nav-drawer__sheet, .nav-drawer__backdrop { transition: none; }
       }
     `;
     document.head.appendChild(style);

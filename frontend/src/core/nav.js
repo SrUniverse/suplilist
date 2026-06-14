@@ -244,7 +244,7 @@ export class Nav {
     sidebar.innerHTML = `
       <div class="sb-inner">
         <div class="sb-header">
-          <img src="/banner.svg" alt="SupliList" class="sb-logo-img">
+          <img src="/banner.webp" alt="SupliList" class="sb-logo-img" width="140" height="44">
           <span class="sb-subtitle">${subtitle}</span>
         </div>
         <div class="sb-nav">
@@ -348,7 +348,7 @@ export class Nav {
     if (!mt) return;
     const themeIcon = Nav._getThemeIcon();
     mt.innerHTML = `
-      <img src="/logo.svg" alt="SupliList" class="mt-logo-img">
+      <img src="/logo-mark.webp" alt="SupliList" class="mt-logo-img" width="28" height="28">
       <div class="mt-actions">
         <button id="btn-theme-mobile" class="mt-icon-btn" aria-label="Alternar tema">
           ${themeIcon}

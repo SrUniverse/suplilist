@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colágeno Hook — SupliList</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        background: #0a0e1a;
+        overflow: hidden;
+      }
+
+      #colageno-hook {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .scene {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 80px 60px;
+        text-align: center;
+      }
+
+      #scene1 {
+        background: linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #2d1f4a 100%);
+      }
+
+      #scene1 .hero-text {
+        font-family: 'Poppins', system-ui;
+        font-size: 100px;
+        font-weight: 700;
+        color: #ffffff;
+        line-height: 1.1;
+        margin-bottom: 40px;
+        letter-spacing: -2px;
+      }
+
+      #scene1 .hero-accent {
+        color: #ff6b35;
+        display: inline-block;
+      }
+
+      #scene1 .hero-subtext {
+        font-size: 28px;
+        color: #e0e7ff;
+        font-weight: 400;
+        font-family: 'Inter', system-ui;
+      }
+
+      #scene2 {
+        background: linear-gradient(135deg, #1a1f3a 0%, #0a0e1a 100%);
+      }
+
+      #scene3 {
+        background: linear-gradient(135deg, #0a0e1a 0%, #2d1f4a 50%, #1a1f3a 100%);
+      }
+
+      #scene4 {
+        background: linear-gradient(135deg, #1a1f3a 0%, #0a0e1a 100%);
+      }
+
+      .benefit-icon {
+        font-size: 80px;
+        margin-bottom: 30px;
+      }
+
+      .benefit-text {
+        font-size: 56px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 20px;
+        font-family: 'Poppins', system-ui;
+      }
+
+      .benefit-desc {
+        font-size: 24px;
+        color: #e0e7ff;
+        font-family: 'Inter', system-ui;
+      }
+
+      #scene5 {
+        background: linear-gradient(135deg, #2d1f4a 0%, #1a1f3a 50%, #0a0e1a 100%);
+      }
+
+      #scene5 .outro-text {
+        font-family: 'Poppins', system-ui;
+        font-size: 72px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 40px;
+        line-height: 1.2;
+      }
+
+      #scene5 .outro-cta {
+        font-size: 32px;
+        color: #ff6b35;
+        font-weight: 700;
+        padding: 20px 60px;
+        border: 3px solid #ff6b35;
+        border-radius: 12px;
+        display: inline-block;
+        font-family: 'Poppins', system-ui;
+      }
+
+      .caption {
+        position: absolute;
+        bottom: 180px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 32px;
+        font-weight: 600;
+        color: #ff6b35;
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        max-width: 90%;
+        font-family: 'Poppins', system-ui;
+        z-index: 100;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      .glow-bg {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(80px);
+      }
+
+      #glow1 {
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 107, 53, 0.15);
+        top: -100px;
+        right: -50px;
+      }
+
+      #glow2 {
+        width: 300px;
+        height: 300px;
+        background: rgba(79, 70, 229, 0.1);
+        bottom: -50px;
+        left: -50px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div data-hf-id="hf-k35h" id="colageno-hook" data-composition-id="colageno-hook" data-start="0" data-width="1080" data-height="1920">
+
+      <!-- Scene 1: Hero Hook -->
+      <div data-hf-id="hf-gj0g" id="scene1" class="clip scene" data-start="0" data-duration="2.5" data-track-index="0">
+        <div data-hf-id="hf-fhl1" id="glow1" class="glow-bg"></div>
+        <div data-hf-id="hf-3vug" id="hero-text-1" class="hero-text">
+          <span data-hf-id="hf-ct6e" class="hero-accent">Colágeno</span>
+          Perfeito
+        </div>
+        <div data-hf-id="hf-divq" id="hero-sub-1" class="hero-subtext">A chave para sua juventude</div>
+      </div>
+
+      <!-- Scene 2: Ossos Fortes -->
+      <div data-hf-id="hf-i7q8" id="scene2" class="clip scene" data-start="2.5" data-duration="2.5" data-track-index="0">
+        <div data-hf-id="hf-f30n" id="benefit1-icon" class="benefit-icon">🦴</div>
+        <div data-hf-id="hf-9s4r" id="benefit1-text" class="benefit-text">Ossos Fortes</div>
+        <div data-hf-id="hf-ifym" id="benefit1-desc" class="benefit-desc">Estrutura óssea 40% mais resistente</div>
+      </div>
+
+      <!-- Scene 3: Pele Radiante -->
+      <div data-hf-id="hf-g8vp" id="scene3" class="clip scene" data-start="5" data-duration="2.5" data-track-index="0">
+        <div data-hf-id="hf-tvj0" id="benefit2-icon" class="benefit-icon">✨</div>
+        <div data-hf-id="hf-mqz6" id="benefit2-text" class="benefit-text">Pele Radiante</div>
+        <div data-hf-id="hf-rhgy" id="benefit2-desc" class="benefit-desc">Hidratação profunda e elasticidade total</div>
+      </div>
+
+      <!-- Scene 4: Músculos Tonificados -->
+      <div data-hf-id="hf-tzp1" id="scene4" class="clip scene" data-start="7.5" data-duration="2.5" data-track-index="0">
+        <div data-hf-id="hf-03xw" id="benefit3-icon" class="benefit-icon">💪</div>
+        <div data-hf-id="hf-4z7k" id="benefit3-text" class="benefit-text">Músculos Tonificados</div>
+        <div data-hf-id="hf-p4pg" id="benefit3-desc" class="benefit-desc">Recuperação 30% mais rápida pós-treino</div>
+      </div>
+
+      <!-- Scene 5: Outro CTA -->
+      <div data-hf-id="hf-ny7b" id="scene5" class="clip scene" data-start="10" data-duration="2.5" data-track-index="0">
+        <div data-hf-id="hf-jfp2" id="glow2" class="glow-bg"></div>
+        <div data-hf-id="hf-pfws" id="outro-text" class="outro-text">Comece Agora<br data-hf-id="hf-x5px">com SupliList</div>
+        <div data-hf-id="hf-antg" id="outro-cta" class="outro-cta">DESCUBRA +</div>
+      </div>
+
+      <!-- Captions (track 1) -->
+      <div data-hf-id="hf-khz7" id="caption1" class="clip caption" data-start="0.3" data-duration="1.5" data-track-index="1">
+        Colágeno: o segredo da beleza e saúde
+      </div>
+      <div data-hf-id="hf-paln" id="caption2" class="clip caption" data-start="2.8" data-duration="2.2" data-track-index="1">
+        Fortaleça seus ossos naturalmente
+      </div>
+      <div data-hf-id="hf-iy7u" id="caption3" class="clip caption" data-start="5.2" data-duration="2.2" data-track-index="1">
+        Pele mais lisa e brilhante em 30 dias
+      </div>
+      <div data-hf-id="hf-zjyy" id="caption4" class="clip caption" data-start="7.7" data-duration="2.2" data-track-index="1">
+        Musculação potente e definida
+      </div>
+      <div data-hf-id="hf-9wq6" id="caption5" class="clip caption" data-start="10.2" data-duration="2.2" data-track-index="1">
+        Seu corpo agradece. Comece hoje!
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        // Scene 1: Hero entrance
+        tl.from("#glow1",      { opacity: 0, duration: 0.8, ease: "sine.out" },   0.0);
+        tl.from("#hero-text-1",{ y: 80, opacity: 0, duration: 0.7, ease: "power3.out" }, 0.2);
+        tl.from("#hero-sub-1", { y: 40, opacity: 0, duration: 0.5, ease: "expo.out" },   0.4);
+
+        // Scene 2: Benefit 1 entrance
+        tl.from("#benefit1-icon", { scale: 0.6, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, 2.7);
+        tl.from("#benefit1-text", { y: 50, opacity: 0, duration: 0.5, ease: "power3.out" },          2.85);
+        tl.from("#benefit1-desc", { y: 30, opacity: 0, duration: 0.4, ease: "power2.out" },          3.0);
+
+        // Scene 3: Benefit 2 entrance
+        tl.from("#benefit2-icon", { scale: 0.6, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, 5.2);
+        tl.from("#benefit2-text", { y: 50, opacity: 0, duration: 0.5, ease: "power3.out" },          5.35);
+        tl.from("#benefit2-desc", { y: 30, opacity: 0, duration: 0.4, ease: "expo.out" },            5.5);
+
+        // Scene 4: Benefit 3 entrance
+        tl.from("#benefit3-icon", { scale: 0.6, opacity: 0, duration: 0.5, ease: "back.out(1.7)" }, 7.7);
+        tl.from("#benefit3-text", { y: 50, opacity: 0, duration: 0.5, ease: "power3.out" },          7.85);
+        tl.from("#benefit3-desc", { y: 30, opacity: 0, duration: 0.4, ease: "power2.out" },          8.0);
+
+        // Scene 5: Outro entrance
+        tl.from("#glow2",     { opacity: 0, duration: 0.8, ease: "sine.out" },              10.0);
+        tl.from("#outro-text",{ scale: 0.8, opacity: 0, duration: 0.7, ease: "back.out(1.7)" }, 10.2);
+        tl.from("#outro-cta", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" },         10.5);
+
+        // Caption 1 bounce (0.3–1.8s)
+        tl.from("#caption1", { scale: 0.7, opacity: 0, duration: 0.3, ease: "back.out(2)" }, 0.3);
+        tl.to("#caption1",   { scale: 1.08, duration: 0.15, ease: "power1.out" },            0.6);
+        tl.to("#caption1",   { scale: 1.0, duration: 0.15, ease: "power1.in" },              0.75);
+
+        // Caption 2 bounce (2.8–5.0s)
+        tl.from("#caption2", { scale: 0.7, opacity: 0, duration: 0.3, ease: "back.out(2)" }, 2.8);
+        tl.to("#caption2",   { scale: 1.08, duration: 0.15, ease: "power1.out" },            3.1);
+        tl.to("#caption2",   { scale: 1.0,  duration: 0.15, ease: "power1.in" },             3.35);
+
+        // Caption 3 bounce (5.2–7.4s)
+        tl.from("#caption3", { scale: 0.7, opacity: 0, duration: 0.3, ease: "back.out(2)" }, 5.2);
+        tl.to("#caption3",   { scale: 1.08, duration: 0.15, ease: "power1.out" },            5.5);
+        tl.to("#caption3",   { scale: 1.0,  duration: 0.15, ease: "power1.in" },             5.75);
+
+        // Caption 4 bounce (7.7–9.9s)
+        tl.from("#caption4", { scale: 0.7, opacity: 0, duration: 0.3, ease: "back.out(2)" }, 7.7);
+        tl.to("#caption4",   { scale: 1.08, duration: 0.15, ease: "power1.out" },            8.0);
+        tl.to("#caption4",   { scale: 1.0,  duration: 0.15, ease: "power1.in" },             8.25);
+
+        // Caption 5 bounce (10.2–12.4s)
+        tl.from("#caption5", { scale: 0.7, opacity: 0, duration: 0.3, ease: "back.out(2)" }, 10.2);
+        tl.to("#caption5",   { scale: 1.08, duration: 0.15, ease: "power1.out" },            10.5);
+        tl.to("#caption5",   { scale: 1.0,  duration: 0.15, ease: "power1.in" },             10.75);
+
+        // Icon float loops (finite: 4 oscillations × 0.4s × 2 = 3.2s each)
+        tl.to("#benefit1-icon", { y: -12, duration: 0.4, repeat: 5, yoyo: true, ease: "sine.inOut" }, 2.7);
+        tl.to("#benefit2-icon", { y: -12, duration: 0.4, repeat: 5, yoyo: true, ease: "sine.inOut" }, 5.2);
+        tl.to("#benefit3-icon", { y: -12, duration: 0.4, repeat: 5, yoyo: true, ease: "sine.inOut" }, 7.7);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["colageno-hook"] = tl;
+      </script>
+    </div>
+  </body>
+</html>

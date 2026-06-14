@@ -71,7 +71,7 @@ export function getSupplementImage(item) {
   const dbEntry = SUPPLEMENTS_DB.find(s => s.id === getSupplementId(item));
   if (dbEntry?.image) return dbEntry.image;
   const slug = (item.name ?? '').toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-  return `/assets/${slug}.png`;
+  return `/assets/${slug}.webp`;
 }
 
 /**

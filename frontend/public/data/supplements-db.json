@@ -1,7 +1,7 @@
 [
   {
     "id": "creatina-monohidratada",
-    "image": "/assets/creatina.png",
+    "image": "/assets/creatina.webp",
     "name": "Creatina Monohidratada",
     "category": "Força & Performance",
     "evidenceLevel": "A",
@@ -40,7 +40,7 @@
   },
   {
     "id": "whey-protein",
-    "image": "/assets/whey_protein.png",
+    "image": "/assets/whey_protein.webp",
     "name": "Whey Protein",
     "category": "Proteínas",
     "evidenceLevel": "A",
@@ -78,7 +78,7 @@
   },
   {
     "id": "cafeina-teanina",
-    "image": "/assets/cafeina_teanina.png",
+    "image": "/assets/cafeina_teanina.webp",
     "name": "Cafeína + L-Teanina",
     "category": "Energéticos & Foco",
     "evidenceLevel": "A",
@@ -123,7 +123,7 @@
   },
   {
     "id": "vitamina-d3",
-    "image": "/assets/vitamina_d3_k2.png",
+    "image": "/assets/vitamina_d3_k2.webp",
     "name": "Vitamina D3",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
@@ -159,7 +159,7 @@
   },
   {
     "id": "omega-3",
-    "image": "/assets/omega_3.png",
+    "image": "/assets/omega_3.webp",
     "name": "Ômega 3",
     "category": "Saúde Cardiovascular",
     "evidenceLevel": "A",
@@ -195,7 +195,7 @@
   },
   {
     "id": "beta-alanina",
-    "image": "/assets/beta_alanina.png",
+    "image": "/assets/beta_alanina.webp",
     "name": "Beta-Alanina",
     "category": "Força & Performance",
     "evidenceLevel": "A",
@@ -231,7 +231,7 @@
   },
   {
     "id": "l-carnitina",
-    "image": "/assets/l_carnitina.png",
+    "image": "/assets/l_carnitina.webp",
     "name": "L-Carnitina Tartarato",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "B",
@@ -267,7 +267,7 @@
   },
   {
     "id": "magnesio-bisglicinato",
-    "image": "/assets/magnesio_glicinato.png",
+    "image": "/assets/magnesio_glicinato.webp",
     "name": "Magnésio Bisglicinato",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
@@ -303,7 +303,7 @@
   },
   {
     "id": "vitamina-c",
-    "image": "/assets/vitamina_c.png",
+    "image": "/assets/vitamina_c.webp",
     "name": "Vitamina C",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
@@ -339,7 +339,7 @@
   },
   {
     "id": "ashwagandha",
-    "image": "/assets/ashwagandha.png",
+    "image": "/assets/ashwagandha.webp",
     "name": "Ashwagandha KSM-66",
     "category": "Adaptógenos & Foco",
     "evidenceLevel": "B",
@@ -376,7 +376,7 @@
   },
   {
     "id": "alpha-gpc",
-    "image": "/assets/alpha_gpc.png",
+    "image": "/assets/alpha_gpc.webp",
     "name": "Alpha-GPC",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
@@ -412,7 +412,7 @@
   },
   {
     "id": "apigenina",
-    "image": "/assets/apigenina.png",
+    "image": "/assets/apigenina.webp",
     "name": "Apigenina",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -448,7 +448,7 @@
   },
   {
     "id": "bacopa-monnieri",
-    "image": "/assets/bacopa_monnieri.png",
+    "image": "/assets/bacopa_monnieri.webp",
     "name": "Bacopa Monnieri",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
@@ -486,7 +486,7 @@
   },
   {
     "id": "berberina",
-    "image": "/assets/berberina.png",
+    "image": "/assets/berberina.webp",
     "name": "Berberina",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "B",
@@ -529,7 +529,7 @@
   },
   {
     "id": "boro",
-    "image": "/assets/boro.png",
+    "image": "/assets/boro.webp",
     "name": "Boro",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -565,7 +565,7 @@
   },
   {
     "id": "calcio-citrato-d3",
-    "image": "/assets/calcio_citrato_d3.png",
+    "image": "/assets/calcio_citrato_d3.webp",
     "name": "Cálcio Citrato + D3",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
@@ -602,7 +602,7 @@
   },
   {
     "id": "catuaba",
-    "image": "/assets/catuaba.png",
+    "image": "/assets/catuaba.webp",
     "name": "Catuaba",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -638,7 +638,7 @@
   },
   {
     "id": "cha-verde",
-    "image": "/assets/cha_verde.png",
+    "image": "/assets/cha_verde.webp",
     "name": "Chá Verde (EGCG)",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "B",
@@ -681,7 +681,7 @@
   },
   {
     "id": "coenzima-q10",
-    "image": "/assets/coenzima_q10.png",
+    "image": "/assets/coenzima_q10.webp",
     "name": "Coenzima Q10",
     "category": "Saúde Cardiovascular",
     "evidenceLevel": "B",
@@ -718,7 +718,7 @@
   },
   {
     "id": "colageno",
-    "image": "/assets/colageno.png",
+    "image": "/assets/colageno.webp",
     "name": "Colágeno Hidrolisado",
     "category": "Saúde Articular & Pele",
     "evidenceLevel": "B",
@@ -755,7 +755,7 @@
   },
   {
     "id": "cranberry",
-    "image": "/assets/cranberry.png",
+    "image": "/assets/cranberry.webp",
     "name": "Cranberry",
     "category": "Saúde Intestinal",
     "evidenceLevel": "B",
@@ -791,7 +791,7 @@
   },
   {
     "id": "cromo-picolinato",
-    "image": "/assets/cromo_picolinato.png",
+    "image": "/assets/cromo_picolinato.webp",
     "name": "Cromo Picolinato",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "C",
@@ -827,7 +827,7 @@
   },
   {
     "id": "curcumina",
-    "image": "/assets/curcumina.png",
+    "image": "/assets/curcumina.webp",
     "name": "Curcumina",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
@@ -863,7 +863,7 @@
   },
   {
     "id": "eaa",
-    "image": "/assets/eaa.png",
+    "image": "/assets/eaa.webp",
     "name": "EAA (Aminoácidos Essenciais)",
     "category": "Proteínas",
     "evidenceLevel": "A",
@@ -899,7 +899,7 @@
   },
   {
     "id": "ecdisterona",
-    "image": "/assets/ecdisterona.png",
+    "image": "/assets/ecdisterona.webp",
     "name": "Ecdisterona",
     "category": "Força & Performance",
     "evidenceLevel": "C",
@@ -936,7 +936,7 @@
   },
   {
     "id": "feno-grego",
-    "image": "/assets/feno_grego.png",
+    "image": "/assets/feno_grego.webp",
     "name": "Feno-Grego",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -974,7 +974,7 @@
   },
   {
     "id": "ferro-bisglicinato",
-    "image": "/assets/ferro_bisglicinato.png",
+    "image": "/assets/ferro_bisglicinato.webp",
     "name": "Ferro Bisglicinato",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
@@ -1012,7 +1012,7 @@
   },
   {
     "id": "glicina",
-    "image": "/assets/glicina.png",
+    "image": "/assets/glicina.webp",
     "name": "Glicina",
     "category": "Sono & Recuperação",
     "evidenceLevel": "B",
@@ -1048,7 +1048,7 @@
   },
   {
     "id": "glucosamina-condroitina",
-    "image": "/assets/glucosamina_condroitina.png",
+    "image": "/assets/glucosamina_condroitina.webp",
     "name": "Glucosamina + Condroitina",
     "category": "Saúde Articular & Pele",
     "evidenceLevel": "B",
@@ -1088,7 +1088,7 @@
   },
   {
     "id": "hmb",
-    "image": "/assets/hmb.png",
+    "image": "/assets/hmb.webp",
     "name": "HMB",
     "category": "Força & Performance",
     "evidenceLevel": "B",
@@ -1124,7 +1124,7 @@
   },
   {
     "id": "inositol",
-    "image": "/assets/inositol.png",
+    "image": "/assets/inositol.webp",
     "name": "Inositol",
     "category": "Saúde Hormonal",
     "evidenceLevel": "B",
@@ -1160,7 +1160,7 @@
   },
   {
     "id": "lions-mane",
-    "image": "/assets/lions_mane.png",
+    "image": "/assets/lions_mane.webp",
     "name": "Lion's Mane (Juba de Leão)",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
@@ -1197,7 +1197,7 @@
   },
   {
     "id": "l-citrulina",
-    "image": "/assets/l_citrulina.png",
+    "image": "/assets/l_citrulina.webp",
     "name": "L-Citrulina",
     "category": "Força & Performance",
     "evidenceLevel": "A",
@@ -1233,7 +1233,7 @@
   },
   {
     "id": "l-teanina",
-    "image": "/assets/l_teanina.png",
+    "image": "/assets/l_teanina.webp",
     "name": "L-Teanina",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "A",
@@ -1269,7 +1269,7 @@
   },
   {
     "id": "magnesio-treonato",
-    "image": "/assets/magnesio_treonato.png",
+    "image": "/assets/magnesio_treonato.webp",
     "name": "Magnésio Treonato",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
@@ -1306,7 +1306,7 @@
   },
   {
     "id": "marapuama",
-    "image": "/assets/marapuama.png",
+    "image": "/assets/marapuama.webp",
     "name": "Marapuama",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -1342,7 +1342,7 @@
   },
   {
     "id": "melatonina",
-    "image": "/assets/melatonina.png",
+    "image": "/assets/melatonina.webp",
     "name": "Melatonina",
     "category": "Sono & Recuperação",
     "evidenceLevel": "A",
@@ -1380,7 +1380,7 @@
   },
   {
     "id": "mucuna-pruriens",
-    "image": "/assets/mucuna_pruriens.png",
+    "image": "/assets/mucuna_pruriens.webp",
     "name": "Mucuna Pruriens",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -1424,7 +1424,7 @@
   },
   {
     "id": "myco-defense-extra",
-    "image": "/assets/myco_defense_extra.png",
+    "image": "/assets/myco_defense_extra.webp",
     "name": "Myco Defense Extra",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
@@ -1460,7 +1460,7 @@
   },
   {
     "id": "nac",
-    "image": "/assets/nac.png",
+    "image": "/assets/nac.webp",
     "name": "NAC (N-Acetil-Cisteína)",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
@@ -1498,7 +1498,7 @@
   },
   {
     "id": "oleo-de-primula",
-    "image": "/assets/oleo_de_primula.png",
+    "image": "/assets/oleo_de_primula.webp",
     "name": "Óleo de Prímula",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -1535,7 +1535,7 @@
   },
   {
     "id": "panax-ginseng",
-    "image": "/assets/panax_ginseng.png",
+    "image": "/assets/panax_ginseng.webp",
     "name": "Panax Ginseng",
     "category": "Adaptógenos & Foco",
     "evidenceLevel": "B",
@@ -1574,7 +1574,7 @@
   },
   {
     "id": "probiotico",
-    "image": "/assets/probiotico.png",
+    "image": "/assets/probiotico.webp",
     "name": "Probiótico",
     "category": "Saúde Intestinal",
     "evidenceLevel": "B",
@@ -1611,7 +1611,7 @@
   },
   {
     "id": "psyllium",
-    "image": "/assets/psyllium.png",
+    "image": "/assets/psyllium.webp",
     "name": "Psyllium",
     "category": "Saúde Intestinal",
     "evidenceLevel": "A",
@@ -1649,7 +1649,7 @@
   },
   {
     "id": "quercetina",
-    "image": "/assets/quercetina.png",
+    "image": "/assets/quercetina.webp",
     "name": "Quercetina",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
@@ -1685,7 +1685,7 @@
   },
   {
     "id": "resveratrol",
-    "image": "/assets/resveratrol.png",
+    "image": "/assets/resveratrol.webp",
     "name": "Resveratrol",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "C",
@@ -1722,7 +1722,7 @@
   },
   {
     "id": "rhodiola-rosea",
-    "image": "/assets/rhodiola_rosea.png",
+    "image": "/assets/rhodiola_rosea.webp",
     "name": "Rhodiola Rosea",
     "category": "Adaptógenos & Foco",
     "evidenceLevel": "B",
@@ -1760,7 +1760,7 @@
   },
   {
     "id": "saw-palmetto",
-    "image": "/assets/saw_palmetto.png",
+    "image": "/assets/saw_palmetto.webp",
     "name": "Saw Palmetto",
     "category": "Saúde Hormonal",
     "evidenceLevel": "B",
@@ -1797,7 +1797,7 @@
   },
   {
     "id": "shatavari",
-    "image": "/assets/shatavari.png",
+    "image": "/assets/shatavari.webp",
     "name": "Shatavari",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
@@ -1834,7 +1834,7 @@
   },
   {
     "id": "spirulina",
-    "image": "/assets/spirulina.png",
+    "image": "/assets/spirulina.webp",
     "name": "Spirulina",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
@@ -1872,7 +1872,7 @@
   },
   {
     "id": "taurina",
-    "image": "/assets/taurina.png",
+    "image": "/assets/taurina.webp",
     "name": "Taurina",
     "category": "Saúde Cardiovascular",
     "evidenceLevel": "B",
@@ -1908,7 +1908,7 @@
   },
   {
     "id": "tirosina",
-    "image": "/assets/tirosina.png",
+    "image": "/assets/tirosina.webp",
     "name": "Tirosina",
     "category": "Energéticos & Foco",
     "evidenceLevel": "B",
@@ -1945,7 +1945,7 @@
   },
   {
     "id": "tongkat-ali",
-    "image": "/assets/tongkat_ali.png",
+    "image": "/assets/tongkat_ali.webp",
     "name": "Tongkat Ali",
     "category": "Saúde Hormonal",
     "evidenceLevel": "B",
@@ -1983,7 +1983,7 @@
   },
   {
     "id": "valeriana",
-    "image": "/assets/valeriana.png",
+    "image": "/assets/valeriana.webp",
     "name": "Valeriana",
     "category": "Sono & Recuperação",
     "evidenceLevel": "B",
@@ -2027,7 +2027,7 @@
   },
   {
     "id": "zinco-bisglicinato",
-    "image": "/assets/zinco_bisglicinato.png",
+    "image": "/assets/zinco_bisglicinato.webp",
     "name": "Zinco Bisglicinato",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",

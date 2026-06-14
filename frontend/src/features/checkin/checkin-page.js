@@ -362,9 +362,9 @@ export default class CheckinPage {
   _supplementCard(item, checked) {
     // Look up the canonical image from SUPPLEMENTS_DB using supplementId.
     // Avoid building a slug from item.name — DB image paths don't always match
-    // the name (e.g. name "Creatina Monohidratada" → DB image "/assets/creatina.png").
+    // the name (e.g. name "Creatina Monohidratada" → DB image "/assets/creatina.webp").
     const dbEntry = SUPPLEMENTS_DB.find(s => s.id === item.supplementId);
-    const img   = dbEntry?.image || `/assets/${(item.supplementId || '').replace(/-/g, '_')}.png`;
+    const img   = dbEntry?.image || `/assets/${(item.supplementId || '').replace(/-/g, '_')}.webp`;
     const dose  = item.dosage ? `${item.dosage}${item.unit || 'g'}/dia` : '';
     const timing = item.timing || '';
 

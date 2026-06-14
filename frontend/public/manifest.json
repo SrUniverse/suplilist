@@ -1,91 +1,38 @@
 {
-  "name": "SupliList - Rastreador de Suplementação",
+  "name": "SupliList - Suplementação com Evidência",
   "short_name": "SupliList",
-  "description": "App inteligente para acompanhar sua aderência à suplementação com lembretes, relatórios e análises.",
+  "description": "Compare preços, calcule dosagens personalizadas e monitore sua adesão à suplementação baseada em evidências.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#007AFF",
-  "background_color": "#FFFFFF",
-  "categories": ["health", "productivity"],
-  "screenshots": [
-    {
-      "src": "/assets/screenshot1.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Dashboard de Aderência"
-    },
-    {
-      "src": "/assets/screenshot2.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Histórico e Tendências"
-    },
-    {
-      "src": "/assets/screenshot3.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Relatórios Detalhados"
-    }
-  ],
+  "theme_color": "#7C3AED",
+  "background_color": "#0A0C10",
+  "categories": ["health", "productivity", "lifestyle"],
   "icons": [
     {
-      "src": "/assets/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/icon-192x192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/assets/icon-384x384.png",
-      "sizes": "384x384",
+      "src": "/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icon-512x512.png",
-      "sizes": "512x512",
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
-      "src": "/assets/badge-72x72.png",
-      "sizes": "72x72",
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "badge"
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -93,65 +40,13 @@
       "name": "Registrar Check-in",
       "short_name": "Check-in",
       "description": "Registre seus suplementos de hoje",
-      "url": "/checkin",
-      "icons": [
-        {
-          "src": "/assets/icon-checkin-96x96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "url": "/checkin"
     },
     {
-      "name": "Ver Relatório",
-      "short_name": "Relatório",
-      "description": "Veja seu relatório mensal de aderência",
-      "url": "/reports",
-      "icons": [
-        {
-          "src": "/assets/icon-report-96x96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Minhas Recomendações",
-      "short_name": "Recomendações",
-      "description": "Veja sugestões personalizadas de suplementos",
-      "url": "/recommendations",
-      "icons": [
-        {
-          "src": "/assets/icon-recommendations-96x96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "share_target": {
-    "action": "/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  },
-  "file_handlers": [
-    {
-      "action": "/import-backup",
-      "accept": {
-        "application/json": [".json"]
-      },
-      "launch_type": "single-client"
-    }
-  ],
-  "protocol_handlers": [
-    {
-      "protocol": "suplilist",
-      "url": "/open?url=%s"
+      "name": "Meu Stack",
+      "short_name": "Stack",
+      "description": "Veja e gerencie seu protocolo",
+      "url": "/my-stack"
     }
   ]
 }

@@ -605,8 +605,11 @@ export class Nav {
         transition: transform 0.25s ease, visibility 0.25s ease;
         padding-bottom: env(safe-area-inset-bottom);
       }
-      /* Desktop: esconder bottom nav completamente */
-      @media (min-width: 768px) {
+      /* Desktop: esconder bottom nav completamente.
+         Deve casar com o breakpoint do shell (index.html @media max-width:859px,
+         que mostra a sidebar a partir de 860px). Usar 768 aqui criava uma zona
+         morta 768–859px sem sidebar (escondida pelo shell) nem bottom-nav. */
+      @media (min-width: 860px) {
         #bottom-nav { display: none !important; }
       }
       /* Quando escondido no scroll: translateY + visibility para eliminar artefato do blur */

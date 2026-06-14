@@ -28,7 +28,7 @@ export class MongooseCheckinRepository implements ICheckinRepository {
   }
 
   async upsertIdempotent(userId: string, data: any): Promise<{ data: Checkin; isDuplicate: boolean }> {
-    const result = await CheckinModel.updateOne(
+    const existing = await CheckinModel.findOneAndUpdate(
       { _id: data.id },
       {
         $setOnInsert: {
@@ -38,15 +38,21 @@ export class MongooseCheckinRepository implements ICheckinRepository {
           checkedAt: new Date(data.checkedAt)
         }
       },
-      { upsert: true }
-    );
+      { upsert: true, new: false } // new: false → returns pre-upsert doc (null if inserted)
+    ).exec();
 
-    const document = await CheckinModel.findById(data.id).exec();
+    // existing is null → inserted (new record); non-null → matched (duplicate)
+    const isDuplicate = existing !== null;
+
+    const document = isDuplicate
+      ? existing
+      : await CheckinModel.findById(data.id).exec();
+
     if (!document) throw new Error('Critical failure on Check-in Upsert.');
 
     return {
       data: this.mapToDomain(document),
-      isDuplicate: result.matchedCount > 0 // If matched, it's a sync queue retry
+      isDuplicate,
     };
   }
 }

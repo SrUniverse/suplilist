@@ -89,6 +89,7 @@ CREATE INDEX idx_shared_lists_public ON shared_lists(is_public);
 CREATE INDEX idx_list_shares_list_id ON list_shares(list_id);
 CREATE INDEX idx_list_shares_user_id ON list_shares(user_id);
 CREATE INDEX idx_list_shares_permission ON list_shares(permission_level);
+CREATE INDEX idx_list_shares_shared_by_user_id ON list_shares(shared_by_user_id);
 
 CREATE INDEX idx_product_comparisons_user_id ON product_comparisons(user_id);
 CREATE INDEX idx_product_comparisons_products ON product_comparisons USING GIN (product_ids);

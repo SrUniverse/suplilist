@@ -244,7 +244,10 @@ export class Nav {
     sidebar.innerHTML = `
       <div class="sb-inner">
         <div class="sb-header">
-          <img src="/banner.webp" alt="SupliList" class="sb-logo-img" width="140" height="44">
+          <div class="sb-brand">
+            <img src="/logo-mark.webp" alt="" class="sb-logo-mark" width="36" height="36" aria-hidden="true">
+            <span class="sb-wordmark">SupliList</span>
+          </div>
           <span class="sb-subtitle">${subtitle}</span>
         </div>
         <div class="sb-nav">
@@ -479,13 +482,22 @@ export class Nav {
         margin-bottom: 10px;
         flex-shrink: 0;
       }
-      .sb-logo-img {
-        display: block;
-        width: 100%;
-        max-width: 140px;
-        height: auto;
-        margin-bottom: 6px;
+      .sb-brand {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 8px;
       }
+      .sb-logo-mark {
+        display: block; width: 34px; height: 34px; flex-shrink: 0;
+      }
+      .sb-wordmark {
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+        font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+        color: var(--color-text-primary, #F1F5F9);
+        white-space: nowrap;
+      }
+      /* Sidebar recolhida (80px): só o emblema, centralizado */
+      body.sidebar-collapsed .sb-brand { justify-content: center; }
+      body.sidebar-collapsed .sb-wordmark { display: none; }
       .sb-subtitle {
         display: block;
         font-size: 10px;

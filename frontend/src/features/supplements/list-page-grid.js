@@ -248,6 +248,7 @@ export class ListPageGrid {
         </div>
         <!-- Card body below image -->
         <div class="lp-card-body">
+          ${item.benefits && item.benefits.length ? `<p class="lp-card-desc">${escapeHtml(item.benefits[0])}</p>` : ''}
           <div class="lp-card-price-area">
             <span class="lp-card-price">${formatPrice(priceInfo.price)}</span>
             <span class="lp-card-dose">${doseStr}</span>

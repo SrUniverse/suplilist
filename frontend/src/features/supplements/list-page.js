@@ -731,6 +731,19 @@ export default class ListPage {
         flex: 1;
       }
 
+      .lp-card-desc {
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--color-text-secondary);
+        margin: 0;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
+      /* Empurra preço + ações para a base, mantendo a descrição no topo */
+      .lp-card-desc + .lp-card-price-area { margin-top: auto; }
+
       .lp-card-price-area {
         display: flex;
         flex-direction: column;

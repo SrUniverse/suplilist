@@ -8,6 +8,7 @@ import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { VirtualScroller } from '../../core/virtual-scroller.js';
 import { historyService } from './history-service.js';
 import { logger } from '../../utils/logger.js';
+import { SUPPORT_EMAIL, buildSupportMailto, buildSupportWhatsApp } from '../../config/support.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const _pad = n => String(n).padStart(2, '0');
@@ -395,26 +396,24 @@ export default class HistoryPage {
       .hp-support-heading__icon { font-size: 24px; }
       .hp-support-heading__title { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; }
       .hp-support-desc { font-size: 12.5px; color: #9ca3af; line-height: 1.45; margin: 0 0 16px 0; }
-      .hp-support-chat {
-        display: none; height: 160px; overflow-y: auto;
-        background: #18181c; border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.06);
-        padding: 10px; margin-bottom: 14px;
-        flex-direction: column; gap: 8px; box-sizing: border-box;
+      .hp-support-channels { display: flex; flex-direction: column; gap: 10px; }
+      .hp-support-channel {
+        display: flex; align-items: center; gap: 12px;
+        background: #18181c; border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px; padding: 14px; text-decoration: none;
+        transition: border-color 0.15s ease, transform 0.15s ease;
+        min-height: 44px;
       }
-      .hp-support-form { display: flex; flex-direction: column; gap: 10px; }
-      .hp-support-textarea {
-        width: 100%; box-sizing: border-box; height: 90px;
-        border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
-        background: #18181c; color: #fff;
-        padding: 10px; font-family: 'Inter', sans-serif; font-size: 13px;
-        outline: none; resize: none;
+      .hp-support-channel:hover {
+        border-color: var(--color-brand); transform: translateY(-1px);
       }
-      .hp-support-submit {
-        background: var(--color-brand); color: #fff; border: none;
-        border-radius: 10px; padding: 10px; font-weight: 700; font-size: 13px;
-        cursor: pointer; font-family: 'Inter', sans-serif; height: 40px;
-        box-shadow: 0 4px 12px rgba(139,92,246,0.25);
+      .hp-support-channel__icon { font-size: 22px; line-height: 1; }
+      .hp-support-channel__text { display: flex; flex-direction: column; gap: 2px; }
+      .hp-support-channel__text strong {
+        color: #fff; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+      }
+      .hp-support-channel__text small {
+        color: #9ca3af; font-family: 'Inter', sans-serif; font-size: 12px;
       }
     `;
     document.head.appendChild(style);
@@ -874,7 +873,7 @@ export default class HistoryPage {
       heatmapCells.push(`
         <div class="hp-heatmap-cell ${hasCk ? 'active' : ''}" 
              title="${iso}: ${hasCk ? 'Check-in concluído' : 'Sem check-in'}"
-             style="width: 26px; height: 26px; border-radius: 6px; background: ${hasCk ? 'var(--color-brand)' : 'var(--color-surface-secondary)'}; border: 1px solid ${hasCk ? 'var(--color-brand)' : 'var(--color-border)'}; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: ${hasCk ? '#fff' : 'var(--color-text-muted)'}; cursor: pointer; transition: transform 0.15s ease;">
+             style="width: 100%; min-width: 0; aspect-ratio: 1; max-width: 32px; border-radius: 6px; background: ${hasCk ? 'var(--color-brand)' : 'var(--color-surface-secondary)'}; border: 1px solid ${hasCk ? 'var(--color-brand)' : 'var(--color-border)'}; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: ${hasCk ? '#fff' : 'var(--color-text-muted)'}; cursor: pointer; transition: transform 0.15s ease;">
           ${dayNum}
         </div>
       `);
@@ -1118,45 +1117,54 @@ export default class HistoryPage {
   }
 
   /**
-   * Open priority support dialog (premium feature) with chat-like interface.
+   * Open priority support dialog (premium feature) with real contact channels.
    *
    * Shows:
    * - Heading: "Suporte Prioritário Premium" + ⚡ icon
-   * - Description: high-priority queue messaging
-   * - Chat area (initially hidden): displays user + support messages
-   * - Message textarea + send button
+   * - E-mail channel: mailto link to SUPPORT_EMAIL with prefilled subject/body
+   * - WhatsApp channel: wa.me link with prefilled message — only rendered when
+   *   SUPPORT_WHATSAPP is configured in config/support.js (no broken link shipped)
    *
-   * On submit:
-   * - Hides form, shows chat area
-   * - Displays user message with right-aligned blue bubble
-   * - Sends message to backend (premium support endpoint)
-   * - Displays support response in left-aligned gray bubble
-   * - Shows success/error toast via eventBus
-   *
-   * Closes on close button click or overlay click.
+   * Closes on close button click, overlay click, or after picking a channel.
    *
    * @returns {void}
    * @private
    */
   _openPrioritySupportDialog() {
+    const subject = 'Suporte Prioritário Premium — SupliList';
+    const body = 'Olá, equipe SupliList!\n\n(Descreva aqui sua dúvida sobre dosagens, interações ou uso do app.)\n\n— Enviado pelo painel Premium';
+    const mailto = buildSupportMailto(subject, body);
+    const whatsapp = buildSupportWhatsApp('Olá! Sou membro Premium do SupliList e preciso de suporte prioritário.');
+
     const overlay = document.createElement('div');
     overlay.id = 'priority-support-overlay';
     overlay.className = 'hp-support-overlay';
     overlay.innerHTML = `
       <div class="hp-support-dialog">
-        <button id="ps-close-btn" class="hp-support-close">✕</button>
+        <button id="ps-close-btn" class="hp-support-close" aria-label="Fechar">✕</button>
         <div class="hp-support-heading">
-          <span class="hp-support-heading__icon">⚡</span>
+          <span class="hp-support-heading__icon" aria-hidden="true">⚡</span>
           <h3 class="hp-support-heading__title">Suporte Prioritário Premium</h3>
         </div>
-        <p class="hp-support-desc">Como membro Premium do SupliList, você tem acesso à nossa fila de alta prioridade. Envie sua mensagem e nossa IA/equipe responderá imediatamente.</p>
+        <p class="hp-support-desc">Como membro Premium, você fala direto com a nossa equipe. Escolha um canal abaixo — respondemos com prioridade.</p>
 
-        <div id="ps-chat-area" class="hp-support-chat"></div>
-
-        <form id="ps-form" class="hp-support-form">
-          <textarea id="ps-message" class="hp-support-textarea" placeholder="Como podemos te ajudar hoje?" required></textarea>
-          <button type="submit" class="hp-support-submit">Enviar Mensagem</button>
-        </form>
+        <div class="hp-support-channels">
+          <a id="ps-email-link" class="hp-support-channel" href="${mailto}">
+            <span class="hp-support-channel__icon" aria-hidden="true">✉️</span>
+            <span class="hp-support-channel__text">
+              <strong>E-mail</strong>
+              <small>${escapeHtml(SUPPORT_EMAIL)}</small>
+            </span>
+          </a>
+          ${whatsapp ? `
+          <a id="ps-whatsapp-link" class="hp-support-channel" href="${whatsapp}" target="_blank" rel="noopener noreferrer">
+            <span class="hp-support-channel__icon" aria-hidden="true">💬</span>
+            <span class="hp-support-channel__text">
+              <strong>WhatsApp</strong>
+              <small>Resposta rápida no seu celular</small>
+            </span>
+          </a>` : ''}
+        </div>
       </div>
     `;
 
@@ -1164,44 +1172,9 @@ export default class HistoryPage {
 
     overlay.querySelector('#ps-close-btn').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-
-    const form = overlay.querySelector('#ps-form');
-    const msgInput = overlay.querySelector('#ps-message');
-    const chatArea = overlay.querySelector('#ps-chat-area');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = msgInput.value.trim();
-      if (!text) return;
-
-      form.style.display = 'none';
-      chatArea.style.display = 'flex';
-
-      chatArea.innerHTML = `
-        <div style="align-self: flex-end; background: var(--color-brand); color: #fff; border-radius: 10px 10px 0 10px; padding: 8px 12px; font-size: 12px; max-width: 80%; line-height: 1.45; box-sizing: border-box;">
-          ${escapeHtml(text)}
-        </div>
-        <div id="ps-agent-loading" style="align-self: flex-start; background: #27272a; color: #a1a1aa; border-radius: 10px 10px 10px 0; padding: 8px 12px; font-size: 12px; max-width: 80%; box-sizing: border-box;">
-          Digitando resposta prioritária...
-        </div>
-      `;
-
-      chatArea.scrollTop = chatArea.scrollHeight;
-
-      await new Promise(r => setTimeout(r, 1200));
-
-      const loadingEl = chatArea.querySelector('#ps-agent-loading');
-      if (loadingEl) loadingEl.remove();
-
-      chatArea.innerHTML += `
-        <div style="align-self: flex-start; background: #27272a; color: #f4f4f5; border-radius: 10px 10px 10px 0; padding: 8px 12px; font-size: 12px; max-width: 85%; line-height: 1.45; box-sizing: border-box;">
-          <strong>Especialista SupliList:</strong><br/>
-          Olá! Agradecemos o contato. Sua mensagem foi recebida na nossa fila de suporte de alta prioridade. 
-          <br/><br/>
-          Analisamos seu perfil científico e histórico de check-ins local. Você está com uma excelente consistência! Estaremos de prontidão para quaisquer dúvidas sobre dosagens ou interações de ativos. 🚀
-        </div>
-      `;
-      chatArea.scrollTop = chatArea.scrollHeight;
+    // Fecha o dialog ao escolher um canal (a navegação mailto/wa.me já acontece no link)
+    overlay.querySelectorAll('.hp-support-channel').forEach(link => {
+      link.addEventListener('click', () => setTimeout(() => overlay.remove(), 100));
     });
   }
 }

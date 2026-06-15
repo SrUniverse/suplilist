@@ -175,9 +175,9 @@ export default class RegisterPage {
 
       if (!this._isMounted) return;
 
-      // 5. Tela de verificação de e-mail (link do Firebase, opcional — não trava
-      //    o usuário fora; ele pode "Continuar mesmo assim").
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-email' });
+      // 5. Entra direto no Check-in (uso diário principal). O e-mail de
+      //    verificação já foi enviado; o banner global lembra de verificar.
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/checkin' });
 
     } catch (err) {
       if (!this._isMounted) return;

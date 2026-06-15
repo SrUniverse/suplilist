@@ -271,7 +271,7 @@ export default class LoginPage {
       });
       eventBus.emit(EVENTS.AUTH_LOGIN_SUCCESS, { user: syncData });
       
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/checkin' });
     } catch (err) {
       if (!this._isMounted) return;
 
@@ -360,7 +360,7 @@ export default class LoginPage {
       // Suppress One Tap for 24 hours on successful login
       localStorage.setItem('suplilist_suppress_onetap', Date.now().toString());
 
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/checkin' });
     } catch (err) {
       if (!this._isMounted) return;
 

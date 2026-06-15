@@ -220,7 +220,6 @@ export class Nav {
   static _renderSidebar() {
     const sidebar = document.getElementById('sidebar-nav');
     if (!sidebar) return;
-    const subtitle = Nav._getSidebarSubtitle();
     const themeIcon = Nav._getThemeIcon();
 
     const groupsHtml = NAV_CONFIG.map(({ group, items }) => {
@@ -248,7 +247,6 @@ export class Nav {
             <img src="/logo-mark.webp" alt="" class="sb-logo-mark" width="36" height="36" aria-hidden="true">
             <span class="sb-wordmark">SupliList</span>
           </div>
-          <span class="sb-subtitle">${subtitle}</span>
         </div>
         <div class="sb-nav">
           ${groupsHtml}

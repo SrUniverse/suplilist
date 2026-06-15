@@ -264,7 +264,7 @@ export default class PhoneLoginPage {
 
       if (!this._isMounted) return;
 
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/home' });
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/checkin' });
 
     } catch (err) {
       if (!this._isMounted) return;

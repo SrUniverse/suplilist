@@ -48,7 +48,7 @@ export default class VerifyEmailPage {
     }
     // Já verificado (ex.: voltou do e-mail noutra aba) → segue direto.
     if (auth.currentUser.emailVerified) {
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/checkin' });
       return;
     }
     this._render();
@@ -112,7 +112,7 @@ export default class VerifyEmailPage {
       ?.addEventListener('click', () => this._handleResend());
     this.container.querySelector('#ve-skip')
       ?.addEventListener('click', () => {
-        eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
+        eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/checkin' });
       });
     this.container.querySelector('#ve-logout')
       ?.addEventListener('click', async () => {
@@ -152,7 +152,7 @@ export default class VerifyEmailPage {
 
       if (!this._isMounted) return;
       eventBus.emit(EVENTS.TOAST_SHOW, { message: 'E-mail verificado com sucesso!', type: 'success' });
-      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/my-stack' });
+      eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/checkin' });
     } catch (err) {
       if (!this._isMounted) return;
       this._isLoading = false;

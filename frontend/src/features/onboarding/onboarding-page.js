@@ -399,8 +399,9 @@ export default class OnboardingPage {
     try {
       await identityService.register(email, password);
       trackFunnel('onboarding_signup', { stackSize: this.data.selectedIds.size });
-      // Salva o stack e leva à verificação de e-mail (link do Firebase, opcional).
-      this._finalize('/verify-email');
+      // Salva o stack e entra direto no Check-in (uso diário principal).
+      // O e-mail de verificação foi enviado; o banner global lembra de verificar.
+      this._finalize('/checkin');
       eventBus.emit('toast:show', {
         message: 'Conta criada! Enviamos um link de verificação para o seu e-mail.',
         type: 'success',

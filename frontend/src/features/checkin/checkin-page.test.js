@@ -200,9 +200,10 @@ describe('CheckinPage — Daily Check-in', () => {
 
     expect(container.textContent).toContain('Stack vazio');
 
-    const ctaLink = container.querySelector('a[href="/my-stack"]');
+    // Empty-state CTA points to the catalog (direct add path) — commit ff6cfe0
+    const ctaLink = container.querySelector('a[href="/list"]');
     expect(ctaLink).not.toBeNull();
-    expect(ctaLink.getAttribute('href')).toBe('/my-stack');
+    expect(ctaLink.getAttribute('href')).toBe('/list');
   });
 
   it('9. Checked supplement shows Feito checkmark icon', async () => {

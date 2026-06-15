@@ -27,6 +27,11 @@ vi.mock('../../platform/schema-manager.js', () => ({
       '@type': 'WebApplication',
       name: 'SupliList'
     })),
+    createOrganizationSchema: vi.fn(() => ({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'SupliList'
+    })),
     insertSchema: vi.fn()
   }
 }));

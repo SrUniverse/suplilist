@@ -11,7 +11,8 @@ describe('StackRecommender AI Engine', () => {
   it('Validation: All supplements have image field pointing to /assets/', () => {
     SUPPLEMENTS_DB.forEach(s => {
       expect(s.image, s.id + ' missing image field').toBeDefined();
-      expect(s.image, s.id + ' image must match /assets/*.png').toMatch(/^\/assets\/.+\.png$/);
+      // Imagens migradas para WebP no visual overhaul; PNG mantido como fallback aceito
+      expect(s.image, s.id + ' image must match /assets/*.(webp|png)').toMatch(/^\/assets\/.+\.(webp|png)$/);
     });
   });
 

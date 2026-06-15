@@ -5,6 +5,7 @@ import { CATEGORIES, OBJECTIVES } from './list-page-utils.js';
 import { ListPageSearch } from './list-page-search.js';
 import { ListPageGrid } from './list-page-grid.js';
 import { ListPageModal } from './list-page-modal.js';
+import { SchemaManager } from '../../platform/schema-manager.js';
 
 import { Skeleton } from '../../components/skeleton.js';
 import { identityService } from '../../platform/identity-service.js';
@@ -80,6 +81,22 @@ export default class ListPage {
         this._grid.init([], null);
         this._modal.init(supplements, null);
         this._search.init(null, supplements);
+
+        // Inject ItemList schema for catalog SEO
+        SchemaManager.insertSchema({
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Catálogo de Suplementos | SupliList',
+          description: `${supplements.length}+ suplementos com evidência científica — compare preços e doses`,
+          url: 'https://suplilist.com/list',
+          numberOfItems: supplements.length,
+          itemListElement: supplements.slice(0, 20).map((s, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            name: s.name,
+            url: `https://suplilist.com/suplemento/${s.id}`
+          }))
+        });
 
         // Load prices async — try from API first, fall back to static JSON
         const supplementIds = supplements.map(s => s.id).join(',');

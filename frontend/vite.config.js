@@ -89,8 +89,15 @@ export default defineConfig({
       },
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules/exceljs')) return 'exceljs';
+          if (id.includes('node_modules/exceljs')) return 'vendor-exceljs';
+          if (id.includes('node_modules/firebase')) return 'vendor-firebase';
+          if (id.includes('node_modules/stripe')) return 'vendor-stripe';
           if (id.includes('node_modules')) return 'vendor';
+          // Lazy feature chunks — só carregados quando a rota é visitada
+          if (id.includes('/features/admin/')) return 'chunk-admin';
+          if (id.includes('/features/premium/')) return 'chunk-premium';
+          if (id.includes('/features/auth/')) return 'chunk-auth';
+          if (id.includes('/features/calculator/')) return 'chunk-calculator';
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',

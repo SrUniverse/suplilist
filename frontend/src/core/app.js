@@ -140,7 +140,10 @@ const PAGE_METADATA = {
  */
 function updateSEOMetadata() {
   const path = window.location.pathname;
-  const meta = PAGE_METADATA[path] || PAGE_METADATA['/'];
+
+  // Para rotas de suplemento com slug (/suplemento/creatina-monohidratada), usa base da rota
+  const basePath = path.startsWith('/suplemento/') ? '/suplemento' : path;
+  const meta = PAGE_METADATA[path] || PAGE_METADATA[basePath] || PAGE_METADATA['/'];
 
   // 1. Atualizar Título
   document.title = meta.title;

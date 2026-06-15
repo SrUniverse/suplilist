@@ -28,9 +28,9 @@ export default class HomePage {
     this.container.innerHTML = this._template();
     this._bindEvents();
 
-    // Insert WebApplication schema for SEO
-    const appSchema = SchemaManager.createWebApplicationSchema();
-    SchemaManager.insertSchema(appSchema);
+    // Insert WebApplication + Organization schema for SEO
+    SchemaManager.insertSchema(SchemaManager.createWebApplicationSchema());
+    SchemaManager.insertSchema(SchemaManager.createOrganizationSchema());
   }
 
   /**

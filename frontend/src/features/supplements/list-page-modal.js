@@ -8,6 +8,7 @@ import { escapeHtml } from '../../utils/escape.js';
 import affiliateEngine from '../../monetization/affiliate-engine.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
 import { sanitizeUrl, isProductUrl, formatPrice, getPriceLabel, getEffectiveCost } from './list-page-utils.js';
+import { SchemaManager } from '../../platform/schema-manager.js';
 
 /**
  * ListPageModal — Manages supplement detail modal and checkout
@@ -67,6 +68,9 @@ export class ListPageModal {
     if (!item) return;
     this._modalOpen = supplementId;
     this._currentIndex = this._allItems.findIndex(s => s.id === supplementId);
+
+    // Inject Product schema for SEO crawlers and social sharing
+    SchemaManager.insertSchema(SchemaManager.createProductSchema(item));
 
     const ev = item.evidenceLevel;
     const evLabels = { A: 'Evidência Robusta', B: 'Evidência Moderada', C: 'Evidência Limitada', D: 'Evidência Preliminar' };
@@ -458,6 +462,9 @@ export class ListPageModal {
       existing.remove();
       this._popScrollLock('modal');
     }
+    // Remove supplement-specific Product schema on close
+    const productSchema = document.querySelector('script[data-schema-type^="Product-"]');
+    if (productSchema) productSchema.remove();
     this._modalOpen = null;
   }
 

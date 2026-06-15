@@ -14,82 +14,82 @@
 
 export class MetaManager {
   static DEFAULT_META = {
-    title: 'SupliList | Suplementos com Evidência Científica',
-    description: 'Compare preços de 57+ suplementos na Amazon, Mercado Livre e Shopee. Calcule doses personalizadas. 100% offline e gratuito.',
+    title: 'SupliList | Suplementos com Evidência Científica — Compare Preços e Doses',
+    description: 'Compare preços de creatina, whey protein, vitaminas e 57+ suplementos baratos na Amazon, Mercado Livre e Shopee. Calcule doses pelo seu peso. 100% gratuito.',
     image: 'https://suplilist.com/og-image.png',
     url: 'https://suplilist.com'
   };
 
   static PAGE_META = {
     '/': {
-      title: 'SupliList | Suplementos com Evidência Científica — Compare Preços e Doses',
-      description: 'Compare preços de creatina, whey protein, vitaminas e 57+ suplementos. Calcule doses baseadas no seu peso. 100% offline e gratuito.',
-      keywords: 'suplementos, creatina, whey protein, vitaminas, comparador de preços'
+      title: 'SupliList | Suplementos Baratos com Evidência Científica — Compare Preços e Doses',
+      description: 'Compare preços de creatina, whey protein, vitaminas e 57+ suplementos baratos. Calcule doses baseadas no seu peso. Grátis, offline e sem cadastro.',
+      keywords: 'suplementos, suplemento barato, suplementos para academia, creatina, whey protein, vitaminas, comparador de preços suplementos, stack de suplementos'
     },
     '/home': {
-      title: 'SupliList | Suplementos com Evidência Científica — Compare Preços e Doses',
-      description: 'Compare preços de creatina, whey protein, vitaminas e 57+ suplementos. Calcule doses baseadas no seu peso. 100% offline e gratuito.',
-      keywords: 'suplementos, creatina, whey protein, vitaminas, comparador de preços'
+      title: 'SupliList | Suplementos Baratos com Evidência Científica — Compare Preços e Doses',
+      description: 'Compare preços de creatina, whey protein, vitaminas e 57+ suplementos baratos. Calcule doses baseadas no seu peso. Grátis, offline e sem cadastro.',
+      keywords: 'suplementos, suplemento barato, suplementos para academia, creatina, whey protein, vitaminas, comparador de preços suplementos, stack de suplementos'
     },
     '/list': {
-      title: 'Catálogo de Suplementos | SupliList',
-      description: 'Veja o catálogo completo com 57+ suplementos esportivos e fitoterápicos. Classificados por Nível de Evidência Científica (Grau A, B, C).',
-      keywords: 'catálogo suplementos, whey protein barato, creatina pura'
+      title: 'Catálogo de Suplementos Baratos com Evidência Científica | SupliList',
+      description: 'Catálogo com 57+ suplementos esportivos e fitoterápicos. Compare preços na Amazon, Mercado Livre e Shopee. Classificados por Evidência Científica (Grau A, B, C).',
+      keywords: 'suplemento barato, catalogo suplementos, whey protein barato, creatina monohidratada, vitamina d3, omega 3 barato, suplementos para academia, comprar suplemento'
     },
     '/my-stack': {
-      title: 'Meu Stack | SupliList',
-      description: 'Gerencie seu stack personalizado de suplementos diários. Organize horários e doses.',
-      keywords: 'stack suplementos, suplementos diários, rotina'
+      title: 'Meu Stack de Suplementos | SupliList',
+      description: 'Monte e gerencie seu stack personalizado de suplementos diários. Organize horários, doses e acompanhe o consumo.',
+      keywords: 'stack suplementos, montar stack, suplementos diarios, rotina de suplementos academia'
     },
     '/favorites': {
-      title: 'Favoritos | SupliList',
-      description: 'Seus suplementos favoritos salvos para rápido acesso e comparação.',
-      keywords: 'favoritos, suplementos salvos'
+      title: 'Suplementos Favoritos | SupliList',
+      description: 'Seus suplementos favoritos salvos para rápido acesso, comparação de dosagem e monitoramento de preços.',
+      keywords: 'favoritos suplementos, lista suplementos, salvar suplementos'
     },
     '/checkin': {
-      title: 'Check-in Diário | SupliList',
-      description: 'Registre seu consumo diário de suplementação. Monitore a consistência ao longo do tempo.',
-      keywords: 'checkin, registro suplementos'
+      title: 'Check-in de Suplementação Diária | SupliList',
+      description: 'Registre seu consumo diário de suplementos. Monitore a consistência do seu stack ao longo do tempo.',
+      keywords: 'checkin suplementos, consistencia treinos, registro suplementos diario'
     },
     '/history': {
-      title: 'Histórico | SupliList',
-      description: 'Histórico detalhado do seu consumo de suplementação diária e check-ins.',
-      keywords: 'histórico suplementos, consumo'
+      title: 'Histórico de Suplementação | SupliList',
+      description: 'Histórico detalhado do seu consumo de suplementação diária, check-ins passados e métricas de consistência.',
+      keywords: 'historico suplementos, consumo creatina, log suplementacao, aderencia'
     },
     '/dosage': {
-      title: 'Calculadora de Dosagem | SupliList',
-      description: 'Calcule a dosagem ideal de creatina, whey protein, cafeína e outros suplementos de acordo com seu peso.',
-      keywords: 'dosagem creatina, calcular whey protein'
+      title: 'Calculadora de Dosagem de Suplementos por Peso | SupliList',
+      description: 'Calcule a dosagem ideal de creatina, whey protein, cafeína e outros suplementos de acordo com seu peso corporal e objetivo de treino.',
+      keywords: 'dosagem creatina por peso, calcular dose whey protein, quanto tomar creatina, dose suplemento por kg, calculadora suplementos'
     },
     '/profile': {
       title: 'Meu Perfil | SupliList',
-      description: 'Gerencie suas informações físicas e preferências para cálculo automático de dosagem.',
-      keywords: 'perfil, dados corporais'
+      description: 'Gerencie suas informações físicas, peso e objetivos de treino para cálculo automático de dosagem ideal de suplementos.',
+      keywords: 'perfil fisico, calcular dose peso corporal, dados corporais suplementos'
     },
     '/settings': {
       title: 'Configurações | SupliList',
-      description: 'Ajuste preferências, gerencie dados locais e exporte/importe backups.',
-      keywords: 'configurações, backup, dados'
+      description: 'Ajuste preferências do app, gerencie dados locais, exporte/importe backups e customize o tema visual.',
+      keywords: 'configuracoes suplilist, backup suplementos, exportar dados, privacidade'
     },
     '/faq': {
-      title: 'Perguntas Frequentes | SupliList',
-      description: 'Tire suas dúvidas sobre o SupliList, evidências científicas e dosagens.',
-      keywords: 'FAQ, dúvidas, perguntas frequentes'
+      title: 'Perguntas Frequentes sobre Suplementos | SupliList',
+      description: 'Tire suas dúvidas sobre suplementos, evidências científicas, dosagens e como usar o SupliList offline.',
+      keywords: 'faq suplementos, duvidas creatina, como tomar suplemento, evidencia cientifica suplementos'
     },
     '/legal': {
-      title: 'Termos & Privacidade | SupliList',
-      description: 'Leia os termos de uso e política de privacidade. 100% focado em privacidade.',
-      keywords: 'termos, privacidade'
+      title: 'Termos de Uso & Política de Privacidade | SupliList',
+      description: 'Leia os termos de uso e a política de privacidade do SupliList. 100% focado em privacidade, sem coleta de dados pessoais.',
+      keywords: 'termos de uso suplementos, privacidade app saude, dados pessoais'
     },
     '/onboarding': {
-      title: 'Bem-vindo | SupliList',
-      description: 'Faça o onboarding e configure seu perfil de suplementação personalizada.',
-      keywords: 'onboarding, cadastro'
+      title: 'Configurar Meu Perfil de Suplementação | SupliList',
+      description: 'Configure seu perfil de suplementação personalizada: peso, objetivo e orçamento para recomendações precisas.',
+      keywords: 'configurar suplementacao, perfil treino, iniciar suplementos'
     },
     '/suplemento': {
-      title: 'Detalhe do Suplemento | SupliList',
-      description: 'Veja informações completas, evidências científicas e preços do suplemento.',
-      keywords: 'suplemento, preços, evidências científicas'
+      title: 'Informações Detalhadas do Suplemento | SupliList',
+      description: 'Veja evidências científicas, dosagem recomendada por peso e comparação de preços do suplemento.',
+      keywords: 'suplemento, dose recomendada, evidencia cientifica, preco suplemento'
     }
   };
 

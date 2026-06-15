@@ -157,9 +157,30 @@ supplements.forEach((supp) => {
 
   let newHtml = replaceMetadata(htmlContent, route, meta);
 
+  // ── Suplementos relacionados (mesma categoria) para internal linking ──────
+  const related = supplements
+    .filter(s => s.category === supp.category && s.id !== supp.id)
+    .slice(0, 6);
+
+  const relatedHtml = related.length > 0 ? `
+      <section style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 24px;">
+        <h2 style="color: #F2F2F2; font-size: 1.4rem; margin-bottom: 16px; font-weight: 700;">Suplementos relacionados em ${supp.category}</h2>
+        <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+          ${related.map(r => `<li><a href="https://suplilist.com/suplemento/${r.id}" style="display: block; padding: 12px 14px; background: rgba(124, 58, 237, 0.06); border: 1px solid rgba(124, 58, 237, 0.15); border-radius: 10px; color: #F2F2F2; text-decoration: none; font-weight: 600;">${r.name} <span style="color: #9A9A9A; font-weight: 400;">— Grau ${r.evidenceLevel}</span></a></li>`).join('')}
+        </ul>
+      </section>
+  ` : '';
+
   const articleHtml = `
   <main id="router-outlet" role="main" aria-live="polite" aria-label="Conteúdo principal">
     <article style="max-width: 800px; margin: 40px auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #F2F2F2; background: #0F0F0F; border: 1px solid rgba(255,255,255,0.07); border-radius: 16px;">
+      <nav aria-label="Trilha de navegação" style="font-size: 0.9rem; color: #9A9A9A; margin-bottom: 20px;">
+        <a href="https://suplilist.com/" style="color: #9A9A9A; text-decoration: none;">Início</a>
+        <span style="margin: 0 8px;">›</span>
+        <a href="https://suplilist.com/list" style="color: #9A9A9A; text-decoration: none;">Catálogo</a>
+        <span style="margin: 0 8px;">›</span>
+        <span style="color: #F2F2F2;">${supp.name}</span>
+      </nav>
       <h1 style="color: #7C3AED; font-size: 2.5rem; margin-top: 0; margin-bottom: 10px; font-weight: 800;">${supp.name}</h1>
       <p style="font-size: 1.1rem; color: #9A9A9A; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 16px;">
         Categoria: <strong>${supp.category}</strong> |
@@ -204,6 +225,7 @@ supplements.forEach((supp) => {
           Acessar Comparador de Preços e Calculadora
         </a>
       </div>
+      ${relatedHtml}
     </article>
   </main>
   `;
@@ -213,13 +235,25 @@ supplements.forEach((supp) => {
     articleHtml
   );
 
-  const redirectScript = `
+  // ── BreadcrumbList JSON-LD para rich results e crawl ──────────────────────
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: 'https://suplilist.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Catálogo', item: 'https://suplilist.com/list' },
+      { '@type': 'ListItem', position: 3, name: supp.name, item: `https://suplilist.com${route}` }
+    ]
+  };
+
+  const headInjection = `
+  <script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>
   <script>
     sessionStorage.setItem('spa-redirect', 'list?id=${supp.id}');
   </script>
   </head>
   `;
-  newHtml = newHtml.replace('</head>', redirectScript);
+  newHtml = newHtml.replace('</head>', headInjection);
 
   fs.writeFileSync(path.join(targetDir, 'index.html'), newHtml, 'utf-8');
   console.log(`✓ Programmatic SEO: /suplemento/${supp.id}`);

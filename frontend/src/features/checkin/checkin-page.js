@@ -497,7 +497,7 @@ export default class CheckinPage {
           margin: 0 0 20px;
           line-height: 1.6;
         ">Adicione suplementos ao seu stack para começar a registrar check-ins diários.</p>
-        <a href="/my-stack" data-nav-internal="/my-stack" style="
+        <a href="/list" data-nav-internal="/list" style="
           display: inline-block;
           background: var(--color-brand);
           color: #fff;
@@ -506,7 +506,7 @@ export default class CheckinPage {
           font-size: 14px;
           padding: 12px 28px;
           border-radius: 10px;
-        ">Ver Meu Stack</a>
+        ">Explorar Catálogo</a>
       </div>
     `;
   }

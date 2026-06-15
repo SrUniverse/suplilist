@@ -162,7 +162,7 @@ export class SchemaManager {
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'Support',
-        email: 'support@suplilist.com'
+        email: 'suporte@suplilist.com'
       },
       // Certificações/credibilidade
       knowsAbout: [

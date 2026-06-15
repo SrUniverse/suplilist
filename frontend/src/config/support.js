@@ -6,7 +6,7 @@
 // Enquanto estiver vazio, o botão de WhatsApp simplesmente não é exibido —
 // o e-mail continua funcionando normalmente.
 
-export const SUPPORT_EMAIL = 'support@suplilist.com';
+export const SUPPORT_EMAIL = 'suporte@suplilist.com';
 
 // Vazio = WhatsApp desativado. Preencher quando o número estiver pronto.
 export const SUPPORT_WHATSAPP = '';

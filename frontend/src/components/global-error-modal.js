@@ -224,7 +224,7 @@ export class GlobalErrorModal {
       const handler = () => {
         this._cancelAutoDismiss();
         // Open contact modal or email
-        window.location.href = 'mailto:support@suplilist.com';
+        window.location.href = 'mailto:suporte@suplilist.com';
       };
       contactBtn.addEventListener('click', handler);
       this._listeners.set(contactBtn, { type: 'click', handler });

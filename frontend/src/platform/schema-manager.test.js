@@ -99,7 +99,7 @@ describe('SchemaManager — JSON-LD Structured Data', () => {
     expect(schema['@type']).toBe('Organization');
     expect(schema.name).toBe('SupliList');
     expect(schema.contactPoint['@type']).toBe('ContactPoint');
-    expect(schema.contactPoint.email).toBe('support@suplilist.com');
+    expect(schema.contactPoint.email).toBe('suporte@suplilist.com');
   });
 
   // 7. insertSchema() creates script tag with JSON-LD

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #080808;
+  }
+  .card {
+    width: 1200px;
+    height: 630px;
+    background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0f0a1a 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 72px 88px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Glow background */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -100px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.35);
+    border-radius: 100px;
+    padding: 8px 20px;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    background: #7C3AED;
+    border-radius: 50%;
+  }
+  .badge-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #a78bfa;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-size: 68px;
+    font-weight: 800;
+    color: #F2F2F2;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+  h1 span {
+    color: #7C3AED;
+  }
+  .subtitle {
+    font-size: 22px;
+    color: #9A9A9A;
+    line-height: 1.5;
+    max-width: 680px;
+    margin-bottom: 48px;
+  }
+  .pills {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #F2F2F2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pill-icon { font-size: 16px; }
+  .logo {
+    position: absolute;
+    top: 52px;
+    right: 88px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-mark {
+    width: 48px;
+    height: 48px;
+    background: #7C3AED;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: white;
+  }
+  .logo-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #F2F2F2;
+    letter-spacing: -0.01em;
+  }
+  .logo-name span {
+    color: #7C3AED;
+  }
+  .decorative-line {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, transparent, #7C3AED, transparent);
+    opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="decorative-line"></div>
+
+  <div class="logo">
+    <div class="logo-mark">S</div>
+    <div class="logo-name">Supli<span>List</span></div>
+  </div>
+
+  <div class="badge">
+    <div class="badge-dot"></div>
+    <span class="badge-text">57+ Suplementos · Evidência Científica</span>
+  </div>
+
+  <h1>Suplementos<br><span>Baratos</span> com<br>Ciência por Trás</h1>
+
+  <p class="subtitle">Compare preços na Amazon, ML e Shopee. Calcule doses pelo seu peso. 100% gratuito e offline.</p>
+
+  <div class="pills">
+    <div class="pill"><span class="pill-icon">🔬</span> Grau A, B, C de Evidência</div>
+    <div class="pill"><span class="pill-icon">⚖️</span> Dose por Peso Corporal</div>
+    <div class="pill"><span class="pill-icon">💰</span> Melhor Custo-Benefício</div>
+  </div>
+</div>
+</body>
+</html>

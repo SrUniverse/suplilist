@@ -288,8 +288,10 @@ export class ListPageModal {
     const pill = overlay.querySelector('.lp-seg-pill');
 
     const movePill = (tab) => {
-      pill.style.left   = `${tab.offsetLeft}px`;
-      pill.style.width  = `${tab.offsetWidth}px`;
+      const left  = tab.offsetLeft;
+      const width = tab.offsetWidth;
+      pill.style.left  = `${left}px`;
+      pill.style.width = `${width}px`;
     };
 
     const activateTab = (tab) => {

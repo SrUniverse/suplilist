@@ -139,8 +139,9 @@ export class Nav {
         const installBtn = document.createElement('button');
         installBtn.id = 'pwa-install-btn';
         installBtn.className = 'sb-theme-btn';
+        installBtn.setAttribute('aria-label', 'Instalar SupliList como app no dispositivo');
         installBtn.innerHTML = `
-          <span class="sb-item__icon">📱</span>
+          <span class="sb-item__icon" aria-hidden="true">📱</span>
           <span style="font-weight:600; color:var(--color-brand)">Instalar App</span>
         `;
         installBtn.addEventListener('click', async () => {
@@ -159,7 +160,8 @@ export class Nav {
         const mobileBtn = document.createElement('button');
         mobileBtn.id = 'mobile-pwa-install-btn';
         mobileBtn.className = 'mt-icon-btn';
-        mobileBtn.innerHTML = `📱`;
+        mobileBtn.setAttribute('aria-label', 'Instalar SupliList como app');
+        mobileBtn.innerHTML = `<span aria-hidden="true">📱</span>`;
         mobileBtn.style.color = 'var(--color-brand)';
         mobileBtn.addEventListener('click', async () => {
           prompt.prompt();

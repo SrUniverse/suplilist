@@ -19,11 +19,8 @@ export class PWAOfflineManager {
    */
   async initialize() {
     try {
-      // Register service worker (nunca em dev — cache de SW serve bundle velho)
-      if ('serviceWorker' in navigator && !import.meta.env?.DEV) {
-        await navigator.serviceWorker.register('/sw.js');
-        logger.info('Service worker registered');
-      }
+      // O Service Worker é registrado pelo VitePWA (registerSW.js → service-worker.js);
+      // não registramos /sw.js aqui para não ter dois SWs concorrentes.
 
       // Initialize IndexedDB
       await this.initIndexedDB();

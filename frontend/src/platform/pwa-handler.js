@@ -14,28 +14,11 @@ export class PWAHandler {
   }
 
   async init() {
-    this._registerServiceWorker();
+    // O registro do Service Worker é feito pelo VitePWA (registerSW.js → service-worker.js).
+    // Não registramos /sw.js aqui para evitar dois SWs concorrentes no mesmo escopo.
     this._listenForOnlineStatus();
     this._handleInstallPrompt();
     this._addViewportMeta();
-  }
-
-  /**
-   * Register service worker for offline support
-   */
-  async _registerServiceWorker() {
-    // Em dev o SW serve bundle velho do cache e mascara mudanças de código.
-    if (import.meta.env?.DEV) return;
-    if ('serviceWorker' in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/'
-        });
-        logger.debug('[PWA] Service Worker registered', registration);
-      } catch (error) {
-        logger.warn('[PWA] Service Worker registration failed:', error);
-      }
-    }
   }
 
   /**

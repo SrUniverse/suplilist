@@ -58,7 +58,10 @@ export class HistoryService {
       }
 
       // 3. Simulação de banco de dados e paginação com filtros aplicados
-      let allCheckins = stateManager.get('checkins') || [];
+      // Sort descending by timestamp so newest check-ins appear first
+      let allCheckins = [...(stateManager.get('checkins') || [])].sort(
+        (a, b) => (b.timestamp || 0) - (a.timestamp || 0)
+      );
       
       if (this.#filters.query || this.#filters.category !== 'Todos') {
         const q = (this.#filters.query || '').toLowerCase().trim();

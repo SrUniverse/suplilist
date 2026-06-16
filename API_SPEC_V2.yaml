@@ -1,0 +1,860 @@
+openapi: 3.0.0
+info:
+  title: SupliList API
+  description: Supplement tracking and management API - v2 (consolidated endpoints)
+  version: 2.0.0
+  contact:
+    name: SupliList Team
+    url: https://suplilist.com
+  license:
+    name: Proprietary
+    url: https://suplilist.com/license
+
+servers:
+  - url: https://api.suplilist.com/api/v2
+    description: Production (v2 - current)
+  - url: https://api.suplilist.com/api/v1
+    description: Production (v1 - deprecated)
+  - url: http://localhost:3000/api/v2
+    description: Local development
+
+tags:
+  - name: Health
+    description: Health check and monitoring endpoints
+  - name: Metrics
+    description: Prometheus metrics for monitoring
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Profile
+    description: User profile management
+  - name: Price Alerts
+    description: Price monitoring and alerts (consolidated)
+  - name: Notifications
+    description: Push notifications and device management
+  - name: Reports
+    description: User analytics and adherence reports
+  - name: Cache Admin
+    description: Cache administration (admin only)
+
+paths:
+  /health/live:
+    get:
+      summary: Liveness probe
+      description: Simple health check - returns 200 if process is running (Kubernetes compatible)
+      tags:
+        - Health
+      responses:
+        200:
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+                    description: Process uptime in seconds
+
+  /health/ready:
+    get:
+      summary: Readiness probe
+      description: Full health check including dependencies (MongoDB, Redis) - Kubernetes compatible
+      tags:
+        - Health
+      responses:
+        200:
+          description: Ready to serve requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+        503:
+          description: Service degraded or unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /metrics:
+    get:
+      summary: Prometheus metrics
+      description: Exposes application metrics in Prometheus format for scraping
+      tags:
+        - Metrics
+      produces:
+        - text/plain; charset=utf-8; version=0.0.4
+      responses:
+        200:
+          description: Prometheus metrics exposition format
+
+  /price-alerts:
+    get:
+      summary: List user's price alerts
+      tags:
+        - Price Alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of alerts per page
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Number of alerts to skip
+      responses:
+        200:
+          description: List of price alerts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceAlertListResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      summary: Create price alert
+      tags:
+        - Price Alerts
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePriceAlertRequest'
+      responses:
+        201:
+          description: Alert created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/ValidationError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        409:
+          description: Alert already exists for this product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /price-alerts/{alertId}:
+    get:
+      summary: Get specific price alert
+      tags:
+        - Price Alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: alertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Alert ID
+      responses:
+        200:
+          description: Price alert details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      summary: Update price alert
+      tags:
+        - Price Alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: alertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePriceAlertRequest'
+      responses:
+        200:
+          description: Alert updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/ValidationError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      summary: Delete price alert
+      tags:
+        - Price Alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: alertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Alert deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /price-alerts/{alertId}/history:
+    get:
+      summary: Get price history for alert
+      description: Retrieves price history for the product associated with this alert
+      tags:
+        - Price Alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: alertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+          description: Number of history records to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Number of records to skip
+      responses:
+        200:
+          description: Price history records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+                      history:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            source:
+                              type: string
+                            price:
+                              type: number
+                            dropPercentage:
+                              type: number
+                              nullable: true
+                            checkedAt:
+                              type: string
+                              format: date-time
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /notifications/preferences:
+    get:
+      summary: Get notification preferences
+      tags:
+        - Notifications
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: User notification preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      summary: Update notification preferences
+      tags:
+        - Notifications
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    dailyReminder:
+                      type: boolean
+                    streakAlerts:
+                      type: boolean
+                    milestones:
+                      type: boolean
+                    comebackReminders:
+                      type: boolean
+                    socialNotifications:
+                      type: boolean
+                preferredHour:
+                  type: integer
+                  minimum: 0
+                  maximum: 23
+      responses:
+        200:
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/ValidationError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /notifications/device-tokens:
+    post:
+      summary: Register device token
+      description: Register a Firebase device token for push notifications (MOVED from price-alerts)
+      tags:
+        - Notifications
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceToken:
+                  type: string
+                  description: Firebase device token
+                deviceName:
+                  type: string
+                  description: User-friendly device name
+                deviceType:
+                  type: string
+                  enum: [ios, android, web]
+      responses:
+        201:
+          description: Token registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/ValidationError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /notifications/device-tokens/{tokenId}:
+    delete:
+      summary: Unregister device token
+      description: Remove device token from notifications (MOVED from price-alerts)
+      tags:
+        - Notifications
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: tokenId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Token deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /reports/heatmap:
+    get:
+      summary: Get adherence heatmap
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+            default: 90
+            minimum: 1
+            maximum: 365
+      responses:
+        200:
+          description: Heatmap data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /reports/dashboard:
+    get:
+      summary: Get complete dashboard data
+      description: Retrieves all dashboard metrics at once (heatmap, trend, streak, achievements)
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Complete dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /admin/cache/stats:
+    get:
+      summary: Get cache statistics
+      tags:
+        - Cache Admin
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Cache statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+  /admin/cache/invalidate:
+    post:
+      summary: Invalidate cache
+      description: Invalidate cache by pattern, entity type, or specific entity ID. Consolidated endpoint - replaces /api/admin/cache/invalidate/{type} endpoints.
+      tags:
+        - Cache Admin
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pattern:
+                  type: string
+                  description: Redis key pattern (e.g., "cache:products:*")
+                entityType:
+                  type: string
+                  enum: [products, lists, search, users]
+                  description: Entity type to invalidate
+                entityId:
+                  type: string
+                  description: Specific entity ID to invalidate
+      responses:
+        200:
+          description: Cache invalidated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        400:
+          $ref: '#/components/responses/ValidationError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/v2/auth/login
+
+  schemas:
+    # Response structures
+    SuccessResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        deprecation:
+          $ref: '#/components/schemas/DeprecationInfo'
+
+    ErrorResponse:
+      type: object
+      required: [success, error, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          $ref: '#/components/schemas/ApiError'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - bad_request
+            - validation_error
+            - unauthorized
+            - forbidden
+            - not_found
+            - conflict
+            - gone
+            - internal_server_error
+        message:
+          type: string
+          description: User-friendly error message
+        details:
+          type: object
+          description: Field-level validation errors
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+
+    ResponseMeta:
+      type: object
+      required: [timestamp]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        requestId:
+          type: string
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+        rateLimit:
+          type: object
+          properties:
+            limit:
+              type: integer
+            remaining:
+              type: integer
+            resetAt:
+              type: string
+              format: date-time
+
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        hasMore:
+          type: boolean
+        totalPages:
+          type: integer
+
+    DeprecationInfo:
+      type: object
+      properties:
+        deprecated:
+          type: boolean
+          enum: [true]
+        sunset:
+          type: string
+          format: date-time
+          description: Date when endpoint will be removed
+        alternative:
+          type: string
+          description: Path to replacement endpoint
+        message:
+          type: string
+          description: Additional migration information
+
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        checks:
+          type: object
+          properties:
+            mongodb:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+                latency:
+                  type: number
+            redis:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+                latency:
+                  type: number
+            memory:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+                usage:
+                  type: number
+            uptime:
+              type: number
+            version:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+
+    # Price Alerts
+    CreatePriceAlertRequest:
+      type: object
+      required: [productId, targetPrice]
+      properties:
+        productId:
+          type: string
+          description: Product ID to monitor
+        targetPrice:
+          type: number
+          minimum: 0
+          description: Target price to alert at
+
+    UpdatePriceAlertRequest:
+      type: object
+      properties:
+        targetPrice:
+          type: number
+          minimum: 0
+        active:
+          type: boolean
+
+    PriceAlertListResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              productId:
+                type: string
+              targetPrice:
+                type: number
+              currentPrice:
+                type: number
+                nullable: true
+              active:
+                type: boolean
+              createdAt:
+                type: string
+                format: date-time
+              notificationSentAt:
+                type: string
+                format: date-time
+                nullable: true
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+  responses:
+    SuccessResponse:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessResponse'
+
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: validation_error
+              message: Validation failed
+              details:
+                targetPrice: Must be greater than 0
+
+    UnauthorizedError:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: unauthorized
+              message: Authentication required
+
+    ForbiddenError:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: forbidden
+              message: You do not have permission
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: not_found
+              message: Resource not found
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: internal_server_error
+              message: An unexpected error occurred
+
+x-google-endpoints:
+  - name: "api.suplilist.com"
+    allowUnregisteredCalls: false
+
+x-google-management:
+  metrics:
+    - name: "api.suplilist.com/request_count"
+      display_name: "Request Count"
+      value_type: INT64
+      metric_kind: DELTA

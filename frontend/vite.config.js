@@ -1,9 +1,18 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { resolve } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   root: '.',
+  resolve: {
+    alias: {
+      '@sentry/browser': resolve(__dirname, '../node_modules/@sentry/browser')
+    }
+  },
   server: {
     port: 5173,
     host: '127.0.0.1',

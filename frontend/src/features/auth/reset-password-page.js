@@ -20,7 +20,7 @@ export default class ResetPasswordPage {
     this._token = params.get('oobCode') || params.get('token');
 
     if (!this._token) {
-      alert("Token inválido ou ausente.");
+      eventBus.emit(EVENTS.TOAST_SHOW, { type: 'error', message: 'Token inválido ou ausente.' });
       eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/login' });
       return;
     }
@@ -130,8 +130,7 @@ export default class ResetPasswordPage {
 
     try {
       await confirmPasswordReset(auth, this._token, password);
-      
-      alert("Senha alterada com sucesso!");
+      eventBus.emit(EVENTS.TOAST_SHOW, { type: 'success', message: 'Senha alterada com sucesso!' });
       if (this._isMounted) {
         eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/login' });
       }

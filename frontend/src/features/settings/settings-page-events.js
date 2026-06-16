@@ -13,6 +13,7 @@ import { CheckoutModal } from '../premium/checkout-modal.js';
 import { MfaSetupModal } from '../auth/mfa-setup-modal.js';
 import { settingsService } from './settings-service.js';
 import { logger } from '../../utils/logger.js';
+import { eventBus, EVENTS } from '../../core/event-bus.js';
 
 /**
  * Bind theme toggle event
@@ -58,7 +59,7 @@ export async function bindNotificationCheckin(container, notifService) {
     if (notifCheckin.checked) {
       const granted = await notifService.requestPermission();
       if (!granted) {
-        alert('Permissão de notificações negada. Por favor, ative as notificações nas configurações do seu navegador para receber lembretes.');
+        eventBus.emit(EVENTS.TOAST_SHOW, { type: 'error', message: 'Ative as notificações nas configurações do seu navegador para receber lembretes.' });
         notifCheckin.checked = false;
         return;
       }
@@ -97,7 +98,7 @@ export async function bindNotificationRestock(container, notifService) {
     if (notifRestock.checked) {
       const granted = await notifService.requestPermission();
       if (!granted) {
-        alert('Permissão de notificações negada. Por favor, ative as notificações nas configurações do seu navegador para receber alertas de estoque.');
+        eventBus.emit(EVENTS.TOAST_SHOW, { type: 'error', message: 'Ative as notificações nas configurações do seu navegador para receber alertas de estoque.' });
         notifRestock.checked = false;
         return;
       }
@@ -145,11 +146,10 @@ export function bindSubscriptionEvents(container) {
   const cancelBtn = container.querySelector('#sp-cancel-plan-btn');
   if (cancelBtn) {
     cancelBtn.addEventListener('click', () => {
-      if (confirm('Deseja realmente cancelar sua assinatura Premium? Você perderá acesso aos anúncios removidos e análises de gráficos.')) {
-        stateManager.dispatch(ACTIONS.SET_TIER, { tier: 'free' });
-        StorageManager.setItem('suplilist:tier', 'free');
-        alert('Sua assinatura foi cancelada e sua conta retornou ao plano gratuito.');
-      }
+      if (!window.confirm('Deseja realmente cancelar sua assinatura Premium? Você perderá acesso aos anúncios removidos e análises de gráficos.')) return;
+      stateManager.dispatch(ACTIONS.SET_TIER, { tier: 'free' });
+      StorageManager.setItem('suplilist:tier', 'free');
+      eventBus.emit(EVENTS.TOAST_SHOW, { type: 'info', message: 'Assinatura cancelada. Conta retornou ao plano gratuito.' });
     });
   }
 }
@@ -205,7 +205,7 @@ export function bindFileExport(container) {
     exportFileBtn.textContent = 'Salvando...';
     try {
       const result = await StorageManager.exportToFile();
-      alert(result.message);
+      eventBus.emit(EVENTS.TOAST_SHOW, { type: result.success ? 'success' : 'error', message: result.message });
       if (result.success) {
         exportFileBtn.textContent = '✓ Salvo';
         setTimeout(() => { exportFileBtn.textContent = 'Salvar'; }, 2000);
@@ -232,7 +232,7 @@ export function bindFileImport(container) {
     importFileBtn.textContent = 'Restaurando...';
     try {
       const result = await StorageManager.importFromFile();
-      alert(result.message);
+      eventBus.emit(EVENTS.TOAST_SHOW, { type: result.success ? 'success' : 'error', message: result.message });
       if (result.success) {
         importFileBtn.textContent = '✓ Restaurado';
         setTimeout(() => {
@@ -255,7 +255,7 @@ export function bindClearCheckins(container) {
   if (!clearBtn) return;
 
   clearBtn.addEventListener('click', () => {
-    if (!confirm('Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita.')) return;
+    if (!window.confirm('Deseja limpar todo o histórico de check-ins? Esta ação não pode ser desfeita.')) return;
     stateManager.dispatch(ACTIONS.CLEAR_CHECKINS);
   });
 }
@@ -269,7 +269,7 @@ export function bindResetAll(container) {
   if (!resetBtn) return;
 
   resetBtn.addEventListener('click', () => {
-    if (!confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.')) return;
+    if (!window.confirm('⚠️ ATENÇÃO: Isso vai apagar TODOS os seus dados (stack, check-ins, perfil). Não há como desfazer.')) return;
     Object.keys(localStorage)
       .filter(k => k.startsWith('suplilist'))
       .forEach(k => StorageManager.removeItem(k));

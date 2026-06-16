@@ -25,7 +25,14 @@ export function getRecommendations(profile) {
   const ranked = SUPPLEMENTS_DB.filter(s => {
     if (restrictions.includes(s.id)) return false;
     if (!s.targets?.[objective]) return false;
-    const estimatedCost = s.pricePerGram * 30;
+    const dose = s.dosage?.maintenance ?? 5;
+    const unit = s.dosage?.unit ?? 'g';
+    let dailyGrams;
+    if (unit === 'mg') dailyGrams = dose / 1000;
+    else if (unit === 'mcg') dailyGrams = dose / 1_000_000;
+    else if (unit === 'g') dailyGrams = dose;
+    else return true; // UI, UFC, etc. — non-mass units; skip cost filter
+    const estimatedCost = s.pricePerGram * dailyGrams * 30;
     return estimatedCost <= budget;
   }).sort((a, b) => {
     // Relevância = afinidade com o objetivo ponderada pela força da evidência.

@@ -546,14 +546,14 @@ transparent 100%
 }
 
 .lp-btn-fav:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--color-error-bg);
   border-color: rgba(239, 68, 68, 0.4);
-  color: #EF4444;
+  color: var(--color-error);
 }
 
 .lp-btn-fav.faved {
-  color: #EF4444;
-  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+  background: var(--color-error-bg);
   border-color: rgba(239, 68, 68, 0.35);
 }
 

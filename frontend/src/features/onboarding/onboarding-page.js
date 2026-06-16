@@ -90,6 +90,7 @@ export default class OnboardingPage {
             data-testid="onboarding-input-name"
             type="text"
             placeholder="Seu nome"
+            aria-label="Seu nome"
             autocomplete="given-name"
             value="${escapeHtml(this.data.name)}"
             style="margin-bottom:1.75rem"
@@ -145,12 +146,14 @@ export default class OnboardingPage {
           <p class="onboarding-subtitle">Vamos calcular doses personalizadas pra você.</p>
           <div class="onboarding-goal-grid">${goalsHtml}</div>
 
-          <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--color-text-secondary);margin:1.5rem 0 0.5rem;">Seu peso (kg)</label>
+          <label for="onboarding-weight-input" style="display:block;font-size:0.85rem;font-weight:600;color:var(--color-text-secondary);margin:1.5rem 0 0.5rem;">Seu peso (kg)</label>
           <input
+            id="onboarding-weight-input"
             class="onboarding-input onboarding-weight-input"
             data-testid="onboarding-input-weight"
             type="number" inputmode="numeric" min="30" max="250"
             placeholder="Ex.: 75"
+            aria-label="Peso em quilogramas"
             value="${this.data.weight ?? ''}"
           />
 

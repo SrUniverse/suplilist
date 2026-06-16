@@ -12,6 +12,7 @@ import { errorHandler } from '../../platform/error-handler.js';
 import { loginValidator } from '../../platform/form-validator.js';
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { auth, signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut } from './firebase-client.js';
+import { logger } from '../../utils/logger.js';
 
 export default class LoginPage {
   constructor(container) {
@@ -373,10 +374,7 @@ export default class LoginPage {
         await signOut(auth).catch(() => {});
       }
 
-      console.error('[Google Sign-In Error]', err);
-      console.error('[Google Sign-In Error Code]', err.error);
-      console.error('[Google Sign-In Error Message]', err.message);
-      console.error('[Google Sign-In Error Data]', err.data);
+      logger.error('[Google Sign-In Error]', { code: err.error, message: err.message, data: err.data });
       
       this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       

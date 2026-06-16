@@ -2,6 +2,7 @@ import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { auth, sendPasswordResetEmail } from './firebase-client.js';
 import { validateEmail } from '../../platform/form-validators.js';
+import { logger } from '../../utils/logger.js';
 
 export default class ForgotPasswordPage {
   constructor(container) {
@@ -98,7 +99,7 @@ export default class ForgotPasswordPage {
       await sendPasswordResetEmail(auth, email);
     } catch (_err) {
       // Ignorar erros silenciosamente para evitar Account Enumeration
-      console.warn('Opaque forgot password handling.', _err);
+      logger.warn('[ForgotPassword] opaque error (account enumeration prevention)', _err);
     } finally {
       if (this._isMounted) {
         this._isLoading = false;

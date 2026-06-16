@@ -1,5 +1,6 @@
 import { apiFetch } from '../../platform/api-client.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
+import { logger } from '../../utils/logger.js';
 
 export class MfaSetupModal {
   constructor(container) {
@@ -195,7 +196,7 @@ export class MfaSetupModal {
         copyBtn.textContent = '✅ Copiado!';
         unlockDoneButton();
       } catch (err) {
-        console.error('Falha ao copiar', err);
+        logger.error('[MFA] Clipboard copy failed', err);
       }
     });
 

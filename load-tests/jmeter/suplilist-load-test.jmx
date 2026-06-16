@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.2">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="SupliList Load Test" enabled="true">
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="BASE_URL" elementType="Argument">
+            <stringProp name="Argument.name">BASE_URL</stringProp>
+            <stringProp name="Argument.value">http://localhost:3000</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="THREADS" elementType="Argument">
+            <stringProp name="Argument.name">THREADS</stringProp>
+            <stringProp name="Argument.value">100</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="RAMP_TIME" elementType="Argument">
+            <stringProp name="Argument.name">RAMP_TIME</stringProp>
+            <stringProp name="Argument.value">300</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="DURATION" elementType="Argument">
+            <stringProp name="Argument.name">DURATION</stringProp>
+            <stringProp name="Argument.value">600</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="TestPlan.comments">
+        Normal Load Test: 100 concurrent users over 10 minutes
+        Warm up: 5 minutes
+        Sustained: 5 minutes
+      </stringProp>
+      <booleanProp name="TestPlan.functional_mode">false</booleanProp>
+      <booleanProp name="TestPlan.serialize_threadgroups">false</booleanProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <!-- Thread Group: Normal Load -->
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Normal Load Users" enabled="true">
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <booleanProp name="LoopController.continue_forever">false</booleanProp>
+          <stringProp name="LoopController.loops">-1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREADS}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RAMP_TIME}</stringProp>
+        <elementProp name="ThreadGroup.scheduler" elementType="elementProp">
+          <booleanProp name="ThreadGroup.scheduler">true</booleanProp>
+          <stringProp name="ThreadGroup.duration">${DURATION}</stringProp>
+          <stringProp name="ThreadGroup.delay">0</stringProp>
+        </elementProp>
+        <booleanProp name="ThreadGroup.same_user_on_next_iteration">true</booleanProp>
+        <booleanProp name="ThreadGroup.scheduler">true</booleanProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <!-- HTTP Request Defaults -->
+        <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">3000</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path"></stringProp>
+          <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+          <booleanProp name="HTTPSampler.image_parser">true</booleanProp>
+          <booleanProp name="HTTPSampler.concurrentDwn">true</booleanProp>
+          <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+          <booleanProp name="HTTPSampler.md5">false</booleanProp>
+          <intProp name="HTTPSampler.connect_timeout">20000</intProp>
+          <intProp name="HTTPSampler.response_timeout">20000</intProp>
+        </ConfigTestElement>
+        <hashTree/>
+
+        <!-- Search Supplements Request -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Search Supplements" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="search" elementType="HTTPArgument">
+                <booleanProp name="HTTPArgument.always_encode">false</booleanProp>
+                <stringProp name="Argument.name">search</stringProp>
+                <stringProp name="Argument.value">whey</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <booleanProp name="HTTPArgument.use_equals">true</booleanProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <booleanProp name="HTTPArgument.always_encode">false</booleanProp>
+                <stringProp name="Argument.name">limit</stringProp>
+                <stringProp name="Argument.value">20</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <booleanProp name="HTTPArgument.use_equals">true</booleanProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"></stringProp>
+          <stringProp name="HTTPSampler.port"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.path">/api/supplements</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <booleanProp name="HTTPSampler.follow_redirects">true</booleanProp>
+          <booleanProp name="HTTPSampler.auto_redirects">false</booleanProp>
+          <booleanProp name="HTTPSampler.use_keepalive">true</booleanProp>
+          <booleanProp name="HTTPSampler.DO_MULTIPART_POST">false</booleanProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <!-- Response Assertions -->
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code" enabled="true">
+            <elementProp name="TestElements" elementType="CollectionProperty">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+                <stringProp name="49599">304</stringProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="Assertion.test_type">6</stringProp>
+            <booleanProp name="Assertion.assume_success">false</booleanProp>
+            <intProp name="Assertion.test_type">1</intProp>
+          </ResponseAssertion>
+          <hashTree/>
+        </hashTree>
+
+        <!-- Get Supplement Detail -->
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Supplement Detail" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"></stringProp>
+          <stringProp name="HTTPSampler.port"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.path">/api/supplements/supp_1000</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <booleanProp name="HTTPSampler.follow_redirects">true</booleanProp>
+          <booleanProp name="HTTPSampler.auto_redirects">false</booleanProp>
+          <booleanProp name="HTTPSampler.use_keepalive">true</booleanProp>
+          <booleanProp name="HTTPSampler.DO_MULTIPART_POST">false</booleanProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+
+        <!-- Results Collector -->
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="false">
+          <elementProp name="ResultCollector.sample_save_config" elementType="ResultSaveConfiguration">
+            <booleanProp name="ResultSaveConfiguration.saveAsXml">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveResponseData">false</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveResponseHeaders">false</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveTestLabels">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveAssertionResultsFailureMessage">true</booleanProp>
+            <intProp name="ResultSaveConfiguration.assertionsFailureMinCount">2</intProp>
+            <booleanProp name="ResultSaveConfiguration.saveAssertions">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveLatency">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveSamplerData">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveFileHeaders">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveUrl">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveFileName">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveHostname">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveThreadCounts">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveOverallStats">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.saveIdleTiming">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.time">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.timestamp">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.connect_time">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.latency">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.encoding">false</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.bytes">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.hostname">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.label">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.code">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.message">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.threadName">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.dataType">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.success">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.responseTime">true</booleanProp>
+            <stringProp name="ResultSaveConfiguration.filename"></stringProp>
+            <longProp name="ResultSaveConfiguration.numberFormat">#</longProp>
+            <booleanProp name="ResultSaveConfiguration.url">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.threads">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.assertAll">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.useGroupName">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.eltName">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.responseDataOnError">false</booleanProp>
+            <stringProp name="ResultSaveConfiguration.samplerLabel"></stringProp>
+            <booleanProp name="ResultSaveConfiguration.responseHeaders">false</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.requestHeaders">false</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.assessAssertion">true</booleanProp>
+            <booleanProp name="ResultSaveConfiguration.subresults">true</booleanProp>
+          </elementProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+
+        <!-- Summary Report -->
+        <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Summary Report" enabled="true">
+          <elementProp name="ResultCollector.sample_save_config" elementType="ResultSaveConfiguration">
+            <booleanProp name="ResultSaveConfiguration.saveAsXml">false</booleanProp>
+            <stringProp name="ResultSaveConfiguration.filename">results.csv</stringProp>
+          </elementProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

@@ -1,0 +1,260 @@
+# SLA and Performance Targets Configuration
+# Used by load testing automation and validation scripts
+
+performance_targets:
+  # Response Time Percentiles (milliseconds)
+  response_time:
+    p50: 100
+    p95: 500
+    p99: 1000
+    p100: 2000
+
+  # Error Rate (percentage)
+  error_rate:
+    warning: 5
+    critical: 10
+
+  # Throughput (requests per second)
+  throughput:
+    minimum: 1000
+    target: 5000
+
+  # Availability (percentage)
+  availability:
+    target: 99.9
+    critical: 99.0
+
+# Critical Thresholds - Test fails if exceeded
+critical_thresholds:
+  p99_response_time: 2000  # ms
+  error_rate: 10           # %
+  failed_requests: 100     # absolute count
+  connection_errors: 50    # absolute count
+  timeout_errors: 50       # absolute count
+
+# Scenario-specific targets
+scenarios:
+  normal:
+    concurrent_users: 100
+    ramp_up_time: 5m
+    sustained_time: 5m
+    cool_down_time: 2m
+    expected_throughput: 1000  # RPS
+    targets:
+      p95: 500
+      p99: 1000
+      error_rate: 5
+
+  peak:
+    concurrent_users: 1000
+    ramp_up_time: 5m
+    sustained_time: 5m
+    cool_down_time: 3m
+    expected_throughput: 5000
+    targets:
+      p95: 800
+      p99: 1500
+      error_rate: 8
+
+  stress:
+    concurrent_users: 5000
+    ramp_up_time: 3m
+    sustained_time: 3m
+    cool_down_time: 2m
+    expected_throughput: 10000
+    targets:
+      p95: 1500
+      p99: 2500
+      error_rate: 10
+
+# Test configuration
+test_configuration:
+  base_url: "http://localhost:3000"
+  timeout: 30s
+  connection_timeout: 10s
+
+  # Virtual user behavior
+  think_time:
+    min: 0.5s
+    max: 3s
+
+  # Request retry policy
+  retries:
+    enabled: true
+    max_attempts: 3
+    backoff: exponential
+    initial_delay: 100ms
+    max_delay: 5s
+
+# Alert Configuration
+alerting:
+  enabled: true
+
+  # Alert channels
+  channels:
+    slack:
+      enabled: true
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      mention_on_critical: "@on-call"
+
+    pagerduty:
+      enabled: true
+      integration_key: "${PAGERDUTY_KEY}"
+
+    email:
+      enabled: true
+      recipients:
+        - alerts@suplilist.com
+        - devops@suplilist.com
+
+  # Alert conditions
+  alerts:
+    - name: "High Response Time"
+      condition: "p95_response_time > 1000"
+      severity: warning
+
+    - name: "Critical Response Time"
+      condition: "p99_response_time > 2000"
+      severity: critical
+
+    - name: "High Error Rate"
+      condition: "error_rate > 10"
+      severity: critical
+
+    - name: "Low Throughput"
+      condition: "throughput < 500"
+      severity: warning
+
+    - name: "Server Unavailable"
+      condition: "http_status_5xx > 100"
+      severity: critical
+
+# Baseline Management
+baselines:
+  enabled: true
+  auto_save: false
+  comparison:
+    enabled: true
+    # Alert if performance degrades more than threshold
+    degradation_threshold: 10  # percent
+
+  retention_policy:
+    keep_days: 90
+    keep_count: 30
+
+# Metrics Collection
+metrics:
+  # K6 custom metrics
+  http_req_duration:
+    enabled: true
+    units: "ms"
+
+  http_req_failed:
+    enabled: true
+
+  custom_metrics:
+    - name: "registration_time"
+      type: "trend"
+      units: "ms"
+
+    - name: "login_time"
+      type: "trend"
+      units: "ms"
+
+    - name: "stack_operation_time"
+      type: "trend"
+      units: "ms"
+
+    - name: "success_count"
+      type: "counter"
+
+    - name: "error_count"
+      type: "counter"
+
+# Database configuration for result storage
+database:
+  enabled: true
+  type: "mongodb"  # mongodb, postgresql, influxdb
+  connection:
+    host: "${DB_HOST:-localhost}"
+    port: "${DB_PORT:-27017}"
+    database: "suplilist-metrics"
+    collection: "load_test_results"
+
+  # Data retention
+  retention:
+    days: 180
+    auto_cleanup: true
+
+# Report Generation
+reporting:
+  enabled: true
+
+  # Report formats
+  formats:
+    - "html"
+    - "csv"
+    - "json"
+
+  # HTML report features
+  html:
+    include_graphs: true
+    include_recommendations: true
+    include_baseline_comparison: true
+    theme: "dark"
+
+  # Automated report delivery
+  delivery:
+    enabled: true
+    email:
+      recipients:
+        - "devops@suplilist.com"
+      on_completion: true
+      on_failure: true
+    slack:
+      channel: "#performance"
+      on_completion: true
+
+# Capacity Planning
+capacity_planning:
+  enabled: true
+
+  # Growth projections
+  projections:
+    # Expected growth in concurrent users per month
+    monthly_growth_percent: 10
+
+    # Planning horizon
+    planning_months: 12
+
+  # Resource estimation
+  resources:
+    # CPU per RPS
+    cpu_per_rps: 0.01
+
+    # Memory per RPS (GB)
+    memory_per_rps: 0.002
+
+    # Database connections per user
+    db_connections_per_user: 1
+    max_connections: 1000
+
+# Performance Optimization Recommendations
+optimization_thresholds:
+  # Cache optimization
+  cache_hit_rate:
+    target: 80
+    implement_at: 60  # Recommend caching if < 60%
+
+  # Database optimization
+  slow_query_time: 100  # ms
+  slow_query_percent: 5
+
+  # API optimization
+  large_response_size: 1000  # KB
+  compression_threshold: 100  # KB
+
+  # Server optimization
+  memory_usage_percent: 80
+  cpu_usage_percent: 80
+  connection_pool_usage: 75

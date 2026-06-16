@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: suplilist-api
+  namespace: suplilist-prod
+  labels:
+    app: suplilist
+    component: api
+spec:
+  type: ClusterIP
+  selector:
+    app: suplilist
+    component: api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: suplilist-api
+  namespace: suplilist-staging
+  labels:
+    app: suplilist
+    component: api
+spec:
+  type: ClusterIP
+  selector:
+    app: suplilist
+    component: api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: suplilist-prod
+  labels:
+    app: suplilist
+    component: database
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: suplilist
+    component: database
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: suplilist-prod
+  labels:
+    app: suplilist
+    component: cache
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: suplilist
+    component: cache
+  ports:
+    - port: 6379
+      targetPort: 6379

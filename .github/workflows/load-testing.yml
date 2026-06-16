@@ -1,0 +1,372 @@
+name: Load Testing and Performance Validation
+
+on:
+  schedule:
+    # Run daily normal load test at 2 AM UTC
+    - cron: '0 2 * * *'
+    # Run weekly peak load test on Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+    # Run monthly stress test on 1st of month at 3 AM UTC
+    - cron: '0 3 1 * *'
+
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Load test scenario'
+        required: true
+        default: 'normal'
+        type: choice
+        options:
+          - normal
+          - peak
+          - stress
+      upload_results:
+        description: 'Upload results as artifacts'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  NODE_VERSION: '24'
+  BASE_URL: 'http://localhost:3000'
+
+jobs:
+  setup:
+    name: Setup and Prerequisites Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine test scenario
+        id: scenario
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SCENARIO="${{ github.event.inputs.scenario }}"
+          else
+            # Determine based on day of week and month
+            DAY_OF_WEEK=$(date +%w)
+            DAY_OF_MONTH=$(date +%d)
+
+            if [ "$DAY_OF_MONTH" = "01" ]; then
+              SCENARIO="stress"
+            elif [ "$DAY_OF_WEEK" = "0" ]; then
+              SCENARIO="peak"
+            else
+              SCENARIO="normal"
+            fi
+          fi
+          echo "scenario=$SCENARIO" >> $GITHUB_OUTPUT
+
+      - name: Cache scenario
+        run: echo "${{ steps.scenario.outputs.scenario }}" > /tmp/scenario.txt
+
+    outputs:
+      scenario: ${{ steps.scenario.outputs.scenario }}
+
+  load-test:
+    name: Run Load Test (${{ needs.setup.outputs.scenario }})
+    runs-on: ubuntu-latest
+    needs: setup
+
+    services:
+      mongodb:
+        image: mongo:5.0
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install K6
+        run: |
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
+            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6-stable.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Verify K6 installation
+        run: k6 version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build server
+        run: npm run build -w @suplilist/server
+
+      - name: Start server
+        run: |
+          npm run dev:server &
+          sleep 30
+          curl -f http://localhost:3000/health || echo "Server health check failed"
+
+      - name: Wait for server readiness
+        run: |
+          timeout=0
+          while ! curl -sf http://localhost:3000/health > /dev/null 2>&1; do
+            timeout=$((timeout + 1))
+            if [ $timeout -ge 30 ]; then
+              echo "Server did not become ready in time"
+              exit 1
+            fi
+            echo "Waiting for server... ($timeout/30)"
+            sleep 2
+          done
+
+      - name: Run load test - ${{ needs.setup.outputs.scenario }}
+        run: |
+          chmod +x load-tests/scripts/run-load-tests.sh
+          TEST_SCENARIO="${{ needs.setup.outputs.scenario }}" \
+          BASE_URL="${{ env.BASE_URL }}" \
+          ./load-tests/scripts/run-load-tests.sh
+
+      - name: Performance Validation
+        if: always()
+        run: |
+          chmod +x load-tests/scripts/performance-validation.sh
+          LATEST_RESULTS=$(ls -t load-tests/results/*.json 2>/dev/null | head -1)
+          if [ -n "$LATEST_RESULTS" ]; then
+            ./load-tests/scripts/performance-validation.sh "$LATEST_RESULTS" "${{ needs.setup.outputs.scenario }}"
+          else
+            echo "No results file found"
+            exit 1
+          fi
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-${{ needs.setup.outputs.scenario }}
+          path: load-tests/results/
+          retention-days: 90
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## Load Test Results - ${{ needs.setup.outputs.scenario }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Scenario:** ${{ needs.setup.outputs.scenario }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** $([ -d load-tests/results ] && echo 'Completed' || echo 'Failed')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "load-tests/results/metrics.env" ]; then
+            echo "### Metrics" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat load-tests/results/metrics.env >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+  notifications:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [setup, load-test]
+    if: always()
+
+    steps:
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: load-test-results-${{ needs.setup.outputs.scenario }}
+          path: load-tests/results/
+
+      - name: Slack Notification - Success
+        if: needs.load-test.result == 'success'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "SupliList Load Test - Success",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "SupliList Load Test - Success",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Scenario:*\n${{ needs.setup.outputs.scenario }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Status:*\n:green_circle: Passed"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Timestamp:*\n${{ github.event.repository.updated_at }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${{ github.ref_name }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Results"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Slack Notification - Failure
+        if: needs.load-test.result == 'failure'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "SupliList Load Test - Failed",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "SupliList Load Test - Failed",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Scenario:*\n${{ needs.setup.outputs.scenario }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Status:*\n:red_circle: Failed"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${{ github.ref_name }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "@devops Team - Load test failure detected. Please review results immediately."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Results"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+  metrics-upload:
+    name: Upload Metrics to Monitoring System
+    runs-on: ubuntu-latest
+    needs: [setup, load-test]
+    if: always()
+
+    steps:
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: load-test-results-${{ needs.setup.outputs.scenario }}
+          path: load-tests/results/
+
+      - name: Process and upload metrics
+        if: hashFiles('load-tests/results/metrics.env') != ''
+        run: |
+          if [ -f load-tests/results/metrics.env ]; then
+            source load-tests/results/metrics.env
+
+            # Send to monitoring system (example with curl)
+            echo "Uploading metrics for scenario: $scenario"
+            # Replace with your actual metrics ingestion endpoint
+            # curl -X POST https://metrics.example.com/api/v1/metrics \
+            #   -H "Content-Type: application/json" \
+            #   -d "{
+            #     'scenario': '$scenario',
+            #     'p95': '$p95',
+            #     'error_rate': '$error_rate',
+            #     'throughput': '$throughput',
+            #     'timestamp': '$timestamp'
+            #   }"
+          fi
+
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [setup, load-test, notifications]
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clean up test artifacts
+        run: |
+          # Remove large log files
+          find load-tests/results -name "*.log" -size +100M -delete
+
+          # Keep JSON results for analysis
+          ls -la load-tests/results/
+
+      - name: Generate report summary
+        run: |
+          echo "Load test run completed for scenario: ${{ needs.setup.outputs.scenario }}"
+          echo "Results stored in artifacts for 90 days"
+          if [ -d load-tests/results ]; then
+            find load-tests/results -type f | wc -l
+            du -sh load-tests/results
+          fi

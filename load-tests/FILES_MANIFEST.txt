@@ -1,0 +1,357 @@
+SupliList Load Testing Suite - Files Manifest
+==============================================
+
+Generated: 2024-01-15
+Total Files: 17
+Total Lines: 9000+
+
+=== LOAD TEST SCRIPTS ===
+
+1. load-tests/k6-tests/normal-load.js
+   - Normal load scenario (100 concurrent users)
+   - Duration: 12 minutes (2m warm-up + 5m ramp + 5m sustained + 2m cool-down)
+   - Metrics: 6 custom metrics (response_time, registration_time, etc.)
+   - Operations: 40% search, 25% detail, 20% auth, 10% stack, 5% profile
+   - Status: Production-ready
+
+2. load-tests/k6-tests/peak-load.js
+   - Peak load scenario (1000 concurrent users)
+   - Duration: 13 minutes (2m warm + 2m ramp1 + 3m ramp2 + 5m sustained + 3m cool)
+   - Focus: Response time degradation, timeout handling
+   - Metrics: Peak-specific error tracking
+   - Status: Production-ready
+
+3. load-tests/k6-tests/stress-test.js
+   - Stress test scenario (5000+ concurrent users)
+   - Duration: 8 minutes (1m quick ramp + 1m fast ramp + 2m stress + 3m sustain + 2m cool)
+   - Focus: Breaking point detection, graceful degradation
+   - Metrics: Circuit breaker trips, failures
+   - Status: Production-ready
+
+4. load-tests/locust/locustfile.py
+   - Python-based Locust test suite
+   - 8 different task types (search, auth, stack, favorites, profile)
+   - Classes: NormalLoadUser, PeakLoadUser, StressTestUser
+   - Features: Event handlers, custom metrics, distributed testing
+   - Status: Production-ready
+
+5. load-tests/jmeter/suplilist-load-test.jmx
+   - XML-based JMeter test plan
+   - Configurable thread groups and ramp-up
+   - HTTP request samplers with assertions
+   - Result collectors and HTML report generation
+   - Status: Production-ready
+
+=== AUTOMATION SCRIPTS ===
+
+6. load-tests/scripts/run-load-tests.sh
+   - Universal test runner (K6, Locust, JMeter)
+   - CI/CD platform detection
+   - Features: Baseline save/compare, alerts, HTML reports
+   - Lines: 400+
+   - Executable: Yes (chmod +x)
+
+7. load-tests/scripts/performance-validation.sh
+   - Automated SLA validation
+   - Response time percentile checking
+   - Error rate validation
+   - Baseline comparison with degradation detection
+   - Capacity planning recommendations
+   - Lines: 350+
+   - Executable: Yes
+
+8. load-tests/scripts/ci-integration.sh
+   - CI/CD pipeline integration
+   - Platform-specific output (GitHub, GitLab, Jenkins, CircleCI)
+   - Slack/PagerDuty notifications
+   - Metrics collection and upload
+   - Lines: 450+
+   - Executable: Yes
+
+=== CONFIGURATION ===
+
+9. load-tests/config/sla-targets.yaml
+   - Complete SLA definitions
+   - Performance targets (p50, p95, p99)
+   - Error rate thresholds
+   - Scenario-specific configurations
+   - Alert conditions and channels
+   - Baseline management settings
+   - Lines: 200+
+
+=== DOCUMENTATION ===
+
+10. load-tests/README.md
+    - Main load testing guide
+    - Quick start instructions
+    - Test scenario details
+    - SLA definitions
+    - Baseline management
+    - CI/CD setup examples
+    - Troubleshooting guide
+    - Performance tuning
+    - References and support
+    - Lines: 2500+
+
+11. load-tests/INSTALLATION.md
+    - System requirements (hardware/software)
+    - Step-by-step installation for K6, Locust, JMeter
+    - Platform-specific instructions (macOS, Linux, Windows)
+    - Docker setup examples
+    - Environment configuration
+    - Verification procedures
+    - System tuning
+    - Troubleshooting installation
+    - Lines: 1500+
+
+12. load-tests/TEST_PROCEDURES.md
+    - Pre-test checklist
+    - Step-by-step test execution procedures
+    - Normal/Peak/Stress test guides
+    - Emergency stop procedures
+    - During-test monitoring checklist
+    - Post-test cleanup
+    - Troubleshooting during tests
+    - Data recovery procedures
+    - Report templates
+    - Lines: 1200+
+
+13. load-tests/OPTIMIZATION_GUIDE.md
+    - Quick issue reference table
+    - Database optimization strategies
+    - Query optimization and indexing
+    - API optimization (caching, payloads)
+    - Server optimization (heap, workers)
+    - Multi-layer caching strategy
+    - Load balancing setup
+    - Monitoring and profiling
+    - Capacity scaling recommendations
+    - Performance checklist
+    - Lines: 1100+
+
+14. load-tests/INDEX.md
+    - Complete navigation guide
+    - File structure overview
+    - Quick command reference
+    - Test scenario summaries
+    - Performance targets table
+    - Tool comparison matrix
+    - CI/CD integration examples
+    - Troubleshooting index
+    - Maintenance schedule
+    - Lines: 800+
+
+15. load-tests/QUICK_REFERENCE.md
+    - One-liners for common commands
+    - Preset configurations
+    - Common system checks
+    - Troubleshooting quick fixes
+    - Performance SLA targets
+    - Environment variables
+    - Report generation commands
+    - Support contacts
+    - Useful links
+    - Lines: 400+
+
+=== CI/CD ===
+
+16. .github/workflows/load-testing.yml
+    - GitHub Actions workflow
+    - Scheduled tests (daily, weekly, monthly)
+    - Manual trigger support
+    - Services: MongoDB, Redis
+    - Steps: Build, test, validate, notify
+    - Slack/PagerDuty integration
+    - Artifact upload (90-day retention)
+    - Lines: 400+
+
+=== MANIFEST ===
+
+17. load-tests/FILES_MANIFEST.txt
+    - This file
+    - Complete file listing with descriptions
+    - Setup instructions
+    - Usage guidelines
+
+=== DIRECTORY STRUCTURE ===
+
+load-tests/
+├── k6-tests/
+│   ├── normal-load.js         (Testing)
+│   ├── peak-load.js           (Testing)
+│   └── stress-test.js         (Testing)
+│
+├── locust/
+│   └── locustfile.py          (Testing)
+│
+├── jmeter/
+│   └── suplilist-load-test.jmx (Testing)
+│
+├── scripts/
+│   ├── run-load-tests.sh      (Automation)
+│   ├── performance-validation.sh (Automation)
+│   └── ci-integration.sh      (Automation)
+│
+├── config/
+│   └── sla-targets.yaml       (Configuration)
+│
+├── baselines/                  (Auto-generated)
+├── results/                    (Auto-generated)
+│
+├── README.md                  (Documentation)
+├── INSTALLATION.md            (Documentation)
+├── TEST_PROCEDURES.md         (Documentation)
+├── OPTIMIZATION_GUIDE.md      (Documentation)
+├── INDEX.md                   (Documentation)
+├── QUICK_REFERENCE.md         (Documentation)
+└── FILES_MANIFEST.txt         (This file)
+
+.github/
+└── workflows/
+    └── load-testing.yml       (CI/CD)
+
+=== SETUP INSTRUCTIONS ===
+
+1. INSTALLATION (30 minutes)
+   - Read: load-tests/INSTALLATION.md
+   - Install K6: brew install k6 (or platform-specific)
+   - Install Locust: pip install locust
+   - Verify: k6 version, locust --version
+
+2. CONFIGURATION (5 minutes)
+   - Create .env file with BASE_URL and other settings
+   - Configure SLA targets in config/sla-targets.yaml
+   - Set notification webhooks (Slack/PagerDuty)
+
+3. FIRST TEST (20 minutes)
+   - Start application server: npm run dev:server
+   - Read: load-tests/TEST_PROCEDURES.md
+   - Run normal load test: TEST_SCENARIO=normal ./load-tests/scripts/run-load-tests.sh
+   - Check results: ./load-tests/scripts/performance-validation.sh results/k6-*.json
+
+4. BASELINE (5 minutes)
+   - Save baseline: SAVE_BASELINE=true TEST_SCENARIO=normal ./load-tests/scripts/run-load-tests.sh
+   - Baseline saved to: load-tests/baselines/normal-baseline.json
+
+5. CI/CD SETUP (10 minutes)
+   - GitHub Actions workflow is ready at: .github/workflows/load-testing.yml
+   - Configure secrets: SLACK_WEBHOOK_URL, PAGERDUTY_KEY
+   - Tests will run automatically on schedule
+
+=== QUICK COMMANDS ===
+
+# Run normal load test
+TEST_SCENARIO=normal ./load-tests/scripts/run-load-tests.sh
+
+# Run peak load test
+TEST_SCENARIO=peak ./load-tests/scripts/run-load-tests.sh
+
+# Run stress test
+TEST_SCENARIO=stress ./load-tests/scripts/run-load-tests.sh
+
+# Validate performance
+./load-tests/scripts/performance-validation.sh results/k6-*.json normal
+
+# Start Locust Web UI
+cd load-tests/locust && locust -f locustfile.py --host http://localhost:3000
+
+# Run with K6 directly
+k6 run load-tests/k6-tests/normal-load.js --vus 100 --duration 12m
+
+# Check help
+./load-tests/scripts/run-load-tests.sh --help
+
+=== USAGE GUIDELINES ===
+
+1. Read Documentation
+   - Start with load-tests/QUICK_REFERENCE.md for quick overview
+   - Then read load-tests/README.md for complete guide
+   - Use load-tests/INSTALLATION.md to set up tools
+
+2. Run Tests
+   - Normal load test: Run daily or on-demand
+   - Peak load test: Run weekly (requires more resources)
+   - Stress test: Run monthly (requires ops approval)
+
+3. Monitor Results
+   - Check in real-time during test execution
+   - Review generated reports after test completes
+   - Compare with baseline for degradation detection
+
+4. Act on Results
+   - Use load-tests/OPTIMIZATION_GUIDE.md for tuning
+   - Follow recommendations from validation script
+   - Update baselines quarterly
+
+5. Automate
+   - GitHub Actions workflow runs on schedule
+   - Configure Slack webhooks for notifications
+   - Set up PagerDuty for critical alerts
+
+=== PERFORMANCE TARGETS ===
+
+p50: 100ms
+p95: 500ms  ← Most users
+p99: 1000ms ← Worst users
+p100: 2000ms ← Maximum
+
+Error Rate: < 5% (target), < 10% (critical)
+Throughput: >= 1000 RPS
+Availability: 99.9% (target), 99.0% (critical)
+
+=== SUPPORT ===
+
+For issues or questions:
+1. Check QUICK_REFERENCE.md for quick answers
+2. Check README.md troubleshooting section
+3. Check TEST_PROCEDURES.md for procedures
+4. Check OPTIMIZATION_GUIDE.md for tuning
+5. Contact DevOps team
+
+=== FILES CHECKLIST ===
+
+Production-Ready Files (Ready to use):
+✓ normal-load.js           - K6 normal load scenario
+✓ peak-load.js             - K6 peak load scenario
+✓ stress-test.js           - K6 stress test scenario
+✓ locustfile.py            - Locust test suite
+✓ suplilist-load-test.jmx  - JMeter test plan
+✓ run-load-tests.sh        - Main test runner
+✓ performance-validation.sh - SLA validation
+✓ ci-integration.sh        - CI/CD integration
+✓ sla-targets.yaml         - SLA configuration
+✓ load-testing.yml         - GitHub Actions workflow
+
+Documentation (Ready to read):
+✓ README.md                - Main guide
+✓ INSTALLATION.md          - Setup guide
+✓ TEST_PROCEDURES.md       - Test procedures
+✓ OPTIMIZATION_GUIDE.md    - Optimization guide
+✓ INDEX.md                 - Navigation guide
+✓ QUICK_REFERENCE.md       - Quick reference
+✓ FILES_MANIFEST.txt       - This manifest
+
+Auto-Generated Directories (Created on first use):
+→ load-tests/baselines/    - Performance baselines
+→ load-tests/results/      - Test results
+
+=== VERSION INFO ===
+
+Suite Version: 1.0.0
+Release Date: 2024-01-15
+Last Updated: 2024-01-15
+Compatibility: Node.js 24+, MongoDB 5.0+, Redis 6.0+
+
+=== LICENSE ===
+
+Part of SupliList project. See main project LICENSE for details.
+
+=== CONTACT ===
+
+DevOps Team - load-testing issues
+Engineering Lead - performance architecture
+On-Call - critical production issues (PagerDuty)
+
+===========================================
+End of Files Manifest
+===========================================

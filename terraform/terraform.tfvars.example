@@ -1,0 +1,23 @@
+aws_region    = "us-east-1"
+environment   = "prod"
+vpc_cidr      = "10.0.0.0/16"
+
+kubernetes_version   = "1.28"
+node_instance_types  = ["t3.medium"]
+node_count_min       = 2
+node_count_desired   = 3
+node_count_max       = 10
+
+db_instance_class    = "db.t3.small"
+db_allocated_storage = 50
+postgres_version     = "15.3"
+db_password          = "CHANGE_ME_TO_SECURE_PASSWORD"
+
+redis_node_type = "cache.t3.small"
+redis_version   = "7.0"
+
+tags = {
+  Team        = "platform"
+  CostCenter  = "engineering"
+  Backup      = "daily"
+}

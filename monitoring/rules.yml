@@ -1,0 +1,122 @@
+groups:
+  - name: suplilist-api
+    interval: 30s
+    rules:
+      # API availability
+      - alert: APIDown
+        expr: up{job="suplilist-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "API is down"
+          description: "SupliList API has been down for more than 2 minutes"
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{job="suplilist-api",status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5% for the last 5 minutes"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High API response time"
+          description: "P95 response time is above 2 seconds"
+
+      # Database connection pool exhaustion
+      - alert: DatabaseConnectionPoolLow
+        expr: |
+          pg_stat_activity_count{job="postgres"} / 100 > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connection pool running low"
+          description: "Connection pool usage is above 80%"
+
+      # Database slow queries
+      - alert: DatabaseSlowQueries
+        expr: |
+          rate(pg_stat_statements_mean_time{job="postgres"}[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow queries detected"
+          description: "Average query execution time exceeds 1 second"
+
+      # Redis memory usage
+      - alert: RedisHighMemoryUsage
+        expr: |
+          redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is above 80%"
+
+      # Pod restart loop
+      - alert: PodRestartingTooOften
+        expr: |
+          rate(kube_pod_container_status_restarts_total[15m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Pod restarting too frequently"
+          description: "Pod {{ $labels.pod }} is restarting frequently"
+
+      # Node memory pressure
+      - alert: NodeMemoryPressure
+        expr: |
+          kube_node_status_condition{condition="MemoryPressure",status="true"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Node memory pressure detected"
+          description: "Node {{ $labels.node }} has memory pressure"
+
+      # Node disk pressure
+      - alert: NodeDiskPressure
+        expr: |
+          kube_node_status_condition{condition="DiskPressure",status="true"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Node disk pressure detected"
+          description: "Node {{ $labels.node }} has disk pressure"
+
+      # Certificate expiration
+      - alert: CertificateExpiringSoon
+        expr: |
+          certmanager_certificate_expiration_timestamp_seconds - time() < 7 * 24 * 3600
+        for: 1h
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "Certificate expiring soon"
+          description: "Certificate {{ $labels.name }} expires in less than 7 days"

@@ -32,7 +32,7 @@ export class AnalyticsService {
       checkinsByDate[dateKey] = (checkinsByDate[dateKey] || 0) + 1;
     });
 
-    const heatmapData = [];
+    const heatmapData: Array<{ date: string; intensity: number; percentage: number }> = [];
     const current = new Date(startDate);
 
     while (current <= endDate) {
@@ -57,25 +57,55 @@ export class AnalyticsService {
     month: string;
     adherence: number;
   }[]> {
-    const data = [];
     const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    // Optimized: Single aggregation pipeline instead of 6 sequential queries
+    const results = await CheckinModel.aggregate([
+      {
+        $match: {
+          userId,
+          checkedAt: { $gte: startDate, $lte: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$checkedAt' },
+            month: { $month: '$checkedAt' },
+            day: { $dayOfMonth: '$checkedAt' },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: '$_id.year',
+            month: '$_id.month',
+          },
+          uniqueDays: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { '_id.year': 1, '_id.month': 1 },
+      },
+    ]);
+
+    const data: Array<{ month: string; adherence: number }> = [];
 
     for (let i = months - 1; i >= 0; i--) {
-      const startDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const endDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+      const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
 
-      const daysInMonth = endDate.getDate();
-      const checkins: CheckinRecord[] = await CheckinModel.find({
-        userId,
-        checkedAt: { $gte: startDate, $lte: endDate },
-      }).lean();
+      const result = results.find(
+        (r) => r._id.year === monthDate.getFullYear() && r._id.month === monthDate.getMonth() + 1
+      );
 
-      const uniqueDays = new Set(
-        checkins.map((c) => c.checkedAt.toISOString().split('T')[0])
-      ).size;
-
+      const uniqueDays = result?.uniqueDays || 0;
       const adherence = Math.round((uniqueDays / daysInMonth) * 100);
-      const monthStr = startDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      const monthStr = monthDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 
       data.push({ month: monthStr, adherence });
     }

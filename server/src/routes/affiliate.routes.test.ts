@@ -14,6 +14,16 @@ import { affiliateRouter } from './affiliate.routes';
 import * as affiliateService from '../services/affiliate.service';
 import { getRedisClient } from '../shared/config/redis.config';
 
+// Mock Redis for testing - MUST be at top level (hoisted before imports)
+vi.mock('../shared/config/redis.config', () => ({
+  getRedisClient: vi.fn(() => ({
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue('OK'),
+    exists: vi.fn().mockResolvedValue(0),
+    del: vi.fn().mockResolvedValue(0),
+  })),
+}));
+
 let app: Express;
 
 beforeEach(() => {
@@ -21,9 +31,6 @@ beforeEach(() => {
   app = express();
   app.use(express.json());
   app.use('/api/affiliate', affiliateRouter);
-
-  // Mock Redis for testing
-  vi.mock('../shared/config/redis.config');
 });
 
 afterEach(() => {

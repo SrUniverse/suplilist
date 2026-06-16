@@ -100,9 +100,9 @@ const envSchema = z.object({
   // Auth - JWT
   JWT_SECRET: z
     .string()
-    .min(32, 'JWT_SECRET must be at least 32 characters')
+    .min(32, 'JWT_SECRET must be at least 32 characters (256 bits recommended)')
     .default('dev-only-secret-change-me-in-production-0000')
-    .describe('Secret used to sign access/refresh tokens'),
+    .describe('Secret used to sign access/refresh tokens. Generate with: openssl rand -base64 32'),
 
   // Email Service - Resend
   RESEND_API_KEY: z

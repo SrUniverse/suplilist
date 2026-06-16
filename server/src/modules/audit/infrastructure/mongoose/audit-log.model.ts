@@ -63,6 +63,13 @@ const auditLogSchema = new Schema<IAuditLogDocument>({
 });
 
 // Indexes for high performance query execution (No Collection Scans)
+// Primary: userId + createdAt for audit log queries
+auditLogSchema.index({ userId: 1, timestamp: -1 });
+// Secondary: event type filtering
+auditLogSchema.index({ event: 1, timestamp: -1 });
+// Tertiary: userId + event compound for filtering by user action
+auditLogSchema.index({ userId: 1, event: 1, timestamp: -1 });
+// Legacy indexes kept for backward compatibility
 auditLogSchema.index({ userId: 1, _id: -1 });
 auditLogSchema.index({ event: 1, _id: -1 });
 

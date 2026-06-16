@@ -86,6 +86,7 @@ describe('Rate Limit Middleware', () => {
     it('should be configured for 10 requests per minute', () => {
       // The limiter is configured with 10 max and 60000 windowMs (1 minute)
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
 
     it('should skip OPTIONS requests', () => {
@@ -93,6 +94,7 @@ describe('Rate Limit Middleware', () => {
       supplementSearchLimiter(optionsReq as Request, mockRes as Response, mockNext);
       // OPTIONS requests should be skipped by the skip function
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
   });
 
@@ -100,11 +102,14 @@ describe('Rate Limit Middleware', () => {
     it('should be configured for 5 requests per minute', () => {
       // The limiter is configured with 5 max and 60000 windowMs (1 minute)
       expect(supplementCrawlLimiter).toBeDefined();
+      expect(typeof supplementCrawlLimiter).toBe('function');
     });
 
     it('should be different from search limiter', () => {
       // Different limiters should have different Redis prefixes
       expect(supplementCrawlLimiter).not.toEqual(supplementSearchLimiter);
+      expect(supplementCrawlLimiter).toBeDefined();
+      expect(typeof supplementCrawlLimiter).toBe('function');
     });
   });
 
@@ -112,11 +117,14 @@ describe('Rate Limit Middleware', () => {
     it('should be configured for 50 requests per minute', () => {
       // The limiter is configured with 50 max and 60000 windowMs (1 minute)
       expect(supplementPricesLimiter).toBeDefined();
+      expect(typeof supplementPricesLimiter).toBe('function');
     });
 
     it('should allow more requests than search endpoint', () => {
       // Prices endpoint allows 50 requests/min vs search 10/min
       expect(supplementPricesLimiter).toBeDefined();
+      expect(typeof supplementPricesLimiter).toBe('function');
+      expect(supplementPricesLimiter).not.toEqual(supplementSearchLimiter);
     });
   });
 
@@ -124,11 +132,14 @@ describe('Rate Limit Middleware', () => {
     it('should be configured for 100 requests per 15 minutes', () => {
       // The limiter is configured with 100 max and 15*60*1000 windowMs
       expect(apiRateLimiter).toBeDefined();
+      expect(typeof apiRateLimiter).toBe('function');
     });
 
     it('should use different Redis prefix than endpoint limiters', () => {
       // General API limiter should use 'rl:api:general:' prefix
       expect(apiRateLimiter).toBeDefined();
+      expect(apiRateLimiter).not.toEqual(supplementSearchLimiter);
+      expect(apiRateLimiter).not.toEqual(supplementCrawlLimiter);
     });
   });
 
@@ -136,42 +147,50 @@ describe('Rate Limit Middleware', () => {
     it('should use standard X-RateLimit-* headers', () => {
       // standardHeaders: true in all limiters
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
 
     it('should not use legacy RateLimit-* headers', () => {
       // legacyHeaders: false in all limiters
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
 
     it('should include RateLimit-Remaining in responses', () => {
       // Verified by standardHeaders: true
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
 
     it('should include RateLimit-Reset timestamp', () => {
       // Verified by standardHeaders: true
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
   });
 
   describe('Error Messages', () => {
     it('should have user-friendly search error message', () => {
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
       // Message: "Search limit exceeded (10/minute). Please try again later."
     });
 
     it('should have user-friendly crawl error message', () => {
       expect(supplementCrawlLimiter).toBeDefined();
+      expect(typeof supplementCrawlLimiter).toBe('function');
       // Message: "Crawl limit exceeded (5/minute). Please try again later."
     });
 
     it('should have user-friendly prices error message', () => {
       expect(supplementPricesLimiter).toBeDefined();
+      expect(typeof supplementPricesLimiter).toBe('function');
       // Message: "Prices endpoint limit exceeded (50/minute). Please try again later."
     });
 
     it('should return JSON error response on rate limit', () => {
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
       // All limiters return JSON with success: false
     });
   });
@@ -180,16 +199,19 @@ describe('Rate Limit Middleware', () => {
     it('should use Redis for distributed rate limiting', () => {
       // All limiters use RedisStore with 'rl:' prefixes
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
 
     it('should use IP-based key generation', () => {
       // keyGenerator: ipKey in all limiters
       expect(supplementSearchLimiter).toBeDefined();
+      expect(typeof supplementSearchLimiter).toBe('function');
     });
 
     it('should extract IP from cf-connecting-ip header', () => {
       // ipKey extracts from cf-connecting-ip first
       expect(mockReq.headers).toBeDefined();
+      expect(mockReq.headers['cf-connecting-ip']).toBe('192.168.1.1');
     });
 
     it('should fallback to x-forwarded-for header', () => {

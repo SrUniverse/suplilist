@@ -10,7 +10,9 @@ type SecurityEventName =
   | 'auth.session_theft_detected'
   | 'auth.password_reset'
   | 'auth.account_deleted'
-  | 'auth.mfa_failed';
+  | 'auth.mfa_failed'
+  | 'account.deletion_failed_invalid_password'
+  | 'account.deletion_successful';
 
 interface SecurityEventPayload {
   userId?: string;
@@ -20,6 +22,8 @@ interface SecurityEventPayload {
   requiredRole?: string;
   actualRole?: string;
   detail?: string;
+  email?: string;
+  timestamp?: string;
 }
 
 export function logSecurityEvent(event: SecurityEventName, payload: SecurityEventPayload = {}): void {

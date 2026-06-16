@@ -17,6 +17,12 @@ const notificationEngagementSchema = new Schema<INotificationEngagement>({
   timestamp: { type: Date, default: Date.now, index: true },
 }, { collection: 'notification_engagements' });
 
+// Optimized indexes for notification queries
+// Primary: userId + read/action + timestamp for filtering user notifications
+notificationEngagementSchema.index({ userId: 1, action: 1, timestamp: -1 });
+// Secondary: userId + timestamp for time-range queries
+notificationEngagementSchema.index({ userId: 1, timestamp: -1 });
+
 export const NotificationEngagementModel = mongoose.model<INotificationEngagement>(
   'NotificationEngagement',
   notificationEngagementSchema

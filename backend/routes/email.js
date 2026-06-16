@@ -43,47 +43,20 @@ router.post(
       const { to, subject, html, text } = req.body;
       const userId = req.user?.id;
 
-      // Validate required fields
-      if (!to || !subject || !html) {
-        return res.status(400).json({
-          success: false,
-          error: 'Missing required fields: to, subject, html'
-        });
-      }
+      // Validate request
+      const validationError = await validateEmailRequest(to, subject, html, userId);
 
-      // Validate email format
-      if (!validateEmail(to)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid email address'
-        });
-      }
-
-      // Prevent spam-like behavior
-      const recentEmailCount = await EmailLog.countDocuments({
-        userId,
-        sentAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) } // Last hour
-      });
-
-      if (recentEmailCount > 10) {
-        return res.status(429).json({
-          success: false,
-          error: 'Rate limit exceeded - too many emails sent'
-        });
-      }
-
-      // Check unsubscribe list
-      const isUnsubscribed = await UnsubscribeList.findOne({ email: to });
-      if (isUnsubscribed) {
+      if (validationError === null && (await UnsubscribeList.findOne({ email: to }))) {
         logger.info(`Skipped email to unsubscribed address: ${to}`);
-        return res.status(200).json({
-          success: true,
-          messageId: 'unsubscribed',
-          skipped: true
-        });
+        return res.json(successResponse({ messageId: 'unsubscribed', skipped: true }));
       }
 
-      // Sanitize HTML (prevent XSS) - FIX C2: Use imported library
+      if (validationError) {
+        const statusCode = validationError.includes('Rate limit') ? 429 : 400;
+        return res.status(statusCode).json(errorResponse(validationError, statusCode));
+      }
+
+      // Sanitize HTML
       const cleanHtml = sanitizeHtmlLib(html, {
         allowedTags: ['a', 'p', 'h1', 'h2', 'h3', 'br', 'strong', 'em', 'u', 'div', 'span', 'img'],
         allowedAttributes: {
@@ -108,52 +81,31 @@ router.post(
         }
       });
 
-      // Log success
+      // Log and respond
+      const status = result.id ? 'sent' : 'failed';
+      const httpStatus = result.id ? 200 : 500;
+
+      await EmailLog.create({
+        userId,
+        to,
+        subject,
+        messageId: result.id || null,
+        sentAt: new Date(),
+        status,
+        error: result.error?.message,
+        provider: 'resend'
+      });
+
       if (result.id) {
-        await EmailLog.create({
-          userId,
-          to,
-          subject,
-          messageId: result.id,
-          sentAt: new Date(),
-          status: 'sent',
-          provider: 'resend'
-        });
-
         logger.info(`Email sent via Resend: ${result.id} to ${to}`);
-
-        return res.json({
-          success: true,
-          messageId: result.id,
-          sentAt: new Date().toISOString()
-        });
+        return res.json(successResponse({ messageId: result.id, sentAt: new Date().toISOString() }));
       } else {
-        // Log failure
-        await EmailLog.create({
-          userId,
-          to,
-          subject,
-          sentAt: new Date(),
-          status: 'failed',
-          error: result.error?.message,
-          provider: 'resend'
-        });
-
         logger.error(`Failed to send email via Resend: ${result.error?.message}`);
-
-        return res.status(500).json({
-          success: false,
-          error: 'Failed to send email',
-          messageId: null
-        });
+        return res.status(httpStatus).json(errorResponse('Failed to send email', httpStatus));
       }
     } catch (error) {
       logger.error('Email route error', error);
-
-      return res.status(500).json({
-        success: false,
-        error: error.message || 'Internal server error'
-      });
+      return res.status(500).json(errorResponse(error.message || 'Internal server error', 500));
     }
   }
 );
@@ -164,7 +116,6 @@ router.post(
  */
 router.get('/status', authenticateToken, async (req, res) => {
   try {
-    // Test Resend API
     const testResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'noreply@suplilist.app',
       to: 'test@example.com',
@@ -172,47 +123,38 @@ router.get('/status', authenticateToken, async (req, res) => {
       html: '<p>Test</p>'
     });
 
-    // Resend doesn't actually send to test@example.com, but validates connection
     const isConnected = !testResult.error;
 
-    return res.json({
+    return res.json(successResponse({
       connected: isConnected,
       provider: 'resend',
       status: isConnected ? 'operational' : 'down',
       lastCheck: new Date().toISOString()
-    });
+    }));
   } catch (error) {
     logger.error('Email status check failed', error);
-
-    return res.json({
+    return res.json(successResponse({
       connected: false,
       provider: 'resend',
       status: 'error',
       error: error.message
-    });
+    }));
   }
 });
 
 /**
  * POST /api/email/unsubscribe
  * Unsubscribe from email reminders
- *
- * Body: { email: 'user@example.com' }
- *
- * FIX C3: Require authentication to prevent auth bypass
+ * Requires authentication to prevent auth bypass
  */
 router.post('/unsubscribe', authenticateToken, async (req, res) => {
   try {
     const { email } = req.body;
 
     if (!email || !validateEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid email'
-      });
+      return res.status(400).json(errorResponse('Invalid email', 400));
     }
 
-    // Add to unsubscribe list
     await UnsubscribeList.findOneAndUpdate(
       { email },
       { email, unsubscribedAt: new Date() },
@@ -220,58 +162,61 @@ router.post('/unsubscribe', authenticateToken, async (req, res) => {
     );
 
     logger.info(`User unsubscribed: ${email}`);
-
-    return res.json({
-      success: true,
-      message: 'Unsubscribed from email reminders'
-    });
+    return res.json(successResponse({ message: 'Unsubscribed from email reminders' }));
   } catch (error) {
     logger.error('Unsubscribe failed', error);
-
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    return res.status(500).json(errorResponse(error.message, 500));
   }
 });
 
 /**
  * POST /api/email/resubscribe
  * Resubscribe to email reminders
- *
- * Body: { email: 'user@example.com' }
- *
- * FIX C3: Require authentication to prevent auth bypass
+ * Requires authentication to prevent auth bypass
  */
 router.post('/resubscribe', authenticateToken, async (req, res) => {
   try {
     const { email } = req.body;
 
     if (!email || !validateEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid email'
-      });
+      return res.status(400).json(errorResponse('Invalid email', 400));
     }
 
-    // Remove from unsubscribe list
     await UnsubscribeList.deleteOne({ email });
 
     logger.info(`User resubscribed: ${email}`);
-
-    return res.json({
-      success: true,
-      message: 'Resubscribed to email reminders'
-    });
+    return res.json(successResponse({ message: 'Resubscribed to email reminders' }));
   } catch (error) {
     logger.error('Resubscribe failed', error);
-
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    return res.status(500).json(errorResponse(error.message, 500));
   }
 });
+
+/**
+ * Helper: Calculate email statistics
+ */
+async function calculateEmailStats() {
+  const stats = await EmailLog.aggregate([
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const totalCount = await EmailLog.countDocuments({});
+  const bouncedCount = await EmailLog.countDocuments({ status: 'bounced' });
+  const bounceRate = totalCount > 0 ? (bouncedCount / totalCount) * 100 : 0;
+
+  return {
+    sent: stats.find(s => s._id === 'sent')?.count || 0,
+    failed: stats.find(s => s._id === 'failed')?.count || 0,
+    bounced: bouncedCount,
+    total: totalCount,
+    bounceRate: bounceRate.toFixed(2) + '%'
+  };
+}
 
 /**
  * GET /api/email/stats
@@ -279,53 +224,117 @@ router.post('/resubscribe', authenticateToken, async (req, res) => {
  */
 router.get('/stats', authenticateToken, async (req, res) => {
   try {
-    // Check if user is admin
     if (req.user?.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        error: 'Admin access required'
-      });
+      return res.status(403).json(errorResponse('Admin access required', 403));
     }
 
-    const stats = await EmailLog.aggregate([
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    const bounceRate = await EmailLog.countDocuments({ status: 'bounced' }) /
-      (await EmailLog.countDocuments({}));
-
-    return res.json({
-      success: true,
-      stats: {
-        sent: stats.find(s => s._id === 'sent')?.count || 0,
-        failed: stats.find(s => s._id === 'failed')?.count || 0,
-        bounced: stats.find(s => s._id === 'bounced')?.count || 0,
-        total: (await EmailLog.countDocuments({})),
-        bounceRate: (bounceRate * 100).toFixed(2) + '%'
-      },
+    const stats = await calculateEmailStats();
+    return res.json(successResponse({
+      stats,
       lastUpdated: new Date().toISOString()
-    });
+    }));
   } catch (error) {
     logger.error('Email stats error', error);
-
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    return res.status(500).json(errorResponse(error.message, 500));
   }
 });
 
 /**
+ * Validate email send request
+ * @param {string} to - Recipient email address
+ * @param {string} subject - Email subject
+ * @param {string} html - Email HTML body
+ * @param {string} userId - User ID making the request
+ * @returns {Promise<string|null>} - Validation error or null if valid
+ */
+async function validateEmailRequest(to, subject, html, userId) {
+  if (!to || !subject || !html) {
+    return 'Missing required fields: to, subject, html';
+  }
+
+  if (!validateEmail(to)) {
+    return 'Invalid email address';
+  }
+
+  const recentEmailCount = await EmailLog.countDocuments({
+    userId,
+    sentAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) }
+  });
+
+  if (recentEmailCount > 10) {
+    return 'Rate limit exceeded - too many emails sent';
+  }
+
+  const isUnsubscribed = await UnsubscribeList.findOne({ email: to });
+  if (isUnsubscribed) {
+    return null; // Special case: skip sending but return success
+  }
+
+  return null; // Valid
+}
+
+/**
  * Helper: Strip HTML tags for plain text fallback
+ * @param {string} html - HTML content to strip
+ * @returns {string} - Plain text without HTML tags
  */
 function stripHtml(html) {
   if (!html) return '';
   return html.replace(/<[^>]*>?/gm, '');
+}
+
+/**
+ * Calculate email statistics for admin dashboard
+ * @returns {Promise<{sent: number, failed: number, bounced: number, total: number, bounceRate: string}>}
+ */
+async function calculateEmailStats() {
+  const stats = await EmailLog.aggregate([
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const totalCount = await EmailLog.countDocuments({});
+  const bouncedCount = await EmailLog.countDocuments({ status: 'bounced' });
+  const bounceRate = totalCount > 0 ? (bouncedCount / totalCount) * 100 : 0;
+
+  return {
+    sent: stats.find(s => s._id === 'sent')?.count || 0,
+    failed: stats.find(s => s._id === 'failed')?.count || 0,
+    bounced: bouncedCount,
+    total: totalCount,
+    bounceRate: bounceRate.toFixed(2) + '%'
+  };
+}
+
+/**
+ * Format error response with standard structure
+ * @param {string} message - Error message
+ * @param {number} statusCode - HTTP status code
+ * @returns {{success: boolean, error: string, timestamp: string}}
+ */
+function errorResponse(message, statusCode = 500) {
+  return {
+    success: false,
+    error: message,
+    timestamp: new Date().toISOString()
+  };
+}
+
+/**
+ * Format success response with standard structure
+ * @param {any} data - Response data
+ * @returns {{success: boolean, data: any, timestamp: string}}
+ */
+function successResponse(data) {
+  return {
+    success: true,
+    data,
+    timestamp: new Date().toISOString()
+  };
 }
 
 export default router;

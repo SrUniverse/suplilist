@@ -128,7 +128,7 @@ describe('GET /api/profile/me', () => {
 
 // ── GET /api/profile/:userId ───────────────────────────────────────────────────
 
-describe.skip('GET /api/profile/:userId', () => {
+describe('GET /api/profile/:userId', () => {
   it('returns 401 when Authorization header is absent', async () => {
     if (!mongoReady()) return;
     const res = await request(app).get(`/api/profile/${VALID_USER_ID}`);

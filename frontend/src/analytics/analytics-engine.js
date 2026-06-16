@@ -497,37 +497,63 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
 
   // ─── Private Health Check Methods ──────────────────────────────────────────
 
-  #checkPipeline(stats) {
-    const failureRate = stats.eventsProcessed > 0
+  /**
+   * Calculate failure rate from pipeline stats
+   */
+  #calculateFailureRate(stats) {
+    return stats.eventsProcessed > 0
       ? (stats.eventsFailed / stats.eventsProcessed) * 100
       : 0;
+  }
+
+  /**
+   * Calculate storage usage percentage
+   */
+  #calculateStoragePercent(sizeKB, quotaMB = 50) {
+    return (sizeKB / 1024) / quotaMB * 100;
+  }
+
+  /**
+   * Check pipeline health
+   */
+  #checkPipeline(stats) {
+    const failureRate = this.#calculateFailureRate(stats);
 
     return {
       status: failureRate < 5 ? 'healthy' : failureRate < 10 ? 'degraded' : 'unhealthy',
       message: `${failureRate.toFixed(2)}% failure rate`,
-      failureRate: failureRate,
+      failureRate,
     };
   }
 
+  /**
+   * Check storage health
+   */
   #checkStorage(sizeKB) {
-    const quotaMB = 50;  // IndexedDB quota
-    const sizePercentage = (sizeKB / 1024) / quotaMB * 100;
+    const sizePercent = this.#calculateStoragePercent(sizeKB);
 
     return {
-      status: sizePercentage < 70 ? 'healthy' : sizePercentage < 90 ? 'warning' : 'critical',
-      message: `${sizePercentage.toFixed(1)}% of quota used`,
-      usagePercent: sizePercentage,
+      status: sizePercent < 70 ? 'healthy' : sizePercent < 90 ? 'warning' : 'critical',
+      message: `${sizePercent.toFixed(1)}% of quota used`,
+      usagePercent: sizePercent,
     };
   }
 
+  /**
+   * Check PII detection
+   */
   #checkPII(logs) {
+    const detections = logs.piiDetections || 0;
     return {
-      status: (logs.piiDetections || 0) === 0 ? 'healthy' : 'warning',
-      message: (logs.piiDetections || 0) === 0 ? 'No PII detected' : `${logs.piiDetections} PII detections`,
-      detections: logs.piiDetections || 0,
+      status: detections === 0 ? 'healthy' : 'warning',
+      message: detections === 0 ? 'No PII detected' : `${detections} PII detections`,
+      detections,
     };
   }
 
+  /**
+   * Check error buffer
+   */
   #checkErrors(logs) {
     const errors = logs.errors || 0;
     return {
@@ -537,6 +563,9 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
     };
   }
 
+  /**
+   * Check pipeline performance metrics
+   */
   #checkPerformance(logs) {
     const perf = logs.perfMetrics || {};
     const pipelines = perf['PIPELINE_PROCESS'];
@@ -548,28 +577,34 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
       };
     }
 
-    const status = pipelines.max > 100 ? 'warning' : 'healthy';
     return {
-      status: status,
+      status: pipelines.max > 100 ? 'warning' : 'healthy',
       message: `Pipeline: ${pipelines.avg.toFixed(1)}ms avg (max ${pipelines.max}ms)`,
       avgMs: pipelines.avg,
       maxMs: pipelines.max,
     };
   }
 
+  /**
+   * Determine overall health status
+   */
   #isHealthy(stats, logs, sizeKB) {
-    const failureRate = stats.eventsProcessed > 0
-      ? (stats.eventsFailed / stats.eventsProcessed) * 100
-      : 0;
-    const sizePercent = (sizeKB / 1024) / 50 * 100;
-    return failureRate < 5 && sizePercent < 90 && (logs.errors || 0) < 10;
+    const failureRate = this.#calculateFailureRate(stats);
+    const sizePercent = this.#calculateStoragePercent(sizeKB);
+    const errors = logs.errors || 0;
+
+    return failureRate < 5 && sizePercent < 90 && errors < 10;
   }
 
+  /**
+   * Generate health alerts
+   */
   #generateAlerts(stats, logs, sizeKB) {
     const alerts = [];
-    const failureRate = stats.eventsProcessed > 0
-      ? (stats.eventsFailed / stats.eventsProcessed) * 100
-      : 0;
+    const failureRate = this.#calculateFailureRate(stats);
+    const sizePercent = this.#calculateStoragePercent(sizeKB);
+    const piiDetections = logs.piiDetections || 0;
+    const errors = logs.errors || 0;
 
     if (failureRate > 10) {
       alerts.push({
@@ -579,7 +614,6 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
       });
     }
 
-    const sizePercent = (sizeKB / 1024) / 50 * 100;
     if (sizePercent > 90) {
       alerts.push({
         severity: 'critical',
@@ -588,19 +622,19 @@ suplilist_analytics_buffer_size ${pipeline.bufferSize || 0}
       });
     }
 
-    if ((logs.piiDetections || 0) > 0) {
+    if (piiDetections > 0) {
       alerts.push({
         severity: 'warning',
         title: 'PII detected in events',
-        message: `${logs.piiDetections} events with potential PII were rejected`,
+        message: `${piiDetections} events with potential PII were rejected`,
       });
     }
 
-    if ((logs.errors || 0) > 5) {
+    if (errors > 5) {
       alerts.push({
         severity: 'warning',
         title: 'Error buffer growing',
-        message: `${logs.errors} errors logged in current session`,
+        message: `${errors} errors logged in current session`,
       });
     }
 

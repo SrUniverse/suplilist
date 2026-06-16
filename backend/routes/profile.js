@@ -9,9 +9,34 @@ import { authenticateToken } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rate-limit.js';
 import photoStorage from '../services/photo-storage.js';
 import UserProfile from '../models/user-profile.js';
-import { validateImageMagicBytes } from '../utils/file-validator.js';  // FIX C7: Add magic bytes validation
+import { validateImageMagicBytes } from '../utils/file-validator.js';
 
 const router = express.Router();
+
+/**
+ * Standardized error response
+ * @param {string} message - Error message
+ * @param {number} statusCode - HTTP status code
+ */
+function formatErrorResponse(message, statusCode = 500) {
+  return {
+    success: false,
+    error: message,
+    timestamp: new Date().toISOString()
+  };
+}
+
+/**
+ * Standardized success response
+ * @param {any} data - Response data
+ */
+function formatSuccessResponse(data) {
+  return {
+    success: true,
+    data,
+    timestamp: new Date().toISOString()
+  };
+}
 
 // Configure multer for file upload
 // FIX C7: Add magic bytes validation to prevent spoofed file types
@@ -41,46 +66,62 @@ const upload = multer({
 });
 
 /**
+ * Format profile response data
+ * @param {Object} profile - Profile document
+ * @returns {Object} Formatted profile
+ */
+function formatProfileData(profile) {
+  return {
+    id: profile._id,
+    userId: profile.userId,
+    name: profile.name,
+    email: profile.email,
+    photo: profile.photo?.url || null,
+    bio: profile.bio,
+    phone: profile.phone,
+    onboardingComplete: profile.onboardingComplete,
+    preferences: profile.preferences,
+    createdAt: profile.createdAt,
+    updatedAt: profile.updatedAt
+  };
+}
+
+/**
  * GET /api/profile
  * Get user's profile
  */
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const userId = req.user?.id;
-
     const profile = await UserProfile.findOne({ userId });
 
     if (!profile) {
-      return res.status(404).json({
-        success: false,
-        error: 'Profile not found'
-      });
+      return res.status(404).json(formatErrorResponse('Profile not found', 404));
     }
 
-    return res.json({
-      success: true,
-      profile: {
-        id: profile._id,
-        userId: profile.userId,
-        name: profile.name,
-        email: profile.email,
-        photo: profile.photo?.url || null,
-        bio: profile.bio,
-        phone: profile.phone,
-        onboardingComplete: profile.onboardingComplete,
-        preferences: profile.preferences,
-        createdAt: profile.createdAt,
-        updatedAt: profile.updatedAt
-      }
-    });
+    return res.json(formatSuccessResponse({ profile: formatProfileData(profile) }));
   } catch (error) {
     logger.error('Failed to get profile', error);
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    return res.status(500).json(formatErrorResponse(error.message, 500));
   }
 });
+
+/**
+ * Validate profile update data
+ * @param {Object} data - Update data
+ * @returns {string|null} - Validation error or null if valid
+ */
+function validateProfileUpdate({ name, bio, phone, preferences }) {
+  if (name && (name.length < 2 || name.length > 100)) {
+    return 'Name must be 2-100 characters';
+  }
+
+  if (bio && bio.length > 500) {
+    return 'Bio must be less than 500 characters';
+  }
+
+  return null;
+}
 
 /**
  * PUT /api/profile
@@ -95,19 +136,10 @@ router.put(
       const userId = req.user?.id;
       const { name, bio, phone, preferences } = req.body;
 
-      // Validation
-      if (name && (name.length < 2 || name.length > 100)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Name must be 2-100 characters'
-        });
-      }
-
-      if (bio && bio.length > 500) {
-        return res.status(400).json({
-          success: false,
-          error: 'Bio must be less than 500 characters'
-        });
+      // Validate
+      const validationError = validateProfileUpdate({ name, bio, phone, preferences });
+      if (validationError) {
+        return res.status(400).json(formatErrorResponse(validationError, 400));
       }
 
       // Update profile
@@ -124,16 +156,12 @@ router.put(
       );
 
       if (!profile) {
-        return res.status(404).json({
-          success: false,
-          error: 'Profile not found'
-        });
+        return res.status(404).json(formatErrorResponse('Profile not found', 404));
       }
 
       logger.info(`Profile updated for user ${userId}`);
 
-      return res.json({
-        success: true,
+      return res.json(formatSuccessResponse({
         profile: {
           name: profile.name,
           bio: profile.bio,
@@ -141,13 +169,10 @@ router.put(
           photo: profile.photo?.url || null,
           preferences: profile.preferences
         }
-      });
+      }));
     } catch (error) {
       logger.error('Failed to update profile', error);
-      return res.status(500).json({
-        success: false,
-        error: error.message
-      });
+      return res.status(500).json(formatErrorResponse(error.message, 500));
     }
   }
 );
@@ -169,29 +194,22 @@ router.post(
 
       // Validate file
       if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          error: 'No photo file provided'
-        });
+        return res.status(400).json(formatErrorResponse('No photo file provided', 400));
       }
 
       logger.info(`Photo upload started for user ${userId}`);
 
-      // FIX C7: Validate file magic bytes to prevent spoofed file types
+      // Validate file magic bytes to prevent spoofed file types
       try {
         const isValidImage = validateImageMagicBytes(req.file.buffer, req.file.mimetype);
         if (!isValidImage) {
-          return res.status(400).json({
-            success: false,
-            error: 'Invalid file - magic bytes do not match claimed file type'
-          });
+          return res.status(400).json(
+            formatErrorResponse('Invalid file - magic bytes do not match claimed file type', 400)
+          );
         }
       } catch (validationError) {
         logger.error(`File validation error for user ${userId}`, validationError);
-        return res.status(400).json({
-          success: false,
-          error: 'File validation failed'
-        });
+        return res.status(400).json(formatErrorResponse('File validation failed', 400));
       }
 
       // Delete old photo if exists
@@ -224,22 +242,17 @@ router.post(
 
       logger.info(`Photo uploaded for user ${userId}: ${photoData.url}`);
 
-      return res.json({
-        success: true,
+      return res.json(formatSuccessResponse({
         photo: {
           url: photoData.url,
           uploadedAt: photoData.uploadedAt,
           size: photoStorage.formatFileSize(photoData.size),
           mimetype: photoData.mimetype
         }
-      });
+      }));
     } catch (error) {
       logger.error(`Photo upload failed for user ${req.user?.id}`, error);
-
-      return res.status(500).json({
-        success: false,
-        error: error.message || 'Failed to upload photo'
-      });
+      return res.status(500).json(formatErrorResponse(error.message || 'Failed to upload photo', 500));
     }
   }
 );
@@ -255,45 +268,27 @@ router.delete(
   async (req, res) => {
     try {
       const userId = req.user?.id;
-
       const profile = await UserProfile.findOne({ userId });
 
       if (!profile?.photo?.publicId) {
-        return res.status(404).json({
-          success: false,
-          error: 'No photo to delete'
-        });
+        return res.status(404).json(formatErrorResponse('No photo to delete', 404));
       }
 
       // Delete from storage
-      await photoStorage.deletePhoto(
-        profile.photo.publicId,
-        profile.photo.url
-      );
+      await photoStorage.deletePhoto(profile.photo.publicId, profile.photo.url);
 
       // Remove from database
       await UserProfile.findOneAndUpdate(
         { userId },
-        {
-          photo: {},
-          updatedAt: new Date()
-        },
+        { photo: {}, updatedAt: new Date() },
         { new: true }
       );
 
       logger.info(`Photo deleted for user ${userId}`);
-
-      return res.json({
-        success: true,
-        message: 'Photo deleted successfully'
-      });
+      return res.json(formatSuccessResponse({ message: 'Photo deleted successfully' }));
     } catch (error) {
       logger.error(`Photo deletion failed for user ${req.user?.id}`, error);
-
-      return res.status(500).json({
-        success: false,
-        error: error.message
-      });
+      return res.status(500).json(formatErrorResponse(error.message, 500));
     }
   }
 );

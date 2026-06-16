@@ -130,7 +130,28 @@ router.post(
 );
 
 /**
+ * DEPRECATED: Specific cache invalidation endpoints
+ *
+ * The following endpoints are deprecated in favor of the generic invalidation endpoint:
+ * - POST /api/admin/cache/invalidate/products
+ * - POST /api/admin/cache/invalidate/lists
+ * - POST /api/admin/cache/invalidate/search
+ *
+ * Use instead:
+ * POST /api/admin/cache/invalidate?entityType=products
+ * POST /api/admin/cache/invalidate?entityType=lists
+ * POST /api/admin/cache/invalidate?entityType=search
+ *
+ * Or with request body:
+ * POST /api/admin/cache/invalidate
+ * { "entityType": "products" | "lists" | "search" }
+ *
+ * These endpoints remain for backward compatibility but will be removed in v3.
+ */
+
+/**
  * POST /api/admin/cache/invalidate/products
+ * @deprecated Use POST /api/admin/cache/invalidate?entityType=products
  * Invalidate all product cache
  */
 router.post(
@@ -141,9 +162,18 @@ router.post(
         INVALIDATION_PATTERNS.ALL_PRODUCTS,
       );
 
+      // Add deprecation header
+      res.set('Deprecation', 'true');
+      res.set('Sunset', '2024-12-01T00:00:00Z');
+
       res.json({
         success: true,
         data: { invalidated: deleted, pattern: INVALIDATION_PATTERNS.ALL_PRODUCTS },
+        deprecation: {
+          message: 'This endpoint is deprecated. Use POST /api/admin/cache/invalidate?entityType=products',
+          sunset: '2024-12-01T00:00:00Z',
+          alternative: '/api/admin/cache/invalidate',
+        },
       });
     } catch (error) {
       res.status(500).json({
@@ -156,6 +186,7 @@ router.post(
 
 /**
  * POST /api/admin/cache/invalidate/lists
+ * @deprecated Use POST /api/admin/cache/invalidate?entityType=lists
  * Invalidate all list cache
  */
 router.post(
@@ -166,9 +197,18 @@ router.post(
         INVALIDATION_PATTERNS.ALL_LISTS,
       );
 
+      // Add deprecation header
+      res.set('Deprecation', 'true');
+      res.set('Sunset', '2024-12-01T00:00:00Z');
+
       res.json({
         success: true,
         data: { invalidated: deleted, pattern: INVALIDATION_PATTERNS.ALL_LISTS },
+        deprecation: {
+          message: 'This endpoint is deprecated. Use POST /api/admin/cache/invalidate?entityType=lists',
+          sunset: '2024-12-01T00:00:00Z',
+          alternative: '/api/admin/cache/invalidate',
+        },
       });
     } catch (error) {
       res.status(500).json({
@@ -181,6 +221,7 @@ router.post(
 
 /**
  * POST /api/admin/cache/invalidate/search
+ * @deprecated Use POST /api/admin/cache/invalidate?entityType=search
  * Invalidate all search cache
  */
 router.post(
@@ -191,9 +232,18 @@ router.post(
         INVALIDATION_PATTERNS.SEARCH_RESULTS,
       );
 
+      // Add deprecation header
+      res.set('Deprecation', 'true');
+      res.set('Sunset', '2024-12-01T00:00:00Z');
+
       res.json({
         success: true,
         data: { invalidated: deleted, pattern: INVALIDATION_PATTERNS.SEARCH_RESULTS },
+        deprecation: {
+          message: 'This endpoint is deprecated. Use POST /api/admin/cache/invalidate?entityType=search',
+          sunset: '2024-12-01T00:00:00Z',
+          alternative: '/api/admin/cache/invalidate',
+        },
       });
     } catch (error) {
       res.status(500).json({

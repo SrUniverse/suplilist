@@ -6,6 +6,7 @@ import { ProfileModel } from '../../../profile/infrastructure/mongoose/profile.m
 
 import { RedisStore } from 'rate-limit-redis';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
+import { cacheService } from '../../../../shared/services/cache.service.js';
 
 const router = Router();
 
@@ -103,7 +104,10 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
       await newProfile.save();
     }
 
-    res.json({ 
+    // Invalidate cache for this user on sync (login/update) to ensure fresh data
+    await cacheService.delete(`user:${uid}`);
+
+    res.json({
       success: true,
       data: {
         userId: userIdentity._id.toString(),

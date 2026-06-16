@@ -38,6 +38,27 @@ import { createHealthRouter } from './routes/health.route.js';
 import { metricsMiddleware, startErrorRateCleanup } from './middleware/metrics.middleware.js';
 import { createMetricsRouter } from './routes/metrics.route.js';
 import { logMaskingMiddleware } from './middleware/log-masking.middleware.js';
+import {
+  responseOptimizationMiddleware,
+  addPaginationMetadata,
+  compressionHeadersMiddleware,
+  fieldSelectionMiddleware,
+  requestResponseLoggingMiddleware,
+} from './middleware/response-optimization.middleware.js';
+import {
+  httpCachingMiddleware,
+  cacheInvalidationMiddleware,
+  cacheAdvisoryHeadersMiddleware,
+} from './middleware/http-caching.middleware.js';
+import {
+  enhancedLoggingMiddleware,
+  dbTimingMiddleware,
+  cacheTrackingMiddleware,
+  errorTrackingMiddleware,
+  performanceAnalyticsMiddleware,
+} from './middleware/enhanced-logging.middleware.js';
+import { errorHandlerMiddleware } from './middleware/error-handler.middleware.js';
+import { initializeMonitoring } from './shared/services/monitoring.service.js';
 
 export function createApp() {
   initializeFirebaseAdmin();
@@ -117,6 +138,29 @@ export function createApp() {
   // Collects HTTP latency, request counts, error rates for all endpoints
   app.use(metricsMiddleware);
 
+  // ── Enhanced Request Logging (Performance tracking) ─────────────────────────
+  // Tracks request/response size, DB timing, cache hits/misses
+  app.use(enhancedLoggingMiddleware);
+  app.use(dbTimingMiddleware);
+  app.use(cacheTrackingMiddleware);
+  app.use(errorTrackingMiddleware);
+  app.use(performanceAnalyticsMiddleware);
+
+  // ── HTTP Caching Headers ──────────────────────────────────────────────────────
+  // Implements smart Cache-Control headers based on endpoint patterns
+  // Reduces bandwidth and improves client-side performance
+  app.use(httpCachingMiddleware);
+  app.use(cacheInvalidationMiddleware);
+  app.use(cacheAdvisoryHeadersMiddleware);
+
+  // ── Response Optimization ────────────────────────────────────────────────────
+  // Remove unnecessary fields, add pagination metadata, track size
+  app.use(responseOptimizationMiddleware);
+  app.use(addPaginationMetadata);
+  app.use(compressionHeadersMiddleware);
+  app.use(fieldSelectionMiddleware);
+  app.use(requestResponseLoggingMiddleware);
+
   // Start periodic cleanup of error rate counters
   startErrorRateCleanup();
 
@@ -180,48 +224,14 @@ export function createApp() {
     });
   });
 
-  // ── Global error handler (OWASP: no leaked stack traces in production) ─────
-  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled server error:', err);
-    
-    let status = 500;
-    let code = 'internal_server_error';
-    let message = 'An unexpected error occurred. Please contact support.';
+  // ── Global error handler (standardized error handling) ─────
+  app.use(errorHandlerMiddleware);
 
-    if (err instanceof Error) {
-      if (err.name === 'ZodError' || err.constructor.name === 'ZodError') {
-        status = 400;
-        code = 'validation_error';
-        message = err.message;
-      } else if (err.message.includes('ValidationError')) {
-        status = 400;
-        code = 'validation_error';
-        message = err.message.replace('ValidationError: ', '');
-      } else if (err.message.includes('EntityNotFoundError')) {
-        status = 404;
-        code = 'not_found';
-        message = err.message.replace('EntityNotFoundError: ', '');
-      } else {
-        const e = err as { status?: number; statusCode?: number; code?: string; message?: string };
-        status = e.status || e.statusCode || 500;
-        code = e.code || 'internal_server_error';
-        message = e.message || 'Internal Server Error';
-      }
-    } else {
-      const e = err as { status?: number; statusCode?: number; code?: string; message?: string };
-      status = e?.status || e?.statusCode || 500;
-      code = e?.code || 'internal_server_error';
-      message = e?.message || 'Internal Server Error';
-    }
-
-    res.status(status).json({
-      success: false,
-      error: code,
-      message: process.env.NODE_ENV === 'production' && status === 500
-        ? 'An unexpected error occurred. Please contact support.'
-        : message,
-    });
-  });
+  // ── Initialize monitoring and alerting ─────────────────────────────────────
+  // Start periodic evaluation of alert rules (30 second intervals)
+  if (process.env.NODE_ENV !== 'test') {
+    initializeMonitoring(30 * 1000, true);
+  }
 
   return app;
 }

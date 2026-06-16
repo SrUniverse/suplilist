@@ -68,4 +68,53 @@ describe('PUT /api/favorites/bulk', () => {
     expect(saved.some(f => f.supplementId === 'old-fav-1')).toBe(false);
     expect(saved.some(f => f.supplementId === 'new-fav-1')).toBe(true);
   });
+
+  it('returns 4xx when supplementIds is not an array', async () => {
+    const res = await request(app)
+      .put('/api/favorites/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ supplementIds: 'not-an-array' });
+
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+  });
+
+  it('returns 4xx when supplementIds contains non-string values', async () => {
+    const res = await request(app)
+      .put('/api/favorites/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ supplementIds: [123, null, 'valid-id'] });
+
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+  });
+
+  it('returns 200 with 0 replaced when supplementIds array is empty', async () => {
+    if (!mongoReady()) return;
+
+    const res = await request(app)
+      .put('/api/favorites/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ supplementIds: [] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.replaced).toBe(0);
+  });
+
+  it('returns 4xx when supplementIds exceeds maximum length', async () => {
+    const tooManyIds = Array.from({ length: 1001 }, (_, i) => `id-${i}`);
+
+    const res = await request(app)
+      .put('/api/favorites/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ supplementIds: tooManyIds });
+
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+  });
 });

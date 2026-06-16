@@ -4,9 +4,24 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
 const AUTH_TAG_LENGTH = 16;
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY 
-  ? Buffer.from(process.env.ENCRYPTION_KEY, 'hex')
-  : Buffer.from('d3f7b2e9c20a158b4b74a1e9df64a32b0f452d3a9efb925cc78a10b48cde7a19', 'hex');
+// Encryption key MUST come from environment — no hardcoded fallback for security
+const ENCRYPTION_KEY_HEX = process.env.ENCRYPTION_KEY;
+if (!ENCRYPTION_KEY_HEX) {
+  throw new Error(
+    'CRITICAL: ENCRYPTION_KEY environment variable is not set. ' +
+    'Generate with: openssl rand -hex 32'
+  );
+}
+
+const ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_HEX, 'hex');
+
+// Validate key length (AES-256 requires 32 bytes)
+if (ENCRYPTION_KEY.length !== 32) {
+  throw new Error(
+    `CRITICAL: ENCRYPTION_KEY must be exactly 32 bytes (256 bits). ` +
+    `Got ${ENCRYPTION_KEY.length} bytes. Generate with: openssl rand -hex 32`
+  );
+}
 
 /**
  * Encrypts clear text using AES-256-GCM.

@@ -43,7 +43,7 @@ export class CheckinController {
         return;
       }
 
-      const results = [];
+      const results: Array<{ success: boolean; payloadId: any; data?: any; error?: string }> = [];
       for (const payload of payloads) {
         try {
           const result = await this.logCheckinUseCase.execute(userId, payload);

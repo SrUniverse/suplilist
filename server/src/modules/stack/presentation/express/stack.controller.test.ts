@@ -82,4 +82,101 @@ describe('PUT /api/stack/bulk', () => {
     expect(saved.some(i => i.supplementId === 'creatine-123')).toBe(true);
     expect(saved.some(i => i.supplementId === 'whey-456')).toBe(true);
   });
+
+  it('returns 4xx when payload is not an array', async () => {
+    const res = await request(app)
+      .put('/api/stack/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send({ items: [{ supplementId: 'test' }] });
+
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+  });
+
+  it('returns 4xx when supplementId is missing', async () => {
+    const res = await request(app)
+      .put('/api/stack/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send([
+        {
+          name: 'Creatine',
+          dosage: { amount: 5, unit: 'g', frequency: 'daily', times: 1 },
+        },
+      ]);
+
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+  });
+
+  it('returns 4xx when dosage object is malformed', async () => {
+    const res = await request(app)
+      .put('/api/stack/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send([
+        {
+          supplementId: 'test-123',
+          name: 'Test Supplement',
+          dosage: {
+            amount: -5,
+            unit: 'g',
+            frequency: 'invalid-frequency',
+          },
+        },
+      ]);
+
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+  });
+
+  it('returns 200 with 0 upserted when array is empty', async () => {
+    if (!mongoReady()) return;
+
+    const res = await request(app)
+      .put('/api/stack/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send([]);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.upserted).toBe(0);
+  });
+
+  it('correctly counts upserted vs modified items', async () => {
+    if (!mongoReady()) return;
+
+    // First insert
+    const res1 = await request(app)
+      .put('/api/stack/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send([
+        {
+          supplementId: 'creatine-123',
+          name: 'Creatine v1',
+          dosage: { amount: 5, unit: 'g', frequency: 'daily', times: 1 },
+        },
+      ]);
+
+    expect(res1.body.data.upserted).toBe(1);
+    expect(res1.body.data.modified).toBe(0);
+
+    // Second insert with same supplementId should modify
+    const res2 = await request(app)
+      .put('/api/stack/bulk')
+      .set('Authorization', `Bearer ${bearerToken(VALID_USER_ID)}`)
+      .set('X-SupliList-Client', '1')
+      .send([
+        {
+          supplementId: 'creatine-123',
+          name: 'Creatine v2',
+          dosage: { amount: 10, unit: 'g', frequency: 'daily', times: 1 },
+        },
+      ]);
+
+    expect(res2.body.data.modified).toBeGreaterThan(0);
+  });
 });

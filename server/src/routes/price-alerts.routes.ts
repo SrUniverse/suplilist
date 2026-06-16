@@ -265,14 +265,28 @@ router.delete('/:alertId', async (req: Request, res: Response) => {
 });
 
 /**
- * GET /api/price-alerts/history/:productId
- * Get price history for a product
+ * GET /api/price-alerts/:alertId/history
+ * Get price history for a specific alert's product
+ * MOVED from: GET /api/price-alerts/history/:productId (to avoid route conflict)
  */
-router.get('/history/:productId', async (req: Request, res: Response) => {
+router.get('/:alertId/history', async (req: Request, res: Response) => {
   try {
-    const { productId } = req.params;
+    const userId = (req as any).user.id;
+    const { alertId } = req.params;
     const limit = Math.min(parseInt(req.query.limit as string) || 100, 1000);
     const offset = parseInt(req.query.offset as string) || 0;
+
+    // Get the alert to find the product ID and verify user owns it
+    const alertResult = await db.query(
+      `SELECT product_id FROM user_price_alerts WHERE id = $1 AND user_id = $2`,
+      [alertId, userId]
+    );
+
+    if (alertResult.rows.length === 0) {
+      throw new AppError('Price alert not found', 404);
+    }
+
+    const { product_id: productId } = alertResult.rows[0];
 
     const result = await db.query(
       `SELECT source, current_price, drop_percentage, checked_at
@@ -304,12 +318,31 @@ router.get('/history/:productId', async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching price history', { error });
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Failed to fetch price history' });
   }
 });
 
 /**
+ * DEPRECATED: Device token endpoints have been moved to /api/notifications module
+ *
+ * Device token management (Firebase push notifications) should not be in price-alerts.
+ * Use the following endpoints instead:
+ *
+ * - POST /api/notifications/device-tokens
+ * - DELETE /api/notifications/device-tokens/:tokenId
+ *
+ * These endpoints remain here for backward compatibility but are deprecated.
+ * Remove in v3 API version.
+ *
+ * Migration: Update clients to use /api/notifications/device-tokens instead of /api/price-alerts/device-tokens
+ */
+
+/**
  * POST /api/price-alerts/device-tokens
+ * @deprecated Use POST /api/notifications/device-tokens instead
  * Register a Firebase device token
  */
 router.post(
@@ -353,11 +386,21 @@ router.post(
       // Register with Firebase
       await firebaseService.registerDeviceToken(userId, deviceToken, deviceName, deviceType);
 
-      logger.info('Device token registered', { userId, deviceType });
+      logger.info('Device token registered (DEPRECATED endpoint)', { userId, deviceType });
+
+      // Add deprecation header
+      res.set('Deprecation', 'true');
+      res.set('Sunset', '2024-12-01T00:00:00Z');
+      res.set('Link', '</api/notifications/device-tokens>; rel="successor-version"');
 
       res.status(201).json({
         success: true,
         data: { tokenId },
+        deprecation: {
+          message: 'This endpoint is deprecated. Use POST /api/notifications/device-tokens instead.',
+          sunset: '2024-12-01T00:00:00Z',
+          alternative: '/api/notifications/device-tokens',
+        },
       });
     } catch (error) {
       logger.error('Error registering device token', { error });
@@ -368,6 +411,7 @@ router.post(
 
 /**
  * DELETE /api/price-alerts/device-tokens/:tokenId
+ * @deprecated Use DELETE /api/notifications/device-tokens/:tokenId instead
  * Unregister a Firebase device token
  */
 router.delete('/device-tokens/:tokenId', async (req: Request, res: Response) => {
@@ -393,11 +437,21 @@ router.delete('/device-tokens/:tokenId', async (req: Request, res: Response) => 
 
     await firebaseService.unregisterDeviceToken(userId, deviceToken);
 
-    logger.info('Device token deleted', { userId, tokenId });
+    logger.info('Device token deleted (DEPRECATED endpoint)', { userId, tokenId });
+
+    // Add deprecation header
+    res.set('Deprecation', 'true');
+    res.set('Sunset', '2024-12-01T00:00:00Z');
+    res.set('Link', '</api/notifications/device-tokens>; rel="successor-version"');
 
     res.json({
       success: true,
       message: 'Device token deleted successfully',
+      deprecation: {
+        message: 'This endpoint is deprecated. Use DELETE /api/notifications/device-tokens/:tokenId instead.',
+        sunset: '2024-12-01T00:00:00Z',
+        alternative: '/api/notifications/device-tokens',
+      },
     });
   } catch (error) {
     logger.error('Error deleting device token', { error });

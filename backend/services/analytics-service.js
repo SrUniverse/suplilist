@@ -14,6 +14,56 @@ const ACHIEVEMENT_BADGES = {
   MASTER: { id: 'master', name: '🏆 Mestre', description: '100 dias de aderência' },
 };
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * Helper: Get intensity level for heatmap color
+ */
+function getIntensity(adherence) {
+  if (adherence === 0) return 'none';
+  if (adherence < 25) return 'low';
+  if (adherence < 50) return 'medium-low';
+  if (adherence < 75) return 'medium';
+  if (adherence < 100) return 'high';
+  return 'perfect';
+}
+
+/**
+ * Helper: Convert date to ISO date string (YYYY-MM-DD)
+ */
+function getDateString(date) {
+  return date.toISOString().split('T')[0];
+}
+
+/**
+ * Helper: Get checkins grouped by date
+ */
+async function getCheckinsByDate(db, userId, startDate, endDate) {
+  const checkins = await db.collection('checkins').find({
+    userId,
+    createdAt: { $gte: startDate, $lte: endDate }
+  }).toArray();
+
+  const checkInsByDate = {};
+  checkins.forEach(c => {
+    const dateStr = getDateString(c.createdAt);
+    checkInsByDate[dateStr] = (checkInsByDate[dateStr] || 0) + 1;
+  });
+
+  return checkInsByDate;
+}
+
+/**
+ * Helper: Get user's stack size for normalization
+ */
+async function getStackSize(db, userId) {
+  const user = await db.collection('users').findOne(
+    { _id: userId },
+    { projection: { stack: 1 } }
+  );
+  return user?.stack?.length || 1;
+}
+
 export class AnalyticsService {
   constructor(db) {
     this.db = db;
@@ -21,32 +71,15 @@ export class AnalyticsService {
 
   /**
    * Get adherence data for heatmap visualization
-   * Returns daily adherence for last 90 days
+   * Returns daily adherence for last N days
    */
   async getAdherenceHeatmap(userId, days = 90) {
     try {
       const endDate = new Date();
-      const startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
+      const startDate = new Date(endDate.getTime() - days * MS_PER_DAY);
 
-      // Get all check-ins in range
-      const checkins = await this.db.collection('checkins').find({
-        userId,
-        createdAt: { $gte: startDate, $lte: endDate }
-      }).toArray();
-
-      // Group by date
-      const checkInsByDate = {};
-      checkins.forEach(c => {
-        const date = c.createdAt.toISOString().split('T')[0];
-        checkInsByDate[date] = (checkInsByDate[date] || 0) + 1;
-      });
-
-      // Get user's stack size for normalization
-      const user = await this.db.collection('users').findOne(
-        { _id: userId },
-        { projection: { stack: 1 } }
-      );
-      const stackSize = user?.stack?.length || 1;
+      const checkInsByDate = await getCheckinsByDate(this.db, userId, startDate, endDate);
+      const stackSize = await getStackSize(this.db, userId);
 
       // Build heatmap data
       const heatmapData = [];
@@ -54,8 +87,8 @@ export class AnalyticsService {
       today.setHours(0, 0, 0, 0);
 
       for (let i = days - 1; i >= 0; i--) {
-        const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
-        const dateStr = date.toISOString().split('T')[0];
+        const date = new Date(today.getTime() - i * MS_PER_DAY);
+        const dateStr = getDateString(date);
         const checkinsCount = checkInsByDate[dateStr] || 0;
         const adherence = Math.min((checkinsCount / stackSize) * 100, 100);
 
@@ -64,7 +97,7 @@ export class AnalyticsService {
           dayOfWeek: date.getDay(),
           checkins: checkinsCount,
           adherence: Math.round(adherence),
-          intensity: this._getIntensity(adherence)
+          intensity: getIntensity(adherence)
         });
       }
 
@@ -82,36 +115,29 @@ export class AnalyticsService {
     try {
       const now = new Date();
       const trendData = [];
+      const stackSize = await getStackSize(this.db, userId);
 
       for (let i = months - 1; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
 
-        // Count check-ins in month
         const checkins = await this.db.collection('checkins').find({
           userId,
           createdAt: { $gte: monthStart, $lte: monthEnd }
         }).toArray();
 
-        // Get user stack size
-        const user = await this.db.collection('users').findOne(
-          { _id: userId },
-          { projection: { stack: 1 } }
-        );
-        const stackSize = user?.stack?.length || 1;
-        const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-
-        // Calculate adherence %
+        const daysInMonth = monthEnd.getDate();
         const maxPossible = daysInMonth * stackSize;
         const adherence = maxPossible > 0 ? Math.round((checkins.length / maxPossible) * 100) : 0;
+        const daysActive = new Set(checkins.map(c => getDateString(c.createdAt))).size;
 
         trendData.push({
-          month: monthStart.toISOString().split('T')[0],
+          month: getDateString(monthStart),
           monthName: monthStart.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }),
           adherence,
           checkins: checkins.length,
-          daysActive: new Set(checkins.map(c => c.createdAt.toISOString().split('T')[0])).size
+          daysActive
         });
       }
 
@@ -127,10 +153,6 @@ export class AnalyticsService {
    */
   async getStreakMetrics(userId) {
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // Get all check-ins sorted by date
       const checkins = await this.db.collection('checkins')
         .find({ userId })
         .sort({ createdAt: -1 })
@@ -140,57 +162,14 @@ export class AnalyticsService {
         return { currentStreak: 0, longestStreak: 0, lastCheckin: null, totalCheckins: 0 };
       }
 
-      // Get user's stack
-      const user = await this.db.collection('users').findOne(
-        { _id: userId },
-        { projection: { stack: 1 } }
-      );
-      const stackSize = user?.stack?.length || 1;
+      const stackSize = await getStackSize(this.db, userId);
+      const checkInDates = this._groupCheckinsByDate(checkins);
 
-      // Group check-ins by date
-      const checkInDates = {};
-      checkins.forEach(c => {
-        const date = c.createdAt.toISOString().split('T')[0];
-        if (!checkInDates[date]) {
-          checkInDates[date] = [];
-        }
-        checkInDates[date].push(c);
-      });
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      const dates = Object.keys(checkInDates).sort().reverse();
-
-      // Calculate current streak
-      let currentStreak = 0;
-      let checkingDate = new Date(today);
-
-      for (let i = 0; i < 365; i++) {
-        const dateStr = checkingDate.toISOString().split('T')[0];
-        const dayCheckins = checkInDates[dateStr] || [];
-
-        if (dayCheckins.length >= stackSize) {
-          currentStreak++;
-          checkingDate.setDate(checkingDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-
-      // Calculate longest streak (historically)
-      let longestStreak = 0;
-      let tempStreak = 0;
-      checkingDate = new Date(dates[0]);
-
-      for (let i = 0; i < dates.length; i++) {
-        const dayCheckins = checkInDates[dates[i]] || [];
-        if (dayCheckins.length >= stackSize) {
-          tempStreak++;
-        } else {
-          longestStreak = Math.max(longestStreak, tempStreak);
-          tempStreak = 0;
-        }
-      }
-      longestStreak = Math.max(longestStreak, tempStreak);
-
+      const currentStreak = this._calculateCurrentStreak(today, checkInDates, stackSize);
+      const longestStreak = this._calculateLongestStreak(checkInDates, stackSize);
       const lastCheckinDate = checkins[0]?.createdAt || null;
 
       return {
@@ -199,13 +178,71 @@ export class AnalyticsService {
         lastCheckin: lastCheckinDate?.toISOString(),
         totalCheckins: checkins.length,
         daysSinceLastCheckin: lastCheckinDate
-          ? Math.floor((today - lastCheckinDate) / (24 * 60 * 60 * 1000))
+          ? Math.floor((today - lastCheckinDate) / MS_PER_DAY)
           : null
       };
     } catch (error) {
       logger.error('[AnalyticsService] Error getting streak metrics:', error);
       return { currentStreak: 0, longestStreak: 0, lastCheckin: null, totalCheckins: 0 };
     }
+  }
+
+  /**
+   * Helper: Group checkins by date
+   */
+  _groupCheckinsByDate(checkins) {
+    const checkInDates = {};
+    checkins.forEach(c => {
+      const dateStr = getDateString(c.createdAt);
+      if (!checkInDates[dateStr]) {
+        checkInDates[dateStr] = [];
+      }
+      checkInDates[dateStr].push(c);
+    });
+    return checkInDates;
+  }
+
+  /**
+   * Helper: Calculate current streak (going backwards from today)
+   */
+  _calculateCurrentStreak(today, checkInDates, stackSize) {
+    let currentStreak = 0;
+    const checkingDate = new Date(today);
+
+    for (let i = 0; i < 365; i++) {
+      const dateStr = getDateString(checkingDate);
+      const dayCheckins = checkInDates[dateStr] || [];
+
+      if (dayCheckins.length >= stackSize) {
+        currentStreak++;
+        checkingDate.setDate(checkingDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+
+    return currentStreak;
+  }
+
+  /**
+   * Helper: Calculate longest historical streak
+   */
+  _calculateLongestStreak(checkInDates, stackSize) {
+    const dates = Object.keys(checkInDates).sort().reverse();
+    let longestStreak = 0;
+    let tempStreak = 0;
+
+    for (const dateStr of dates) {
+      const dayCheckins = checkInDates[dateStr] || [];
+      if (dayCheckins.length >= stackSize) {
+        tempStreak++;
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak);
+        tempStreak = 0;
+      }
+    }
+
+    return Math.max(longestStreak, tempStreak);
   }
 
   /**
@@ -340,17 +377,6 @@ export class AnalyticsService {
     }
   }
 
-  /**
-   * Helper: Get intensity level for heatmap color
-   */
-  _getIntensity(adherence) {
-    if (adherence === 0) return 'none';
-    if (adherence < 25) return 'low';
-    if (adherence < 50) return 'medium-low';
-    if (adherence < 75) return 'medium';
-    if (adherence < 100) return 'high';
-    return 'perfect';
-  }
 }
 
 export default AnalyticsService;

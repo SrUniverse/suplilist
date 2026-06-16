@@ -4,6 +4,7 @@
  */
 
 import { SUPPLEMENTS_DB } from './stack-recommender.js';
+import { estimateMonthlyCost } from '../../utils/dosage-converter.js';
 
 /** Peso por nível de evidência — favorece A/B sobre C no ranking. */
 const EVIDENCE_WEIGHT = { A: 1.0, B: 0.7, C: 0.4 };
@@ -27,12 +28,8 @@ export function getRecommendations(profile) {
     if (!s.targets?.[objective]) return false;
     const dose = s.dosage?.maintenance ?? 5;
     const unit = s.dosage?.unit ?? 'g';
-    let dailyGrams;
-    if (unit === 'mg') dailyGrams = dose / 1000;
-    else if (unit === 'mcg') dailyGrams = dose / 1_000_000;
-    else if (unit === 'g') dailyGrams = dose;
-    else return true; // UI, UFC, etc. — non-mass units; skip cost filter
-    const estimatedCost = s.pricePerGram * dailyGrams * 30;
+    if (!['g', 'mg', 'mcg'].includes(unit)) return true; // UI, UFC — skip cost filter
+    const estimatedCost = estimateMonthlyCost(dose, unit, s.pricePerGram ?? 0);
     return estimatedCost <= budget;
   }).sort((a, b) => {
     // Relevância = afinidade com o objetivo ponderada pela força da evidência.

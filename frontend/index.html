@@ -191,21 +191,23 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Dark/Light tokens — must match src/css/design-system.css exactly (FOUC prevention) */
+    /* Subconjunto crítico de tokens para prevenir FOUC (loading screen + shell).
+       DEVE espelhar src/css/design-system.css — essa é a fonte única de verdade
+       (carrega depois e vence a cascata). Mantê-los em sincronia. */
     [data-theme="dark"] {
-      --color-bg-primary: #080808;
-      --color-bg-secondary: #0F0F0F;
-      --color-surface-primary: #111111;
-      --color-surface-secondary: #161616;
-      --color-surface-hover: #1C1C1C;
-      --color-border: rgba(255, 255, 255, 0.07);
-      --color-border-strong: rgba(255, 255, 255, 0.14);
-      --color-text-primary: #F2F2F2;
-      --color-text-secondary: #9A9A9A;
-      --color-text-muted: #555555;
-      --color-brand: #7C3AED;
-      --color-brand-hover: #6D28D9;
-      --color-brand-muted: rgba(124, 58, 237, 0.12);
+      --color-bg-primary: #0A0C10;
+      --color-bg-secondary: #0D0F14;
+      --color-surface-primary: #13161C;
+      --color-surface-secondary: #191D25;
+      --color-surface-hover: #1E222C;
+      --color-border: rgba(255, 255, 255, 0.06);
+      --color-border-strong: rgba(255, 255, 255, 0.12);
+      --color-text-primary: #F1F5F9;
+      --color-text-secondary: #94A3B8;
+      --color-text-muted: #7C899E;
+      --color-brand: #8B5CF6;
+      --color-brand-hover: #7C3AED;
+      --color-brand-muted: rgba(139, 92, 246, 0.12);
       --color-success: #22C55E;
       --color-success-bg: rgba(34, 197, 94, 0.10);
       --color-error: #EF4444;
@@ -213,16 +215,16 @@
     }
 
     [data-theme="light"] {
-      --color-bg-primary: #FAFAFA;
-      --color-bg-secondary: #F0F0F0;
+      --color-bg-primary: #F8FAFC;
+      --color-bg-secondary: #F1F5F9;
       --color-surface-primary: #FFFFFF;
-      --color-surface-secondary: #F4F4F4;
-      --color-surface-hover: #EEEEEE;
+      --color-surface-secondary: #F4F6FA;
+      --color-surface-hover: #EEF2F7;
       --color-border: rgba(0, 0, 0, 0.08);
       --color-border-strong: rgba(0, 0, 0, 0.16);
-      --color-text-primary: #0A0A0A;
-      --color-text-secondary: #525252;
-      --color-text-muted: #9A9A9A;
+      --color-text-primary: #0F172A;
+      --color-text-secondary: #475569;
+      --color-text-muted: #64748B;
       --color-brand: #7C3AED;
       --color-brand-hover: #6D28D9;
       --color-brand-muted: rgba(124, 58, 237, 0.10);
@@ -447,7 +449,11 @@
   <header id="mobile-topbar" role="banner" aria-label="Topo mobile"></header>
 
   <!-- Router outlet -->
-  <main id="router-outlet" role="main" aria-live="polite" aria-label="Conteúdo principal"></main>
+  <main id="router-outlet" role="main" aria-label="Conteúdo principal"></main>
+
+  <!-- Anúncio de troca de rota para leitores de tela (só o título, não o
+       conteúdo inteiro — evita a verbosidade do aria-live no main). -->
+  <div id="route-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
   <!-- Bottom nav mobile — conteúdo injetado por Nav.init() -->
   <nav id="bottom-nav" role="navigation" aria-label="Navegação principal mobile"></nav>

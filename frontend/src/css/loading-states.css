@@ -27,33 +27,8 @@
   min-height: 1em;
 }
 
-/* Skeleton variants */
-.skeleton--card {
-  border-radius: var(--radius-xl);
-  min-height: 200px;
-  margin-bottom: var(--spacing-md);
-}
-
-.skeleton--text {
-  min-height: 12px;
-  margin-bottom: 8px;
-}
-
-.skeleton--text.long {
-  width: 90%;
-}
-
-.skeleton--avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.skeleton--button {
-  min-height: 48px;
-  min-width: 120px;
-  border-radius: var(--radius-md);
-}
+/* (Variantes .skeleton--* removidas: 0 usos. O sistema vivo é o single-dash
+   de skeleton.css — .skeleton-text/.skeleton-card.) */
 
 /* Loading pulse animation */
 @keyframes pulse {
@@ -92,98 +67,14 @@
   border-width: 3px;
 }
 
-/* Loading bar (progress indicator) */
-.loading-bar {
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--color-brand) 0%,
-    var(--color-brand) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: loading-bar 1.5s ease-in-out infinite;
-}
-
-@keyframes loading-bar {
-  0% {
-    background-position: 200% 0;
-  }
-  50% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Shimmer effect for images */
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--color-surface-primary) 0%,
-    var(--color-surface-hover) 50%,
-    var(--color-surface-primary) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
 /* Disable animations on reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .skeleton,
   .pulse,
-  .spinner,
-  .loading-bar,
-  .shimmer {
+  .spinner {
     animation: none;
     opacity: 0.6;
   }
 }
 
-/* Mobile-optimized loading state */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-}
-
-.loading-state--card {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-}
-
-.loading-state--card .skeleton--avatar {
-  flex-shrink: 0;
-}
-
-.loading-state--card .skeleton--text {
-  flex: 1;
-}
-
-/* Loading text animation (dots) */
-@keyframes dots {
-  0%, 20% {
-    content: '.';
-  }
-  40% {
-    content: '..';
-  }
-  60% {
-    content: '...';
-  }
-  80%, 100% {
-    content: '';
-  }
-}
+/* (.loading-bar, .shimmer, .loading-state* removidos: 0 usos.) */

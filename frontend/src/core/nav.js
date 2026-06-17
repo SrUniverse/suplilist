@@ -214,6 +214,11 @@ export class Nav {
     document.querySelectorAll('.nd-item').forEach(el => {
       syncCurrent(el, el.dataset.navPath === normalized);
     });
+
+    // Anuncia a troca de rota a leitores de tela (só o nome da página).
+    const announcer = document.getElementById('route-announcer');
+    const activeLabel = document.querySelector('.sb-item.is-active')?.getAttribute('aria-label');
+    if (announcer && activeLabel) announcer.textContent = activeLabel;
   }
 
   static setBadge(itemId, visible) {

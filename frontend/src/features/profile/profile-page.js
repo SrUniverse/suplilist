@@ -10,6 +10,7 @@ import { profileService } from './profile-service.js';
 import { SUPPLEMENTS_DB } from '../stack/stack-recommender.js';
 import { identityService } from '../../platform/identity-service.js';
 import { PhoneLinkSection } from '../auth/phone-link-section.js';
+import './profile-page.css';
 
 const OBJECTIVES = [
   { value: 'bulk', label: 'Bulk', desc: 'Ganho de Massa' },
@@ -19,30 +20,14 @@ const OBJECTIVES = [
   { value: 'general', label: 'Saúde', desc: 'Bem-estar Geral' },
 ];
 
-const inputStyle = [
-  'width:100%',
-  'padding:11px 14px',
-  'background:var(--color-bg-secondary)',
-  'border:1px solid var(--color-border)',
-  'color:var(--color-text-primary)',
-  'border-radius:10px',
-  'font-size:14px',
-  'font-family:inherit',
-  'box-sizing:border-box',
-  'outline:none',
-  'transition:border-color 0.15s',
-].join(';');
-
-const selectStyle = inputStyle + ';appearance:none;cursor:pointer;';
-
 function fieldLabel(text) {
-  return `<label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--color-text-secondary);margin-bottom:6px;">${text}</label>`;
+  return `<label class="pp-field-label">${text}</label>`;
 }
 
-function cardWrap(title, content, extra = '') {
+function cardWrap(title, content, extraClass = '') {
   return `
-    <div style="background:var(--color-surface-primary);border:1px solid var(--color-border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:16px;${extra}">
-      <h2 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--color-text-secondary);margin:0;">${title}</h2>
+    <div class="pp-card${extraClass ? ' ' + extraClass : ''}">
+      <h2 class="pp-card__title">${title}</h2>
       ${content}
     </div>
   `;
@@ -158,55 +143,14 @@ export default class ProfilePage {
    */
   _renderSkeleton() {
     this.container.innerHTML = `
-      <div style="
-        padding: 24px 16px 60px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        max-width: 600px;
-        margin: 0 auto;
-      ">
-        <div style="
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          padding: 24px 0 8px;
-        ">
-          <div style="
-            width: 72px; height: 72px; border-radius: 50%;
-            background: var(--color-surface-secondary);
-            animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
-          "></div>
-          <div style="
-            width: 120px; height: 22px; border-radius: 8px;
-            background: var(--color-surface-secondary);
-            animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
-          "></div>
+      <div class="pp-root">
+        <div class="pp-skel-header">
+          <div class="pp-skel pp-skel-avatar"></div>
+          <div class="pp-skel pp-skel-name"></div>
         </div>
-        <div style="
-          background: var(--color-surface-primary);
-          border: 1px solid var(--color-border);
-          border-radius: 16px;
-          padding: 20px;
-          height: 160px;
-          animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
-        "></div>
-        <div style="
-          background: var(--color-surface-primary);
-          border: 1px solid var(--color-border);
-          border-radius: 16px;
-          padding: 20px;
-          height: 80px;
-          animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
-        "></div>
+        <div class="pp-skel-card pp-skel-card--lg"></div>
+        <div class="pp-skel-card pp-skel-card--sm"></div>
       </div>
-      <style>
-        @keyframes profile-skeleton-pulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.4; }
-        }
-      </style>
     `;
   }
 
@@ -223,7 +167,7 @@ export default class ProfilePage {
     const checkins = stateManager.checkins || [];
     if (checkins.length === 0) {
       return cardWrap('Sua Aderência 📊', `
-        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+        <p class="pp-empty-text">
           Comece a marcar seus suplementos para ver sua aderência!
         </p>
       `);
@@ -237,24 +181,24 @@ export default class ProfilePage {
         'var(--color-error)';
 
     return cardWrap('Sua Aderência 📊', `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+      <div class="pp-adherence-head">
         <div>
-          <div style="font-size:24px;font-weight:800;color:${percentageColor};">${overview.averageAdherence}%</div>
-          <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">Aderência média (30 dias)</div>
+          <div class="pp-adherence-pct" style="color:${percentageColor};">${overview.averageAdherence}%</div>
+          <div class="pp-adherence-cap">Aderência média (30 dias)</div>
         </div>
-        <div style="font-size:13px;color:var(--color-text-secondary);text-align:right;line-height:1.6;">
+        <div class="pp-adherence-msg">
           ${overview.message}
         </div>
       </div>
 
       ${topSupplements.length > 0 ? `
-        <div style="border-top:1px solid var(--color-border);padding-top:12px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:8px;">Top Suplementos</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="pp-section-top">
+          <div class="pp-section-label">Top Suplementos</div>
+          <div class="pp-top-list">
             ${topSupplements.map(supp => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
-                <span style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(SUPPLEMENTS_DB.find(s => s.id === supp.supplementId)?.name ?? supp.supplementId)}</span>
-                <span style="font-size:13px;font-weight:700;color:var(--color-brand);">${supp.percentage}%</span>
+              <div class="pp-top-row">
+                <span class="pp-top-name">${escapeHtml(SUPPLEMENTS_DB.find(s => s.id === supp.supplementId)?.name ?? supp.supplementId)}</span>
+                <span class="pp-top-pct">${supp.percentage}%</span>
               </div>
             `).join('')}
           </div>
@@ -269,34 +213,29 @@ export default class ProfilePage {
 
     if (alerts.length === 0) {
       return cardWrap('Reposição de Suplementos 📦', `
-        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+        <p class="pp-empty-text">
           Nenhum alerta de reposição. Todos seus suplementos estão ok! ✅
         </p>
       `);
     }
 
     return cardWrap('Reposição de Suplementos 📦', `
-      <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="pp-alert-list">
         ${alerts.slice(0, 5).map(alert => `
-          <div style="
-            border-left:3px solid ${getAlertColor(alert.alertLevel)};
-            padding:12px;
-            background:${alert.alertLevel === 'critical' ? 'rgba(239,68,68,0.05)' : 'rgba(59,130,246,0.05)'};
-            border-radius:8px;
-          ">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
-              <span style="font-size:13px;font-weight:700;color:var(--color-text-primary);">
+          <div class="pp-alert" style="border-left:3px solid ${getAlertColor(alert.alertLevel)};background:${alert.alertLevel === 'critical' ? 'rgba(239,68,68,0.05)' : 'rgba(59,130,246,0.05)'};">
+            <div class="pp-alert-head">
+              <span class="pp-alert-name">
                 ${escapeHtml(alert.supplementId)}
               </span>
-              <span style="font-size:12px;font-weight:700;color:${getAlertColor(alert.alertLevel)};">
+              <span class="pp-alert-days" style="color:${getAlertColor(alert.alertLevel)};">
                 ${alert.daysRemaining} dia${alert.daysRemaining !== 1 ? 's' : ''}
               </span>
             </div>
-            <div style="font-size:12px;color:var(--color-text-secondary);">
+            <div class="pp-alert-msg">
               ${getAlertMessage(alert.alertLevel, alert.daysRemaining)}
             </div>
             ${alert.price ? `
-              <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:6px;">
+              <div class="pp-alert-price">
                 Última compra: R$ ${alert.price.toFixed(2)}${alert.source ? ' em ' + escapeHtml(alert.source) : ''}
               </div>
             ` : ''}
@@ -310,7 +249,7 @@ export default class ProfilePage {
     const stack = stateManager.stack || [];
     if (stack.length === 0) {
       return cardWrap('Otimizador de Stack', `
-        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+        <p class="pp-empty-text">
           Adicione suplementos ao seu stack para ver análise de otimização.
         </p>
       `);
@@ -321,10 +260,10 @@ export default class ProfilePage {
     const result = optimizeStack(stack, purchases, goal);
 
     const redundancyHtml = result.redundancies.length > 0 ? `
-      <div style="border-top:1px solid var(--color-border);padding-top:12px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-error);margin-bottom:8px;">Redundancias</div>
+      <div class="pp-section-top">
+        <div class="pp-section-label" style="color:var(--color-error);">Redundancias</div>
         ${result.redundancies.map(r => `
-          <div style="font-size:13px;color:var(--color-text-secondary);padding:6px 0;border-bottom:1px solid var(--color-border);">
+          <div class="pp-opt-redundancy">
             ${escapeHtml(r.message)}
           </div>
         `).join('')}
@@ -332,32 +271,32 @@ export default class ProfilePage {
     ` : '';
 
     const priorityGapsHtml = result.priorityGaps.length > 0 ? `
-      <div style="border-top:1px solid var(--color-border);padding-top:12px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-brand);margin-bottom:8px;">Adicionar para ${escapeHtml(goal)}</div>
+      <div class="pp-section-top">
+        <div class="pp-section-label" style="color:var(--color-brand);">Adicionar para ${escapeHtml(goal)}</div>
         ${result.priorityGaps.slice(0, 3).map(g => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
-            <span style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(g.name)}</span>
-            <span style="font-size:12px;color:var(--color-text-secondary);">~R$ ${g.cost}/mes</span>
+          <div class="pp-opt-row">
+            <span class="pp-opt-name">${escapeHtml(g.name)}</span>
+            <span class="pp-opt-cost">~R$ ${g.cost}/mes</span>
           </div>
         `).join('')}
       </div>
     ` : '';
 
     const suggestionGapsHtml = result.suggestionGaps.length > 0 ? `
-      <div style="border-top:1px solid var(--color-border);padding-top:12px;">
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:8px;">Sugestoes opcionais</div>
+      <div class="pp-section-top">
+        <div class="pp-section-label" style="font-weight:600;color:var(--color-text-tertiary);">Sugestoes opcionais</div>
         ${result.suggestionGaps.slice(0, 2).map(g => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
-            <span style="font-size:12px;color:var(--color-text-secondary);">${escapeHtml(g.name)}</span>
-            <span style="font-size:11px;color:var(--color-text-tertiary);">~R$ ${g.cost}/mes</span>
+          <div class="pp-opt-row pp-opt-row--sm">
+            <span class="pp-opt-name--sm">${escapeHtml(g.name)}</span>
+            <span class="pp-opt-cost--sm">~R$ ${g.cost}/mes</span>
           </div>
         `).join('')}
       </div>
     ` : '';
 
     const savingsHtml = result.savingsPotential > 0 ? `
-      <div style="background:rgba(34,197,94,0.08);border-radius:8px;padding:10px 12px;">
-        <span style="font-size:13px;color:var(--color-success);font-weight:700;">
+      <div class="pp-savings">
+        <span class="pp-savings__text">
           Economia potencial: R$ ${result.savingsPotential.toFixed(2)}/mes
         </span>
       </div>
@@ -365,7 +304,7 @@ export default class ProfilePage {
 
     return cardWrap('Otimizador de Stack', `
       ${savingsHtml}
-      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;">${escapeHtml(result.recommendation)}</div>
+      <div class="pp-opt-recommendation">${escapeHtml(result.recommendation)}</div>
       ${redundancyHtml}
       ${priorityGapsHtml}
       ${suggestionGapsHtml}
@@ -377,7 +316,7 @@ export default class ProfilePage {
 
     if (progress.length === 0) {
       return cardWrap('Progresso Before/After', `
-        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+        <p class="pp-empty-text">
           Nenhum registro de progresso ainda. Adicione seu primeiro before/after no checkin.
         </p>
       `);
@@ -386,7 +325,7 @@ export default class ProfilePage {
     const timeline = generateTimeline(progress);
     if (timeline.length === 0) {
       return cardWrap('Progresso Before/After', `
-        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+        <p class="pp-empty-text">
           Registre pelo menos 2 medicoes para ver sua evolucao.
         </p>
       `);
@@ -397,7 +336,7 @@ export default class ProfilePage {
 
     if (!transformation) {
       return cardWrap('Progresso Before/After', `
-        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+        <p class="pp-empty-text">
           Nao foi possivel calcular a transformacao. Verifique os dados dos registros.
         </p>
       `);
@@ -407,28 +346,28 @@ export default class ProfilePage {
     const sign = (v) => v > 0 ? '+' : '';
 
     return cardWrap('Progresso Before/After', `
-      <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="pp-row-between">
         <div>
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:4px;">Periodo</div>
-          <div style="font-size:13px;color:var(--color-text-primary);">${escapeHtml(latest.from)} → ${escapeHtml(latest.to)}</div>
+          <div class="pp-progress-period">Periodo</div>
+          <div class="pp-progress-range">${escapeHtml(latest.from)} → ${escapeHtml(latest.to)}</div>
         </div>
-        <div style="font-size:11px;color:var(--color-text-tertiary);">${latest.duration}d</div>
+        <div class="pp-progress-dur">${latest.duration}d</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;border-top:1px solid var(--color-border);padding-top:12px;">
-        <div style="text-align:center;">
-          <div style="font-size:18px;font-weight:800;color:${changeColor(transformation.weightChange)};">${sign(transformation.weightChange)}${(transformation.weightChange ?? 0).toFixed(1)}kg</div>
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">Peso</div>
+      <div class="pp-progress-grid">
+        <div class="pp-progress-cell">
+          <div class="pp-progress-val" style="color:${changeColor(transformation.weightChange)};">${sign(transformation.weightChange)}${(transformation.weightChange ?? 0).toFixed(1)}kg</div>
+          <div class="pp-progress-cap">Peso</div>
         </div>
-        <div style="text-align:center;">
-          <div style="font-size:18px;font-weight:800;color:${changeColor(transformation.chestChange)};">${sign(transformation.chestChange)}${(transformation.chestChange ?? 0).toFixed(1)}cm</div>
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">Peito</div>
+        <div class="pp-progress-cell">
+          <div class="pp-progress-val" style="color:${changeColor(transformation.chestChange)};">${sign(transformation.chestChange)}${(transformation.chestChange ?? 0).toFixed(1)}cm</div>
+          <div class="pp-progress-cap">Peito</div>
         </div>
-        <div style="text-align:center;">
-          <div style="font-size:18px;font-weight:800;color:${changeColor(-(transformation.waistChange ?? 0))};">${sign(-(transformation.waistChange ?? 0))}${(-(transformation.waistChange ?? 0)).toFixed(1)}cm</div>
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">Cintura</div>
+        <div class="pp-progress-cell">
+          <div class="pp-progress-val" style="color:${changeColor(-(transformation.waistChange ?? 0))};">${sign(-(transformation.waistChange ?? 0))}${(-(transformation.waistChange ?? 0)).toFixed(1)}cm</div>
+          <div class="pp-progress-cap">Cintura</div>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--color-text-secondary);border-top:1px solid var(--color-border);padding-top:10px;">
+      <div class="pp-progress-summary">
         ${escapeHtml(transformation.summary)}
       </div>
     `);
@@ -439,23 +378,23 @@ export default class ProfilePage {
 
     if (!isAuthenticated) {
       return cardWrap('Sua Conta ☁️', `
-        <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+        <p class="pp-empty-text">
           Você está navegando como visitante. Faça login ou crie uma conta para fazer backup do seu stack e histórico na nuvem.
         </p>
-        <div style="display:flex;gap:10px;margin-top:12px;">
-          <button id="btn-profile-register" style="flex:1;background:var(--color-brand);color:#fff;border:none;border-radius:10px;padding:11px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;">Criar Conta</button>
-          <button id="btn-profile-login" style="flex:1;background:transparent;color:var(--color-text-primary);border:1px solid var(--color-border-strong);border-radius:10px;padding:11px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;">Fazer Login</button>
+        <div class="pp-btn-group">
+          <button id="btn-profile-register" class="pp-btn pp-btn--primary">Criar Conta</button>
+          <button id="btn-profile-login" class="pp-btn pp-btn--outline">Fazer Login</button>
         </div>
       `);
     }
 
     const email = stateManager.user?.email || this._userData?.email || 'Usuário logado';
     return cardWrap('Sua Conta ☁️', `
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:13px;color:var(--color-text-secondary);">
-          Conectado como <strong style="color:var(--color-text-primary);">${escapeHtml(email)}</strong>
+      <div class="pp-row-between">
+        <div class="pp-account-email">
+          Conectado como <strong>${escapeHtml(email)}</strong>
         </div>
-        <button id="btn-profile-logout" style="background:transparent;color:var(--color-error);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Sair</button>
+        <button id="btn-profile-logout" class="pp-btn-logout">Sair</button>
       </div>
     `) + cardWrap('Telefone 📱', `<div id="phone-link-container"></div>`);
   }
@@ -476,40 +415,28 @@ export default class ProfilePage {
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
     this.container.innerHTML = `
-      <div style="padding:24px 16px 60px;display:flex;flex-direction:column;gap:20px;max-width:600px;margin:0 auto;">
+      <div class="pp-root">
 
         <!-- HEADER -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 0 8px;">
-          <div id="profile-avatar-initial" style="
-            width:72px;height:72px;border-radius:50%;
-            background:var(--color-brand);
-            display:flex;align-items:center;justify-content:center;
-            font-size:28px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans','Inter',sans-serif;
-            flex-shrink:0;
-          ">${initial}</div>
+        <div class="pp-header">
+          <div id="profile-avatar-initial" class="pp-avatar">${initial}</div>
 
-          <div style="text-align:center;">
-            <div id="name-display" style="display:flex;align-items:center;gap:8px;justify-content:center;">
-              <span id="name-text" style="font-size:22px;font-weight:800;font-family:'Plus Jakarta Sans','Inter',sans-serif;letter-spacing:-0.02em;">${escapeHtml(form.name)}</span>
-              <button id="btn-edit-name" title="Editar nome" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:2px;display:flex;align-items:center;">
+          <div class="pp-header-center">
+            <div id="name-display" class="pp-name-row">
+              <span id="name-text" class="pp-name-text">${escapeHtml(form.name)}</span>
+              <button id="btn-edit-name" title="Editar nome" class="pp-icon-btn">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </button>
             </div>
-            <div id="name-edit" style="display:none;margin-top:6px;">
-              <input id="inline-name-input" type="text" value="${escapeHtml(form.name)}" style="${inputStyle};text-align:center;font-size:16px;font-weight:700;max-width:220px;" />
-              <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
-                <button id="btn-name-confirm" style="background:var(--color-brand);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">OK</button>
-                <button id="btn-name-cancel" style="background:transparent;border:1px solid var(--color-border-strong);color:var(--color-text-secondary);border-radius:8px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Cancelar</button>
+            <div id="name-edit" class="pp-name-edit">
+              <input id="inline-name-input" type="text" value="${escapeHtml(form.name)}" class="pp-input pp-name-input" />
+              <div class="pp-btn-group pp-btn-group--center">
+                <button id="btn-name-confirm" class="pp-btn pp-btn--primary pp-btn--sm">OK</button>
+                <button id="btn-name-cancel" class="pp-btn--cancel">Cancelar</button>
               </div>
             </div>
-            <div style="margin-top:8px;">
-              <span style="
-                background:var(--color-brand-muted);
-                color:var(--color-brand);
-                font-size:11px;font-weight:700;
-                padding:3px 10px;border-radius:20px;
-                text-transform:uppercase;letter-spacing:0.06em;
-              ">${objLabel}</span>
+            <div class="pp-badge-wrap">
+              <span id="profile-objective-badge" class="pp-obj-badge">${objLabel}</span>
             </div>
           </div>
         </div>
@@ -519,73 +446,55 @@ export default class ProfilePage {
 
         <!-- 1. DADOS BIOMÉTRICOS -->
         ${cardWrap('Dados Biométricos', `
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="pp-grid-2">
             <div>
               ${fieldLabel('Peso (kg)')}
-              <input id="field-weight" type="number" min="30" max="300" value="${form.weight}" placeholder="—" style="${inputStyle}" />
+              <input id="field-weight" type="number" min="30" max="300" value="${form.weight}" placeholder="—" class="pp-input" />
             </div>
             <div>
               ${fieldLabel('Sexo Biológico')}
-              <div style="position:relative;">
-                <select id="field-biologicalSex" style="${selectStyle}">
+              <div class="pp-select-wrap">
+                <select id="field-biologicalSex" class="pp-select">
                   <option value="" ${!form.biologicalSex ? 'selected' : ''}>—</option>
                   <option value="male" ${form.biologicalSex === 'male' ? 'selected' : ''}>Masculino</option>
                   <option value="female" ${form.biologicalSex === 'female' ? 'selected' : ''}>Feminino</option>
                 </select>
-                <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-secondary);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                <svg class="pp-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
             </div>
             <div>
               ${fieldLabel('Altura (cm)')}
-              <input id="field-height" type="number" min="100" max="250" value="${form.height}" placeholder="—" style="${inputStyle}" />
+              <input id="field-height" type="number" min="100" max="250" value="${form.height}" placeholder="—" class="pp-input" />
             </div>
             <div>
               ${fieldLabel('Idade')}
-              <input id="field-age" type="number" min="10" max="100" value="${form.age}" placeholder="—" style="${inputStyle}" />
+              <input id="field-age" type="number" min="10" max="100" value="${form.age}" placeholder="—" class="pp-input" />
             </div>
           </div>
           <div>
             ${fieldLabel('Objetivo Principal')}
-            <div style="position:relative;">
-              <select id="field-objective" style="${selectStyle}">
+            <div class="pp-select-wrap">
+              <select id="field-objective" class="pp-select">
                 ${OBJECTIVES.map(o => `<option value="${o.value}" ${form.objective === o.value ? 'selected' : ''}>${o.label} — ${o.desc}</option>`).join('')}
               </select>
-              <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-secondary);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg class="pp-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
-          <button id="btn-save-bio" style="
-            background:var(--color-brand);color:#fff;border:none;
-            border-radius:10px;padding:11px 20px;
-            font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;
-            align-self:flex-start;
-          ">Salvar</button>
+          <button id="btn-save-bio" class="pp-btn pp-btn--primary pp-btn--start">Salvar</button>
         `)}
 
         <!-- 2. APARÊNCIA -->
         ${cardWrap('Aparência', `
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span id="theme-icon" style="font-size:20px;">${isDark ? '🌙' : '☀️'}</span>
+          <div class="pp-row-between">
+            <div class="pp-theme-row">
+              <span id="theme-icon" class="pp-theme-icon">${isDark ? '🌙' : '☀️'}</span>
               <div>
-                <div style="font-size:14px;font-weight:600;" id="theme-label">${isDark ? 'Tema Escuro' : 'Tema Claro'}</div>
-                <div style="font-size:12px;color:var(--color-text-secondary);">Aparência do app</div>
+                <div class="pp-theme-label" id="theme-label">${isDark ? 'Tema Escuro' : 'Tema Claro'}</div>
+                <div class="pp-theme-sub">Aparência do app</div>
               </div>
             </div>
-            <button id="theme-toggle" role="switch" aria-checked="${isDark}" style="
-              position:relative;width:52px;height:28px;
-              background:${isDark ? 'var(--color-brand)' : 'var(--color-surface-secondary)'};
-              border:1px solid ${isDark ? 'var(--color-brand)' : 'var(--color-border-strong)'};
-              border-radius:50px;cursor:pointer;transition:background 0.2s,border-color 0.2s;
-              flex-shrink:0;
-            ">
-              <span style="
-                position:absolute;top:3px;
-                left:${isDark ? '26px' : '3px'};
-                width:20px;height:20px;border-radius:50%;
-                background:#fff;transition:left 0.2s;
-                display:flex;align-items:center;justify-content:center;
-                font-size:11px;
-              ">${isDark ? '🌙' : '☀️'}</span>
+            <button id="theme-toggle" class="pp-toggle" role="switch" aria-checked="${isDark}">
+              <span class="pp-toggle__knob">${isDark ? '🌙' : '☀️'}</span>
             </button>
           </div>
         `)}
@@ -604,37 +513,19 @@ export default class ProfilePage {
 
         <!-- 4. DADOS & PRIVACIDADE -->
         ${cardWrap('Dados & Privacidade', `
-          <p style="font-size:13px;color:var(--color-text-secondary);margin:0;line-height:1.5;">
+          <p class="pp-empty-text">
             Seus dados ficam 100% no seu dispositivo. Nunca enviamos nada para servidores.
           </p>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <button id="btn-export" style="
-              background:transparent;color:var(--color-text-primary);
-              border:1px solid var(--color-border-strong);
-              border-radius:10px;padding:11px 16px;
-              font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;
-              display:flex;align-items:center;gap:8px;
-            ">
+          <div class="pp-col">
+            <button id="btn-export" class="pp-btn pp-btn--outline pp-btn--icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Exportar Dados
             </button>
-            <button id="btn-clear-checkins" style="
-              background:var(--color-warning-bg);color:var(--color-warning);
-              border:1px solid rgba(245,158,11,0.3);
-              border-radius:10px;padding:11px 16px;
-              font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;
-              display:flex;align-items:center;gap:8px;
-            ">
+            <button id="btn-clear-checkins" class="pp-btn pp-btn--warning pp-btn--icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
               Limpar Histórico de Check-ins
             </button>
-            <button id="btn-reset-data" style="
-              background:var(--color-error-bg);color:var(--color-error);
-              border:1px solid rgba(239,68,68,0.3);
-              border-radius:10px;padding:11px 16px;
-              font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;
-              display:flex;align-items:center;gap:8px;
-            ">
+            <button id="btn-reset-data" class="pp-btn pp-btn--error pp-btn--icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
               Resetar Tudo
             </button>
@@ -643,19 +534,19 @@ export default class ProfilePage {
 
         <!-- 4. SOBRE O APP -->
         ${cardWrap('Sobre o App', `
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;color:var(--color-text-secondary);">Versão</span>
-              <span style="font-size:13px;font-weight:600;">4.0.0</span>
+          <div class="pp-col">
+            <div class="pp-row-between">
+              <span class="pp-text-sm">Versão</span>
+              <span class="pp-text-strong">4.0.0</span>
             </div>
-            <div style="height:1px;background:var(--color-border);"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;color:var(--color-text-secondary);">Repositório</span>
-              <a href="https://github.com/suplilist/suplilist" target="_blank" rel="noopener noreferrer" style="font-size:13px;font-weight:600;color:var(--color-brand);text-decoration:none;">GitHub ↗</a>
+            <div class="pp-divider"></div>
+            <div class="pp-row-between">
+              <span class="pp-text-sm">Repositório</span>
+              <a href="https://github.com/suplilist/suplilist" target="_blank" rel="noopener noreferrer" class="pp-link">GitHub ↗</a>
             </div>
-            <div style="height:1px;background:var(--color-border);"></div>
-            <div style="text-align:center;padding-top:4px;">
-              <span style="font-size:13px;color:var(--color-text-secondary);">Feito com ❤️ e ciência</span>
+            <div class="pp-divider"></div>
+            <div class="pp-meta-center">
+              <span class="pp-text-sm">Feito com ❤️ e ciência</span>
             </div>
           </div>
         `)}
@@ -758,7 +649,7 @@ export default class ProfilePage {
         eventBus.emit('toast:show', { message: 'Dados biométricos salvos!', type: 'success' });
 
         // Update objective badge
-        const badge = this.container.querySelector('span[style*="brand-muted"]');
+        const badge = this.container.querySelector('#profile-objective-badge');
         if (badge) badge.textContent = this._getObjectiveLabel();
       });
     }
@@ -773,16 +664,11 @@ export default class ProfilePage {
         // P11: usar chave canônica STORAGE_KEYS.THEME (antes gravava em 'theme' — chave legada)
         StorageManager.setItem(STORAGE_KEYS.THEME, newTheme);
 
-        // Update toggle UI
+        // Update toggle UI (visual de background/posição é dirigido por CSS via [aria-checked])
         const nowDark = newTheme === 'dark';
-        themeToggle.style.background = nowDark ? 'var(--color-brand)' : 'var(--color-surface-secondary)';
-        themeToggle.style.borderColor = nowDark ? 'var(--color-brand)' : 'var(--color-border-strong)';
         themeToggle.setAttribute('aria-checked', nowDark);
-        const knob = themeToggle.querySelector('span');
-        if (knob) {
-          knob.style.left = nowDark ? '26px' : '3px';
-          knob.textContent = nowDark ? '🌙' : '☀️';
-        }
+        const knob = themeToggle.querySelector('.pp-toggle__knob');
+        if (knob) knob.textContent = nowDark ? '🌙' : '☀️';
         const themeIcon = this.container.querySelector('#theme-icon');
         const themeLabel = this.container.querySelector('#theme-label');
         if (themeIcon) themeIcon.textContent = nowDark ? '🌙' : '☀️';

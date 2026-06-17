@@ -1,0 +1,192 @@
+/* profile-page.css — estilos da ProfilePage (extraídos dos style="" inline).
+   Valores computados em runtime (cores de aderência/alertas/progresso) seguem
+   inline no template; aqui ficam apenas os estilos estáticos. */
+
+.pp-root { padding: 24px 16px 60px; display: flex; flex-direction: column; gap: 20px; max-width: 600px; margin: 0 auto; }
+
+/* ── Card genérico (cardWrap) ─────────────────────────────────────────────── */
+.pp-card {
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.pp-card__title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--color-text-secondary); margin: 0;
+}
+
+/* ── Form controls ────────────────────────────────────────────────────────── */
+.pp-input, .pp-select {
+  width: 100%; padding: 11px 14px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  border-radius: 10px; font-size: 14px; font-family: inherit;
+  box-sizing: border-box; outline: none; transition: border-color 0.15s;
+}
+.pp-input:focus, .pp-select:focus { border-color: var(--color-brand); }
+.pp-select { appearance: none; cursor: pointer; }
+.pp-field-label {
+  display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--color-text-secondary); margin-bottom: 6px;
+}
+.pp-select-wrap { position: relative; }
+.pp-select-chevron {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; color: var(--color-text-secondary);
+}
+.pp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Texto de estado vazio (reutilizado em várias seções) ─────────────────── */
+.pp-empty-text { font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.5; }
+
+/* ── Botões ───────────────────────────────────────────────────────────────── */
+.pp-btn {
+  border: none; border-radius: 10px; padding: 11px 20px;
+  font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit;
+}
+.pp-btn--primary { background: var(--color-brand); color: #fff; }
+.pp-btn--start { align-self: flex-start; }
+.pp-btn--sm { border-radius: 8px; padding: 7px 18px; font-weight: 600; font-size: 13px; }
+.pp-btn--outline {
+  background: transparent; color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong); font-weight: 600;
+}
+.pp-btn--cancel {
+  background: transparent; color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px; padding: 7px 14px; font-weight: 600; font-size: 13px;
+}
+.pp-btn--icon {
+  border-radius: 10px; padding: 11px 16px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.pp-btn--warning { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid rgba(245,158,11,0.3); }
+.pp-btn--error { background: var(--color-error-bg); color: var(--color-error); border: 1px solid rgba(239,68,68,0.3); }
+.pp-btn-group { display: flex; gap: 10px; margin-top: 12px; }
+.pp-btn-group--center { justify-content: center; }
+.pp-btn-group .pp-btn { flex: 1; padding: 11px; }
+
+/* ── Header / avatar / nome ───────────────────────────────────────────────── */
+.pp-header { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 0 8px; }
+.pp-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--color-brand);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800; color: #fff;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; flex-shrink: 0;
+}
+.pp-header-center { text-align: center; }
+.pp-name-row { display: flex; align-items: center; gap: 8px; justify-content: center; }
+.pp-name-text { font-size: 22px; font-weight: 800; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; letter-spacing: -0.02em; }
+.pp-icon-btn { background: none; border: none; cursor: pointer; color: var(--color-text-muted); padding: 2px; display: flex; align-items: center; }
+.pp-name-edit { display: none; margin-top: 6px; }
+.pp-name-input { text-align: center; font-size: 16px; font-weight: 700; max-width: 220px; }
+.pp-badge-wrap { margin-top: 8px; }
+.pp-obj-badge {
+  background: var(--color-brand-muted); color: var(--color-brand);
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+/* ── Layout helpers ───────────────────────────────────────────────────────── */
+.pp-row-between { display: flex; align-items: center; justify-content: space-between; }
+.pp-col { display: flex; flex-direction: column; gap: 10px; }
+.pp-divider { height: 1px; background: var(--color-border); }
+.pp-section-top { border-top: 1px solid var(--color-border); padding-top: 12px; }
+.pp-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 8px; }
+.pp-text-sm { font-size: 13px; color: var(--color-text-secondary); }
+.pp-text-strong { font-size: 13px; font-weight: 600; }
+.pp-link { font-size: 13px; font-weight: 600; color: var(--color-brand); text-decoration: none; }
+.pp-meta-center { text-align: center; padding-top: 4px; }
+
+/* ── Aderência ────────────────────────────────────────────────────────────── */
+.pp-adherence-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; }
+.pp-adherence-pct { font-size: 24px; font-weight: 800; }
+.pp-adherence-cap { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.pp-adherence-msg { font-size: 13px; color: var(--color-text-secondary); text-align: right; line-height: 1.6; }
+.pp-top-list { display: flex; flex-direction: column; gap: 8px; }
+.pp-top-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+.pp-top-name { font-size: 13px; color: var(--color-text-primary); }
+.pp-top-pct { font-size: 13px; font-weight: 700; color: var(--color-brand); }
+
+/* ── Refill alerts ────────────────────────────────────────────────────────── */
+.pp-alert-list { display: flex; flex-direction: column; gap: 12px; }
+.pp-alert { padding: 12px; border-radius: 8px; }
+.pp-alert-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.pp-alert-name { font-size: 13px; font-weight: 700; color: var(--color-text-primary); }
+.pp-alert-days { font-size: 12px; font-weight: 700; }
+.pp-alert-msg { font-size: 12px; color: var(--color-text-secondary); }
+.pp-alert-price { font-size: 11px; color: var(--color-text-tertiary); margin-top: 6px; }
+
+/* ── Stack optimizer ──────────────────────────────────────────────────────── */
+.pp-opt-redundancy { font-size: 13px; color: var(--color-text-secondary); padding: 6px 0; border-bottom: 1px solid var(--color-border); }
+.pp-opt-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+.pp-opt-row--sm { padding: 4px 0; }
+.pp-opt-name { font-size: 13px; color: var(--color-text-primary); }
+.pp-opt-name--sm { font-size: 12px; color: var(--color-text-secondary); }
+.pp-opt-cost { font-size: 12px; color: var(--color-text-secondary); }
+.pp-opt-cost--sm { font-size: 11px; color: var(--color-text-tertiary); }
+.pp-opt-recommendation { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+.pp-savings { background: rgba(34,197,94,0.08); border-radius: 8px; padding: 10px 12px; }
+.pp-savings__text { font-size: 13px; color: var(--color-success); font-weight: 700; }
+
+/* ── Progresso before/after ───────────────────────────────────────────────── */
+.pp-progress-period { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 4px; }
+.pp-progress-range { font-size: 13px; color: var(--color-text-primary); }
+.pp-progress-dur { font-size: 11px; color: var(--color-text-tertiary); }
+.pp-progress-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; border-top: 1px solid var(--color-border); padding-top: 12px; }
+.pp-progress-cell { text-align: center; }
+.pp-progress-val { font-size: 18px; font-weight: 800; }
+.pp-progress-cap { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.pp-progress-summary { font-size: 12px; color: var(--color-text-secondary); border-top: 1px solid var(--color-border); padding-top: 10px; }
+
+/* ── Conta ────────────────────────────────────────────────────────────────── */
+.pp-account-email { font-size: 13px; color: var(--color-text-secondary); }
+.pp-account-email strong { color: var(--color-text-primary); }
+.pp-btn-logout {
+  background: transparent; color: var(--color-error);
+  border: 1px solid rgba(239,68,68,0.3); border-radius: 8px;
+  padding: 6px 12px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit;
+}
+
+/* ── Aparência (theme toggle dirigido por aria-checked) ───────────────────── */
+.pp-theme-row { display: flex; align-items: center; gap: 10px; }
+.pp-theme-icon { font-size: 20px; }
+.pp-theme-label { font-size: 14px; font-weight: 600; }
+.pp-theme-sub { font-size: 12px; color: var(--color-text-secondary); }
+.pp-toggle {
+  position: relative; width: 52px; height: 28px;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50px; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s; flex-shrink: 0;
+}
+.pp-toggle[aria-checked="true"] { background: var(--color-brand); border-color: var(--color-brand); }
+.pp-toggle__knob {
+  position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; transition: left 0.2s;
+  display: flex; align-items: center; justify-content: center; font-size: 11px;
+}
+.pp-toggle[aria-checked="true"] .pp-toggle__knob { left: 26px; }
+
+/* ── Skeleton ─────────────────────────────────────────────────────────────── */
+.pp-skel-header { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 0 8px; }
+.pp-skel { background: var(--color-surface-secondary); animation: profile-skeleton-pulse 1.5s ease-in-out infinite; }
+.pp-skel-avatar { width: 72px; height: 72px; border-radius: 50%; }
+.pp-skel-name { width: 120px; height: 22px; border-radius: 8px; }
+.pp-skel-card {
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 16px; padding: 20px;
+  animation: profile-skeleton-pulse 1.5s ease-in-out infinite;
+}
+.pp-skel-card--lg { height: 160px; }
+.pp-skel-card--sm { height: 80px; }
+@keyframes profile-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

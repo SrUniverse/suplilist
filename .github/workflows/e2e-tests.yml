@@ -199,16 +199,33 @@ jobs:
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
+      continue-on-error: true
 
     - name: Generate summary
+      env:
+        E2E_RESULT: ${{ needs.e2e-tests.result }}
+        PERF_RESULT: ${{ needs.performance-check.result }}
+        A11Y_RESULT: ${{ needs.accessibility-check.result }}
       run: |
         echo "# Test Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## E2E Tests" >> $GITHUB_STEP_SUMMARY
-        echo "✅ All browsers tested" >> $GITHUB_STEP_SUMMARY
+        if [ "$E2E_RESULT" = "success" ]; then
+          echo "✅ All browsers tested" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ E2E tests failed (result: $E2E_RESULT)" >> $GITHUB_STEP_SUMMARY
+        fi
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## Performance" >> $GITHUB_STEP_SUMMARY
-        echo "✅ Lighthouse audit completed" >> $GITHUB_STEP_SUMMARY
+        if [ "$PERF_RESULT" = "success" ]; then
+          echo "✅ Lighthouse audit completed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Performance check result: $PERF_RESULT" >> $GITHUB_STEP_SUMMARY
+        fi
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## Accessibility" >> $GITHUB_STEP_SUMMARY
-        echo "✅ A11y tests completed" >> $GITHUB_STEP_SUMMARY
+        if [ "$A11Y_RESULT" = "success" ]; then
+          echo "✅ A11y tests completed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Accessibility check result: $A11Y_RESULT" >> $GITHUB_STEP_SUMMARY
+        fi

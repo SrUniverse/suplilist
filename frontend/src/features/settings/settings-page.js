@@ -5,7 +5,7 @@ import NotificationService from '../notifications/notification-service.js';
 import { logger } from '../../utils/logger.js';
 
 // Modular imports
-import { injectSettingsStyles } from './settings-page-styles.js';
+import './settings-page.css';
 import { renderFullPage, renderSubscriptionSection } from './settings-page-render.js';
 import {
   bindThemeToggle,
@@ -46,8 +46,6 @@ export default class SettingsPage {
   }
 
   mount() {
-    injectSettingsStyles();
-
     const state = stateManager.state;
     this._lastTier = state.user?.tier ?? 'free';
 

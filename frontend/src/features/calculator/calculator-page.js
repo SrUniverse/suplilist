@@ -10,7 +10,7 @@ import dosageCalculator from '../calculator/dosage-calculator.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { EVIDENCE_COLORS as EVIDENCE_COLORS_MAP } from '../../utils/evidence.js';
 import { eventBus } from '../../core/event-bus.js';
-import { injectCalculatorStyles } from './calculator-styles.js';
+import './calculator-page.css';
 
 const ACTIVITY_LEVELS = [
   { value: 'sedentary',  label: 'Sedentário' },
@@ -46,7 +46,6 @@ export default class CalculatorPage {
   }
 
   mount() {
-    injectCalculatorStyles();
     this._render();
     this._attachListeners();
   }

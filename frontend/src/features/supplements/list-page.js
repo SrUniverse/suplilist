@@ -66,21 +66,33 @@ export default class ListPage {
       grid.innerHTML = Array.from({ length: 8 }, () => Skeleton.supplementCard()).join('');
     }
 
-
-    // Fetch catalog from static JSON (same URL pattern as future GET /api/supplements)
+    // Fetch catalog AND static prices in parallel — prices.json is always available
+    // so there is no reason to delay it behind the catalog fetch or an API call.
     const catalogPromise = fetch('/data/supplements-db.json', { signal })
       .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)));
 
-    Promise.all([catalogPromise, identityService.isReady()])
-      .then(([catalogData]) => {
+    const staticPricesPromise = fetch('/data/prices.json', { signal })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null); // never block the catalog render if prices fail
+
+    Promise.all([catalogPromise, identityService.isReady(), staticPricesPromise])
+      .then(([catalogData, , staticPrices]) => {
         if (signal.aborted) return;
 
         const supplements = Array.isArray(catalogData) ? catalogData : (catalogData.supplements ?? SUPPLEMENTS_DB);
 
-        // Initialize sub-components in order: grid → modal → search
-        this._grid.init([], null);
-        this._modal.init(supplements, null);
-        this._search.init(null, supplements);
+        // Apply static prices immediately (already loaded in parallel)
+        if (staticPrices) {
+          this._prices = staticPrices;
+        }
+
+        // Initialize search first (without triggering grid update) to compute the
+        // initial filtered list, then pass it directly to the grid so VirtualScroller
+        // is created with real data on the very first render — with prices already set.
+        this._search.init(this._prices, supplements, /* suppressGridUpdate */ true);
+        const initialFiltered = this._search.getFiltered();
+        this._grid.init(initialFiltered, this._prices);
+        this._modal.init(supplements, this._prices);
 
         // Inject ItemList schema for catalog SEO
         SchemaManager.insertSchema({
@@ -98,15 +110,15 @@ export default class ListPage {
           }))
         });
 
-        // Load prices async — try from API first, fall back to static JSON
+        // Optional: try the dynamic API to get fresher/richer price data.
+        // If it returns valid data it silently patches the already-displayed prices.
+        // The user never waits for this — prices are already correct from the static file.
         const supplementIds = supplements.map(s => s.id).join(',');
         fetch(`/api/supplements/prices?ids=${encodeURIComponent(supplementIds)}`, { signal })
           .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
           .then(apiResponse => {
             if (signal.aborted) return;
 
-            // Convert API response to prices.json format
-            // API returns: { "id": { supplementId, name, prices: { amazon, mercadolivre, shopee }, bestPrice } }
             const prices = {};
             if (apiResponse.success && apiResponse.data) {
               Object.entries(apiResponse.data).forEach(([id, supplement]) => {
@@ -119,7 +131,7 @@ export default class ListPage {
                         price: sourceData.price,
                         url: sourceData.url || `https://${source}.com.br/search?q=${id}`,
                         label: source.charAt(0).toUpperCase() + source.slice(1),
-                        saving: supplement.bestPrice?.source === source ? 0 : 10 // placeholder
+                        saving: supplement.bestPrice?.source === source ? 0 : 10
                       };
                     }
                   });
@@ -127,33 +139,18 @@ export default class ListPage {
               });
             }
 
+            // Only update if the API returned real data (may have fresher prices)
             if (Object.keys(prices).length > 0) {
               this._prices = prices;
               this._search._prices = prices;
               this._grid.updatePrices(prices);
               this._modal._prices = prices;
-            } else {
-              throw new Error('No prices returned from API');
             }
           })
           .catch(err => {
+            // API failed — static prices already displayed, nothing to do
             if (err.name !== 'AbortError') {
-              logger.warn('[ListPage] API prices failed, falling back to static prices:', err.message);
-              // Fall back to static prices.json
-              fetch('/data/prices.json', { signal })
-                .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-                .then(data => {
-                  if (signal.aborted) return;
-                  this._prices = data;
-                  this._search._prices = data;
-                  this._grid.updatePrices(data);
-                  this._modal._prices = data;
-                })
-                .catch(fallbackErr => {
-                  if (fallbackErr.name !== 'AbortError') {
-                    logger.warn('[ListPage] Static prices.json also failed:', fallbackErr.message);
-                  }
-                });
+              logger.warn('[ListPage] Dynamic API prices unavailable (static prices in use):', err.message);
             }
           });
       })
@@ -162,9 +159,11 @@ export default class ListPage {
         logger.error('[ListPage] Catalog fetch failed:', err.message);
 
         // Fall back to bundled data so the page still works
-        this._grid.init([], null);
+        this._search.init(null, SUPPLEMENTS_DB, /* suppressGridUpdate */ true);
+        const fallbackFiltered = this._search.getFiltered();
+        this._grid.init(fallbackFiltered, null);
         this._modal.init(SUPPLEMENTS_DB, null);
-        this._search.init(null, SUPPLEMENTS_DB);
+
 
         // Show error notice above grid without breaking layout
         if (grid) {

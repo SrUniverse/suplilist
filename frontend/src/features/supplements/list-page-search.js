@@ -43,9 +43,12 @@ export class ListPageSearch {
    *
    * @param {Object} [prices] - Prices data from prices.json
    * @param {Array} [supplements] - Override catalog items (replaces SUPPLEMENTS_DB)
+   * @param {boolean} [suppressGridUpdate=false] - When true, runs _applyFilters() to
+   *   compute this._filtered but does NOT fire onFiltersChanged. Use when the caller
+   *   will read getFiltered() and pass the data to the grid init() directly.
    * @returns {void}
    */
-  init(prices, supplements) {
+  init(prices, supplements, suppressGridUpdate = false) {
     if (supplements) this._allItems = supplements;
     this._fuse = new Fuse(this._allItems, {
       keys: ['name', 'category', 'benefits'],
@@ -56,10 +59,11 @@ export class ListPageSearch {
     this._prices = prices;
 
     this._renderStats();
-    this._applyFilters();
+    this._applyFilters(suppressGridUpdate);
     this._syncObjectiveChip();
     this._attachListeners();
   }
+
 
   /**
    * Get current filtered items.
@@ -85,9 +89,11 @@ export class ListPageSearch {
    *
    * Updates #lp-results-label with count if any filter is active, else clears it.
    *
+   * @param {boolean} [suppressGridUpdate=false] - When true, skip onFiltersChanged callback.
    * @returns {void}
    */
-  _applyFilters() {
+  _applyFilters(suppressGridUpdate = false) {
+
     let results = this._allItems;
 
     // 1. Fuzzy Search with Fuse.js
@@ -148,11 +154,12 @@ export class ListPageSearch {
         : '';
     }
 
-    // Notify parent
-    if (this.callbacks?.onFiltersChanged) {
+    // Notify parent (skip when suppressGridUpdate — caller will read getFiltered() directly)
+    if (!suppressGridUpdate && this.callbacks?.onFiltersChanged) {
       this.callbacks.onFiltersChanged(this._filtered);
     }
   }
+
 
   /**
    * Render the 4 stats rings (total supplements, stack count, favorites, high-evidence).

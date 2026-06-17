@@ -43,10 +43,15 @@ export class VirtualScroller {
    */
   mount() {
     this._createContainer();
-    this._getContainerHeight();
-    this._render();
     this._attachListeners();
+    // Defer first render to next paint frame so the scroll container
+    // has been laid out and clientHeight is non-zero.
+    requestAnimationFrame(() => {
+      this._getContainerHeight();
+      this._render();
+    });
   }
+
 
   /**
    * Cleanup

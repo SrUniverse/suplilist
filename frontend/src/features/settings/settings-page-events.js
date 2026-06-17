@@ -282,7 +282,8 @@ export function bindResetAll(container) {
  * @param {HTMLElement} container - Container element
  */
 export function bindLegalLinks(container) {
-  const linkBtns = container.querySelectorAll('.sp-link-btn[data-path]');
+  // Legal document links (class changed in redesign)
+  const linkBtns = container.querySelectorAll('.sp-link-row[data-path]');
   linkBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const path = btn.getAttribute('data-path');
@@ -290,7 +291,38 @@ export function bindLegalLinks(container) {
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
   });
+
+  // Sidebar nav — smooth-scroll to section + active state
+  const navItems = container.querySelectorAll('.sp-nav-item');
+  navItems.forEach(item => {
+    item.addEventListener('click', e => {
+      const href = item.getAttribute('href');
+      if (!href || !href.startsWith('#')) return;
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      navItems.forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  // Update active nav item on scroll
+  const sections = container.querySelectorAll('.sp-section[id]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(n => {
+          const href = n.getAttribute('href');
+          n.classList.toggle('active', href === `#${id}`);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
 }
+
 
 /**
  * Bind MFA setup button

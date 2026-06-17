@@ -131,6 +131,7 @@ jobs:
     name: Security Scan
     permissions:
       contents: read
+      security-events: write
 
     steps:
       - uses: actions/checkout@v4

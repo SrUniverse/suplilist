@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { getGoalConfig, prioritizeByGoal, getGoalMetrics } from './goal-optimizer.js';
-import { SUPPLEMENTS_DB } from '../../data/supplements.js';
 
 vi.mock('../../data/supplements.js', () => ({
   SUPPLEMENTS_DB: [
@@ -10,7 +9,7 @@ vi.mock('../../data/supplements.js', () => ({
   ]
 }));
 
-import { vi } from 'vitest';
+
 
 describe('getGoalConfig', () => {
   it('returns config for known goal', () => {

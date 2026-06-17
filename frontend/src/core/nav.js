@@ -55,13 +55,19 @@ const ICONS = {
     moon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
   },
   plus: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  collapse: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`,
   more: {
     outlined: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
   },
 };
 
-/** Itens que não cabem na bottom-nav e vivem no drawer "Mais" (mobile). */
-const DRAWER_ITEM_IDS = ['home', 'dosage', 'profile', 'faq', 'settings'];
+/** Itens que não cabem na bottom-nav e vivem no drawer "Mais" (mobile).
+ *  6 itens → grid 3×2 cheio (sem buracos). A bottom-nav fica em 5 abas
+ *  (best practice iOS/Material: 3–5 destinos + ação central). */
+const DRAWER_ITEM_IDS = ['home', 'favorites', 'dosage', 'profile', 'faq', 'settings'];
+
+/** Chave de persistência do estado recolhido da sidebar (desktop). */
+const SIDEBAR_COLLAPSED_KEY = 'suplilist:sidebar-collapsed';
 
 // ── NAV_CONFIG ───────────────────────────────────────────────
 export const NAV_CONFIG = [
@@ -82,8 +88,8 @@ export const NAV_CONFIG = [
     items: [
       { id: 'my-stack',  path: '/my-stack',   label: 'Stack',       bottomNav: true, bottomOrder: 1, icon: ICONS.stack },
       { id: 'checkin',   path: '/checkin',     label: 'Check-in',    bottomNav: true, bottomOrder: 2, featured: true, icon: ICONS.checkin },
-      { id: 'favorites', path: '/favorites',   label: 'Favoritos',   bottomNav: true, bottomOrder: 3, icon: ICONS.favorites },
-      { id: 'history',   path: '/history',     label: 'Histórico',   bottomNav: true, bottomOrder: 4, icon: ICONS.history },
+      { id: 'favorites', path: '/favorites',   label: 'Favoritos',   bottomNav: false, icon: ICONS.favorites },
+      { id: 'history',   path: '/history',     label: 'Histórico',   bottomNav: true, bottomOrder: 3, icon: ICONS.history },
       { id: 'dosage',    path: '/dosage',      label: 'Calculadora', bottomNav: false, icon: ICONS.dosage },
     ],
   },
@@ -104,12 +110,14 @@ export class Nav {
   static _scrollHandler = null;
   static _checkinUnsub = null;  // unsubscribe for checkin:added badge listener
   static _clickHandler = null;
+  static _drawerKeyHandler = null;  // keydown (Tab trap + Escape) while drawer open
 
   static init() {
     Nav._injectStyles();
     Nav._renderSidebar();
     Nav._renderBottomNav();
     Nav._renderMobileTopbar();
+    Nav._applySidebarState();
     Nav._setupClickDelegation();
     Nav._setupScrollAutoHide();
     if (!Nav._hasCheckinToday()) {
@@ -184,18 +192,27 @@ export class Nav {
 
     Nav.updateSubtitle(normalized);
 
+    // aria-current: 'page' no ativo, atributo removido nos demais.
+    // ('false' polui leitores de tela, que anunciam todos os itens como
+    // tendo estado de "currency".)
+    const syncCurrent = (el, isActive) => {
+      el.classList.toggle('is-active', isActive);
+      if (isActive) el.setAttribute('aria-current', 'page');
+      else el.removeAttribute('aria-current');
+    };
+
     document.querySelectorAll('.sb-item').forEach(el => {
       const itemPath = el.dataset.navPath;
-      const isActive = itemPath === normalized || (normalized === '/' && itemPath === '/');
-      el.classList.toggle('is-active', isActive);
-      el.setAttribute('aria-current', isActive ? 'page' : 'false');
+      syncCurrent(el, itemPath === normalized || (normalized === '/' && itemPath === '/'));
     });
 
     document.querySelectorAll('.bn-item').forEach(el => {
-      const itemPath = el.dataset.navPath;
-      const isActive = itemPath === normalized;
-      el.classList.toggle('is-active', isActive);
-      el.setAttribute('aria-current', isActive ? 'page' : 'false');
+      syncCurrent(el, el.dataset.navPath === normalized);
+    });
+
+    // Itens do drawer "Mais" (ex.: Favoritos só existe aqui).
+    document.querySelectorAll('.nd-item').forEach(el => {
+      syncCurrent(el, el.dataset.navPath === normalized);
     });
   }
 
@@ -227,7 +244,7 @@ export class Nav {
     const groupsHtml = NAV_CONFIG.map(({ group, items }) => {
       const itemsHtml = items.map(item => `
         <button class="sb-item" data-nav-id="${item.id}" data-nav-path="${item.path}"
-          aria-label="${item.label}" aria-current="false">
+          aria-label="${item.label}" title="${item.label}">
           <span class="sb-item__icon">${item.icon.outlined}</span>
           <span class="sb-item__label">${item.label}</span>
           ${item.id === 'checkin' ? `<span class="sb-badge" hidden aria-label="Check-in pendente"></span>` : ''}
@@ -254,13 +271,17 @@ export class Nav {
           ${groupsHtml}
         </div>
         <div class="sb-footer">
-          <button id="btn-theme" class="sb-theme-btn" aria-label="Alternar tema claro/escuro">
+          <button class="sb-collapse-btn" data-nav-action="collapse" aria-label="Recolher menu" title="Recolher menu">
+            <span class="sb-item__icon">${ICONS.collapse}</span>
+            <span class="sb-collapse-btn__label">Recolher</span>
+          </button>
+          <button id="btn-theme" class="sb-theme-btn" aria-label="Alternar tema claro/escuro" title="Alternar tema">
             <span class="sb-item__icon">${themeIcon}</span>
             <span>Alternar Tema</span>
           </button>
-          <button class="sb-fab" data-nav-path="/my-stack" aria-label="Adicionar ao Meu Stack">
+          <button class="sb-fab" data-nav-path="/my-stack" aria-label="Adicionar ao Meu Stack" title="Adicionar ao Stack">
             ${ICONS.plus}
-            Adicionar ao Stack
+            <span class="sb-fab__label">Adicionar ao Stack</span>
           </button>
         </div>
       </div>`;
@@ -281,7 +302,7 @@ export class Nav {
       const iconSize = item.featured ? 24 : 22;
       return `
         <button class="bn-item ${featured}" data-nav-id="${item.id}" data-nav-path="${item.path}"
-          aria-label="${item.label}" aria-current="false">
+          aria-label="${item.label}">
           <span class="bn-icon" style="${item.featured ? '' : `width:${iconSize}px;height:${iconSize}px`}">${icon}</span>
           ${!item.featured ? `<span class="bn-label">${item.label}</span>` : ''}
           ${item.id === 'checkin' ? `<span class="bn-badge" hidden aria-label="Check-in pendente"></span>` : ''}
@@ -289,7 +310,7 @@ export class Nav {
     }).join('');
 
     const moreHtml = `
-      <button class="bn-item" data-nav-action="drawer" aria-label="Mais opções" aria-haspopup="true" aria-expanded="false">
+      <button class="bn-item" data-nav-action="drawer" aria-label="Mais opções" aria-haspopup="dialog" aria-expanded="false">
         <span class="bn-icon" style="width:22px;height:22px">${ICONS.more.outlined}</span>
         <span class="bn-label">Mais</span>
       </button>`;
@@ -322,7 +343,7 @@ export class Nav {
     drawer.innerHTML = `
       <div class="nav-drawer__backdrop" data-nav-action="drawer-close"></div>
       <div class="nav-drawer__sheet" role="dialog" aria-modal="true" aria-label="Mais opções">
-        <div class="nav-drawer__handle"></div>
+        <div class="nav-drawer__handle" aria-hidden="true"></div>
         <div class="nav-drawer__grid">${itemsHtml}</div>
       </div>`;
   }
@@ -336,14 +357,61 @@ export class Nav {
     void d.offsetWidth;
     d.classList.add('is-open');
     document.querySelector('[data-nav-action="drawer"]')?.setAttribute('aria-expanded', 'true');
+
+    // Acessibilidade (ARIA dialog): foco inicial, trap de Tab e Escape p/ fechar.
+    const items = [...d.querySelectorAll('.nd-item')];
+    items[0]?.focus();
+    if (Nav._drawerKeyHandler) document.removeEventListener('keydown', Nav._drawerKeyHandler);
+    Nav._drawerKeyHandler = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); Nav.closeDrawer(); return; }
+      if (e.key !== 'Tab' || items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', Nav._drawerKeyHandler);
   }
 
   static closeDrawer() {
     const d = document.getElementById('nav-drawer');
     if (!d) return;
     d.classList.remove('is-open');
-    document.querySelector('[data-nav-action="drawer"]')?.setAttribute('aria-expanded', 'false');
+    const trigger = document.querySelector('[data-nav-action="drawer"]');
+    trigger?.setAttribute('aria-expanded', 'false');
+    if (Nav._drawerKeyHandler) {
+      document.removeEventListener('keydown', Nav._drawerKeyHandler);
+      Nav._drawerKeyHandler = null;
+    }
+    // Restaura o foco ao gatilho "Mais" (padrão ARIA dialog).
+    trigger?.focus();
     setTimeout(() => { if (d && !d.classList.contains('is-open')) d.hidden = true; }, 280);
+  }
+
+  /** Recolhe/expande a sidebar (desktop). Sem efeito visível no mobile,
+   *  onde o body vira display:block e a sidebar fica escondida. */
+  static toggleSidebar() {
+    const collapsed = document.body.classList.toggle('sidebar-collapsed');
+    try { localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0'); } catch { /* storage indisponível */ }
+    Nav._syncCollapseButton(collapsed);
+  }
+
+  /** Aplica o estado salvo na inicialização. */
+  static _applySidebarState() {
+    let collapsed = false;
+    try { collapsed = localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'; } catch { /* storage indisponível */ }
+    document.body.classList.toggle('sidebar-collapsed', collapsed);
+    Nav._syncCollapseButton(collapsed);
+  }
+
+  static _syncCollapseButton(collapsed) {
+    const btn = document.querySelector('[data-nav-action="collapse"]');
+    if (!btn) return;
+    const label = collapsed ? 'Expandir menu' : 'Recolher menu';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
+    // Disclosure control: comunica o estado (recolhido/expandido) ao leitor de tela.
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   }
 
   static _renderMobileTopbar() {
@@ -380,6 +448,8 @@ export class Nav {
           d && d.classList.contains('is-open') ? Nav.closeDrawer() : Nav.openDrawer();
         } else if (kind === 'drawer-close') {
           Nav.closeDrawer();
+        } else if (kind === 'collapse') {
+          Nav.toggleSidebar();
         }
         return;
       }
@@ -603,6 +673,40 @@ export class Nav {
       }
       .sb-fab:hover { background: var(--color-brand-hover, #6D28D9); }
       .sb-fab:active { transform: scale(0.98); }
+      .sb-fab__label { white-space: nowrap; }
+      .sb-collapse-btn {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 10px; border-radius: 8px; border: none;
+        background: transparent;
+        color: var(--color-text-muted, #777);
+        font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+        cursor: pointer; transition: background 0.15s ease, color 0.15s ease; width: 100%;
+        min-height: 44px;
+      }
+      .sb-collapse-btn:hover { background: var(--color-surface-hover, rgba(255,255,255,0.04)); color: var(--color-text-primary); }
+      .sb-collapse-btn .sb-item__icon { transition: transform 0.2s ease; }
+
+      /* ── SIDEBAR RECOLHIDA (desktop, 72px) ── */
+      /* class beats element selector, so este override vence o body{240px} do shell.
+         No mobile (body display:block) grid-template-columns é ignorado. */
+      body { transition: grid-template-columns 0.2s ease; }
+      body.sidebar-collapsed { grid-template-columns: 72px 1fr; }
+      body.sidebar-collapsed .sb-inner { padding-left: 8px; padding-right: 8px; }
+      body.sidebar-collapsed .sb-item__label,
+      body.sidebar-collapsed .sb-group__label,
+      body.sidebar-collapsed .sb-subtitle,
+      body.sidebar-collapsed .sb-footer span:not(.sb-item__icon) { display: none; }
+      body.sidebar-collapsed .sb-item,
+      body.sidebar-collapsed .sb-theme-btn,
+      body.sidebar-collapsed .sb-collapse-btn,
+      body.sidebar-collapsed .sb-fab {
+        justify-content: center; gap: 0; padding-left: 0; padding-right: 0;
+      }
+      body.sidebar-collapsed .sb-collapse-btn .sb-item__icon { transform: rotate(180deg); }
+      body.sidebar-collapsed .sb-group { margin-top: 8px; }
+      /* Badge de check-in: sem label, ancora no canto do ícone */
+      body.sidebar-collapsed .sb-item { position: relative; }
+      body.sidebar-collapsed .sb-badge { position: absolute; top: 7px; right: 9px; }
 
       /* ── BOTTOM NAV ── */
       #bottom-nav {

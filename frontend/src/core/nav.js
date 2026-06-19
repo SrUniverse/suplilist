@@ -120,6 +120,7 @@ export class Nav {
     Nav._applySidebarState();
     Nav._setupClickDelegation();
     Nav._setupScrollAutoHide();
+    Nav._setupRailTooltip();
     if (!Nav._hasCheckinToday()) {
       Nav.setBadge('checkin', true);
     }
@@ -473,6 +474,69 @@ export class Nav {
     document.addEventListener('click', Nav._clickHandler);
   }
 
+  /** Tooltip portal para itens do rail recolhido.
+   *  O overflow:hidden da sidebar corta qualquer tooltip renderizado dentro dela,
+   *  então criamos um <div> no body e o posicionamos via getBoundingClientRect. */
+  static _setupRailTooltip() {
+    if (Nav._railTooltipEl) return; // guard contra double-init
+
+    const tip = document.createElement('div');
+    tip.id = 'sb-rail-tooltip';
+    tip.setAttribute('role', 'tooltip');
+    tip.setAttribute('aria-hidden', 'true');
+    tip.style.cssText = `
+      position: fixed; z-index: 9999; pointer-events: none;
+      background: var(--color-surface-secondary, #1a1a2e);
+      color: var(--color-text-primary, #fff);
+      font: 600 12px/1 'Inter', sans-serif;
+      padding: 6px 10px; border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      border: 1px solid var(--color-border, rgba(255,255,255,0.08));
+      white-space: nowrap; opacity: 0; transition: opacity 0.15s ease;
+      transform: translateY(-50%);
+    `;
+    document.body.appendChild(tip);
+    Nav._railTooltipEl = tip;
+
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    let hideTimer;
+
+    sidebar.addEventListener('mouseenter', (e) => {
+      if (!document.body.classList.contains('sidebar-collapsed')) return;
+      const item = e.target.closest('.sb-item, .sb-theme-btn, .sb-collapse-btn, .sb-fab');
+      if (!item) return;
+      const label = item.getAttribute('aria-label') || item.getAttribute('title');
+      if (!label) return;
+      clearTimeout(hideTimer);
+      const rect = item.getBoundingClientRect();
+      tip.textContent = label;
+      tip.style.left = `${rect.right + 8}px`;
+      tip.style.top = `${rect.top + rect.height / 2}px`;
+      tip.style.opacity = '1';
+      tip.setAttribute('aria-hidden', 'false');
+    }, true);
+
+    sidebar.addEventListener('mouseleave', (e) => {
+      const item = e.target.closest('.sb-item, .sb-theme-btn, .sb-collapse-btn, .sb-fab');
+      if (!item) return;
+      hideTimer = setTimeout(() => {
+        tip.style.opacity = '0';
+        tip.setAttribute('aria-hidden', 'true');
+      }, 80);
+    }, true);
+
+    // Esconder ao expandir sidebar
+    const observer = new MutationObserver(() => {
+      if (!document.body.classList.contains('sidebar-collapsed')) {
+        tip.style.opacity = '0';
+        tip.setAttribute('aria-hidden', 'true');
+      }
+    });
+    observer.observe(document.body, { attributeFilter: ['class'] });
+  }
+
   static _setupScrollAutoHide() {
     const outlet = document.getElementById('router-outlet');
     const bn = document.getElementById('bottom-nav');
@@ -748,6 +812,12 @@ export class Nav {
         -webkit-tap-highlight-color: transparent;
       }
       .bn-item:hover { color: var(--color-text-secondary, #9A9A9A); }
+      .bn-item:focus-visible {
+        outline: none;
+        color: var(--color-brand, #8B5CF6);
+        box-shadow: inset 0 0 0 2px var(--color-brand, #8B5CF6), inset 0 0 0 4px var(--color-bg-primary, #0A0C10);
+        border-radius: 8px;
+      }
       .bn-item.is-active { color: var(--color-brand, #8B5CF6); }
       .bn-item.is-active::after {
         content: '';

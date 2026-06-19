@@ -76,6 +76,7 @@ export default class HistoryPage {
     this._unsubscribeOffline = null;
     this._unsubOnline = null;
     this._unsubSync = null;
+    this._supMap = buildSupMap();
   }
 
   async mount() {
@@ -295,8 +296,7 @@ export default class HistoryPage {
   }
 
   _renderCheckinItem(ck, _index) {
-    const supMap = buildSupMap();
-    const db = supMap[ck.supplementId || ''];
+    const db = this._supMap[ck.supplementId || ''];
     const name = db?.name || ck.supplementId || 'Desconhecido';
     const cat = db?.category || '';
     const img = db?.image || `/assets/${(ck.supplementId || '').replace(/-/g, '_')}.png`;

@@ -15,6 +15,19 @@ import {
   StripeSubscriptionStatus,
 } from '../identity/infrastructure/mongoose/user-identity.model.js';
 import { env } from '../../shared/config/env.config.js';
+import { redisClient } from '../../shared/infrastructure/redis/redis.client.js';
+
+const PROCESSED_EVENT_TTL = 86400; // 24h in seconds
+
+async function isEventAlreadyProcessed(eventId: string): Promise<boolean> {
+  try {
+    const key = `stripe:event:${eventId}`;
+    const result = await redisClient.set(key, '1', 'EX', PROCESSED_EVENT_TTL, 'NX');
+    return result === null; // null = key existed = already processed
+  } catch {
+    return false; // on Redis error, allow processing (idempotent writes are safe)
+  }
+}
 
 /** Map a Stripe price ID to an internal tier using configured env vars. */
 export function priceIdToTier(priceId: string | undefined | null): UserTier | null {
@@ -76,6 +89,8 @@ async function applySubscriptionState(subscription: Stripe.Subscription): Promis
  * semantics — Stripe requires acknowledgement of events we don't care about).
  */
 export async function handleStripeEvent(event: Stripe.Event): Promise<void> {
+  if (await isEventAlreadyProcessed(event.id)) return;
+
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;

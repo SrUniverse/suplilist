@@ -19,7 +19,7 @@ const resolvedUri = redisUri ?? 'redis://localhost:6379/0';
 const useTls = resolvedUri.startsWith('rediss://');
 
 export const redisClient = new Redis(resolvedUri, {
-  ...(useTls ? { tls: { rejectUnauthorized: false } } : {}),
+  ...(useTls ? { tls: {} } : {}),
   maxRetriesPerRequest: 1,
   connectTimeout: 3000,
   // Fail fast when Redis is unreachable: without this, commands queue forever

@@ -138,7 +138,10 @@ export class Nav {
   }
 
   static _setupPwaInstallPrompt() {
-    window.addEventListener('pwa:install-available', (e) => {
+    if (Nav._pwaInstallHandler) {
+      window.removeEventListener('pwa:install-available', Nav._pwaInstallHandler);
+    }
+    Nav._pwaInstallHandler = (e) => {
       const prompt = e.detail.prompt;
       if (!prompt) return;
 
@@ -183,7 +186,8 @@ export class Nav {
         const actions = topbar.querySelector('.mt-actions');
         if (actions) actions.insertBefore(mobileBtn, actions.firstChild);
       }
-    });
+    };
+    window.addEventListener('pwa:install-available', Nav._pwaInstallHandler);
   }
 
   static updateActive(pathname) {

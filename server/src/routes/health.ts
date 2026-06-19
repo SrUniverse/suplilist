@@ -6,6 +6,7 @@
 import { Request, Response, Router } from 'express';
 import mongoose from 'mongoose';
 import { cacheService } from '../shared/services/cache.service.js';
+import { redisClient } from '../shared/infrastructure/redis/redis.client.js';
 
 const router = Router();
 
@@ -44,11 +45,10 @@ router.get('/ready', async (req: Request, res: Response): Promise<void> => {
     mongodb: 'error',
   };
 
-  // Check Redis
+  // Check Redis — live ping, not just flag
   try {
-    if (cacheService.isEnabled()) {
-      checks.redis = 'ok';
-    }
+    await redisClient.ping();
+    checks.redis = 'ok';
   } catch (error) {
     console.error('[Health] Redis check failed:', error);
   }
@@ -91,11 +91,9 @@ router.get('/detailed', async (req: Request, res: Response): Promise<void> => {
     memory: process.memoryUsage(),
     mongodb: {
       connected: mongoose.connection.readyState === 1,
-      host: process.env.MONGODB_URI || 'not configured',
     },
     redis: {
       enabled: cacheService.isEnabled(),
-      host: process.env.REDIS_URI || 'not configured',
     },
   };
 

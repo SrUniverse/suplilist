@@ -351,7 +351,7 @@ export class StateManager {
       try {
         const persistable = { ...this._state };
         delete persistable.ui;
-        const result = StorageManager.setItem(STORAGE_KEY, JSON.stringify(persistable));
+        const result = StorageManager.setItem(STORAGE_KEY, persistable);
         // Handle async setItem (IndexedDB) — ignore Promise but catch errors
         if (result instanceof Promise) {
           result.catch(error => {

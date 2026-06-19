@@ -159,8 +159,10 @@ export class ListPageGrid {
     grid.innerHTML = '';
 
     const cols = this._getColumns();
-    // Taller cards when single-column on mobile (bigger image area)
-    const cardHeight = cols === 1 ? 320 : 330;
+    // Card height must fit: image (190px desktop / 220px mobile) + body padding +
+    // 2-line description (≈35px) + price area (≈36px) + actions (44px) + gaps.
+    // Minimum: 351px desktop, 381px mobile. Add headroom for safety.
+    const cardHeight = cols === 1 ? 395 : 365;
 
     // Create virtual scroller with filtered items
     this._scroller = new VirtualScroller(

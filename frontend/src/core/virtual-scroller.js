@@ -185,13 +185,21 @@ export class VirtualScroller {
       pageScrollTop = this.scrollElement.scrollTop;
     }
 
-    // Offset of the virtual list from the top of the scrollable area
-    const containerOffset = this.listElement
-      ? (this.listElement.getBoundingClientRect().top + pageScrollTop)
-      : 0;
-
-    // How far into the list the viewport currently shows
-    const scrollIntoList = Math.max(0, pageScrollTop - containerOffset);
+    // How far into the list the viewport currently shows.
+    // For window: scrollIntoList = max(0, -listRect.top)
+    // For a scroll container: scrollIntoList = max(0, containerRect.top - listRect.top)
+    // The non-window formula correctly accounts for the container's own position
+    // in the viewport, which the window formula ignores (containerRect.top = 0).
+    let scrollIntoList = 0;
+    if (this.listElement) {
+      const listRect = this.listElement.getBoundingClientRect();
+      if (this.scrollElement === window) {
+        scrollIntoList = Math.max(0, -listRect.top);
+      } else {
+        const containerRect = this.scrollElement.getBoundingClientRect();
+        scrollIntoList = Math.max(0, containerRect.top - listRect.top);
+      }
+    }
 
     const cols = this.columns;
     const rowHeight = this.itemHeight + this.gap;

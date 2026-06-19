@@ -99,6 +99,8 @@ export class ListPageGrid {
    */
   updateFiltered(filtered) {
     this._filtered = filtered;
+    const scrollEl = document.getElementById('lp-body');
+    if (scrollEl) scrollEl.scrollTop = 0;
     this._renderGrid();
   }
 

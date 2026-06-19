@@ -64,8 +64,15 @@ export function initializeSubscriptionsModule(): Router {
       priceId = parsed.data.priceId;
       const allowedPrices = buildAllowedPrices();
 
-      // Whitelist check — enforced when env vars are set; permissive in dev if not configured
-      if (allowedPrices.size > 0 && !allowedPrices.has(priceId)) {
+      // Whitelist check — block if env vars not set (prevents arbitrary price IDs in prod)
+      if (allowedPrices.size === 0) {
+        return res.status(503).json({
+          success: false,
+          error: 'plan_not_configured',
+          message: 'Subscription plans are not configured. Please try again later.',
+        });
+      }
+      if (!allowedPrices.has(priceId)) {
         return res.status(400).json({
           success: false,
           error: 'invalid_price_id',

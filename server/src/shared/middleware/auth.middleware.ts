@@ -83,9 +83,11 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       // Lookup user in MongoDB to populate req.user for role/admin guards
       userDoc = await UserIdentityModel.findOne({ $or: queryConditions }).select('role status').lean();
 
-      // Cache successful lookups for 10 seconds to reduce database load
+      // Cache successful lookups — suspended/banned accounts get 2s TTL so suspension
+      // takes effect quickly; active accounts get 10s TTL to reduce DB load
       if (userDoc) {
-        await cacheService.set(cacheKey, userDoc, 10); // 10-second TTL
+        const ttl = userDoc.status === 'active' ? 10 : 2;
+        await cacheService.set(cacheKey, userDoc, ttl);
       }
     }
 
@@ -135,12 +137,17 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
         sign_in_provider: decoded.firebase?.sign_in_provider || 'password'
       };
 
-      const userDoc = await UserIdentityModel.findOne({
-        $or: [
-          { email: decoded.email },
-          { 'providers.providerId': decoded.uid }
-        ]
-      }).select('role status').lean();
+      const optCacheKey = `user:${decoded.uid}`;
+      let userDoc = await cacheService.get<any>(optCacheKey);
+      if (!userDoc) {
+        userDoc = await UserIdentityModel.findOne({
+          $or: [
+            { email: decoded.email },
+            { 'providers.providerId': decoded.uid }
+          ]
+        }).select('role status').lean();
+        if (userDoc) await cacheService.set(optCacheKey, userDoc, 10);
+      }
       if (userDoc) {
         req.user = {
           id: userDoc._id.toString(),

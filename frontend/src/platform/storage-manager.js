@@ -200,24 +200,26 @@ export class StorageManager {
    */
   static getAllKeys() {
     const keys = new Set();
+    const APP_PREFIXES = ['suplilist', 'sl:', 'sls:'];
+    const isAppKey = (k) => APP_PREFIXES.some(p => k.startsWith(p));
 
-    // Adicionar chaves de localStorage
+    // Adicionar chaves de localStorage (apenas as do app)
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key) keys.add(key);
+        if (key && isAppKey(key)) keys.add(key);
       }
     } catch (e) {
       this._emitStorageDegradedEvent('localStorage', e.message);
     }
 
-    // Adicionar chaves de cookies
+    // Adicionar chaves de cookies (apenas as do app — evita _ga, _gid etc.)
     try {
       const cookieString = document.cookie;
       const cookies = cookieString.split(';');
       for (let cookie of cookies) {
         const key = cookie.split('=')[0].trim();
-        if (key) keys.add(key);
+        if (key && isAppKey(key)) keys.add(key);
       }
     } catch (e) {
       this._emitStorageDegradedEvent('cookie', e.message);

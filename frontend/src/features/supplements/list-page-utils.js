@@ -4,7 +4,7 @@
  */
 
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
-import { dosageToGrams } from '../../utils/dosage-converter.js';
+import { dosageToGrams, costPerDose } from '../../utils/dosage-converter.js';
 import { DAYS_PER_MONTH } from '../../config/constants.js';
 
 // ─── Category & Objective Mapping ────────────────────────────────────────────
@@ -114,12 +114,15 @@ export function getPriceLabel(item, prices) {
  * @returns {string} Formatted price (e.g., "R$ 2,50 / dose")
  */
 export function getDosePrice(item, prices) {
+  const dose = item.dosage?.maintenance ?? 5;
+  const doseUnit = item.dosage?.unit || 'g';
+
   const cheapest = getCheapestStore(item, prices);
   if (cheapest) {
     if (cheapest.pricePerUnit && cheapest.unit) {
-      const dose = item.dosage?.maintenance ?? 5;
-      const doseInGrams = dosageToGrams(dose, cheapest.unit);
-      const dosePrice = cheapest.pricePerUnit * doseInGrams;
+      let dosePrice = costPerDose(dose, doseUnit, cheapest.pricePerUnit, cheapest.unit);
+      // Sanity clamp: cost per dose can never exceed the full package price.
+      if (cheapest.price > 0) dosePrice = Math.min(dosePrice, cheapest.price);
       if (dosePrice <= 0) return '';
       return `R$ ${dosePrice.toFixed(2).replace('.', ',')} / dose`;
     }
@@ -128,10 +131,8 @@ export function getDosePrice(item, prices) {
     return `R$ ${monthlyDose.toFixed(2).replace('.', ',')} / dose`;
   }
 
-  const dose = item.dosage?.maintenance ?? 5;
-  const unit = item.dosage?.unit || 'g';
   const ppg = item.pricePerGram ?? 0.3;
-  const doseInGrams = dosageToGrams(dose, unit);
+  const doseInGrams = dosageToGrams(dose, doseUnit);
   const estimatedPrice = doseInGrams * ppg;
   if (estimatedPrice <= 0) return '';
   return `R$ ${estimatedPrice.toFixed(2).replace('.', ',')} / dose`;

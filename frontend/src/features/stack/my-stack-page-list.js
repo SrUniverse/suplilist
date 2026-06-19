@@ -39,15 +39,15 @@ export class MyStackPageList {
           <img src="${img}" alt="${escapeHtml(item.name)}" class="msp-item-img" loading="lazy" />
           <div class="msp-item-info">
             <h4 class="msp-item-name">${escapeHtml(item.name)}</h4>
-            <p class="msp-item-dosage">${doseText} · ${daysLeft ? daysLeft + ' dias' : '—'}</p>
+            <p class="msp-item-dosage">${doseText}${daysLeft ? ` · ${daysLeft} dias restantes` : ''}</p>
             <div class="msp-item-badges">
               ${renderEvidenceBadge(ev)}
               ${comp && comp.status && comp.status !== 'not-recommended' ? `<span style="color:${statusColor};font-size:10px;font-weight:700;">✓</span>` : ''}
             </div>
           </div>
           <div class="msp-item-actions">
-            <button class="msp-btn-sm" data-action="edit" data-id="${supId}" title="Editar">✎</button>
-            <button class="msp-btn-sm" data-action="remove" data-id="${supId}" title="Remover">✕</button>
+            <button class="msp-btn-sm" data-action="edit" data-id="${supId}" title="Editar" aria-label="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+            <button class="msp-btn-sm" data-action="remove" data-id="${supId}" title="Remover" aria-label="Remover"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
         </div>
       `;

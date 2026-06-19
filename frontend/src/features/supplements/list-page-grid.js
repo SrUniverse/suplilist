@@ -6,6 +6,7 @@
 import { stateManager } from '../../state/state-manager.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { VirtualScroller } from '../../core/virtual-scroller.js';
+import { getImageObjectPosition } from './image-focus.js';
 import { PAGE_SIZE as CONST_PAGE_SIZE } from '../../config/constants.js';
 import {
   getFavoritesFromState, toggleFavorite, getMaxSaving, getPriceLabel, getDosePrice, formatPrice
@@ -50,6 +51,26 @@ export class ListPageGrid {
       this._resizeTimer = setTimeout(() => this._renderGrid(), 150);
     };
     window.addEventListener('resize', this._resizeHandler, { passive: true });
+
+    // Recalcula colunas quando a LARGURA REAL do grid muda — cobre o caso em que
+    // no primeiro render (SPA) o layout ainda não assentou (largura 0/errada) e o
+    // window 'resize' nunca dispara, deixando os cards com largura errada (imagem
+    // cortada) até um reload. Também trata colapso/expansão da sidebar. Só
+    // re-renderiza quando o nº de colunas realmente muda (evita loop/thrash).
+    this._lastCols = this._getColumns();
+    if (typeof ResizeObserver !== 'undefined') {
+      const grid = this.container.querySelector('#lp-grid');
+      if (grid) {
+        this._gridResizeObserver = new ResizeObserver(() => {
+          const cols = this._getColumns();
+          if (cols !== this._lastCols) {
+            this._lastCols = cols;
+            this._renderGrid();
+          }
+        });
+        this._gridResizeObserver.observe(grid);
+      }
+    }
   }
 
   /**
@@ -57,7 +78,15 @@ export class ListPageGrid {
    * @returns {number} Number of columns
    */
   _getColumns() {
-    const w = this.container.offsetWidth || window.innerWidth;
+    // Largura REAL disponível para os cards. Mede o próprio grid (ou o container)
+    // via getBoundingClientRect — mais confiável que offsetWidth (fracionário e
+    // != 0 quando já houve layout). window.innerWidth é só o último recurso:
+    // usá-lo cedo superdimensiona (ignora a sidebar do desktop) → colunas a mais
+    // → cards estreitos → imagem cortada dos lados até um reload.
+    const grid = this.container.querySelector('#lp-grid');
+    const w = (grid && grid.getBoundingClientRect().width)
+      || this.container.getBoundingClientRect().width
+      || window.innerWidth;
     if (w < 480) return 1;
     if (w < 900) return 3;
     return 4;
@@ -106,7 +135,7 @@ export class ListPageGrid {
     if (!this._filtered.length) {
       grid.innerHTML = `
         <div class="lp-empty">
-          <div class="lp-empty-icon">🔍</div>
+          <div class="lp-empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
           <p style="font-weight:700;margin:0 0 6px;">Nenhum resultado</p>
           <p style="font-size:13px;margin:0;">Tente outra busca ou remova os filtros.</p>
         </div>`;
@@ -196,17 +225,7 @@ export class ListPageGrid {
     const catColor = CATEGORY_COLORS[item.category] ?? null;
     const catStyle = catColor ? ` style="--cat-color: ${catColor.hue}; --cat-bg: ${catColor.bg}"` : '';
 
-    const OBJ_POS = {
-      'Proteínas':   'center 20%',
-      'Creatinas':   'center 30%',
-      'Vitaminas':   'center 15%',
-      'Aminoácidos': 'center 25%',
-      'Cognitivos':  'center 30%',
-      'Performance': 'center 30%',
-      'Adaptógenos': 'center 25%',
-      'Minerais':    'center 20%',
-    };
-    const objPos = OBJ_POS[item.category] ?? 'center 35%';
+    const objPos = getImageObjectPosition(item.category);
 
     const favs = getFavoritesFromState();
     const isFav = favs.has(item.id);
@@ -524,6 +543,10 @@ export class ListPageGrid {
     if (this._observer) {
       this._observer.disconnect();
       this._observer = null;
+    }
+    if (this._gridResizeObserver) {
+      this._gridResizeObserver.disconnect();
+      this._gridResizeObserver = null;
     }
     if (this._resizeHandler) {
       window.removeEventListener('resize', this._resizeHandler);

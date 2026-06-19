@@ -50,6 +50,45 @@ export function estimateMonthlyCost(dose, unit, pricePerGram, daysPerMonth = 30)
   return grams * pricePerGram * daysPerMonth;
 }
 
+// Mass-based packaging units: pricePerUnit is denominated per gram.
+const MASS_STORE_UNITS = new Set(['g', 'mg', 'mcg']);
+// Count-based dose units that map 1:1 onto count-based packaging.
+const COUNT_DOSE_UNITS = new Set(['caps', 'capsules', 'pills']);
+
+/**
+ * Cost of a single dose given a store's packaging price.
+ *
+ * Two pricing regimes exist in prices.json:
+ * - Mass-priced packages (unit "g") → pricePerUnit is R$/gram. The dose is
+ *   converted to grams using ITS OWN unit (mg/g/mcg) and multiplied.
+ * - Count-priced packages (unit "caps"/"pills") → pricePerUnit is R$/capsule.
+ *   A mg/UI dose cannot be converted to capsules without per-capsule content,
+ *   so we assume 1 capsule per dose (the common case). When the dose itself is
+ *   expressed in capsules, we use the capsule count directly.
+ *
+ * @param {number} dose - Maintenance dose value (in doseUnit)
+ * @param {string} doseUnit - Dose unit (g, mg, mcg, UI, caps, ...)
+ * @param {number} pricePerUnit - Store price per packaging unit
+ * @param {string} storeUnit - Packaging unit (g or caps)
+ * @returns {number} Cost per dose in BRL (0 when inputs are invalid)
+ */
+export function costPerDose(dose, doseUnit, pricePerUnit, storeUnit) {
+  if (!(pricePerUnit > 0) || !(dose > 0)) return 0;
+  const su = (storeUnit || 'g').toLowerCase().trim();
+
+  if (MASS_STORE_UNITS.has(su)) {
+    return pricePerUnit * dosageToGrams(dose, doseUnit);
+  }
+
+  // Count-based packaging (caps/pills).
+  const du = (doseUnit || '').toLowerCase().trim();
+  if (du === su || COUNT_DOSE_UNITS.has(du)) {
+    return pricePerUnit * dose;
+  }
+  // Dose in mg/UI/etc against capsule pricing — assume 1 capsule per dose.
+  return pricePerUnit;
+}
+
 /**
  * Format dose for display
  * @param {number} dose - Value
@@ -65,5 +104,6 @@ export default {
   dosageToGrams,
   estimatePricePerGram,
   estimateMonthlyCost,
+  costPerDose,
   formatDose,
 };

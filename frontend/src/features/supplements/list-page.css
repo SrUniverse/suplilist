@@ -256,7 +256,9 @@ display: none;
 .lp-filter-row {
   display: flex;
   gap: 6px;
-  overflow-x: auto;
+  /* Desktop: quebra em múltiplas linhas para que todas as categorias fiquem
+     visíveis (sem corte tipo "Cogniçã…"). No mobile vira scroll horizontal. */
+  flex-wrap: wrap;
   padding-bottom: 2px;
   scrollbar-width: none;
 }
@@ -293,6 +295,12 @@ display: none;
 @media (max-width: 600px) {
   .lp-filter-label {
 display: none;
+  }
+
+  /* Mobile: rolagem horizontal por toque em vez de quebrar linha */
+  .lp-filter-row {
+flex-wrap: nowrap;
+overflow-x: auto;
   }
 
   .lp-chip {
@@ -380,7 +388,8 @@ border-color: var(--color-border-brand);
 }
 
 .lp-card-img-wrap.img-error::after {
-  content: "🧪";
+  content: "";
+  background: center / 44px no-repeat url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M9 3h6M10 3v6l-4.5 8a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 9V3'/></svg>");
   position: absolute;
   inset: 0;
   display: flex;
@@ -769,7 +778,8 @@ animation: lp-dialog-in 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .lp-modal-hero--error::after {
-  content: "🧪";
+  content: "";
+  background: center / 44px no-repeat url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='M9 3h6M10 3v6l-4.5 8a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 9V3'/></svg>");
   position: absolute;
   inset: 0;
   display: flex;

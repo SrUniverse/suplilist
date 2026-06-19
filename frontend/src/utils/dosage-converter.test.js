@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dosageToGrams, estimatePricePerGram, estimateMonthlyCost, formatDose } from './dosage-converter.js';
+import { dosageToGrams, estimatePricePerGram, estimateMonthlyCost, costPerDose, formatDose } from './dosage-converter.js';
 
 describe('dosage-converter — Supplement Unit Conversions', () => {
   describe('dosageToGrams()', () => {
@@ -58,6 +58,38 @@ describe('dosage-converter — Supplement Unit Conversions', () => {
     it('allows customizing days per month', () => {
       // Daily dose 5g, price 2 BRL, 7 days = 5 * 2 * 7 = 70 BRL
       expect(estimateMonthlyCost(5, 'g', 2, 7)).toBe(70);
+    });
+  });
+
+  describe('costPerDose()', () => {
+    // Embalagem em massa (pricePerUnit = R$/grama)
+    it('converte dose pela própria unidade contra preço por grama', () => {
+      // 5g × R$0,25/g = R$1,25
+      expect(costPerDose(5, 'g', 0.25, 'g')).toBeCloseTo(1.25, 5);
+      // Colágeno: 10000mg = 10g × R$0,18/g = R$1,80 (não 1800)
+      expect(costPerDose(10000, 'mg', 0.18, 'g')).toBeCloseTo(1.8, 5);
+      // 200mcg = 0,0002g × R$4/g = R$0,0008
+      expect(costPerDose(200, 'mcg', 4, 'g')).toBeCloseTo(0.0008, 6);
+    });
+
+    // Embalagem em cápsulas (pricePerUnit = R$/cápsula)
+    it('assume 1 cápsula por dose quando a dose é em mg/UI', () => {
+      // Boro: 3mg, embalagem em caps → R$0,75 (não 0,00)
+      expect(costPerDose(3, 'mg', 0.75, 'caps')).toBe(0.75);
+      // Vitamina D3: 2000UI, caps → R$0,27
+      expect(costPerDose(2000, 'UI', 0.27, 'caps')).toBe(0.27);
+      // Probiótico: 10 bi UFC, caps → R$3,00
+      expect(costPerDose(10, 'bi UFC', 3, 'caps')).toBe(3);
+    });
+
+    it('multiplica pela contagem quando a dose já está em cápsulas', () => {
+      expect(costPerDose(2, 'caps', 1.5, 'caps')).toBe(3);
+    });
+
+    it('retorna 0 para entradas inválidas', () => {
+      expect(costPerDose(0, 'g', 0.25, 'g')).toBe(0);
+      expect(costPerDose(5, 'g', 0, 'g')).toBe(0);
+      expect(costPerDose(5, 'g', -1, 'g')).toBe(0);
     });
   });
 

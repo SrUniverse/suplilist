@@ -11,6 +11,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { createHash } from 'node:crypto';
 import { logger } from '../shared/utils/logger.js';
 
 /**
@@ -141,9 +142,8 @@ function removeUnnecessaryFields(
  * Used for HTTP caching validation
  */
 function generateETag(body: any): string {
-  const crypto = require('crypto');
   const payload = JSON.stringify(body);
-  const hash = crypto.createHash('sha256').update(payload).digest('hex').substring(0, 16);
+  const hash = createHash('sha256').update(payload).digest('hex').substring(0, 16);
   return `"${hash}"`;
 }
 

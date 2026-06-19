@@ -47,6 +47,24 @@ class IdentityService {
       auth.authStateReady().then(async () => {
         if (!auth.currentUser) {
           logger.info('[IdentityService] No Firebase user found.');
+          // Reconciliação de sessão: se o estado local (re-hidratado do IndexedDB)
+          // ainda diz que há um usuário autenticado mas o Firebase não tem sessão
+          // (token revogado, logout em outro dispositivo, sessão expirada), zeramos
+          // apenas os campos de identidade. NÃO apagamos dados local-first (stack,
+          // check-ins, favoritos, biometria) — comportamento de sites famosos:
+          // sessão expirada → UI deslogada, dados preservados para re-login.
+          const persisted = stateManager.get('user');
+          if (persisted?.isAuthenticated) {
+            logger.warn('[IdentityService] Sessão local órfã (sem usuário Firebase); reconciliando para deslogado.');
+            stateManager.dispatch(ACTIONS.UPDATE_PROFILE, {
+              isAuthenticated: false,
+              id: null,
+              email: null,
+              role: null,
+              emailVerified: false,
+              isMfaEnabled: false,
+            });
+          }
           this.#initSettled = true;
           return resolve(false);
         }

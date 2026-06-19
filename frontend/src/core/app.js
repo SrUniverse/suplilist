@@ -27,6 +27,7 @@ const routes = [
   { path: '/forgot-password', load: () => import('../features/auth/forgot-password-page.js') },
   { path: '/reset-password',  load: () => import('../features/auth/reset-password-page.js') },
   { path: '/verify-email',    load: () => import('../features/auth/verify-email-page.js') },
+  { path: '/auth/action',     load: () => import('../features/auth/auth-action-page.js') },
   { path: '/phone-login',     load: () => import('../features/auth/phone-login-page.js') },
   { path: '/',           load: () => import('../features/home/home-page.js') },
   { path: '/home',       load: () => import('../features/home/home-page.js') },
@@ -63,6 +64,11 @@ const PAGE_METADATA = {
     title: 'Criar Conta | SupliList',
     description: 'Junte-se ao SupliList de forma segura e gerencie sua suplementação.',
     keywords: 'registro, criar conta, signup, suplementos'
+  },
+  '/auth/action': {
+    title: 'Autenticação | SupliList',
+    description: 'Processando autenticação...',
+    keywords: 'autenticacao, recuperacao'
   },
   '/': {
     title: 'SupliList | Suplementos com Evidência Científica — Compare Preços e Doses',
@@ -191,7 +197,7 @@ function updateSEOMetadata() {
  */
 function applyLandingMode() {
   const path = window.location.pathname;
-  const isLanding = path === '/' || path === '/home' || path === '/onboarding' || path === '/login' || path === '/register' || path === '/phone-login';
+  const isLanding = path === '/' || path === '/home' || path === '/onboarding' || path === '/login' || path === '/register' || path === '/phone-login' || path === '/auth/action' || path === '/forgot-password' || path === '/reset-password';
   document.body.classList.toggle('body--landing', isLanding);
 }
 
@@ -254,7 +260,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyLandingMode();
     updateSEOMetadata();
     // Nav.updateActive is already called by router.js handleRoute() — no duplicate needed
-    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding' || window.location.pathname === '/login' || window.location.pathname === '/register' || window.location.pathname === '/phone-login';
+    const isLanding = window.location.pathname === '/' || window.location.pathname === '/home' || window.location.pathname === '/onboarding' || window.location.pathname === '/login' || window.location.pathname === '/register' || window.location.pathname === '/phone-login' || window.location.pathname === '/auth/action' || window.location.pathname === '/forgot-password' || window.location.pathname === '/reset-password';
     isLanding ? Nav.hide() : Nav.show();
   });
 

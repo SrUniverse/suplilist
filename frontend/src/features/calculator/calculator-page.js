@@ -70,7 +70,7 @@ export default class CalculatorPage {
 
             <!-- Biometrics -->
             <div class="calcp-card" id="card-biometrics">
-              <h2 class="calcp-card-title">⚗️ Dados Biométricos</h2>
+              <h2 class="calcp-card-title">Dados Biométricos</h2>
 
               <div class="calcp-field">
                 <label class="calcp-label" for="inp-weight">Peso (kg)</label>
@@ -107,7 +107,7 @@ export default class CalculatorPage {
 
             <!-- Compound selection -->
             <div class="calcp-card" id="card-compounds">
-              <h2 class="calcp-card-title">🔬 Seleção de Composto</h2>
+              <h2 class="calcp-card-title">Seleção de Composto</h2>
 
               <div class="calcp-search-wrap">
                 <span class="calcp-search-icon" aria-hidden="true">🔍</span>
@@ -134,7 +134,7 @@ export default class CalculatorPage {
         </div>
 
         <p class="calcp-disclaimer">
-          ⚠️ As recomendações são baseadas em evidências científicas e no perfil informado.
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>As recomendações são baseadas em evidências científicas e no perfil informado.
           Consulte um médico ou nutricionista antes de iniciar qualquer protocolo.
         </p>
       </div>

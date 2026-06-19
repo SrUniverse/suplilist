@@ -377,7 +377,7 @@ export default class ProfilePage {
     const isAuthenticated = stateManager.user?.isAuthenticated || stateManager.get?.('user.isAuthenticated') || this._userData?.email;
 
     if (!isAuthenticated) {
-      return cardWrap('Sua Conta ☁️', `
+      return cardWrap('Sua Conta', `
         <p class="pp-empty-text">
           Você está navegando como visitante. Faça login ou crie uma conta para fazer backup do seu stack e histórico na nuvem.
         </p>
@@ -389,14 +389,14 @@ export default class ProfilePage {
     }
 
     const email = stateManager.user?.email || this._userData?.email || 'Usuário logado';
-    return cardWrap('Sua Conta ☁️', `
+    return cardWrap('Sua Conta', `
       <div class="pp-row-between">
         <div class="pp-account-email">
           Conectado como <strong>${escapeHtml(email)}</strong>
         </div>
         <button id="btn-profile-logout" class="pp-btn-logout">Sair</button>
       </div>
-    `) + cardWrap('Telefone 📱', `<div id="phone-link-container"></div>`);
+    `) + cardWrap('Telefone', `<div id="phone-link-container"></div>`);
   }
 
   /** (Re)monta a seção de vínculo de telefone no placeholder, se autenticado. */

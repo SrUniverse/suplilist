@@ -17,6 +17,7 @@ import { requireAuth, requirePreAuth } from '../../shared/middleware/auth.middle
 
 import authSyncRoute from './presentation/express/auth-sync.route.js';
 import accountRoute from './presentation/express/account.route.js';
+import revokeSessionsRoute from './presentation/express/revoke-sessions.route.js';
 
 export function initializeIdentityModule(): Router {
   const router = Router();
@@ -35,6 +36,9 @@ export function initializeIdentityModule(): Router {
 
   // Rota de Sincronização Firebase Auth -> MongoDB
   router.use(authSyncRoute);
+
+  // Rota de revogação de tokens via Admin
+  router.use(revokeSessionsRoute);
 
   // Rota de gerenciamento de conta (ex: deletar conta)
   router.use(accountRoute);

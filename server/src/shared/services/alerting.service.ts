@@ -15,6 +15,7 @@
  * - ALERT_MIN_LEVEL: Minimum severity level (critical|high|medium|low)
  */
 
+import { createHash } from 'node:crypto';
 import { logger } from '../utils/logger.js';
 
 export type AlertSeverity = 'critical' | 'high' | 'medium' | 'low';
@@ -126,9 +127,7 @@ export class AlertingService {
    * Get alert hash for a title/description combination
    */
   getAlertHash(title: string, description: string): string {
-    const crypto = require('crypto');
-    return crypto
-      .createHash('md5')
+    return createHash('md5')
       .update(`${title}::${description}`)
       .digest('hex');
   }

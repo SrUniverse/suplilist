@@ -229,7 +229,7 @@ export default class CheckinPage {
             font-size: 15px;
             cursor: pointer;
             letter-spacing: 0.01em;
-          ">✅ Marcar todos como feitos</button>
+          ">Marcar todos como feitos</button>
         ` : ''}
 
       </div>

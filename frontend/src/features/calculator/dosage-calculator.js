@@ -49,6 +49,18 @@ export class DosageCalculator {
   };
 
   /**
+   * Rótulos PT-BR dos objetivos — evita vazar a chave interna ('general',
+   * 'bulk'…) no texto exibido ao usuário (racional/metodologia).
+   */
+  OBJECTIVE_LABELS = {
+    bulk: 'hipertrofia',
+    strength: 'força',
+    cut: 'definição',
+    endurance: 'resistência',
+    general: 'saúde geral'
+  };
+
+  /**
    * Standard intake schedules for supplements.
    */
   TIMING_SCHEDULES = {
@@ -87,7 +99,7 @@ export class DosageCalculator {
       const ageMultiplier = this._getAgeMultiplier(age);
 
       daily = weight * multiplier * activityMultiplier * objectiveMultiplier * ageMultiplier;
-      methodology = `Cálculo biométrico baseado no peso corporal (${weight}kg), frequência de treinos (${freq}x/semana) e objetivo de ${objective}.`;
+      methodology = `Cálculo biométrico baseado no peso corporal (${weight}kg), frequência de treinos (${freq}x/semana) e objetivo de ${this.OBJECTIVE_LABELS[objective] || objective}.`;
     }
 
     // Strict boundary safety check: cap at upper limit
@@ -217,7 +229,7 @@ export class DosageCalculator {
     if (isFixed) {
       return `Dose fixa padrão de ${daily}${unit} recomendada clinicamente, sem necessidade de alteração baseada no peso corporal.`;
     }
-    return `Dose diária sugerida de ${daily}${unit} calculada com base no seu peso corporal (${weight}kg) e no objetivo de ${objective}.`;
+    return `Dose diária sugerida de ${daily}${unit} calculada com base no seu peso corporal (${weight}kg) e no objetivo de ${this.OBJECTIVE_LABELS[objective] || objective}.`;
   }
 
   _generateWarnings(supplement, daily, upperLimit, age) {

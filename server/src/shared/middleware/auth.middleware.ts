@@ -48,7 +48,9 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     try {
-      const decoded = await getAuth().verifyIdToken(token);
+      // checkRevoked=true: força verificação de revogação (revokeRefreshTokens / conta desabilitada).
+      // Sem isso, um ID Token já assinado continua válido até expirar (~1h) mesmo após /revoke-sessions.
+      const decoded = await getAuth().verifyIdToken(token, true);
       req.firebaseUser = {
         uid: decoded.uid,
         email: decoded.email,
@@ -123,7 +125,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     }
 
     try {
-      const decoded = await getAuth().verifyIdToken(token);
+      const decoded = await getAuth().verifyIdToken(token, true);
       req.firebaseUser = {
         uid: decoded.uid,
         email: decoded.email,

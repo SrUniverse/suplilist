@@ -3,6 +3,7 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { requireAuth } from '../../../../shared/middleware/auth.middleware.js';
 import { UserIdentityModel } from '../../infrastructure/mongoose/user-identity.model.js';
 import { ProfileModel } from '../../../profile/infrastructure/mongoose/profile.model.js';
+import mongoose from 'mongoose';
 
 import { RedisStore } from 'rate-limit-redis';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
@@ -41,84 +42,109 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
     }
 
     const { uid, email, name, picture, email_verified, sign_in_provider } = req.firebaseUser;
+    const isVerified = email_verified || false;
+    const providerId = sign_in_provider || 'password';
+    
+    const mappedProvider = 
+      providerId === 'google.com' ? 'google' : 
+      providerId === 'phone' ? 'phone' : 'password';
 
-    const isTrustedProvider = sign_in_provider !== 'password';
-    const isVerified = email_verified || isTrustedProvider;
-
-    let userIdentity = await UserIdentityModel.findOne({
-      'providers.providerId': uid
-    });
+    let userIdentity = await UserIdentityModel.findOne({ 'providers.providerId': uid });
 
     if (!userIdentity && email) {
       userIdentity = await UserIdentityModel.findOne({ email });
     }
 
-    const mappedProvider: 'google' | 'phone' | 'password' = (['google', 'phone', 'password'].includes(sign_in_provider) 
-      ? sign_in_provider 
-      : (email ? 'google' : 'phone')) as 'google' | 'phone' | 'password';
-      
     const finalEmail = email || `${uid}@phone.suplilist.com`;
 
-    if (!userIdentity) {
-      userIdentity = new UserIdentityModel({
-        email: finalEmail,
-        emailVerified: isVerified,
-        emailVerifiedAt: isVerified ? new Date() : null,
-        role: 'user',
-        status: isVerified ? 'active' : 'pending_verification',
-        tier: 'free',
-        providers: [{
-          provider: mappedProvider,
-          providerId: uid,
-          providerEmail: email,
-          linkedAt: new Date()
-        }]
-      });
-      await userIdentity.save();
-    } else {
-      const hasProvider = userIdentity.providers.some(p => p.provider === mappedProvider && p.providerId === uid);
-      if (!hasProvider) {
-        userIdentity.providers.push({
-          provider: mappedProvider,
-          providerId: uid,
-          providerEmail: email,
-          linkedAt: new Date()
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    let savedUserIdentityId: string;
+    let savedEmail: string;
+    let savedRole: string;
+    let savedStatus: string;
+    let savedEmailVerified: boolean;
+
+    try {
+      if (!userIdentity) {
+        userIdentity = new UserIdentityModel({
+          email: finalEmail,
+          emailVerified: isVerified,
+          emailVerifiedAt: isVerified ? new Date() : null,
+          role: 'user',
+          status: isVerified ? 'active' : 'pending_verification',
+          tier: 'free',
+          providers: [{
+            provider: mappedProvider,
+            providerId: uid,
+            providerEmail: email,
+            linkedAt: new Date()
+          }]
         });
-        await userIdentity.save();
+        await userIdentity.save({ session });
+      } else {
+        const hasProvider = userIdentity.providers.some(p => p.provider === mappedProvider && p.providerId === uid);
+        if (!hasProvider) {
+          userIdentity.providers.push({
+            provider: mappedProvider,
+            providerId: uid,
+            providerEmail: email,
+            linkedAt: new Date()
+          });
+          await userIdentity.save({ session });
+        }
       }
+
+      savedUserIdentityId = userIdentity._id.toString();
+      savedEmail = userIdentity.email;
+      savedRole = userIdentity.role;
+      savedStatus = userIdentity.status;
+      savedEmailVerified = userIdentity.emailVerified;
+
+      const existingProfile = await ProfileModel.findOne({ userId: savedUserIdentityId }).session(session);
+
+      if (!existingProfile) {
+        const newProfile = new ProfileModel({
+          userId: savedUserIdentityId,
+          firstName: name ? name.split(' ')[0] : null,
+          lastName: name && name.includes(' ') ? name.split(' ').slice(1).join(' ') : null,
+          displayName: name || email?.split('@')[0] || 'Usuário',
+          avatarUrl: picture || null,
+          avatarStatus: picture ? 'approved' : 'none',
+          onboardingState: 'pending'
+        });
+        await newProfile.save({ session });
+      }
+
+      await session.commitTransaction();
+    } catch (transactionErr) {
+      await session.abortTransaction();
+      console.error('[AuthSync] Transaction aborted due to error:', transactionErr);
+      throw transactionErr; // Re-throw to be caught by the outer catch
+    } finally {
+      await session.endSession();
     }
 
-    const userId = userIdentity._id.toString();
-    const existingProfile = await ProfileModel.findOne({ userId });
-
-    if (!existingProfile) {
-      const newProfile = new ProfileModel({
-        userId,
-        firstName: name ? name.split(' ')[0] : null,
-        lastName: name && name.includes(' ') ? name.split(' ').slice(1).join(' ') : null,
-        displayName: name || email?.split('@')[0] || 'Usuário',
-        avatarUrl: picture || null,
-        avatarStatus: picture ? 'approved' : 'none',
-        onboardingState: 'pending'
-      });
-      await newProfile.save();
+    // Cache invalidation must happen OUTSIDE and AFTER the transaction commits successfully
+    try {
+      await cacheService.delete(`user:${uid}`);
+    } catch (cacheErr) {
+      console.error('[AuthSync] Falha ao deletar cache no Redis (não crítico):', cacheErr);
     }
-
-    // Invalidate cache for this user on sync (login/update) to ensure fresh data
-    await cacheService.delete(`user:${uid}`);
 
     res.json({
       success: true,
       data: {
-        userId: userIdentity._id.toString(),
-        email: userIdentity.email,
-        role: userIdentity.role,
-        emailVerified: userIdentity.emailVerified,
-        status: userIdentity.status,
+        userId: savedUserIdentityId,
+        email: savedEmail,
+        role: savedRole,
+        emailVerified: savedEmailVerified,
+        status: savedStatus,
       }
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message, stack: err?.stack });
+    console.error('[AuthSync] Erro interno não tratado:', err);
+    res.status(500).json({ success: false, error: 'internal_server_error', message: err?.message, stack: err?.stack });
   }
 });
 

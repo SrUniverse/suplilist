@@ -85,6 +85,17 @@ export default class LoginPage {
     return Date.now() < this._mfaExpiryTime;
   }
 
+  /**
+   * Ícone de olho (mostrar/ocultar senha).
+   * @param {boolean} visible - true quando a senha está visível (mostra olho cortado)
+   * @returns {string} SVG markup
+   */
+  static _eyeIcon(visible) {
+    return visible
+      ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+
   _render() {
     const errorHtml = `<div id="login-error-region" class="onboarding-error" data-testid="login-error" role="alert" style="margin-bottom: 1.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.9rem;"${this._errorMessage ? '' : ' hidden'}>${this._errorMessage ? escapeHtml(this._errorMessage) : ''}</div>`;
 
@@ -142,18 +153,28 @@ export default class LoginPage {
                     <label for="login-password" style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Senha</label>
                     <button id="login-forgot-password" type="button" aria-label="Esqueceu a senha" style="background: none; border: none; color: var(--color-brand); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 12px 8px; margin: -12px -8px;">Esqueceu?</button>
                   </div>
-                  <input
-                    id="login-password"
-                    data-testid="login-password"
-                    class="onboarding-input"
-                    type="password"
-                    name="password"
-                    placeholder="••••••••"
-                    autocomplete="current-password"
-                    aria-label="Senha"
-                    aria-required="true"
-                    style="padding: 0.875rem 1rem;"
-                  />
+                  <div style="position: relative;">
+                    <input
+                      id="login-password"
+                      data-testid="login-password"
+                      class="onboarding-input"
+                      type="password"
+                      name="password"
+                      placeholder="••••••••"
+                      autocomplete="current-password"
+                      aria-label="Senha"
+                      aria-required="true"
+                      style="padding: 0.875rem 2.75rem 0.875rem 1rem; width: 100%;"
+                    />
+                    <button
+                      id="login-toggle-password"
+                      type="button"
+                      aria-label="Mostrar senha"
+                      aria-pressed="false"
+                      tabindex="-1"
+                      style="position: absolute; right: 0; top: 0; bottom: 0; width: 2.75rem; display: flex; align-items: center; justify-content: center; background: none; border: none; color: var(--color-text-muted); cursor: pointer;"
+                    >${LoginPage._eyeIcon(false)}</button>
+                  </div>
                 </div>
               </div>
 
@@ -237,6 +258,20 @@ export default class LoginPage {
       const handler = () => eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/forgot-password' });
       btnForgotPassword.addEventListener('click', handler);
       this._listeners.set(btnForgotPassword, { type: 'click', handler });
+    }
+
+    const btnTogglePassword = this.container.querySelector('#login-toggle-password');
+    const passwordInput = this.container.querySelector('#login-password');
+    if (btnTogglePassword && passwordInput) {
+      const handler = () => {
+        const willShow = passwordInput.type === 'password';
+        passwordInput.type = willShow ? 'text' : 'password';
+        btnTogglePassword.setAttribute('aria-pressed', String(willShow));
+        btnTogglePassword.setAttribute('aria-label', willShow ? 'Ocultar senha' : 'Mostrar senha');
+        btnTogglePassword.innerHTML = LoginPage._eyeIcon(willShow);
+      };
+      btnTogglePassword.addEventListener('click', handler);
+      this._listeners.set(btnTogglePassword, { type: 'click', handler });
     }
   }
 

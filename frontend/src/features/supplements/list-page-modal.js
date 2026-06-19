@@ -8,6 +8,7 @@ import { escapeHtml } from '../../utils/escape.js';
 import affiliateEngine from '../../monetization/affiliate-engine.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
 import { sanitizeUrl, isProductUrl, formatPrice, getPriceLabel, getEffectiveCost } from './list-page-utils.js';
+import { getImageObjectPosition } from './image-focus.js';
 import { SchemaManager } from '../../platform/schema-manager.js';
 
 /**
@@ -161,6 +162,7 @@ export class ListPageModal {
         <div class="lp-modal-hero">
           <img class="lp-modal-hero-img" src="${escapeHtml(img)}"
             alt="${escapeHtml(item.name)}"
+            style="object-position: ${getImageObjectPosition(item.category)}"
             loading="lazy" decoding="async"
             onerror="this.parentElement.classList.add('lp-modal-hero--error'); this.remove();" />
           <div class="lp-modal-hero-gradient" aria-hidden="true"></div>

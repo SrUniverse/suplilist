@@ -514,7 +514,7 @@ describe('form-validator — Form Validation & DOM Manipulation', () => {
   // ============= Pre-configured Validators =============
 
   describe('Pre-configured Validators', () => {
-    it('58. loginValidator requires email and min 8 chars password', () => {
+    it('58. loginValidator accepts a valid email and any non-empty password', () => {
       const errors = loginValidator.validate({
         email: 'user@example.com',
         password: 'Password123',
@@ -530,10 +530,18 @@ describe('form-validator — Form Validation & DOM Manipulation', () => {
       expect(errors.email).toBeTruthy();
     });
 
-    it('60. loginValidator rejects short password', () => {
+    it('60. loginValidator accepts a short password (presence-only, no strength rule on login)', () => {
       const errors = loginValidator.validate({
         email: 'user@example.com',
         password: 'short',
+      });
+      expect(errors).toBeNull();
+    });
+
+    it('60b. loginValidator rejects an empty password', () => {
+      const errors = loginValidator.validate({
+        email: 'user@example.com',
+        password: '',
       });
       expect(errors.password).toBeTruthy();
     });

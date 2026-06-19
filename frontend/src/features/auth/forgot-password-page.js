@@ -96,7 +96,11 @@ export default class ForgotPasswordPage {
     this._syncButtonState();
 
     try {
-      await sendPasswordResetEmail(auth, email);
+      const actionCodeSettings = {
+        url: window.location.origin + '/auth/action',
+        handleCodeInApp: false, // We just want the user to be redirected back, the link handles the mode=resetPassword
+      };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
     } catch (_err) {
       // Ignorar erros silenciosamente para evitar Account Enumeration
       logger.warn('[ForgotPassword] opaque error (account enumeration prevention)', _err);

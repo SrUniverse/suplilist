@@ -25,6 +25,23 @@ services:
       - suplilist-network
     restart: unless-stopped
 
+  mongodb:
+    image: mongo:7.0
+    container_name: suplilist-mongodb
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: mongosh --eval 'try { rs.status().ok } catch (e) { rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]}) }'
+      interval: 5s
+      timeout: 5s
+      start_period: 10s
+    networks:
+      - suplilist-network
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: suplilist-redis
@@ -63,6 +80,8 @@ services:
       - ./server/.env
     depends_on:
       postgresql:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -119,6 +138,7 @@ networks:
 
 volumes:
   postgresql_data:
+  mongodb_data:
   redis_data:
   prometheus_data:
   grafana_data:

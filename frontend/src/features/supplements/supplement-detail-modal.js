@@ -113,7 +113,7 @@ export class SupplementDetailModal {
               background:var(--color-success-bg);border:1px solid rgba(34,197,94,0.3);
               border-radius:12px;padding:12px 16px;
             ">
-              <div style="font-size:12px;color:var(--color-success);margin-bottom:6px;">💰 Melhor Preço Encontrado</div>
+              <div style="font-size:12px;color:var(--color-success);margin-bottom:6px;">Melhor Preço Encontrado</div>
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span style="font-size:14px;font-weight:700;color:var(--color-text-primary);">
                   ${escapeHtml(bestPrice.source)}

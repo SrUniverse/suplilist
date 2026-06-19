@@ -10,6 +10,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { createHash } from 'node:crypto';
 import { logger } from '../shared/utils/logger.js';
 
 interface CachePolicy {
@@ -197,9 +198,8 @@ function interceptConditionalRequest(req: Request, res: Response): void {
  * Generate ETag from response body
  */
 function generateETag(body: any): string {
-  const crypto = require('crypto');
   const payload = JSON.stringify(body);
-  const hash = crypto.createHash('md5').update(payload).digest('hex').substring(0, 8);
+  const hash = createHash('md5').update(payload).digest('hex').substring(0, 8);
   return `"${hash}"`;
 }
 

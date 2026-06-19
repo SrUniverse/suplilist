@@ -15,7 +15,10 @@ import { STORAGE_KEYS } from '../../state/state-manager.js';
  * @returns {boolean} True if dark theme is enabled
  */
 export function getThemeState() {
-  const stored = StorageManager.getItem(STORAGE_KEYS.THEME);
+  // getItemSync (cookies + localStorage) — NÃO getItem, que é async e retornaria
+  // uma Promise (sempre truthy) fazendo `stored === 'dark'` dar false, deixando o
+  // toggle sempre desligado mesmo com tema escuro ativo.
+  const stored = StorageManager.getItemSync(STORAGE_KEYS.THEME);
   if (stored) return stored === 'dark';
   return document.documentElement.getAttribute('data-theme') === 'dark';
 }
@@ -26,7 +29,8 @@ export function getThemeState() {
  * @returns {boolean} Preference value
  */
 export function getBoolPref(key) {
-  return StorageManager.getItem(key) === 'true';
+  // getItemSync por ser síncrono no render — getItem (async) retornaria Promise.
+  return StorageManager.getItemSync(key) === 'true';
 }
 
 /**

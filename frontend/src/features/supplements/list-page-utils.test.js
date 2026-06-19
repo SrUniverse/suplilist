@@ -100,6 +100,32 @@ describe('list-page-utils', () => {
     it('retorna string vazia quando preço estimado é zero', () => {
       expect(getDosePrice({ id: 'x', dosage: { maintenance: 0, unit: 'g' }, pricePerGram: 0 }, {})).toBe('');
     });
+
+    // Regressão: a dose deve ser convertida pela unidade DELA (item.dosage.unit),
+    // não pela unidade da embalagem da loja (cheapest.unit).
+    it('converte dose em mg contra preço por grama (Colágeno 10000mg)', () => {
+      const prices = { colageno: { s: { pricePerUnit: 0.18, unit: 'g', price: 54.9, label: 'S' } } };
+      // 10000mg = 10g × R$0,18/g = R$ 1,80 (não R$ 1800)
+      expect(getDosePrice({ id: 'colageno', dosage: { maintenance: 10000, unit: 'mg' } }, prices))
+        .toBe('R$ 1,80 / dose');
+    });
+    it('usa preço por cápsula para dose em mg (Boro 3mg, embalagem em caps)', () => {
+      const prices = { boro: { s: { pricePerUnit: 0.75, unit: 'caps', price: 44.9, label: 'S' } } };
+      // 1 cápsula por dose = R$ 0,75 (não R$ 0,00)
+      expect(getDosePrice({ id: 'boro', dosage: { maintenance: 3, unit: 'mg' } }, prices))
+        .toBe('R$ 0,75 / dose');
+    });
+    it('converte dose em mcg contra preço por grama', () => {
+      const prices = { c: { s: { pricePerUnit: 4, unit: 'g', price: 30, label: 'S' } } };
+      // 200mcg = 0,0002g × R$4/g = R$ 0,0008 → arredonda para R$ 0,00
+      expect(getDosePrice({ id: 'c', dosage: { maintenance: 200, unit: 'mcg' } }, prices))
+        .toBe('R$ 0,00 / dose');
+    });
+    it('nunca excede o preço do pacote (clamp de sanidade)', () => {
+      const prices = { c: { s: { pricePerUnit: 9999, unit: 'g', price: 50, label: 'S' } } };
+      expect(getDosePrice({ id: 'c', dosage: { maintenance: 100, unit: 'g' } }, prices))
+        .toBe('R$ 50,00 / dose');
+    });
   });
 
   describe('getMaxSaving', () => {

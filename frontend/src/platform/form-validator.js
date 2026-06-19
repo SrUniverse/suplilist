@@ -304,7 +304,9 @@ export const formValidator = new FormValidator();
  */
 export const loginValidator = new FormValidator();
 loginValidator.addRule('email', 'required|email');
-loginValidator.addRule('password', 'required|min:8');
+// Login só valida presença — NÃO aplica regra de força. Senhas legadas ou de 6-7
+// caracteres precisam conseguir entrar; quem rejeita credencial errada é o Firebase.
+loginValidator.addRule('password', 'required');
 
 /**
  * Validador pré-configurado para registro

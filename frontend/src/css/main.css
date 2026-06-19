@@ -377,7 +377,7 @@ select {
 
 .hist-tab-btn:active {
   transform: scale(0.96);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-surface-hover);
 }
 
 .hist-tab-btn.active {
@@ -419,7 +419,7 @@ select {
 
 .history-cycle-card:hover {
   box-shadow: var(--shadow-md);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--color-border-strong);
 }
 
 .cycle-card-info {
@@ -634,7 +634,7 @@ select {
   padding: 12px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -885,7 +885,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-border);
   padding-top: 12px;
   margin-top: 4px;
 }
@@ -905,8 +905,8 @@ select {
 .interactions-list {
   padding-left: 16px;
   font-size: 12px;
-  color: rgba(252, 165, 165, 0.8);
-  /* red-300/80 */
+  color: var(--color-error);
+  /* red */
   line-height: 1.5;
   display: flex;
   flex-direction: column;
@@ -992,7 +992,7 @@ select {
   gap: var(--space-md);
   align-items: flex-start;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--space-md);
 }
 
@@ -1032,7 +1032,7 @@ select {
 
 .fav-tab-btn:active {
   transform: scale(0.96);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-hover);
 }
 
 .fav-tab-btn.active {
@@ -1153,7 +1153,7 @@ select {
 .fav-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-xl);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--color-border-strong);
 }
 
 .fav-card-image {
@@ -1248,7 +1248,7 @@ select {
 .fav-card-footer {
   margin-top: auto;
   padding-top: var(--space-sm);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);

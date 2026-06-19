@@ -170,7 +170,7 @@
 }
 
 .sp-row:hover {
-  background: rgba(255,255,255,0.02);
+  background: var(--color-surface-hover);
 }
 
 .sp-row-info {
@@ -320,14 +320,14 @@
 }
 
 .sp-plan-badge--free {
-  background: rgba(139,92,246,0.15);
-  color: #A78BFA;
-  border: 1px solid rgba(139,92,246,0.25);
+  background: var(--color-brand-muted);
+  color: var(--color-text-brand);
+  border: 1px solid var(--color-border-brand);
 }
 
 .sp-plan-badge--paid {
-  background: rgba(34,197,94,0.12);
-  color: #4ADE80;
+  background: var(--color-success-bg);
+  color: var(--color-success);
   border: 1px solid rgba(34,197,94,0.2);
 }
 
@@ -365,12 +365,12 @@
 .sp-plan-feature-check {
   width: 14px;
   height: 14px;
-  color: #A78BFA;
+  color: var(--color-text-brand);
   flex-shrink: 0;
 }
 
 .sp-plan-feature-check--paid {
-  color: #4ADE80;
+  color: var(--color-success);
 }
 
 /* ── Buttons ──────────────────────────────────── */
@@ -483,7 +483,7 @@
 }
 
 .sp-link-row:hover {
-  background: rgba(255,255,255,0.02);
+  background: var(--color-surface-hover);
 }
 
 .sp-link-row:hover .sp-link-arrow {
@@ -555,8 +555,8 @@
   align-items: center;
   gap: 5px;
   padding: 4px 10px;
-  background: rgba(34,197,94,0.1);
-  color: #4ADE80;
+  background: var(--color-success-bg);
+  color: var(--color-success);
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;

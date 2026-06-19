@@ -435,7 +435,7 @@ export class Nav {
           ${themeIcon}
         </button>
         <button class="mt-icon-btn" data-nav-path="/profile" aria-label="Meu Perfil">
-          <div class="mt-avatar">S</div>
+          <div class="mt-avatar">${Nav._getUserInitial()}</div>
         </button>
       </div>`;
   }
@@ -597,6 +597,16 @@ export class Nav {
   static _getThemeIcon() {
     const theme = document.documentElement.getAttribute('data-theme') || 'dark';
     return theme === 'dark' ? ICONS.theme.sun : ICONS.theme.moon;
+  }
+
+  static _getUserInitial() {
+    try {
+      const u = stateManager.state?.user;
+      const name = u?.name || u?.email || '';
+      return name[0]?.toUpperCase() || 'U';
+    } catch {
+      return 'U';
+    }
   }
 
   static _injectStyles() {

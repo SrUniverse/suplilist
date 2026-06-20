@@ -1178,13 +1178,13 @@ select {
 
 .fav-heart-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 8px;
+  right: 8px;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1735,6 +1735,11 @@ body.landing-body::before {
   white-space: nowrap;
   animation: marquee 30s linear infinite;
   gap: 40px;
+}
+
+.ticker-marquee-container:hover .ticker-track,
+.ticker-marquee-container:focus-within .ticker-track {
+  animation-play-state: paused;
 }
 
 .ticker-track span {
@@ -2811,11 +2816,9 @@ picture {
 /* Use transform instead of position for animations */
 .btn-primary,
 .btn-outline,
-.feature-card,
-a {
+.feature-card {
   transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000px;
 }
 
 /* Smooth scrolling with GPU */

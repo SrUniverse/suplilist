@@ -110,6 +110,7 @@ export class ListPageModal {
                href="${sanitizeUrl(isProductUrl(store.url) ? store.url : affLinks[storeKey])}"
                target="_blank"
                rel="noopener noreferrer"
+               aria-label="Ver ${escapeHtml(String(store.label ?? storeKey))} — ${escapeHtml(item.name)}"
                data-aff-id="${escapeHtml(item.id)}"
                data-aff-mp="${escapeHtml(storeKey)}">Ver →</a>
           </div>
@@ -133,6 +134,7 @@ export class ListPageModal {
                href="${sanitizeUrl(affLinks[key])}"
                target="_blank"
                rel="noopener noreferrer"
+               aria-label="Ver ${escapeHtml(label)} — ${escapeHtml(item.name)}"
                data-aff-id="${escapeHtml(item.id)}"
                data-aff-mp="${escapeHtml(key)}">Ver →</a>
           </div>

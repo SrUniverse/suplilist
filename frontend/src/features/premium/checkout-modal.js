@@ -529,6 +529,9 @@ export class CheckoutModal {
       try {
         await new Promise(r => setTimeout(r, 1000));
 
+        // Modal may have been dismissed during the 1s delay — bail out silently.
+        if (!this._activeOverlay) return;
+
         // Execute Reducer action in stateManager
         stateManager.dispatch(ACTIONS.SET_TIER, { tier: selectedTier });
 

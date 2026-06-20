@@ -14,12 +14,17 @@ export const createMetricsRouter = (): Router => {
 
   /**
    * GET /metrics
-   * Prometheus metrics endpoint
-   *
-   * Returns metrics in Prometheus text exposition format
-   * Content-Type: text/plain; charset=utf-8; version=0.0.4
+   * Prometheus metrics endpoint — protected by bearer token.
+   * Set METRICS_TOKEN env var; omit to disable endpoint entirely.
    */
-  router.get('/', async (_req: Request, res: Response) => {
+  router.get('/', async (req: Request, res: Response) => {
+    const token = process.env.METRICS_TOKEN;
+    if (!token) {
+      return res.status(404).end();
+    }
+    if (req.headers['authorization'] !== `Bearer ${token}`) {
+      return res.status(401).end();
+    }
     try {
       const metrics = await getMetrics();
       const contentType = getMetricsContentType();

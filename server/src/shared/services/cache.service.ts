@@ -13,7 +13,7 @@ export class CacheService {
 
   constructor() {
     // Initialize Redis connection if available
-    const redisUrl = process.env.REDIS_URI;
+    const redisUrl = process.env.REDIS_URL ?? process.env.REDIS_URI;
     if (redisUrl) {
       try {
         this.redis = new Redis(redisUrl, {

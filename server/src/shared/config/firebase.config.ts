@@ -33,7 +33,8 @@ export function initializeFirebaseAdmin(): void {
     logger.info('Firebase Admin SDK initialized successfully');
   } catch (error) {
     logger.error('Failed to initialize Firebase Admin SDK', { error });
-    // In production, failing to initialize Firebase should arguably crash the server
-    // but we'll let it proceed and fail on first use if env vars are missing.
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    }
   }
 }

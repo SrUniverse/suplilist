@@ -57,6 +57,7 @@ export default class SubscriptionResultPage {
         logger.warn('[SubscriptionResult] Profile poll failed:', error);
       }
       await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
+      if (this._disposed) return;
     }
     if (!this._disposed) this._renderSlow();
   }

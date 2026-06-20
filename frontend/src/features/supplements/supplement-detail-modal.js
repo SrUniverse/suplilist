@@ -32,7 +32,7 @@ export class SupplementDetailModal {
     modal.id = 'supplement-detail-modal';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-label', `Detalhes: ${escapeHtml(supplementId)}`);
+    modal.setAttribute('aria-label', `Detalhes: ${escapeHtml(supplementData.name || supplementId)}`);
 
     const supplementPurchases = purchases.filter(p => p.supplementId === supplementId && p.status === 'active');
     const spending = getSupplementSpending(supplementId, purchases);
@@ -178,7 +178,12 @@ export class SupplementDetailModal {
 
     document.body.appendChild(modal);
     this._activeModal = modal;
+    this._triggerElement = document.activeElement;
     this._attachListeners();
+
+    // Move focus into modal (close button is the first focusable element)
+    const closeBtn = modal.querySelector('#supplement-detail-close');
+    if (closeBtn) closeBtn.focus();
   }
 
   static _attachListeners() {
@@ -201,15 +206,30 @@ export class SupplementDetailModal {
       });
     }
 
-    // ESC key
+    // ESC key + focus trap
     const escapeHandler = (e) => {
       if (e.key === 'Escape') {
         this.dismiss();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = Array.from(modal.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )).filter(el => !el.disabled);
+        if (!focusable.length) { e.preventDefault(); return; }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     document.addEventListener('keydown', escapeHandler);
 
-    // Store handler for cleanup
     this._escapeHandler = escapeHandler;
   }
 
@@ -221,6 +241,11 @@ export class SupplementDetailModal {
     if (this._escapeHandler) {
       document.removeEventListener('keydown', this._escapeHandler);
       this._escapeHandler = null;
+    }
+    // Restore focus to the element that opened the modal
+    if (this._triggerElement && typeof this._triggerElement.focus === 'function') {
+      this._triggerElement.focus();
+      this._triggerElement = null;
     }
   }
 }

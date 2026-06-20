@@ -1,6 +1,6 @@
 /**
  * Vercel Cron — Outbox Processor
- * Schedule: every minute (see vercel.json)
+ * Schedule: daily at midnight UTC — 0 0 * * * (see vercel.json)
  *
  * Replaces the setInterval-based OutboxProcessorJob that ran inside server.ts.
  * Vercel Cron calls this endpoint on schedule with a CRON_SECRET Authorization

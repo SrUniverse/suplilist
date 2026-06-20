@@ -171,7 +171,6 @@ export default class LoginPage {
                       type="button"
                       aria-label="Mostrar senha"
                       aria-pressed="false"
-                      tabindex="-1"
                       style="position: absolute; right: 0; top: 0; bottom: 0; width: 2.75rem; display: flex; align-items: center; justify-content: center; background: none; border: none; color: var(--color-text-muted); cursor: pointer;"
                     >${LoginPage._eyeIcon(false)}</button>
                   </div>

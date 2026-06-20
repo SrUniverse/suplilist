@@ -144,7 +144,7 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
     });
   } catch (err: any) {
     console.error('[AuthSync] Erro interno não tratado:', err);
-    res.status(500).json({ success: false, error: 'internal_server_error', message: err?.message, stack: err?.stack });
+    next(err);
   }
 });
 

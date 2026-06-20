@@ -158,7 +158,9 @@ class IdentityService {
     // Apagar estado persistido (IndexedDB/localStorage) para não vazar dados entre sessões
     try {
       StorageManager.removeItem(STORAGE_KEY);
-    } catch (_) { /* ignore */ }
+    } catch (e) {
+      logger.warn('[IdentityService] Failed to clear persisted session', e);
+    }
 
     eventBus.emit(EVENTS.AUTH_LOGOUT, null);
     eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: ROUTE.ONBOARDING });

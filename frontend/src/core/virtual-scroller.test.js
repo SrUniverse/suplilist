@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VirtualScroller, IntersectionVirtualScroller } from './virtual-scroller.js';
 
+// VirtualScroller.mount() defers its first render to requestAnimationFrame so
+// the scroll container is laid out before measuring. Tests must flush that
+// frame before asserting on rendered output. Double rAF covers any nested
+// scheduling.
+const flushRender = () =>
+  new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
 describe('VirtualScroller — Efficient List Rendering', () => {
   let container;
   let scroller;
@@ -43,16 +50,18 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 2. mount() renders initial items
-  it('2. mount() renders initial items', () => {
+  it('2. mount() renders initial items', async () => {
     scroller.mount();
+    await flushRender();
 
     const items = container.querySelectorAll('.virtual-item');
     expect(items.length).toBeGreaterThan(0);
   });
 
   // 3. Virtual list has correct total height
-  it('3. Virtual list has correct total height', () => {
+  it('3. Virtual list has correct total height', async () => {
     scroller.mount();
+    await flushRender();
 
     const listElement = container.querySelector('.virtual-scroller-list');
     const expectedHeight = items.length * (50 + 12) - 12; // 100 items, itemHeight=50, gap=12
@@ -60,8 +69,9 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 4. Only visible items + buffer are rendered
-  it('4. Only visible items + buffer are rendered', () => {
+  it('4. Only visible items + buffer are rendered', async () => {
     scroller.mount();
+    await flushRender();
 
     const renderedItems = container.querySelectorAll('.virtual-item');
     // With 500px viewport and 50px items, should render ~10 items + buffer
@@ -95,8 +105,9 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 7. Items have correct positioning
-  it('7. Items have correct positioning', () => {
+  it('7. Items have correct positioning', async () => {
     scroller.mount();
+    await flushRender();
 
     const firstItem = container.querySelector('[data-row="0"]');
     expect(firstItem).toBeTruthy();
@@ -105,7 +116,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 8. renderItem is called with correct parameters
-  it('8. renderItem is called with correct parameters', () => {
+  it('8. renderItem is called with correct parameters', async () => {
     const spy = vi.fn((item, _index) => `<div>${item.name}</div>`);
     const testScroller = new VirtualScroller(container, items.slice(0, 10), spy, {
       itemHeight: 50,
@@ -113,6 +124,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
     });
 
     testScroller.mount();
+    await flushRender();
 
     expect(spy).toHaveBeenCalled();
     const calls = spy.mock.calls;
@@ -138,8 +150,9 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 10. visibleStartIndex and visibleEndIndex are calculated correctly
-  it('10. visibleStartIndex and visibleEndIndex calculated correctly', () => {
+  it('10. visibleStartIndex and visibleEndIndex calculated correctly', async () => {
     scroller.mount();
+    await flushRender();
 
     // At scroll position 0, should see items 0-15 (10 visible + 5 buffer each)
     expect(scroller.visibleStartIndex).toBe(0);
@@ -147,13 +160,14 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 11. Buffer size affects rendered items
-  it('11. Buffer size affects rendered items', () => {
+  it('11. Buffer size affects rendered items', async () => {
     const bufferScroller = new VirtualScroller(container, items, renderItem, {
       itemHeight: 50,
       bufferSize: 2 // Smaller buffer
     });
 
     bufferScroller.mount();
+    await flushRender();
     const itemCount1 = container.querySelectorAll('.virtual-item').length;
 
     bufferScroller.unmount();
@@ -165,6 +179,7 @@ describe('VirtualScroller — Efficient List Rendering', () => {
     });
 
     bigBufferScroller.mount();
+    await flushRender();
     const itemCount2 = container.querySelectorAll('.virtual-item').length;
 
     // Larger buffer should render more items
@@ -174,13 +189,14 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 12. Different itemHeight works
-  it('12. Different itemHeight works', () => {
+  it('12. Different itemHeight works', async () => {
     const tallScroller = new VirtualScroller(container, items, renderItem, {
       itemHeight: 100, // Taller items
       bufferSize: 5
     });
 
     tallScroller.mount();
+    await flushRender();
 
     const listElement = container.querySelector('.virtual-scroller-list');
     const expectedHeight = items.length * (100 + 12) - 12; // 100 items, itemHeight=100, gap=12
@@ -190,10 +206,11 @@ describe('VirtualScroller — Efficient List Rendering', () => {
   });
 
   // 13. Empty items list works
-  it('13. Empty items list works', () => {
+  it('13. Empty items list works', async () => {
     const emptyScroller = new VirtualScroller(container, [], renderItem);
 
     emptyScroller.mount();
+    await flushRender();
 
     const listElement = container.querySelector('.virtual-scroller-list');
     expect(listElement).toBeTruthy();

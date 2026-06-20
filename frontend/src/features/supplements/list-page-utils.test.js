@@ -47,14 +47,23 @@ describe('list-page-utils', () => {
   });
 
   describe('isProductUrl', () => {
-    it('reconhece deep-links de produto', () => {
+    it('reconhece short links de afiliado', () => {
       expect(isProductUrl('https://amzn.to/abc')).toBe(true);
-      expect(isProductUrl('https://amazon.com.br/dp/B01')).toBe(true);
       expect(isProductUrl('https://meli.la/xyz')).toBe(true);
       expect(isProductUrl('https://shope.ee/abc')).toBe(true);
     });
-    it('rejeita links de busca genéricos e nulos', () => {
+    it('reconhece páginas de produto diretas (com afiliado embutido)', () => {
+      // ASIN real tem 10 caracteres
+      expect(isProductUrl('https://www.amazon.com.br/dp/B07XYZ1234?tag=suplilist01-20')).toBe(true);
+      expect(isProductUrl('https://www.amazon.com.br/gp/product/B07XYZ1234')).toBe(true);
+      expect(isProductUrl('https://www.mercadolivre.com.br/x/p/MLB12345678?matt_word=s&matt_tool=1')).toBe(true);
+      expect(isProductUrl('https://produto.mercadolivre.com.br/MLB-987654321-whey')).toBe(true);
+      expect(isProductUrl('https://shopee.com.br/produto-i.123456.7890123')).toBe(true);
+    });
+    it('rejeita links de busca genéricos, formato ML antigo e nulos', () => {
       expect(isProductUrl('https://amazon.com.br/s?k=creatina')).toBe(false);
+      expect(isProductUrl('https://lista.mercadolivre.com.br/creatina')).toBe(false);
+      expect(isProductUrl('https://shopee.com.br/search?keyword=x')).toBe(false);
       expect(isProductUrl(null)).toBe(false);
     });
   });

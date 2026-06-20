@@ -61,6 +61,13 @@ export interface PrivateProfileDTO extends PublicProfileDTO {
   subscriptionStatus: SubscriptionStatus;
   /** ISO 8601 string ou null se nunca assinou */
   currentPeriodEnd: string | null;
+
+  /**
+   * RBAC role from the identity collection. Returned here so the frontend can
+   * restore admin/role state on every cold start — initializeSession() probes
+   * this endpoint, and the admin route guard needs `role === 'admin'`.
+   */
+  role: 'user' | 'moderator' | 'admin';
 }
 
 /** Payload para atualizar o perfil. A versão de concorrência não viaja aqui, mas no header If-Match. */

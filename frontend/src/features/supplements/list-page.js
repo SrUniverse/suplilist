@@ -126,10 +126,13 @@ export default class ListPage {
                   prices[id] = {};
                   ['amazon', 'mercadolivre', 'shopee'].forEach(source => {
                     const sourceData = supplement.prices[source];
-                    if (sourceData) {
+                    // Only surface a store when it has a real (affiliate) URL.
+                    // Never fabricate a search link — that would be uncredited and
+                    // often broken, and would overwrite the good static price link.
+                    if (sourceData && sourceData.url) {
                       prices[id][source] = {
                         price: sourceData.price,
-                        url: sourceData.url || `https://${source}.com.br/search?q=${id}`,
+                        url: sourceData.url,
                         label: source.charAt(0).toUpperCase() + source.slice(1),
                         saving: supplement.bestPrice?.source === source ? 0 : 10
                       };

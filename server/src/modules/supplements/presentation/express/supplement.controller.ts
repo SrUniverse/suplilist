@@ -62,13 +62,22 @@ const crawlBodySchema = z.object({
     .regex(/^[a-záéíóúãõç\w\s\-]+$/i, 'Supplement name contains invalid characters'),
 });
 
+// Only http(s) URLs may be stored — these are later rendered as hrefs on the
+// public catalog, so reject javascript:/data:/ftp: etc. at the boundary.
+const httpUrl = z
+  .string()
+  .url()
+  .refine((u) => /^https?:\/\//i.test(u), 'URL must use http or https');
+
+const priceEntry = z.object({ price: z.number().positive(), url: httpUrl });
+
 const createSupplementSchema = z.object({
   supplementId: z.string().trim().min(1).max(100),
   name: z.string().trim().min(1).max(200),
   prices: z.object({
-    amazon: z.object({ price: z.number().positive(), url: z.string().url() }).optional(),
-    mercadolivre: z.object({ price: z.number().positive(), url: z.string().url() }).optional(),
-    shopee: z.object({ price: z.number().positive(), url: z.string().url() }).optional(),
+    amazon: priceEntry.optional(),
+    mercadolivre: priceEntry.optional(),
+    shopee: priceEntry.optional(),
   }).optional(),
 });
 
@@ -214,6 +223,24 @@ export class SupplementController {
       // );
 
       res.json({ success: true, data: prices });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/supplements
+   * List all supplement catalog entries — admin only (powers the admin table).
+   */
+  async listSupplements(_req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const docs = await SupplementDataModel.find()
+        .select('supplementId name prices bestPrice bestPriceValue lastCrawled')
+        .sort({ name: 1 })
+        .limit(1000)
+        .lean();
+
+      res.json({ success: true, data: docs });
     } catch (error) {
       next(error);
     }

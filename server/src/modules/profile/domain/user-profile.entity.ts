@@ -4,6 +4,8 @@ export interface SubscriptionSnapshot {
   tier: SubscriptionTier;
   subscriptionStatus: SubscriptionStatus;
   currentPeriodEnd: string | null;
+  /** RBAC role from the identity collection. Defaults to 'user' when not supplied. */
+  role?: 'user' | 'moderator' | 'admin';
 }
 
 // Os DTOs de wire vêm do pacote compartilhado (fonte única da verdade do contrato
@@ -60,6 +62,7 @@ export class ProfileMapper {
       tier: subscription.tier,
       subscriptionStatus: subscription.subscriptionStatus,
       currentPeriodEnd: subscription.currentPeriodEnd,
+      role: subscription.role ?? 'user',
     };
   }
 }

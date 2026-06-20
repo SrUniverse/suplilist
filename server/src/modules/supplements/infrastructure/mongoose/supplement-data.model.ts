@@ -64,17 +64,17 @@ const supplementDataSchema = new Schema<ISupplementData>(
   }
 );
 
-// Single index: supplementId, userId (for per-user queries)
-supplementDataSchema.index({ supplementId: 1 });
-
-// Compound index for cache invalidation queries (most frequent access pattern)
+// Compound index for cache invalidation queries (most frequent access pattern).
+// supplementId on its own is already indexed via `index: true` on the field above.
 supplementDataSchema.index({ supplementId: 1, lastCrawled: -1 });
 
 // Text index for full-text search on product names (10x faster for regex queries)
 supplementDataSchema.index({ name: 'text' }, { default_language: 'portuguese' });
 
-// Timestamp index for TTL queries and sorting by recency
-supplementDataSchema.index({ createdAt: 1 }, { expireAfterSeconds: 604800 });
+// NOTE: No TTL index. This collection holds the curated affiliate catalog, which
+// must persist. A previous `createdAt` TTL (expireAfterSeconds: 604800) deleted
+// entries after 7 days — removed so imported/edited products stay permanently.
+// To drop the TTL index already present in a live database, run: npm run catalog:drop-ttl
 
 export const SupplementDataModel = mongoose.model<ISupplementData>(
   'SupplementData',

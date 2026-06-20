@@ -60,15 +60,14 @@ describe('Supplement Data Model - Database Indexes', () => {
       expect(textIndex![0]).toHaveProperty('name', 'text');
     });
 
-    it('should have TTL index on createdAt', () => {
-      // Index: { createdAt: 1 } with expireAfterSeconds: 604800
-      // For: automatic document expiration (7 days)
+    it('should NOT have a TTL index (curated catalog must persist)', () => {
+      // The legacy 7-day TTL on createdAt was removed: this collection holds the
+      // curated affiliate catalog, which must not auto-expire.
       expect(SupplementDataModel).toBeDefined();
       const ttlIndex = SupplementDataModel.schema.indexes().find(
-        idx => idx[0].createdAt && idx[1]?.expireAfterSeconds === 604800
+        idx => typeof idx[1]?.expireAfterSeconds === 'number'
       );
-      expect(ttlIndex).toBeDefined();
-      expect(ttlIndex![1]?.expireAfterSeconds).toBe(604800);
+      expect(ttlIndex).toBeUndefined();
     });
   });
 
@@ -152,26 +151,15 @@ describe('Supplement Data Model - Database Indexes', () => {
     });
   });
 
-  describe('TTL Index (Automatic Expiration)', () => {
-    it('should expire documents after 7 days', () => {
-      // TTL: 604800 seconds = 7 days
-      // Automatically removes stale supplement prices
+  describe('No TTL Expiration (curated catalog persists)', () => {
+    it('should not auto-expire documents', () => {
+      // The legacy 7-day createdAt TTL was removed: the affiliate catalog is
+      // curated and must persist. See supplement-data.model.ts.
       expect(SupplementDataModel).toBeDefined();
-    });
-
-    it('should be configured on createdAt field', () => {
-      // Index: { createdAt: 1, expireAfterSeconds: 604800 }
-      expect(SupplementDataModel).toBeDefined();
-    });
-
-    it('should reset expiration on updates', () => {
-      // MongoDB automatically extends TTL on document update
-      expect(SupplementDataModel).toBeDefined();
-    });
-
-    it('should free storage space automatically', () => {
-      // TTL index prevents collection from growing indefinitely
-      expect(SupplementDataModel).toBeDefined();
+      const ttlIndex = SupplementDataModel.schema.indexes().find(
+        idx => typeof idx[1]?.expireAfterSeconds === 'number'
+      );
+      expect(ttlIndex).toBeUndefined();
     });
   });
 
@@ -291,11 +279,12 @@ describe('Supplement Data Model - Database Indexes', () => {
   });
 
   describe('Index Statistics', () => {
-    it('should have 4 total indexes (including _id)', () => {
-      // _id (auto), supplementId, compound, text, TTL
+    it('should declare the expected schema indexes', () => {
+      // supplementId (field-level), compound { supplementId, lastCrawled }, text.
+      // No TTL, no duplicate supplementId index.
       expect(SupplementDataModel).toBeDefined();
       const indexes = SupplementDataModel.schema.indexes();
-      expect(indexes.length).toBeGreaterThanOrEqual(4);
+      expect(indexes.length).toBeGreaterThanOrEqual(3);
     });
 
     it('supplementId index should be sparse=false', () => {
@@ -420,17 +409,6 @@ describe('Supplement Data Model - Database Indexes', () => {
       );
       expect(textIndex).toBeDefined();
       expect(textIndex![0].name).toBe('text');
-    });
-
-    it('TTL cleanup should run in background', () => {
-      // MongoDB runs TTL purge every 60 seconds
-      // No impact on query performance
-      expect(SupplementDataModel).toBeDefined();
-      const ttlIndex = SupplementDataModel.schema.indexes().find(
-        idx => idx[1]?.expireAfterSeconds === 604800
-      );
-      expect(ttlIndex).toBeDefined();
-      expect(ttlIndex![1]?.expireAfterSeconds).toBe(604800);
     });
 
     it('indexes should reduce memory pressure', () => {

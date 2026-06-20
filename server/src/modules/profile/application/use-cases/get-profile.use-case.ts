@@ -16,7 +16,7 @@ export class GetProfileUseCase {
       this.profileRepo.findByUserId(userId),
       UserIdentityModel
         .findById(userId)
-        .select('tier subscriptionStatus currentPeriodEnd')
+        .select('tier subscriptionStatus currentPeriodEnd role')
         .lean(),
     ]);
 
@@ -41,6 +41,7 @@ export class GetProfileUseCase {
       currentPeriodEnd: identity?.currentPeriodEnd
         ? identity.currentPeriodEnd.toISOString()
         : null,
+      role: identity?.role ?? 'user',
     };
 
     return { profile: dto, version: profile.version };

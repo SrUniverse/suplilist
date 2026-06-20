@@ -17,7 +17,8 @@ export function initializeSupplementsModule(): Router {
   router.post('/crawl-on-demand', (req, res, next) => controller.crawlOnDemand(req, res, next));
   router.get('/:id/price-alerts', (req, res, next) => controller.checkPriceAlerts(req, res, next));
 
-  // Admin-only catalog management (POST/PUT/DELETE require admin role)
+  // Admin-only catalog management (GET list + POST/PUT/DELETE require admin role)
+  router.get('/', requireAdmin, (req, res, next) => controller.listSupplements(req, res, next));
   router.post('/', requireAdmin, (req, res, next) => controller.createSupplement(req, res, next));
   router.put('/:id', requireAdmin, (req, res, next) => controller.updateSupplement(req, res, next));
   router.delete('/:id', requireAdmin, (req, res, next) => controller.deleteSupplement(req, res, next));

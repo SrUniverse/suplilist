@@ -47,14 +47,27 @@ export function sanitizeUrl(url) {
 }
 
 /**
- * Check if URL points to a product (not a generic search).
- * Recognizes patterns for Amazon, Amazon.br, Mercado Livre, Shopee.
+ * Check if URL points to a product or affiliate deep-link (not a generic search).
+ * Recognizes short links (amzn.to, meli.la, shope.ee) AND direct product pages
+ * for Amazon (/dp/, /gp/product/), Mercado Livre (product page or MLB-id), and
+ * Shopee (...-i.<shop>.<item>). Kept in sync with the backend affiliate-link
+ * builder's PRODUCT_URL_PATTERNS so stored, already-credited URLs are used as-is
+ * instead of being dropped in favour of a generic search link.
  *
  * @param {string} url - URL to check
- * @returns {boolean} True if URL is a product-specific link
+ * @returns {boolean} True if URL is a product-specific or affiliate deep link
  */
 export function isProductUrl(url) {
-  return /amzn\.to\/|amazon\.com\.br\/dp\/|meli\.la\/|shope\.ee\//.test(url ?? '');
+  const u = url ?? '';
+  if (!u) return false;
+  return (
+    /amzn\.to\//.test(u) ||
+    /amazon\.[a-z.]+\/(?:[^?#]*\/)?(?:dp|gp\/product)\/[A-Z0-9]{10}/i.test(u) ||
+    /meli\.la\//.test(u) ||
+    /(?:produto\.mercadolivre\.com\.br|mercadolivre\.com\.br\/[^?#]*(?:\/p\/|MLB-?\d+))/i.test(u) ||
+    /shope\.ee\//.test(u) ||
+    /shopee\.com\.br\/(?:[^?#]*-i\.\d+\.\d+|product\/\d+\/\d+)/i.test(u)
+  );
 }
 
 // ─── Price Calculations ─────────────────────────────────────────────────────

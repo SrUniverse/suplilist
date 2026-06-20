@@ -1,0 +1,6 @@
+supplementId,name,marketplace,price,url,qty,unit
+creatina-monohidratada,Creatina Monohidratada,amazon,89.90,https://www.amazon.com.br/dp/B07XYZ1234,300,g
+creatina-monohidratada,Creatina Monohidratada,mercadolivre,79.90,https://www.mercadolivre.com.br/creatina-monohidratada-300g/p/MLB12345678,300,g
+whey-protein,Whey Protein Concentrado,amazon,199.90,https://www.amazon.com.br/dp/B08ABC5678,900,g
+whey-protein,Whey Protein Concentrado,mercadolivre,179.90,https://produto.mercadolivre.com.br/MLB-987654321-whey-protein-concentrado,900,g
+vitamina-d3,Vitamina D3,amazon,39.90,https://www.amazon.com.br/dp/B09DEF9012,60,caps

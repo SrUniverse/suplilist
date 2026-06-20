@@ -23,7 +23,7 @@ export class UpdateProfileUseCase {
       this.profileRepo.updateWithConcurrency(userId, expectedVersion, data),
       UserIdentityModel
         .findById(userId)
-        .select('tier subscriptionStatus currentPeriodEnd')
+        .select('tier subscriptionStatus currentPeriodEnd role')
         .lean(),
     ]);
 
@@ -49,6 +49,7 @@ export class UpdateProfileUseCase {
       currentPeriodEnd: identity?.currentPeriodEnd
         ? identity.currentPeriodEnd.toISOString()
         : null,
+      role: identity?.role ?? 'user',
     };
 
     return { profile: dto, version: updatedProfile.version };

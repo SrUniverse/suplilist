@@ -10,6 +10,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
+import { logger as winstonLogger } from '../shared/utils/logger.js';
 import {
   generateTraceId,
   tracingInitMiddleware,
@@ -305,13 +306,14 @@ describe('Tracing Middleware', () => {
       const req = mockReq as TracedRequest;
       req.traceId = 'test-trace-123';
 
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(winstonLogger, 'debug').mockImplementation(() => winstonLogger);
       const logger = createTracedLogger(req);
 
       logger.debug('Test message');
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('test-trace-123')
+        expect.stringContaining('test-trace-123'),
+        expect.anything()
       );
 
       consoleSpy.mockRestore();
@@ -321,13 +323,14 @@ describe('Tracing Middleware', () => {
       const req = mockReq as TracedRequest;
       req.traceId = 'test-trace-123';
 
-      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(winstonLogger, 'info').mockImplementation(() => winstonLogger);
       const logger = createTracedLogger(req);
 
       logger.info('Test message');
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('test-trace-123')
+        expect.stringContaining('test-trace-123'),
+        expect.anything()
       );
 
       consoleSpy.mockRestore();
@@ -337,7 +340,7 @@ describe('Tracing Middleware', () => {
       const req = mockReq as TracedRequest;
       req.traceId = 'test-trace-123';
 
-      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(winstonLogger, 'info').mockImplementation(() => winstonLogger);
       const logger = createTracedLogger(req);
 
       logger.info('Test', { userId: 'user-123' });
@@ -363,7 +366,7 @@ describe('Tracing Middleware', () => {
       const req = mockReq as TracedRequest;
       req.traceId = 'test-trace-123';
 
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(winstonLogger, 'info').mockImplementation(() => winstonLogger);
       const span = createSpanRecorder(req, 'operation');
 
       span.end({ rows: 100 });
@@ -382,7 +385,7 @@ describe('Tracing Middleware', () => {
       const req = mockReq as TracedRequest;
       req.traceId = 'test-trace-123';
 
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(winstonLogger, 'info').mockImplementation(() => winstonLogger);
       const span = createSpanRecorder(req, 'api-call');
 
       span.end({ status: 200, endpoint: '/api/data' });

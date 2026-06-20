@@ -4,6 +4,7 @@ import { UserIdentityModel } from '../../modules/identity/infrastructure/mongoos
 import { logSecurityEvent } from '../infrastructure/logging/security-event-logger.js';
 import { UserRole } from '../../modules/identity/domain/user-identity.entity.js';
 import { cacheService } from '../services/cache.service.js';
+import { logger } from '../utils/logger.js';
 
 // Declaration merging to add user to Express Request
 declare global {
@@ -108,7 +109,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     next();
   } catch (error) {
     // Log full error internally for debugging
-    console.error('Error in requireAuth middleware:', error);
+    logger.error('Error in requireAuth middleware:', error);
 
     // Return generic error message to client (no stack trace)
     return res.status(500).json({
@@ -161,7 +162,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
 
     next();
   } catch (error) {
-    console.error('Error in optionalAuth middleware:', error);
+    logger.error('Error in optionalAuth middleware:', error);
     next();
   }
 };

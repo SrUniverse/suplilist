@@ -8,6 +8,7 @@
 
 import { Router, Request, Response } from 'express';
 import { getMetrics, getMetricsContentType } from '../shared/utils/metrics.js';
+import { logger } from '../shared/utils/logger.js';
 
 export const createMetricsRouter = (): Router => {
   const router = Router();
@@ -32,7 +33,7 @@ export const createMetricsRouter = (): Router => {
       res.setHeader('Content-Type', contentType);
       res.status(200).send(metrics);
     } catch (error) {
-      console.error('Error generating metrics:', error);
+      logger.error('Error generating metrics:', error);
       res.status(500).json({
         error: 'Failed to generate metrics',
       });

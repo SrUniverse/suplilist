@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { redisClient } from '../shared/infrastructure/redis/redis.client.js';
+import { logger } from '../shared/utils/logger.js';
 
 const CSRF_TOKEN_TTL = 3600; // 1 hour
 const CSRF_BLACKLIST_PREFIX = 'csrf:blacklist:';
@@ -156,7 +157,7 @@ export const csrfValidationMiddleware = async (
 
     next();
   } catch (error) {
-    console.error('[CSRF] Validation error:', error);
+    logger.error('[CSRF] Validation error:', error);
     return res.status(500).json({
       success: false,
       error: 'csrf_validation_error',
@@ -182,7 +183,7 @@ export const csrfTokenResponseMiddleware = async (
         res.setHeader('X-CSRF-Token', token);
       }
     } catch (error) {
-      console.error('[CSRF] Error setting response token:', error);
+      logger.error('[CSRF] Error setting response token:', error);
     }
   }
 

@@ -28,6 +28,7 @@ import {
   cacheHitsTotal,
   cacheMissesTotal,
 } from '../utils/metrics.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Cache configuration by query type
@@ -78,7 +79,7 @@ export class QueryCacheService {
       this.redis = getRedisClient();
       this.enabled = true;
     } catch (error) {
-      console.warn('[QueryCache] Failed to initialize Redis:', error);
+      logger.warn('[QueryCache] Failed to initialize Redis:', error);
       this.enabled = false;
     }
   }
@@ -164,7 +165,7 @@ export class QueryCacheService {
 
       // Store in cache (non-blocking, fire-and-forget)
       this.setCached(cacheKey, result, cacheConfig.ttl).catch((error) => {
-        console.warn('[QueryCache] Failed to cache result:', error);
+        logger.warn('[QueryCache] Failed to cache result:', error);
       });
 
       const duration = (Date.now() - startTime) / 1000;
@@ -181,7 +182,7 @@ export class QueryCacheService {
 
       return result;
     } catch (error) {
-      console.error('[QueryCache] Cache error for key', cacheKey, error);
+      logger.error('[QueryCache] Cache error for key', cacheKey, error);
       // Fallback to direct query execution on cache error
       return executor(query, params);
     }
@@ -199,7 +200,7 @@ export class QueryCacheService {
 
       return JSON.parse(cached) as T;
     } catch (error) {
-      console.error('[QueryCache] Failed to deserialize cached value:', error);
+      logger.error('[QueryCache] Failed to deserialize cached value:', error);
       return null;
     }
   }
@@ -218,7 +219,7 @@ export class QueryCacheService {
       const serialized = JSON.stringify(value);
       await this.redis.setex(key, ttl, serialized);
     } catch (error) {
-      console.error('[QueryCache] Failed to cache value:', error);
+      logger.error('[QueryCache] Failed to cache value:', error);
       throw error;
     }
   }
@@ -262,7 +263,7 @@ export class QueryCacheService {
         }
         await pipeline.exec();
 
-        console.log(
+        logger.info(
           `[QueryCache] Invalidated ${allKeys.length} keys for pattern: ${pattern}`,
         );
         return allKeys.length;
@@ -270,7 +271,7 @@ export class QueryCacheService {
 
       return 0;
     } catch (error) {
-      console.error('[QueryCache] Failed to invalidate pattern:', pattern, error);
+      logger.error('[QueryCache] Failed to invalidate pattern:', pattern, error);
       return 0;
     }
   }
@@ -283,9 +284,9 @@ export class QueryCacheService {
 
     try {
       await this.redis.del(cacheKey);
-      console.log(`[QueryCache] Invalidated key: ${cacheKey}`);
+      logger.info(`[QueryCache] Invalidated key: ${cacheKey}`);
     } catch (error) {
-      console.error('[QueryCache] Failed to invalidate key:', error);
+      logger.error('[QueryCache] Failed to invalidate key:', error);
     }
   }
 
@@ -297,10 +298,10 @@ export class QueryCacheService {
 
     try {
       const deleted = await this.redis.del(...keys);
-      console.log(`[QueryCache] Invalidated ${deleted} keys`);
+      logger.info(`[QueryCache] Invalidated ${deleted} keys`);
       return deleted;
     } catch (error) {
-      console.error('[QueryCache] Failed to invalidate keys:', error);
+      logger.error('[QueryCache] Failed to invalidate keys:', error);
       return 0;
     }
   }
@@ -325,7 +326,7 @@ export class QueryCacheService {
 
       return 0;
     } catch (error) {
-      console.error('[QueryCache] Failed to get cache size:', error);
+      logger.error('[QueryCache] Failed to get cache size:', error);
       return 0;
     }
   }
@@ -343,9 +344,9 @@ export class QueryCacheService {
 
     try {
       await this.redis.flushall();
-      console.log('[QueryCache] Cache flushed');
+      logger.info('[QueryCache] Cache flushed');
     } catch (error) {
-      console.error('[QueryCache] Failed to flush cache:', error);
+      logger.error('[QueryCache] Failed to flush cache:', error);
       throw error;
     }
   }
@@ -392,7 +393,7 @@ export class QueryCacheService {
       const result = await this.redis.ping();
       return result === 'PONG';
     } catch (error) {
-      console.error('[QueryCache] Health check failed:', error);
+      logger.error('[QueryCache] Health check failed:', error);
       return false;
     }
   }
@@ -404,9 +405,9 @@ export class QueryCacheService {
     if (this.redis) {
       try {
         await this.redis.quit();
-        console.log('[QueryCache] Connection closed');
+        logger.info('[QueryCache] Connection closed');
       } catch (error) {
-        console.error('[QueryCache] Error closing connection:', error);
+        logger.error('[QueryCache] Error closing connection:', error);
       }
     }
   }

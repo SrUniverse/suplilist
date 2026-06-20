@@ -5,6 +5,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '../shared/utils/logger.js';
 
 declare global {
   namespace Express {
@@ -32,14 +33,14 @@ export function tracingMiddleware(req: Request, res: Response, next: NextFunctio
   const path = req.path;
   const traceId = req.traceId;
 
-  console.log(`[${traceId}] ${method} ${path}`);
+  logger.info(`[${traceId}] ${method} ${path}`);
 
   // Hook into response finish to log timing
   res.on('finish', () => {
     const duration = Date.now() - (req.startTime || Date.now());
     const status = res.statusCode;
 
-    console.log(`[${traceId}] ${method} ${path} ${status} ${duration}ms`);
+    logger.info(`[${traceId}] ${method} ${path} ${status} ${duration}ms`);
   });
 
   next();
@@ -47,7 +48,7 @@ export function tracingMiddleware(req: Request, res: Response, next: NextFunctio
 
 /**
  * Adiciona trace ID a todos os logs estruturados
- * Usage: console.log(`[${req.traceId}] mensagem`)
+ * Usage: logger.info(`[${req.traceId}] mensagem`)
  */
 export function getTraceId(req: Request): string {
   return req.traceId || 'unknown';

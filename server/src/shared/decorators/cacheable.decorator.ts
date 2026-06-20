@@ -19,6 +19,7 @@ import {
   cacheHitsTotal,
   cacheMissesTotal,
 } from '../utils/metrics.js';
+import { logger } from '../utils/logger.js';
 
 export interface CacheableOptions {
   ttl?: number; // Time to live in seconds (default: 3600)
@@ -73,7 +74,7 @@ export function Cacheable(options: CacheableOptions = {}): MethodDecorator {
 
         // Cache result (fire-and-forget)
         redis.setex(cacheKey, ttl, JSON.stringify(result)).catch((error) => {
-          console.warn(
+          logger.warn(
             `[Cacheable] Failed to cache result for ${methodName}:`,
             error,
           );
@@ -88,7 +89,7 @@ export function Cacheable(options: CacheableOptions = {}): MethodDecorator {
 
         return result;
       } catch (error) {
-        console.warn('[Cacheable] Cache error, executing method:', error);
+        logger.warn('[Cacheable] Cache error, executing method:', error);
         // Fallback: execute original method
         return originalMethod.apply(this, args);
       }

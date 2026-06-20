@@ -8,6 +8,7 @@ import axios from 'axios';
 import { buildAffiliateLink, isDirectProductUrl, type Marketplace } from './affiliate-link.builder.js';
 import { circuitBreakerRegistry, CircuitState } from './circuit-breaker.service.js';
 import { metricsService } from './metrics.service.js';
+import { logger } from '../utils/logger.js';
 
 interface FirecrawlResponse {
   success: boolean;
@@ -68,7 +69,7 @@ export class FirecrawlService {
   constructor() {
     const apiKey = process.env.FIRECRAWL_API_KEY;
     if (!apiKey) {
-      console.warn('[FirecrawlService] FIRECRAWL_API_KEY not configured — price crawling disabled');
+      logger.warn('[FirecrawlService] FIRECRAWL_API_KEY not configured — price crawling disabled');
     }
     this.apiKey = apiKey || '';
 
@@ -78,7 +79,7 @@ export class FirecrawlService {
     const shopeeCode = process.env.AFFILIATE_CODE_SHOPEE;
 
     if (!amazonCode || !mercadolivreCode || !shopeeCode) {
-      console.warn(
+      logger.warn(
         '[FirecrawlService] ⚠️ WARNING: One or more affiliate codes are missing in environment variables. ' +
         'Affiliate tracking may not work correctly. Required: AFFILIATE_CODE_AMAZON, AFFILIATE_CODE_MERCADOLIVRE, AFFILIATE_CODE_SHOPEE'
       );
@@ -98,7 +99,7 @@ export class FirecrawlService {
       {
         ...this.circuitBreakerConfig,
         onStateChange: (prev, next) => {
-          console.log(
+          logger.info(
             `[FirecrawlService] Circuit Breaker State Change: ${prev} → ${next}`
           );
           metricsService.recordCircuitBreakerStateChange(prev, next);
@@ -106,8 +107,8 @@ export class FirecrawlService {
       }
     );
 
-    console.log('[FirecrawlService] ✓ Affiliate codes loaded from environment variables');
-    console.log(`[FirecrawlService] ✓ Circuit breaker initialized (${this.circuitBreakerName})`);
+    logger.info('[FirecrawlService] ✓ Affiliate codes loaded from environment variables');
+    logger.info(`[FirecrawlService] ✓ Circuit breaker initialized (${this.circuitBreakerName})`);
   }
 
   /**
@@ -133,7 +134,7 @@ export class FirecrawlService {
 
       return results;
     } catch (error) {
-      console.error(`[FirecrawlService] Error scraping ${source}:`, error);
+      logger.error(`[FirecrawlService] Error scraping ${source}:`, error);
       return [];
     }
   }
@@ -143,7 +144,7 @@ export class FirecrawlService {
    * ✅ Resilient: Continues even if one source fails
    */
   async searchSupplementOnDemand(supplementName: string): Promise<ScrapedSupplement[]> {
-    console.log(`[FirecrawlService] On-demand search for: ${supplementName}`);
+    logger.info(`[FirecrawlService] On-demand search for: ${supplementName}`);
 
     const sources: Array<'amazon' | 'mercadolivre' | 'shopee'> = ['amazon', 'mercadolivre', 'shopee'];
     const allResults: ScrapedSupplement[] = [];
@@ -155,21 +156,21 @@ export class FirecrawlService {
         allResults.push(...results);
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
-        console.error(`[FirecrawlService] ${source} failed during on-demand search:`, errorMsg);
+        logger.error(`[FirecrawlService] ${source} failed during on-demand search:`, errorMsg);
         errors.push({ source, error: errorMsg });
       }
     }
 
     // Log warnings if some sources failed
     if (errors.length > 0) {
-      console.warn(
+      logger.warn(
         `[FirecrawlService] On-demand search completed with ${errors.length} source(s) failing:`,
         errors.map((e) => `${e.source} (${e.error})`).join('; ')
       );
     }
 
     if (allResults.length === 0 && errors.length > 0) {
-      console.warn(`[FirecrawlService] No results found - all sources failed for: ${supplementName}`);
+      logger.warn(`[FirecrawlService] No results found - all sources failed for: ${supplementName}`);
     }
 
     return allResults;
@@ -193,7 +194,7 @@ export class FirecrawlService {
    */
   private async performScrape(url: string, attempt = 1): Promise<string | null> {
     try {
-      console.log(`[FirecrawlService] Scraping (attempt ${attempt}): ${this.maskSensitiveData(url)}`);
+      logger.info(`[FirecrawlService] Scraping (attempt ${attempt}): ${this.maskSensitiveData(url)}`);
 
       const response = await axios.post<FirecrawlResponse>(
         `${this.baseUrl}/scrape`,
@@ -212,7 +213,7 @@ export class FirecrawlService {
       );
 
       if (response.data.success && response.data.data?.markdown) {
-        console.log(`[FirecrawlService] ✓ Successfully scraped (attempt ${attempt}): ${this.maskSensitiveData(url)}`);
+        logger.info(`[FirecrawlService] ✓ Successfully scraped (attempt ${attempt}): ${this.maskSensitiveData(url)}`);
         metricsService.recordFirecrawlSuccess(url);
         return response.data.data.markdown;
       }
@@ -223,17 +224,17 @@ export class FirecrawlService {
 
       // Check for specific timeout errors
       if (errorMsg.includes('timeout') || errorMsg.includes('ECONNABORTED')) {
-        console.warn(`[FirecrawlService] Timeout on attempt ${attempt}: ${this.maskSensitiveData(url)}`);
+        logger.warn(`[FirecrawlService] Timeout on attempt ${attempt}: ${this.maskSensitiveData(url)}`);
       }
 
       if (attempt < this.maxRetries) {
         const delay = this.retryDelayMs * Math.pow(2, attempt - 1); // Exponential backoff
-        console.log(`[FirecrawlService] Retry in ${delay}ms (attempt ${attempt + 1}/${this.maxRetries})...`);
+        logger.info(`[FirecrawlService] Retry in ${delay}ms (attempt ${attempt + 1}/${this.maxRetries})...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
         return this.performScrape(url, attempt + 1);
       }
 
-      console.error(`[FirecrawlService] Failed after ${this.maxRetries} attempts: ${this.maskSensitiveData(url)} (${errorMsg})`);
+      logger.error(`[FirecrawlService] Failed after ${this.maxRetries} attempts: ${this.maskSensitiveData(url)} (${errorMsg})`);
       metricsService.recordFirecrawlFailure(url);
       throw error;
     }
@@ -244,7 +245,7 @@ export class FirecrawlService {
    * Returns minimal but valid supplement data to keep the app functioning
    */
   private async getMockFallbackData(url: string): Promise<string> {
-    console.warn(`[FirecrawlService] Circuit breaker OPEN - using mock fallback for: ${this.maskSensitiveData(url)}`);
+    logger.warn(`[FirecrawlService] Circuit breaker OPEN - using mock fallback for: ${this.maskSensitiveData(url)}`);
     metricsService.recordCircuitBreakerFallback();
 
     // Return minimal mock data that parseSupplements can handle
@@ -287,7 +288,7 @@ export class FirecrawlService {
   private parseSupplements(content: string, source: 'amazon' | 'mercadolivre' | 'shopee'): ScrapedSupplement[] {
     const results: ScrapedSupplement[] = [];
 
-    console.log(`[FirecrawlService] Parsing ${source} content (${content.length} chars)`);
+    logger.info(`[FirecrawlService] Parsing ${source} content (${content.length} chars)`);
 
     // More flexible price regex to handle various formats
     // Matches: R$ 59,00 | R$ 59.99,00 | R$59,00 | $59.00
@@ -330,7 +331,7 @@ export class FirecrawlService {
 
           // Skip duplicates
           if (seen.has(key)) {
-            console.log(`[FirecrawlService] Skipping duplicate: ${normalizedName}`);
+            logger.info(`[FirecrawlService] Skipping duplicate: ${normalizedName}`);
             continue;
           }
 
@@ -354,10 +355,10 @@ export class FirecrawlService {
           );
 
           if (!affiliateApplied && reason) {
-            console.warn(`[FirecrawlService] No affiliate credit for ${source}: ${reason}`);
+            logger.warn(`[FirecrawlService] No affiliate credit for ${source}: ${reason}`);
           }
 
-          console.log(
+          logger.info(
             `[FirecrawlService] Found: ${normalizedName} @ R$${price.toFixed(2)} ` +
               `(${source}, ${directUrl ? 'direct link' : 'search link'}, ` +
               `affiliate ${affiliateApplied ? 'applied' : 'pending'})`
@@ -375,7 +376,7 @@ export class FirecrawlService {
       }
     }
 
-    console.log(
+    logger.info(
       `[FirecrawlService] Parsed ${results.length} products from ${source}`
     );
     return results;

@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
 import { IdentityEmailService } from '../services/identity-email.service.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 interface ForgotPasswordDTO {
   email: string;
@@ -49,7 +50,7 @@ export class ForgotPasswordUseCase {
     // 5. Send email asynchronously without blocking the client
     // Note: In an enterprise app, this would be pushed to a queue.
     this.emailService.sendPasswordResetEmail(user.email, plainToken).catch(err => {
-      console.error('[Resend Error] Failed to send password reset email:', err);
+      logger.error('[Resend Error] Failed to send password reset email:', err);
     });
   }
 }

@@ -1,5 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
+import { logger } from '../../../../shared/utils/logger.js';
 
 export interface PresignedPostResult {
   url: string;
@@ -28,7 +29,7 @@ export class GetAvatarUploadUrlUseCase {
 
     if (isMock) {
       // Mock/simulated response for local development when credentials are not configured
-      console.warn('⚠️ S3/R2 credentials not set. Emitting simulated Presigned POST payload.');
+      logger.warn('⚠️ S3/R2 credentials not set. Emitting simulated Presigned POST payload.');
       return {
         url: `http://localhost:${process.env.PORT || 5000}/api/mock-upload`,
         fields: {

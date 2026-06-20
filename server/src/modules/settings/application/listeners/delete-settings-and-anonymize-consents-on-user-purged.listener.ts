@@ -2,6 +2,7 @@ import { IEventListener } from '../../../../shared/application/event-bus/event-b
 import { UserPurgedEvent } from '../../../identity/domain/events/user-purged.event.js';
 import { IUserSettingsRepository } from '../../repositories/user-settings.repository.js';
 import { IUserConsentRepository } from '../../repositories/user-consent.repository.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 export class DeleteSettingsAndAnonymizeConsentsOnUserPurgedListener implements IEventListener<UserPurgedEvent> {
   public readonly subscribedTo = 'UserPurged';
@@ -18,7 +19,7 @@ export class DeleteSettingsAndAnonymizeConsentsOnUserPurgedListener implements I
     // 2. Anonymize all consents for the user
     await this.consentRepo.anonymizeByUserId(event.userId, event.anonymousId);
 
-    console.log(`[Settings Module] Purged settings and anonymized consents for user ${event.userId}`);
+    logger.info(`[Settings Module] Purged settings and anonymized consents for user ${event.userId}`);
   }
 }
 export default DeleteSettingsAndAnonymizeConsentsOnUserPurgedListener;

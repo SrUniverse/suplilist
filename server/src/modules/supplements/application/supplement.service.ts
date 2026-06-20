@@ -13,6 +13,7 @@ import FirecrawlService from '../../../shared/services/firecrawl.service.js';
 import { cacheService } from '../../../shared/services/cache.service.js';
 import { metricsService } from '../../../shared/services/metrics.service.js';
 import { CheckinModel } from '../../checkin/infrastructure/mongoose/checkin.model.js';
+import { logger } from '../../../shared/utils/logger.js';
 
 interface SupplementComparison {
   supplementId: string;
@@ -99,7 +100,7 @@ export class SupplementService {
 
     // If no results and user explicitly wants, trigger on-demand crawl
     if (results.length === 0) {
-      console.log(`[SupplementService] No results for "${query}", triggering on-demand crawl`);
+      logger.info(`[SupplementService] No results for "${query}", triggering on-demand crawl`);
       await this.crawlSupplementOnDemand(query);
       results = await SupplementDataModel.find({
         name: { $regex: query, $options: 'i' },
@@ -200,14 +201,14 @@ export class SupplementService {
    */
   async crawlAllSources(): Promise<void> {
     const startTime = Date.now();
-    console.log('[SupplementService] Starting daily crawl...');
+    logger.info('[SupplementService] Starting daily crawl...');
 
     const sources: Array<'amazon' | 'mercadolivre' | 'shopee'> = ['amazon', 'mercadolivre', 'shopee'];
     let totalItems = 0;
 
     for (const source of sources) {
       try {
-        console.log(`[SupplementService] Crawling ${source}...`);
+        logger.info(`[SupplementService] Crawling ${source}...`);
         const sourceStartTime = Date.now();
 
         const supplements = await FirecrawlService.scrapeSupplementsFromSource(source);
@@ -216,24 +217,24 @@ export class SupplementService {
 
         const sourceDuration = Date.now() - sourceStartTime;
         metricsService.recordCrawlMetrics(source, supplements.length, sourceDuration);
-        console.log(
+        logger.info(
           `[SupplementService] ✓ ${source} crawled (${supplements.length} items in ${(sourceDuration / 1000).toFixed(1)}s)`
         );
 
         // Delay between sources to avoid rate limiting
         await new Promise((resolve) => setTimeout(resolve, 5000));
       } catch (error) {
-        console.error(`[SupplementService] Error crawling ${source}:`, error);
+        logger.error(`[SupplementService] Error crawling ${source}:`, error);
       }
     }
 
     // Invalidate all supplement caches after successful crawl
-    console.log('[SupplementService] Invalidating caches...');
+    logger.info('[SupplementService] Invalidating caches...');
     await cacheService.deletePattern('supplement:*');
     await cacheService.deletePattern('prices:*');
 
     const duration = Date.now() - startTime;
-    console.log(
+    logger.info(
       `[SupplementService] Daily crawl completed: ${totalItems} items in ${(duration / 1000).toFixed(1)}s`
     );
   }
@@ -242,13 +243,13 @@ export class SupplementService {
    * ✅ On-demand crawl for specific supplement
    */
   async crawlSupplementOnDemand(supplementName: string): Promise<void> {
-    console.log(`[SupplementService] On-demand crawl for: ${supplementName}`);
+    logger.info(`[SupplementService] On-demand crawl for: ${supplementName}`);
 
     try {
       const supplements = await FirecrawlService.searchSupplementOnDemand(supplementName);
       await this.processCrawledData(supplements, 'all');
     } catch (error) {
-      console.error(`[SupplementService] On-demand crawl error:`, error);
+      logger.error(`[SupplementService] On-demand crawl error:`, error);
     }
   }
 

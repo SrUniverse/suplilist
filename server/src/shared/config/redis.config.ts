@@ -8,6 +8,7 @@
 
 import { Redis } from 'ioredis';
 import { env } from './env.config.js';
+import { logger } from '../utils/logger.js';
 
 let redisClient: Redis | null = null;
 
@@ -41,27 +42,27 @@ export function getRedisClient(): Redis {
 
     // Event handlers
     redisClient.on('connect', () => {
-      console.log('✅ Redis connected');
+      logger.info('✅ Redis connected');
     });
 
     redisClient.on('ready', () => {
-      console.log('✅ Redis ready');
+      logger.info('✅ Redis ready');
     });
 
     redisClient.on('error', (err) => {
-      console.error('❌ Redis error:', err);
+      logger.error('❌ Redis error:', err);
     });
 
     redisClient.on('reconnecting', () => {
-      console.log('🔄 Redis reconnecting...');
+      logger.info('🔄 Redis reconnecting...');
     });
 
     redisClient.on('close', () => {
-      console.log('Redis connection closed');
+      logger.info('Redis connection closed');
     });
 
     redisClient.on('end', () => {
-      console.log('Redis connection ended');
+      logger.info('Redis connection ended');
     });
   }
 
@@ -80,19 +81,19 @@ export async function initializeRedis(): Promise<void> {
     const result = await client.ping();
 
     if (result === 'PONG') {
-      console.log('✅ Redis connection verified');
+      logger.info('✅ Redis connection verified');
     }
 
     // Verify configuration
     const config = (await client.config('GET', 'maxmemory')) as string[];
 
-    console.log(`Redis maxmemory: ${config[1]}`);
+    logger.info(`Redis maxmemory: ${config[1]}`);
 
     const policyConfig = (await client.config('GET', 'maxmemory-policy')) as string[];
 
-    console.log(`Redis eviction policy: ${policyConfig[1]}`);
+    logger.info(`Redis eviction policy: ${policyConfig[1]}`);
   } catch (error) {
-    console.error('❌ Failed to initialize Redis:', error);
+    logger.error('❌ Failed to initialize Redis:', error);
     throw error;
   }
 }
@@ -105,7 +106,7 @@ export async function closeRedis(): Promise<void> {
   if (redisClient) {
     await redisClient.quit();
     redisClient = null;
-    console.log('Redis connection closed');
+    logger.info('Redis connection closed');
   }
 }
 
@@ -118,7 +119,7 @@ export async function healthCheckRedis(): Promise<boolean> {
     const result = await client.ping();
     return result === 'PONG';
   } catch (error) {
-    console.error('Redis health check failed:', error);
+    logger.error('Redis health check failed:', error);
     return false;
   }
 }
@@ -134,7 +135,7 @@ export async function getRedisStats() {
 
     return { info, memory };
   } catch (error) {
-    console.error('Failed to get Redis stats:', error);
+    logger.error('Failed to get Redis stats:', error);
     return null;
   }
 }
@@ -151,9 +152,9 @@ export async function flushRedis(): Promise<void> {
   try {
     const client = getRedisClient();
     await client.flushall();
-    console.log('Redis cache flushed');
+    logger.info('Redis cache flushed');
   } catch (error) {
-    console.error('Failed to flush Redis:', error);
+    logger.error('Failed to flush Redis:', error);
     throw error;
   }
 }

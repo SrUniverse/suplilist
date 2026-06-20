@@ -5,6 +5,7 @@
  */
 
 import { Redis } from 'ioredis';
+import { logger } from '../utils/logger.js';
 
 export class CacheService {
   private redis: InstanceType<typeof Redis> | null = null;
@@ -26,17 +27,17 @@ export class CacheService {
         });
 
         const errorHandler = (err: Error) => {
-          console.warn('[CacheService] Redis connection error:', err.message);
+          logger.warn('[CacheService] Redis connection error:', err.message);
           this.enabled = false;
         };
 
         const connectHandler = () => {
-          console.log('[CacheService] Redis connected');
+          logger.info('[CacheService] Redis connected');
           this.enabled = true;
         };
 
         const disconnectHandler = () => {
-          console.warn('[CacheService] Redis disconnected');
+          logger.warn('[CacheService] Redis disconnected');
           this.enabled = false;
         };
 
@@ -54,14 +55,14 @@ export class CacheService {
         // Test connection
         this.redis.ping().then(() => {
           this.enabled = true;
-          console.log('[CacheService] ✓ Redis is operational');
+          logger.info('[CacheService] ✓ Redis is operational');
         });
       } catch (error) {
-        console.warn('[CacheService] Failed to initialize Redis:', error);
+        logger.warn('[CacheService] Failed to initialize Redis:', error);
         this.enabled = false;
       }
     } else {
-      console.log('[CacheService] REDIS_URI not configured - caching disabled (optional)');
+      logger.info('[CacheService] REDIS_URI not configured - caching disabled (optional)');
     }
   }
 
@@ -76,12 +77,12 @@ export class CacheService {
     try {
       const cached = await this.redis.get(key);
       if (cached) {
-        console.log(`[CacheService] Cache HIT: ${key}`);
+        logger.info(`[CacheService] Cache HIT: ${key}`);
         return JSON.parse(cached);
       }
       return null;
     } catch (error) {
-      console.error(`[CacheService] Error reading cache ${key}:`, error);
+      logger.error(`[CacheService] Error reading cache ${key}:`, error);
       return null;
     }
   }
@@ -96,9 +97,9 @@ export class CacheService {
 
     try {
       await this.redis.setex(key, ttlSeconds, JSON.stringify(value));
-      console.log(`[CacheService] Cache SET: ${key} (${ttlSeconds}s)`);
+      logger.info(`[CacheService] Cache SET: ${key} (${ttlSeconds}s)`);
     } catch (error) {
-      console.error(`[CacheService] Error setting cache ${key}:`, error);
+      logger.error(`[CacheService] Error setting cache ${key}:`, error);
     }
   }
 
@@ -112,9 +113,9 @@ export class CacheService {
 
     try {
       await this.redis.del(key);
-      console.log(`[CacheService] Cache DELETE: ${key}`);
+      logger.info(`[CacheService] Cache DELETE: ${key}`);
     } catch (error) {
-      console.error(`[CacheService] Error deleting cache ${key}:`, error);
+      logger.error(`[CacheService] Error deleting cache ${key}:`, error);
     }
   }
 
@@ -160,18 +161,18 @@ export class CacheService {
         await pipeline.exec();
         totalDeleted = allKeys.length;
 
-        console.log(
+        logger.info(
           `[CacheService] Deleted ${allKeys.length} cache keys matching: ${pattern}`
         );
       }
 
       if (totalDeleted > 0) {
-        console.log(
+        logger.info(
           `[CacheService] ✓ Completed pattern deletion: ${totalDeleted} total keys removed matching: ${pattern}`
         );
       }
     } catch (error) {
-      console.error(`[CacheService] Error clearing cache pattern ${pattern}:`, error);
+      logger.error(`[CacheService] Error clearing cache pattern ${pattern}:`, error);
     }
   }
 
@@ -196,9 +197,9 @@ export class CacheService {
         this.eventListeners = [];
 
         await this.redis.quit();
-        console.log('[CacheService] Redis connection closed and listeners cleaned up');
+        logger.info('[CacheService] Redis connection closed and listeners cleaned up');
       } catch (error) {
-        console.error('[CacheService] Error closing Redis:', error);
+        logger.error('[CacheService] Error closing Redis:', error);
       }
     }
   }

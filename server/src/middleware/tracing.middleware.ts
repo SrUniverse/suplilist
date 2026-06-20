@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { redisClient } from '../shared/infrastructure/redis/redis.client.js';
+import { logger } from '../shared/utils/logger.js';
 
 /**
  * Distributed Tracing Middleware
@@ -72,7 +73,7 @@ async function storeTraceMetadata(
     await redisClient.setex(key, TRACE_STORAGE_TTL, value);
   } catch (error) {
     // Silently fail trace storage to not impact request
-    console.error('[Tracing] Failed to store trace metadata:', error);
+    logger.error('[Tracing] Failed to store trace metadata:', error);
   }
 }
 
@@ -105,7 +106,7 @@ export const tracingInitMiddleware = (req: TracedRequest, res: Response, next: N
       ? req.timings.dbEnd - req.timings.dbStart
       : 0;
 
-    console.log('[Request]', {
+    logger.info('[Request]', {
       traceId: req.traceId,
       method: req.method,
       path: req.path,
@@ -124,7 +125,7 @@ export const tracingInitMiddleware = (req: TracedRequest, res: Response, next: N
       dbDuration,
       ip: req.ip,
       userAgent: req.headers['user-agent'],
-    }).catch(err => console.error('[Tracing] Storage error:', err));
+    }).catch(err => logger.error('[Tracing] Storage error:', err));
 
     return originalJson.call(this, data);
   };
@@ -165,7 +166,7 @@ export async function getTraceMetadata(traceId: string): Promise<Record<string, 
     }
     return null;
   } catch (error) {
-    console.error('[Tracing] Failed to retrieve trace:', error);
+    logger.error('[Tracing] Failed to retrieve trace:', error);
     return null;
   }
 }
@@ -176,16 +177,16 @@ export async function getTraceMetadata(traceId: string): Promise<Record<string, 
 export function createTracedLogger(req: TracedRequest) {
   return {
     debug: (message: string, data?: Record<string, unknown>) => {
-      console.debug(`[${req.traceId}] ${message}`, data || {});
+      logger.debug(`[${req.traceId}] ${message}`, data || {});
     },
     info: (message: string, data?: Record<string, unknown>) => {
-      console.info(`[${req.traceId}] ${message}`, data || {});
+      logger.info(`[${req.traceId}] ${message}`, data || {});
     },
     warn: (message: string, data?: Record<string, unknown>) => {
-      console.warn(`[${req.traceId}] ${message}`, data || {});
+      logger.warn(`[${req.traceId}] ${message}`, data || {});
     },
     error: (message: string, error?: unknown, data?: Record<string, unknown>) => {
-      console.error(`[${req.traceId}] ${message}`, error, data || {});
+      logger.error(`[${req.traceId}] ${message}`, error, data || {});
     },
   };
 }
@@ -199,7 +200,7 @@ export function createSpanRecorder(req: TracedRequest, spanName: string) {
   return {
     end: (metadata?: Record<string, unknown>) => {
       const duration = Date.now() - spanStart;
-      console.log(`[Span] ${spanName} in trace ${req.traceId}`, {
+      logger.info(`[Span] ${spanName} in trace ${req.traceId}`, {
         duration: `${duration}ms`,
         ...metadata,
       });

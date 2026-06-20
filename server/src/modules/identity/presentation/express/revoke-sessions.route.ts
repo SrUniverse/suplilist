@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { requireAuth } from '../../../../shared/middleware/auth.middleware.js';
 import { getAuth } from 'firebase-admin/auth';
+import { logger } from '../../../../shared/utils/logger.js';
 
 const router = Router();
 
@@ -18,7 +19,7 @@ router.post('/revoke-sessions', requireAuth, async (req: Request, res: Response,
 
     res.json({ success: true, message: 'sessions_revoked' });
   } catch (err: any) {
-    console.error('[AuthRevoke] Falha ao revogar sessões no Firebase:', err);
+    logger.error('[AuthRevoke] Falha ao revogar sessões no Firebase:', err);
     res.status(500).json({ success: false, error: 'internal_server_error', message: err?.message });
   }
 });

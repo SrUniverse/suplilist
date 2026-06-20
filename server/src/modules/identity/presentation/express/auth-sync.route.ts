@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import { RedisStore } from 'rate-limit-redis';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
 import { cacheService } from '../../../../shared/services/cache.service.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 const router = Router();
 
@@ -119,7 +120,7 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
       await session.commitTransaction();
     } catch (transactionErr) {
       await session.abortTransaction();
-      console.error('[AuthSync] Transaction aborted due to error:', transactionErr);
+      logger.error('[AuthSync] Transaction aborted due to error:', transactionErr);
       throw transactionErr; // Re-throw to be caught by the outer catch
     } finally {
       await session.endSession();
@@ -129,7 +130,7 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
     try {
       await cacheService.delete(`user:${uid}`);
     } catch (cacheErr) {
-      console.error('[AuthSync] Falha ao deletar cache no Redis (não crítico):', cacheErr);
+      logger.error('[AuthSync] Falha ao deletar cache no Redis (não crítico):', cacheErr);
     }
 
     res.json({
@@ -143,7 +144,7 @@ router.post('/sync', syncLimiter, requireAuth, async (req: Request, res: Respons
       }
     });
   } catch (err: any) {
-    console.error('[AuthSync] Erro interno não tratado:', err);
+    logger.error('[AuthSync] Erro interno não tratado:', err);
     next(err);
   }
 });

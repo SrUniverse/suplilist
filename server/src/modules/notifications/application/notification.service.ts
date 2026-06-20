@@ -3,6 +3,7 @@ import { NotificationPreferenceModel } from '../infrastructure/mongoose/notifica
 import { NotificationScheduleModel } from '../infrastructure/mongoose/notification-schedule.model.js';
 import { NotificationEngagementModel } from '../infrastructure/mongoose/notification-engagement.model.js';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '../../../shared/utils/logger.js';
 
 interface CheckinRecord {
   checkedAt: Date;
@@ -18,7 +19,7 @@ export class NotificationService {
   // ✅ OTIMIZAÇÃO: Initialize indexes on service creation
   constructor() {
     this.initializeIndexes().catch((err) => {
-      console.error('Failed to initialize notification indexes:', err);
+      logger.error('Failed to initialize notification indexes:', err);
     });
   }
 

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { IAuditLogRepository } from '../../repositories/audit-log.repository.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 export interface LogAuditEventInput {
   userId: string | null;
@@ -38,7 +39,7 @@ export class LogAuditEventUseCase {
     try {
       await this.auditLogRepo.save(logData);
     } catch (error) {
-      console.error('[Audit Log] Failed to write directly to MongoDB. Pushing to Redis DLQ queue:', error);
+      logger.error('[Audit Log] Failed to write directly to MongoDB. Pushing to Redis DLQ queue:', error);
       
       // Build same structure that native MongoDB bulk insertMany expects (e.g. mapping to _id)
       const dlqPayload = {
@@ -58,7 +59,7 @@ export class LogAuditEventUseCase {
       try {
         await redisClient.lpush('audit_fallback_queue', JSON.stringify(dlqPayload));
       } catch (redisError) {
-        console.error('CRITICAL: Redis is also unreachable! Audit log has been dropped:', redisError, dlqPayload);
+        logger.error('CRITICAL: Redis is also unreachable! Audit log has been dropped:', redisError, dlqPayload);
       }
     }
   }

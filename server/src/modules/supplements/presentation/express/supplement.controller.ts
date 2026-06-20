@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import SupplementService from '../../application/supplement.service.js';
 import { SupplementDataModel } from '../../infrastructure/mongoose/supplement-data.model.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 type AuthenticatedRequest = Request;
 
@@ -179,7 +180,7 @@ export class SupplementController {
       SupplementService.crawlSupplementOnDemand(supplementName)
         .catch((err) => {
           const msg = err instanceof Error ? err.message : String(err);
-          console.error('[SupplementController] Crawl error:', msg);
+          logger.error('[SupplementController] Crawl error:', msg);
         });
 
       res.json({ success: true, message: 'Crawl triggered' });

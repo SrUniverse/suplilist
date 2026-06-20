@@ -8,6 +8,7 @@
 
 import { z } from 'zod';
 import dotenv from 'dotenv';
+import { logger } from '../utils/logger.js';
 
 // Load .env file
 dotenv.config();
@@ -183,26 +184,26 @@ const envSchema = z.object({
 const envResult = envSchema.safeParse(process.env);
 
 if (!envResult.success) {
-  console.error('\n❌ Environment Validation Failed\n');
+  logger.error('\n❌ Environment Validation Failed\n');
   const errors = envResult.error.flatten();
 
   // Print field errors
   if (Object.keys(errors.fieldErrors).length > 0) {
-    console.error('Invalid Fields:');
+    logger.error('Invalid Fields:');
     Object.entries(errors.fieldErrors).forEach(([field, messages]) => {
-      console.error(`  • ${field}: ${messages?.join(', ')}`);
+      logger.error(`  • ${field}: ${messages?.join(', ')}`);
     });
   }
 
   // Print form-level errors
   if (errors.formErrors.length > 0) {
-    console.error('\nForm Errors:');
+    logger.error('\nForm Errors:');
     errors.formErrors.forEach((error) => {
-      console.error(`  • ${error}`);
+      logger.error(`  • ${error}`);
     });
   }
 
-  console.error(
+  logger.error(
     '\nPlease check your .env file and ensure all required variables are set.\n',
   );
   process.exit(1);
@@ -212,7 +213,7 @@ export const env = envResult.data;
 
 // Guard: o default de JWT_SECRET existe só para dev/test — produção exige valor real.
 if (env.NODE_ENV === 'production' && env.JWT_SECRET.startsWith('dev-only-secret')) {
-  console.error('❌ JWT_SECRET must be set explicitly in production.');
+  logger.error('❌ JWT_SECRET must be set explicitly in production.');
   process.exit(1);
 }
 export type Environment = z.infer<typeof envSchema>;

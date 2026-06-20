@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { IEmailProvider } from './email-provider.interface.js';
+import { logger } from '../../utils/logger.js';
 
 export class ResendEmailProvider implements IEmailProvider {
   private resend: Resend;
@@ -13,7 +14,7 @@ export class ResendEmailProvider implements IEmailProvider {
   async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
     try {
       if (!process.env.RESEND_API_KEY) {
-        console.warn(`[Mock Email] To: ${to} | Subject: ${subject}`);
+        logger.warn(`[Mock Email] To: ${to} | Subject: ${subject}`);
         return true; // Bypass in dev if no key
       }
 
@@ -25,12 +26,12 @@ export class ResendEmailProvider implements IEmailProvider {
       });
 
       if (error) {
-        console.error('[Resend Error]', error);
+        logger.error('[Resend Error]', error);
         return false;
       }
       return true;
     } catch (err) {
-      console.error('[Email Provider Exception]', err);
+      logger.error('[Email Provider Exception]', err);
       return false;
     }
   }

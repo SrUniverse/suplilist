@@ -4,6 +4,7 @@ import { MongooseUnitOfWork, transactionStorage } from '../mongoose/mongoose-uni
 import { UserIdentityModel } from '../../../modules/identity/infrastructure/mongoose/user-identity.model.js';
 import { RefreshTokenModel } from '../../../modules/identity/infrastructure/mongoose/refresh-token.model.js';
 import { OutboxEventModel } from '../mongoose/outbox-event.model.js';
+import { logger } from '../../utils/logger.js';
 
 export class PurgeAccountsJob {
   static async execute(): Promise<void> {
@@ -13,12 +14,12 @@ export class PurgeAccountsJob {
     // 1. Acquire Distributed Redis Lock
     const acquired = await redisClient.set(lockKey, '1', 'EX', lockTtl, 'NX');
     if (acquired !== 'OK') {
-      console.log('[Purge Job] Another instance is already running this job. Skipping.');
+      logger.info('[Purge Job] Another instance is already running this job. Skipping.');
       return;
     }
 
     try {
-      console.log('[Purge Job] Lock acquired. Starting account purge cycle...');
+      logger.info('[Purge Job] Lock acquired. Starting account purge cycle...');
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -88,10 +89,10 @@ export class PurgeAccountsJob {
                 );
               });
               success = true;
-              console.log(`[Purge Job] Successfully purged account identity: ${user._id}`);
+              logger.info(`[Purge Job] Successfully purged account identity: ${user._id}`);
             } catch (error: any) {
               attempts++;
-              console.error(`[Purge Job] Attempt ${attempts}/3 failed for user ${user._id}:`, error.message);
+              logger.error(`[Purge Job] Attempt ${attempts}/3 failed for user ${user._id}:`, error.message);
               if (attempts < 3) {
                 // Short exponential backoff delay before retrying
                 await new Promise((resolve) => setTimeout(resolve, 200 * attempts));
@@ -100,7 +101,7 @@ export class PurgeAccountsJob {
           }
 
           if (!success) {
-            console.error(`[Purge Job] Definitively failed to purge user ${user._id} after 3 attempts. Flagging.`);
+            logger.error(`[Purge Job] Definitively failed to purge user ${user._id} after 3 attempts. Flagging.`);
             // Mark user identity as failed to isolate it from future scans and notify admin
             await UserIdentityModel.updateOne(
               { _id: user._id },
@@ -120,13 +121,13 @@ export class PurgeAccountsJob {
         await new Promise((resolve) => setImmediate(resolve));
       }
 
-      console.log('[Purge Job] Account purge cycle completed successfully.');
+      logger.info('[Purge Job] Account purge cycle completed successfully.');
     } catch (err: any) {
-      console.error('[Purge Job] Critical error in purge job cycle:', err);
+      logger.error('[Purge Job] Critical error in purge job cycle:', err);
     } finally {
       // Release lock so future job runs can execute
       await redisClient.del(lockKey);
-      console.log('[Purge Job] Lock released.');
+      logger.info('[Purge Job] Lock released.');
     }
   }
 }

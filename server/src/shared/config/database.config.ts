@@ -14,6 +14,7 @@ import {
   type QueryCacheOptions,
 } from '../services/query-cache.service.js';
 import { queryCacheInvalidatorService } from '../services/query-cache-invalidator.service.js';
+import { logger } from '../utils/logger.js';
 
 let pool: Pool | null = null;
 
@@ -39,18 +40,18 @@ export function getDatabasePool(): Pool {
 
     // Handle unexpected errors on idle clients
     pool.on('error', (err) => {
-      console.error('Unexpected error on idle PostgreSQL client:', err);
+      logger.error('Unexpected error on idle PostgreSQL client:', err);
       process.exit(1);
     });
 
     // Log pool events in development
     if (env.NODE_ENV === 'development') {
       pool.on('connect', (client) => {
-        console.log('[DB] Client connected to pool');
+        logger.info('[DB] Client connected to pool');
       });
 
       pool.on('remove', (client) => {
-        console.log('[DB] Client removed from pool');
+        logger.info('[DB] Client removed from pool');
       });
     }
   }
@@ -96,7 +97,7 @@ export async function query<T = any>(
       rowCount: result.rowCount || 0,
     };
   } catch (error) {
-    console.error('Database query error:', error);
+    logger.error('Database query error:', error);
     throw error;
   }
 }
@@ -132,7 +133,7 @@ export async function transaction<T>(
     return result;
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Transaction error:', error);
+    logger.error('Transaction error:', error);
     throw error;
   } finally {
     client.release();
@@ -152,7 +153,7 @@ export async function initializeDatabase(): Promise<void> {
     const result = await client.query('SELECT NOW()');
     client.release();
 
-    console.log(
+    logger.info(
       '✅ PostgreSQL connected successfully at',
       result.rows[0].now,
     );
@@ -168,20 +169,20 @@ export async function initializeDatabase(): Promise<void> {
     );
 
     if (!loadedExtensions.includes('uuid-ossp')) {
-      console.warn(
+      logger.warn(
         '⚠️  uuid-ossp extension not loaded (required for UUID generation)',
       );
     }
 
     if (!loadedExtensions.includes('pg_trgm')) {
-      console.warn(
+      logger.warn(
         '⚠️  pg_trgm extension not loaded (required for full-text search)',
       );
     }
 
-    console.log('Loaded extensions:', loadedExtensions.join(', '));
+    logger.info('Loaded extensions:', loadedExtensions.join(', '));
   } catch (error) {
-    console.error('❌ Failed to initialize database:', error);
+    logger.error('❌ Failed to initialize database:', error);
     throw error;
   }
 }
@@ -202,7 +203,7 @@ export async function closeDatabase(): Promise<void> {
   if (pool) {
     await pool.end();
     pool = null;
-    console.log('PostgreSQL connection pool closed');
+    logger.info('PostgreSQL connection pool closed');
   }
 }
 
@@ -227,7 +228,7 @@ export async function healthCheck(): Promise<boolean> {
     const result = await query('SELECT 1');
     return result.rows.length > 0;
   } catch (error) {
-    console.error('Database health check failed:', error);
+    logger.error('Database health check failed:', error);
     return false;
   }
 }

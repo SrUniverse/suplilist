@@ -9,6 +9,7 @@ import { Queue, QueueEvents } from 'bullmq';
 import { z } from 'zod';
 import { getRedisClient } from '../shared/config/redis.config.js';
 import type Redis from 'ioredis';
+import { logger } from '../shared/utils/logger.js';
 
 // === SCHEMAS ===
 
@@ -137,18 +138,18 @@ export async function initializeQueues(): Promise<void> {
   });
 
   scrapeEvents.on('completed', ({ jobId }) => {
-    console.log(`[Scrape Queue] Job ${jobId} completed`);
+    logger.info(`[Scrape Queue] Job ${jobId} completed`);
   });
 
   scrapeEvents.on('failed', ({ jobId, failedReason }) => {
-    console.error(`[Scrape Queue] Job ${jobId} failed: ${failedReason}`);
+    logger.error(`[Scrape Queue] Job ${jobId} failed: ${failedReason}`);
   });
 
   scrapeEvents.on('error', (error) => {
-    console.error(`[Scrape Queue] Error: ${error}`);
+    logger.error(`[Scrape Queue] Error: ${error}`);
   });
 
-  console.log('[Queues] Initialized: scrape, dedup, filter');
+  logger.info('[Queues] Initialized: scrape, dedup, filter');
 }
 
 /**
@@ -200,5 +201,5 @@ export async function closeQueues(): Promise<void> {
   if (scrapeQueue) await scrapeQueue.close();
   if (dedupQueue) await dedupQueue.close();
   if (filterQueue) await filterQueue.close();
-  console.log('[Queues] Closed gracefully');
+  logger.info('[Queues] Closed gracefully');
 }

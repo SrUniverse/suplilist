@@ -1,5 +1,6 @@
 import { OutboxEventModel } from '../mongoose/outbox-event.model.js';
 import { eventBus } from '../event-bus/in-memory-event-bus.js';
+import { logger } from '../../utils/logger.js';
 
 export class OutboxProcessorJob {
   static async execute(): Promise<void> {
@@ -52,7 +53,7 @@ export class OutboxProcessorJob {
         });
         processedCount++;
       } catch (error: any) {
-        console.error(`[Outbox Processor] Error processing event ${event._id}:`, error);
+        logger.error(`[Outbox Processor] Error processing event ${event._id}:`, error);
 
         // Collect failed update operation for batch processing
         updates.push({
@@ -77,11 +78,11 @@ export class OutboxProcessorJob {
       try {
         const result = await OutboxEventModel.bulkWrite(updates);
         const duration = Date.now() - startTime;
-        console.log(
+        logger.info(
           `[Outbox Processor] Batch processed: ${processedCount} succeeded, ${failedCount} failed (${updates.length} total) in ${duration}ms`
         );
       } catch (error) {
-        console.error('[Outbox Processor] Batch write failed:', error);
+        logger.error('[Outbox Processor] Batch write failed:', error);
         // Fallback: retry with individual saves (slower but safer)
         for (const update of updates) {
           try {
@@ -90,7 +91,7 @@ export class OutboxProcessorJob {
               update.updateOne.update
             );
           } catch (fallbackError) {
-            console.error('[Outbox Processor] Fallback save failed:', fallbackError);
+            logger.error('[Outbox Processor] Fallback save failed:', fallbackError);
           }
         }
       }

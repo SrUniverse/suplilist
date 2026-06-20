@@ -1,4 +1,5 @@
 import { Redis } from 'ioredis';
+import { logger } from '../../utils/logger.js';
 
 // Resolve Redis connection URI. Missing config must NOT crash the serverless
 // function on cold start — that would take down every /api route (including auth)
@@ -7,7 +8,7 @@ import { Redis } from 'ioredis';
 // URL so ioredis can construct the client; a dead localhost target fails fast.
 const redisUri = process.env.REDIS_URL ?? process.env.REDIS_URI;
 if (!redisUri) {
-  console.warn(
+  logger.warn(
     '⚠️  REDIS_URL/REDIS_URI not set — falling back to localhost. ' +
     'Rate limiters will degrade open (passOnStoreError). Set REDIS_URL in production.'
   );
@@ -29,7 +30,7 @@ export const redisClient = new Redis(resolvedUri, {
 });
 
 redisClient.on('error', (err: Error) => {
-  console.error('❌ Critical: Shared Redis connection error:', err);
+  logger.error('❌ Critical: Shared Redis connection error:', err);
 });
 
 export default redisClient;

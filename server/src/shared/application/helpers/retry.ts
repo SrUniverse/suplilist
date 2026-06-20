@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger.js';
 /**
  * Runs an asynchronous task with automatic retries and exponential backoff
  * if a ConcurrencyConflictError occurs.
@@ -18,7 +19,7 @@ export async function runWithRetry<T>(
       
       if (isConcurrencyConflict && attempts < maxAttempts) {
         const backoff = delayMs * Math.pow(2, attempts);
-        console.warn(`[OCC Retry] Concurrency conflict detected. Retrying attempt ${attempts}/${maxAttempts} after ${backoff}ms...`);
+        logger.warn(`[OCC Retry] Concurrency conflict detected. Retrying attempt ${attempts}/${maxAttempts} after ${backoff}ms...`);
         await new Promise(resolve => setTimeout(resolve, backoff));
         continue;
       }

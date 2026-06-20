@@ -21,6 +21,7 @@ import {
   generateEntityCacheKey,
   generateCollectionCacheKey,
 } from '../utils/query-cache.util.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Mutation operation type
@@ -207,7 +208,7 @@ export class QueryCacheInvalidatorService {
       await queryCacheService.invalidatePattern(pattern);
     }
 
-    console.log(
+    logger.info(
       `[CacheInvalidator] Invalidated ${patterns.size} patterns for ${mutations.length} mutations`,
     );
   }
@@ -238,7 +239,7 @@ export class QueryCacheInvalidatorService {
       totalDeleted += deleted;
     }
 
-    console.log(
+    logger.info(
       `[CacheInvalidator] Flushed ${this.pendingInvalidations.size} events, deleted ${totalDeleted} cache keys`,
     );
 
@@ -253,7 +254,7 @@ export class QueryCacheInvalidatorService {
     this.flushInterval = setInterval(() => {
       if (this.pendingInvalidations.size > 0) {
         this.flushInvalidations().catch((error) => {
-          console.error('[CacheInvalidator] Batch flush error:', error);
+          logger.error('[CacheInvalidator] Batch flush error:', error);
         });
       }
     }, 5000);

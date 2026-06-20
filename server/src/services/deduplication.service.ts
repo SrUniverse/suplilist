@@ -1,3 +1,4 @@
+import { logger } from '../shared/utils/logger.js';
 /**
  * Semantic Deduplication Service
  * Version: 1.0.0
@@ -199,12 +200,12 @@ export function deduplicateProducts(products: Product[]): Product[] {
     return [];
   }
 
-  console.log(`[Deduplication] Processing ${products.length} products`);
+  logger.info(`[Deduplication] Processing ${products.length} products`);
 
   // Group by semantic similarity
   const groups = groupBySimilarity(products);
 
-  console.log(
+  logger.info(
     `[Deduplication] Identified ${groups.size} unique product groups`
   );
 
@@ -215,7 +216,7 @@ export function deduplicateProducts(products: Product[]): Product[] {
     deduplicated.push(representative);
 
     if (group.products.length > 1) {
-      console.log(
+      logger.info(
         `[Deduplication] Merged ${group.products.length} variants of "${group.canonical}"`
       );
     }
@@ -224,7 +225,7 @@ export function deduplicateProducts(products: Product[]): Product[] {
   // Sort by name for consistency
   deduplicated.sort((a, b) => a.name.localeCompare(b.name));
 
-  console.log(
+  logger.info(
     `[Deduplication] Result: ${products.length} → ${deduplicated.length} products`
   );
 

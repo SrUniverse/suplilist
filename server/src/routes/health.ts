@@ -7,6 +7,7 @@ import { Request, Response, Router } from 'express';
 import mongoose from 'mongoose';
 import { cacheService } from '../shared/services/cache.service.js';
 import { redisClient } from '../shared/infrastructure/redis/redis.client.js';
+import { logger } from '../shared/utils/logger.js';
 
 const router = Router();
 
@@ -50,7 +51,7 @@ router.get('/ready', async (req: Request, res: Response): Promise<void> => {
     await redisClient.ping();
     checks.redis = 'ok';
   } catch (error) {
-    console.error('[Health] Redis check failed:', error);
+    logger.error('[Health] Redis check failed:', error);
   }
 
   // Check MongoDB
@@ -60,7 +61,7 @@ router.get('/ready', async (req: Request, res: Response): Promise<void> => {
       checks.mongodb = 'ok';
     }
   } catch (error) {
-    console.error('[Health] MongoDB check failed:', error);
+    logger.error('[Health] MongoDB check failed:', error);
   }
 
   const allHealthy = checks.redis === 'ok' && checks.mongodb === 'ok';

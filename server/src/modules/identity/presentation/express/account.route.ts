@@ -5,6 +5,7 @@ import { requireAuth } from '../../../../shared/middleware/auth.middleware.js';
 import { UserIdentityModel } from '../../infrastructure/mongoose/user-identity.model.js';
 import { ProfileModel } from '../../../profile/infrastructure/mongoose/profile.model.js';
 import { logSecurityEvent } from '../../../../shared/infrastructure/logging/security-event-logger.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 const router = Router();
 
@@ -68,7 +69,7 @@ router.delete('/account', requireAuth, async (req: Request, res: Response, next:
     try {
       await getAuth().deleteUser(uid);
     } catch (firebaseError) {
-      console.error('Firebase user deletion error:', firebaseError);
+      logger.error('Firebase user deletion error:', firebaseError);
       // Continue with local deletion even if Firebase fails
     }
 

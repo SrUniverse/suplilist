@@ -2,6 +2,7 @@ import { IEventListener } from '../../../../shared/application/event-bus/event-b
 import { UserRegisteredEvent } from '../../../identity/domain/events/user-registered.event.js';
 import { IUserSettingsRepository } from '../../repositories/user-settings.repository.js';
 import { UserSettings } from '../../domain/user-settings.entity.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 export class CreateSettingsOnUserRegisteredListener implements IEventListener<UserRegisteredEvent> {
   public readonly subscribedTo = 'UserRegistered';
@@ -38,7 +39,7 @@ export class CreateSettingsOnUserRegisteredListener implements IEventListener<Us
 
     // Safely runs inside the active Mongoose transaction propagates via AsyncLocalStorage
     await this.settingsRepo.save(defaultSettings);
-    console.log(`[Settings Module] Initialized default settings for user ${event.userId}`);
+    logger.info(`[Settings Module] Initialized default settings for user ${event.userId}`);
   }
 }
 export default CreateSettingsOnUserRegisteredListener;

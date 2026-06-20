@@ -1,6 +1,7 @@
 import { AuditLogModel } from '../../../modules/audit/infrastructure/mongoose/audit-log.model.js';
 import { redisClient } from '../redis/redis.client.js';
 import { MongoBulkWriteError } from 'mongodb';
+import { logger } from '../../utils/logger.js';
 
 export class AuditFlushJob {
   static async execute(): Promise<void> {
@@ -20,7 +21,7 @@ export class AuditFlushJob {
 
       // 3. Success: Safe clean of the queue (trim the tail)
       await redisClient.ltrim(QUEUE_KEY, 0, -(rawItems.length + 1));
-      console.log(`[DLQ Audit] Successfully flushed ${rawItems.length} logs to MongoDB.`);
+      logger.info(`[DLQ Audit] Successfully flushed ${rawItems.length} logs to MongoDB.`);
     } catch (error: any) {
       if (error instanceof MongoBulkWriteError && error.code === 11000) {
         // Error 11000 = Duplicate Key. A collision occurred because of re-processing.
@@ -29,14 +30,14 @@ export class AuditFlushJob {
         const allDuplicates = writeErrors.every((we: any) => we.code === 11000);
 
         if (allDuplicates) {
-          console.log('[DLQ Audit] All flushed logs were already persisted (idempotence matched). Trimming queue.');
+          logger.info('[DLQ Audit] All flushed logs were already persisted (idempotence matched). Trimming queue.');
           await redisClient.ltrim(QUEUE_KEY, 0, -(rawItems.length + 1));
           return;
         }
       }
 
       // Any other database error (network issues, timeout, etc.) keeps the queue intact
-      console.error('[DLQ Audit] Failure during flush (will retry in next window):', error);
+      logger.error('[DLQ Audit] Failure during flush (will retry in next window):', error);
     }
   }
 }

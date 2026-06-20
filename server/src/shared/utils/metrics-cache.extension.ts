@@ -7,6 +7,7 @@
  */
 
 import client from 'prom-client';
+import { logger } from './logger.js';
 
 // Create a dedicated registry for cache metrics
 const cacheRegistry = new client.Registry();
@@ -327,7 +328,7 @@ export function setupCacheMetricsSampling(intervalMs: number = 60000): NodeJS.Ti
   return setInterval(() => {
     // This would be called periodically to update gauges
     // Connect to your cache service and update stats
-    console.log('[Cache Metrics] Sampling metrics...');
+    logger.info('[Cache Metrics] Sampling metrics...');
   }, intervalMs);
 }
 

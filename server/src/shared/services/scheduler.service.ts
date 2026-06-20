@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import SupplementService from '../../modules/supplements/application/supplement.service.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Scheduler service for background tasks (daily Firecrawl, etc.)
@@ -25,7 +26,7 @@ export class SchedulerService {
    */
   async initialize(): Promise<void> {
     this.startDailySupplementCrawl();
-    console.log('[Scheduler] Background jobs initialized');
+    logger.info('[Scheduler] Background jobs initialized');
   }
 
   /**
@@ -36,21 +37,21 @@ export class SchedulerService {
   private startDailySupplementCrawl(): void {
     // Skip in test environment
     if (process.env.NODE_ENV === 'test') {
-      console.log('[Scheduler] Skipping daily crawl in test environment');
+      logger.info('[Scheduler] Skipping daily crawl in test environment');
       return;
     }
 
     this.cronJob = cron.schedule('0 2 * * *', async () => {
       try {
-        console.log('[Scheduler] Starting daily supplement crawl...');
+        logger.info('[Scheduler] Starting daily supplement crawl...');
         await SupplementService.crawlAllSources();
-        console.log('[Scheduler] Daily supplement crawl completed');
+        logger.info('[Scheduler] Daily supplement crawl completed');
       } catch (error) {
-        console.error('[Scheduler] Daily crawl failed:', error);
+        logger.error('[Scheduler] Daily crawl failed:', error);
       }
     });
 
-    console.log('[Scheduler] Daily supplement crawl scheduled for 02:00 UTC');
+    logger.info('[Scheduler] Daily supplement crawl scheduled for 02:00 UTC');
   }
 
   /**
@@ -59,7 +60,7 @@ export class SchedulerService {
   stop(): void {
     if (this.cronJob) {
       this.cronJob.stop();
-      console.log('[Scheduler] All background jobs stopped');
+      logger.info('[Scheduler] All background jobs stopped');
     }
   }
 }

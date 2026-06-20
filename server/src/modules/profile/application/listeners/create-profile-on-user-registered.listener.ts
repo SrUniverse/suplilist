@@ -2,6 +2,7 @@ import { IEventListener } from '../../../../shared/application/event-bus/event-b
 import { UserRegisteredEvent } from '../../../identity/domain/events/user-registered.event.js';
 import { IUserProfileRepository } from '../../repositories/user-profile.repository.js';
 import { UserProfile } from '../../domain/user-profile.entity.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 export class CreateProfileOnUserRegisteredListener implements IEventListener<UserRegisteredEvent> {
   public readonly subscribedTo = 'UserRegistered';
@@ -30,7 +31,7 @@ export class CreateProfileOnUserRegisteredListener implements IEventListener<Use
     // Thanks to MongooseUnitOfWork + AsyncLocalStorage, the repository save call
     // automatically runs under the exact same ClientSession started by the Identity Module.
     await this.profileRepo.save(newProfile);
-    console.log(`[Profile Module] Initialized profile for user ${event.userId}`);
+    logger.info(`[Profile Module] Initialized profile for user ${event.userId}`);
   }
 }
 export default CreateProfileOnUserRegisteredListener;

@@ -25,15 +25,16 @@ import { AuditFlushJob } from './shared/infrastructure/jobs/audit-flush.job.js';
 import { PurgeAccountsJob } from './shared/infrastructure/jobs/purge-accounts.job.js';
 import { SchedulerService } from './shared/services/scheduler.service.js';
 import { cacheService } from './shared/services/cache.service.js';
+import { logger } from './shared/utils/logger.js';
 
 // ── 2. Connect to MongoDB and start the server ─────────────────────────────────
 mongoose.connect(env!.MONGO_URI)
   .then(async () => {
-    console.log('✅ MongoDB connected successfully');
+    logger.info('✅ MongoDB connected successfully');
 
     const app = createApp();
     const server = app.listen(env!.PORT, () => {
-      console.log(`🚀 SupliList backend server running on port ${env!.PORT}`);
+      logger.info(`🚀 SupliList backend server running on port ${env!.PORT}`);
     });
 
     // ── 3. Initialize scheduler (daily Firecrawl, etc.) ────────────────────────
@@ -45,7 +46,7 @@ mongoose.connect(env!.MONGO_URI)
       try {
         await OutboxProcessorJob.execute();
       } catch (err) {
-        console.error('[Worker Error] Outbox processor execution failed:', err);
+        logger.error('[Worker Error] Outbox processor execution failed:', err);
       }
     }, 60 * 1000); // every 1 min
 
@@ -53,7 +54,7 @@ mongoose.connect(env!.MONGO_URI)
       try {
         await AuditFlushJob.execute();
       } catch (err) {
-        console.error('[Worker Error] Audit flush execution failed:', err);
+        logger.error('[Worker Error] Audit flush execution failed:', err);
       }
     }, 5 * 60 * 1000); // every 5 min
 
@@ -61,7 +62,7 @@ mongoose.connect(env!.MONGO_URI)
       try {
         await PurgeAccountsJob.execute();
       } catch (err) {
-        console.error('[Worker Error] Purge accounts execution failed:', err);
+        logger.error('[Worker Error] Purge accounts execution failed:', err);
       }
     }, 24 * 60 * 60 * 1000); // every 24 hours
 
@@ -70,13 +71,13 @@ mongoose.connect(env!.MONGO_URI)
       try {
         await PurgeAccountsJob.execute();
       } catch (err) {
-        console.error('[Worker Error] Initial Purge Accounts run failed:', err);
+        logger.error('[Worker Error] Initial Purge Accounts run failed:', err);
       }
     }, 10 * 1000);
 
     // ── 6. Graceful shutdown ───────────────────────────────────────────────────
     const shutdown = (signal: string) => {
-      console.log(`Received ${signal}. Starting graceful shutdown...`);
+      logger.info(`Received ${signal}. Starting graceful shutdown...`);
 
       scheduler.stop();
       clearInterval(outboxInterval);
@@ -84,18 +85,18 @@ mongoose.connect(env!.MONGO_URI)
       clearInterval(purgeInterval);
 
       server.close(async () => {
-        console.log('HTTP server closed.');
+        logger.info('HTTP server closed.');
 
         // Close Redis and clean up event listeners
         await cacheService.close();
 
         mongoose.connection.close()
           .then(() => {
-            console.log('MongoDB connection closed.');
+            logger.info('MongoDB connection closed.');
             process.exit(0);
           })
           .catch((dbErr) => {
-            console.error('Error closing MongoDB connection:', dbErr);
+            logger.error('Error closing MongoDB connection:', dbErr);
             process.exit(1);
           });
       });
@@ -105,6 +106,6 @@ mongoose.connect(env!.MONGO_URI)
     process.on('SIGINT', () => shutdown('SIGINT'));
   })
   .catch((err) => {
-    console.error('❌ Failed to connect to MongoDB on startup:', err);
+    logger.error('❌ Failed to connect to MongoDB on startup:', err);
     process.exit(1);
   });

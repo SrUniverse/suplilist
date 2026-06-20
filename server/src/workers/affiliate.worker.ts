@@ -19,6 +19,7 @@ import {
 } from '../queue/affiliate.queue.js';
 import { deduplicateProducts } from '../services/deduplication.service.js';
 import { filterOutliers } from '../services/filtering.service.js';
+import { logger } from '../shared/utils/logger.js';
 
 interface ProcessedProduct {
   name: string;
@@ -35,7 +36,7 @@ export function createScrapeWorker(): Worker<ScrapeJobData> {
   return new Worker<ScrapeJobData>(
     'affiliate:scrape',
     async (job: Job<ScrapeJobData>) => {
-      console.log(`[ScrapeWorker] Processing job ${job.id}:`, job.data);
+      logger.info(`[ScrapeWorker] Processing job ${job.id}:`, job.data);
 
       try {
         const { source, searchQuery, batchId, stage } = job.data;
@@ -49,12 +50,12 @@ export function createScrapeWorker(): Worker<ScrapeJobData> {
           searchQuery
         );
 
-        console.log(
+        logger.info(
           `[ScrapeWorker] Scraped ${products.length} products from ${source}`
         );
 
         if (products.length === 0) {
-          console.warn(
+          logger.warn(
             `[ScrapeWorker] No products found for ${source} - ${searchQuery}`
           );
           return {
@@ -101,7 +102,7 @@ export function createScrapeWorker(): Worker<ScrapeJobData> {
       } catch (error) {
         const errorMsg =
           error instanceof Error ? error.message : String(error);
-        console.error(`[ScrapeWorker] Error processing job ${job.id}:`, errorMsg);
+        logger.error(`[ScrapeWorker] Error processing job ${job.id}:`, errorMsg);
         throw error;
       }
     },
@@ -118,7 +119,7 @@ export function createDedupWorker(): Worker<DedupJobData> {
   return new Worker<DedupJobData>(
     'affiliate:dedup',
     async (job: Job<DedupJobData>) => {
-      console.log(`[DedupWorker] Processing job ${job.id}:`, {
+      logger.info(`[DedupWorker] Processing job ${job.id}:`, {
         productCount: job.data.products.length,
         batchId: job.data.batchId,
       });
@@ -129,7 +130,7 @@ export function createDedupWorker(): Worker<DedupJobData> {
         // Deduplicate products
         const deduplicated = deduplicateProducts(job.data.products);
 
-        console.log(
+        logger.info(
           `[DedupWorker] Deduplicated: ${job.data.products.length} → ${deduplicated.length} products`
         );
 
@@ -160,7 +161,7 @@ export function createDedupWorker(): Worker<DedupJobData> {
       } catch (error) {
         const errorMsg =
           error instanceof Error ? error.message : String(error);
-        console.error(`[DedupWorker] Error processing job ${job.id}:`, errorMsg);
+        logger.error(`[DedupWorker] Error processing job ${job.id}:`, errorMsg);
         throw error;
       }
     },
@@ -177,7 +178,7 @@ export function createFilterWorker(): Worker<FilterJobData> {
   return new Worker<FilterJobData>(
     'affiliate:filter',
     async (job: Job<FilterJobData>) => {
-      console.log(`[FilterWorker] Processing job ${job.id}:`, {
+      logger.info(`[FilterWorker] Processing job ${job.id}:`, {
         productCount: job.data.products.length,
         batchId: job.data.batchId,
       });
@@ -188,12 +189,12 @@ export function createFilterWorker(): Worker<FilterJobData> {
         // Apply IQR filtering
         const filtered = filterOutliers(job.data.products);
 
-        console.log(
+        logger.info(
           `[FilterWorker] Filtered: ${job.data.products.length} → ${filtered.count} products (removed ${filtered.removed.length} outliers)`
         );
 
         if (filtered.removed.length > 0) {
-          console.log(
+          logger.info(
             `[FilterWorker] Removed outliers: `,
             filtered.removed.map(
               (p) => `${p.name} (R$${p.price.toFixed(2)})`
@@ -232,7 +233,7 @@ export function createFilterWorker(): Worker<FilterJobData> {
       } catch (error) {
         const errorMsg =
           error instanceof Error ? error.message : String(error);
-        console.error(`[FilterWorker] Error processing job ${job.id}:`, errorMsg);
+        logger.error(`[FilterWorker] Error processing job ${job.id}:`, errorMsg);
         throw error;
       }
     },
@@ -260,20 +261,20 @@ export async function startWorkers(): Promise<void> {
 
     // Setup error handlers
     scrapeWorker.on('error', (error) => {
-      console.error('[ScrapeWorker] Error:', error);
+      logger.error('[ScrapeWorker] Error:', error);
     });
 
     dedupWorker.on('error', (error) => {
-      console.error('[DedupWorker] Error:', error);
+      logger.error('[DedupWorker] Error:', error);
     });
 
     filterWorker.on('error', (error) => {
-      console.error('[FilterWorker] Error:', error);
+      logger.error('[FilterWorker] Error:', error);
     });
 
-    console.log('[Workers] Started: scrape, dedup, filter');
+    logger.info('[Workers] Started: scrape, dedup, filter');
   } catch (error) {
-    console.error('[Workers] Failed to start:', error);
+    logger.error('[Workers] Failed to start:', error);
     throw error;
   }
 }
@@ -285,7 +286,7 @@ export async function stopWorkers(): Promise<void> {
   if (scrapeWorker) await scrapeWorker.close();
   if (dedupWorker) await dedupWorker.close();
   if (filterWorker) await filterWorker.close();
-  console.log('[Workers] Stopped gracefully');
+  logger.info('[Workers] Stopped gracefully');
 }
 
 /**

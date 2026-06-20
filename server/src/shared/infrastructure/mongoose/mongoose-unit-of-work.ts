@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import mongoose from 'mongoose';
 import { IUnitOfWork } from '../../application/unit-of-work.interface.js';
+import { logger } from '../../utils/logger.js';
 
 // Context storage to hold active transaction session for the current call execution path
 export const transactionStorage = new AsyncLocalStorage<mongoose.ClientSession>();
@@ -24,7 +25,7 @@ export class MongooseUnitOfWork implements IUnitOfWork {
         try {
           await session.abortTransaction();
         } catch (abortError) {
-          console.error('Critical: Failed to abort MongoDB transaction:', abortError);
+          logger.error('Critical: Failed to abort MongoDB transaction:', abortError);
         }
       }
       throw error;

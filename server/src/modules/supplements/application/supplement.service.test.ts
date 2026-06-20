@@ -8,6 +8,7 @@ import SupplementService from './supplement.service.js';
 import { cacheService } from '../../../shared/services/cache.service.js';
 import FirecrawlService from '../../../shared/services/firecrawl.service.js';
 import { SupplementDataModel } from '../infrastructure/mongoose/supplement-data.model.js';
+import { logger } from '../../../shared/utils/logger.js';
 
 // Mock dependencies
 vi.mock('../../../shared/services/cache.service.js');
@@ -426,7 +427,7 @@ describe('SupplementService', () => {
 
   describe('Error Logging', () => {
     it('should log errors with context when crawl fails', async () => {
-      const consoleSpy = vi.spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => logger);
 
       vi.mocked(FirecrawlService.searchSupplementOnDemand).mockRejectedValue(
         new Error('API rate limit exceeded')

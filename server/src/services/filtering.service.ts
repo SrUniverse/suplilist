@@ -1,3 +1,4 @@
+import { logger } from '../shared/utils/logger.js';
 /**
  * IQR (Interquartile Range) Filtering Service
  * Version: 1.0.0
@@ -172,7 +173,7 @@ function logFilteringDetails(
   stats: IQRStats,
   removed: Product[]
 ): void {
-  console.log('[IQRFilter] Price Statistics:', {
+  logger.info('[IQRFilter] Price Statistics:', {
     min: `R$${stats.min.toFixed(2)}`,
     q1: `R$${stats.q1.toFixed(2)}`,
     median: `R$${stats.q2.toFixed(2)}`,
@@ -182,18 +183,18 @@ function logFilteringDetails(
     stdDev: `R$${stats.stdDev.toFixed(2)}`,
   });
 
-  console.log('[IQRFilter] Outlier Bounds:', {
+  logger.info('[IQRFilter] Outlier Bounds:', {
     lower: `R$${stats.lowerBound.toFixed(2)}`,
     upper: `R$${stats.upperBound.toFixed(2)}`,
     iqr: `R$${stats.iqr.toFixed(2)}`,
   });
 
   if (removed.length > 0) {
-    console.log('[IQRFilter] Removed Outliers:');
+    logger.info('[IQRFilter] Removed Outliers:');
     for (const product of removed) {
       const reason =
         product.price < stats.lowerBound ? 'suspiciously cheap' : 'suspiciously expensive';
-      console.log(`  - ${product.name}: R$${product.price.toFixed(2)} (${reason})`);
+      logger.info(`  - ${product.name}: R$${product.price.toFixed(2)} (${reason})`);
     }
   }
 }
@@ -233,7 +234,7 @@ export function filterOutliers(products: Product[]): {
     };
   }
 
-  console.log(`[IQRFilter] Filtering ${products.length} products`);
+  logger.info(`[IQRFilter] Filtering ${products.length} products`);
 
   // Extract prices
   const prices = products.map((p) => p.price);
@@ -246,7 +247,7 @@ export function filterOutliers(products: Product[]): {
 
   // If per-source removes too much (>30%), fall back to global IQR
   if (outliers.length > products.length * 0.3) {
-    console.log(
+    logger.info(
       '[IQRFilter] Per-source filtering too aggressive, using global IQR'
     );
     const globalResult = identifyOutliers(products, stats);
@@ -257,7 +258,7 @@ export function filterOutliers(products: Product[]): {
   // Log details
   logFilteringDetails(stats, outliers);
 
-  console.log(
+  logger.info(
     `[IQRFilter] Filtered: ${products.length} → ${valid.length} products (removed ${outliers.length})`
   );
 

@@ -12,6 +12,13 @@ import express, { Router, Request, Response } from 'express';
 import { env } from '../../shared/config/env.config.js';
 import { handleStripeEvent } from './stripe-webhook.handler.js';
 
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!env.STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not configured');
+  if (!_stripe) _stripe = new Stripe(env.STRIPE_SECRET_KEY);
+  return _stripe;
+}
+
 export function createStripeWebhookRouter(): Router {
   const router = Router();
 
@@ -28,10 +35,9 @@ export function createStripeWebhookRouter(): Router {
         return res.status(400).json({ success: false, error: 'missing_signature' });
       }
 
-      const stripe = new Stripe(env.STRIPE_SECRET_KEY);
       let event: Stripe.Event;
       try {
-        event = stripe.webhooks.constructEvent(
+        event = getStripe().webhooks.constructEvent(
           req.body, // Buffer — express.raw keeps the exact bytes
           signature,
           env.STRIPE_WEBHOOK_SECRET,

@@ -19,6 +19,13 @@ import { redisClient } from '../../shared/infrastructure/redis/redis.client.js';
 
 const PROCESSED_EVENT_TTL = 86400; // 24h in seconds
 
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!env.STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not configured');
+  if (!_stripe) _stripe = new Stripe(env.STRIPE_SECRET_KEY);
+  return _stripe;
+}
+
 async function isEventAlreadyProcessed(eventId: string): Promise<boolean> {
   try {
     const key = `stripe:event:${eventId}`;
@@ -103,9 +110,7 @@ export async function handleStripeEvent(event: Stripe.Event): Promise<void> {
       if (!customerId || !subscriptionId) return;
 
       // Fetch the subscription for authoritative price/status/period data.
-      if (!env.STRIPE_SECRET_KEY) throw new Error('STRIPE_SECRET_KEY is not configured');
-      const stripe = new Stripe(env.STRIPE_SECRET_KEY);
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
       await applySubscriptionState(subscription);
       return;
     }

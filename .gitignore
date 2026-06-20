@@ -40,6 +40,7 @@ e2e/screenshots/*.png
 
 # Lixo de desenvolvimento
 scratch/
+ds-bundle/
 bot/
 build.js
 compare.css

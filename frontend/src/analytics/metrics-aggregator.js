@@ -46,19 +46,15 @@ export class BusinessMetrics {
    * @returns {Promise<number>}
    */
   async getWAU(weekStartOffset = 0) {
-    const today = new Date();
-    const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay() + (weekStartOffset * 7));
-    weekStart.setHours(0, 0, 0, 0);
+    // Rolling 7-day window (matches the "past 7 days" contract above). Using a
+    // calendar Sun–Sat week instead made the result depend on the current
+    // weekday — e.g. on a Sunday the prior days fall into the previous week and
+    // are dropped. A rolling window is weekday/timezone-robust.
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const end = Date.now() + weekStartOffset * 7 * DAY_MS;
+    const start = end - 7 * DAY_MS;
 
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
-
-    const events = await analyticsStorage.getEventsBetween(
-      weekStart.getTime(),
-      weekEnd.getTime()
-    );
+    const events = await analyticsStorage.getEventsBetween(start, end);
 
     const sessionIds = new Set();
     events.forEach(e => {

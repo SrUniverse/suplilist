@@ -44,6 +44,7 @@ export default [
         fetch: 'readonly',
         IntersectionObserver: 'readonly',
         MutationObserver: 'readonly',
+        ResizeObserver: 'readonly',
         Notification: 'readonly',
         CustomEvent: 'readonly',
         Event: 'readonly',

@@ -178,13 +178,6 @@ export class VirtualScroller {
    * Accounts for the container's offset from the top of the page.
    */
   _updateVisibleRange() {
-    let pageScrollTop;
-    if (this.scrollElement === window) {
-      pageScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    } else {
-      pageScrollTop = this.scrollElement.scrollTop;
-    }
-
     // How far into the list the viewport currently shows.
     // For window: scrollIntoList = max(0, -listRect.top)
     // For a scroll container: scrollIntoList = max(0, containerRect.top - listRect.top)

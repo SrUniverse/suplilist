@@ -5,6 +5,7 @@ import { logSecurityEvent } from '../infrastructure/logging/security-event-logge
 import { UserRole } from '../../modules/identity/domain/user-identity.entity.js';
 import { cacheService } from '../services/cache.service.js';
 import { logger } from '../utils/logger.js';
+import { isEmailAllowedAdmin } from '../config/admin-allowlist.js';
 
 // Declaration merging to add user to Express Request
 declare global {
@@ -240,6 +241,21 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction): v
         logSecurityEvent('auth.role_denied', {
           userId: req.user.id,
           requiredRole: 'admin',
+          actualRole: req.user.role,
+        });
+        return res.status(403).json({
+          success: false,
+          error: 'forbidden',
+          message: 'You do not have permission to access this resource.',
+        });
+      }
+
+      // Defense in depth: even a role=admin account must be on the email
+      // allowlist when ADMIN_EMAILS is configured. See admin-allowlist.ts.
+      if (!isEmailAllowedAdmin(req.firebaseUser?.email)) {
+        logSecurityEvent('auth.role_denied', {
+          userId: req.user.id,
+          requiredRole: 'admin:allowlist',
           actualRole: req.user.role,
         });
         return res.status(403).json({

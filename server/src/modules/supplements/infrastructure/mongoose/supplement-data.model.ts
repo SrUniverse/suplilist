@@ -12,6 +12,40 @@ export interface ISupplementPrice {
   lastUpdated: Date;
 }
 
+/**
+ * Catalog metadata — mirrors the public supplements-db.json entry shape
+ * (minus id/name, which live on the top-level document). When present, the
+ * catalog:export script regenerates supplements-db.json from these fields, so
+ * the admin panel becomes the single source of truth for the public catalog.
+ */
+export interface ISupplementMetadata {
+  image: string;
+  category: string;
+  evidenceLevel: 'A' | 'B' | 'C' | 'D';
+  targets: {
+    bulk: number;
+    strength: number;
+    cut: number;
+    endurance: number;
+    general: number;
+  };
+  restrictions: string[];
+  dosage: {
+    multiplier: number;
+    unit: string;
+    maintenance: number;
+    upperLimit: number;
+    loading?: number;
+    timing: string;
+  };
+  pricePerGram: number;
+  safetyScore: number;
+  benefits: string[];
+  warnings: string[];
+  sideEffects: string[];
+  interactions: string[];
+}
+
 export interface ISupplementData extends Document<string> {
   _id: string;
   supplementId: string; // Reference to original supplement
@@ -24,6 +58,8 @@ export interface ISupplementData extends Document<string> {
   bestPrice: 'amazon' | 'mercadolivre' | 'shopee';
   bestPriceValue: number;
   priceHistory: IPriceHistory[];
+  /** Public catalog metadata. Optional so price-only entries still validate. */
+  metadata?: ISupplementMetadata;
   lastCrawled: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -41,6 +77,37 @@ const priceHistorySchema = new Schema<IPriceHistory>({
   source: { type: String, enum: ['amazon', 'mercadolivre', 'shopee'] },
 });
 
+const metadataSchema = new Schema<ISupplementMetadata>(
+  {
+    image: String,
+    category: String,
+    evidenceLevel: { type: String, enum: ['A', 'B', 'C', 'D'] },
+    targets: {
+      bulk: Number,
+      strength: Number,
+      cut: Number,
+      endurance: Number,
+      general: Number,
+    },
+    restrictions: { type: [String], default: [] },
+    dosage: {
+      multiplier: Number,
+      unit: String,
+      maintenance: Number,
+      upperLimit: Number,
+      loading: Number,
+      timing: String,
+    },
+    pricePerGram: Number,
+    safetyScore: Number,
+    benefits: { type: [String], default: [] },
+    warnings: { type: [String], default: [] },
+    sideEffects: { type: [String], default: [] },
+    interactions: { type: [String], default: [] },
+  },
+  { _id: false }
+);
+
 const supplementDataSchema = new Schema<ISupplementData>(
   {
     _id: { type: String, required: true },
@@ -54,6 +121,7 @@ const supplementDataSchema = new Schema<ISupplementData>(
     bestPrice: { type: String, enum: ['amazon', 'mercadolivre', 'shopee'] },
     bestPriceValue: { type: Number },
     priceHistory: [priceHistorySchema],
+    metadata: { type: metadataSchema, required: false },
     lastCrawled: { type: Date, default: Date.now },
   },
   {

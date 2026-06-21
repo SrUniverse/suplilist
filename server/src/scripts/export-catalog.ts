@@ -31,7 +31,10 @@ import {
   type Marketplace,
   type AffiliateCodes,
 } from '../shared/services/affiliate-link.builder.js';
-import { SupplementDataModel } from '../modules/supplements/infrastructure/mongoose/supplement-data.model.js';
+import {
+  SupplementDataModel,
+  type ISupplementMetadata,
+} from '../modules/supplements/infrastructure/mongoose/supplement-data.model.js';
 
 dotenv.config();
 
@@ -63,11 +66,42 @@ function loadJson(path: string): unknown {
   return JSON.parse(text);
 }
 
-function knownCatalogIds(): Set<string> {
+interface CatalogEntry extends ISupplementMetadata {
+  id: string;
+  name: string;
+}
+
+function loadCatalogArray(): CatalogEntry[] {
   const data = loadJson(CATALOG_DB_PATH);
   const arr = Array.isArray(data) ? data : (data as any)?.supplements;
-  if (!Array.isArray(arr)) return new Set();
-  return new Set(arr.map((s: any) => s?.id).filter(Boolean));
+  return Array.isArray(arr) ? (arr as CatalogEntry[]) : [];
+}
+
+/**
+ * Merge Mongo-sourced catalog entries into the existing supplements-db.json
+ * array. Existing order is preserved; entries present in Mongo are overwritten;
+ * entries only in the file (e.g. not yet seeded) are kept; new Mongo entries are
+ * appended. Returns null if nothing in Mongo carries metadata (so we never wipe
+ * the file when the collection hasn't been seeded yet).
+ */
+function mergeCatalog(
+  existing: CatalogEntry[],
+  fromMongo: Map<string, CatalogEntry>
+): CatalogEntry[] | null {
+  if (fromMongo.size === 0) return null;
+  const seen = new Set<string>();
+  const merged: CatalogEntry[] = existing.map((entry) => {
+    const replacement = fromMongo.get(entry.id);
+    if (replacement) {
+      seen.add(entry.id);
+      return replacement;
+    }
+    return entry;
+  });
+  for (const [id, entry] of fromMongo) {
+    if (!seen.has(id)) merged.push(entry);
+  }
+  return merged;
 }
 
 function computeSavings(stores: Partial<Record<Marketplace, StoreEntry>>): void {
@@ -101,13 +135,24 @@ async function main(): Promise<void> {
   let applied = 0;
   let notApplied = 0;
   const fromMongo: Record<string, Record<string, StoreEntry>> = {};
+  const fromMongoCatalog = new Map<string, CatalogEntry>();
 
   try {
     const docs = await SupplementDataModel.find()
-      .select('supplementId prices')
+      .select('supplementId name prices metadata')
       .lean();
 
     for (const doc of docs) {
+      // Catalog metadata → regenerate supplements-db.json. Only docs that carry
+      // metadata contribute; price-only docs are left to the static file.
+      if (doc.metadata && (doc.metadata as ISupplementMetadata).category) {
+        fromMongoCatalog.set(doc.supplementId, {
+          id: doc.supplementId,
+          name: doc.name,
+          ...(doc.metadata as ISupplementMetadata),
+        });
+      }
+
       const stores: Partial<Record<Marketplace, StoreEntry>> = {};
       for (const m of MARKETPLACES) {
         const p = (doc.prices as any)?.[m];
@@ -125,22 +170,35 @@ async function main(): Promise<void> {
     await mongoose.disconnect();
   }
 
+  // ── 1) Regenerate supplements-db.json (catalog metadata) ─────────────────────
+  const existingCatalog = loadCatalogArray();
+  const mergedCatalog = mergeCatalog(existingCatalog, fromMongoCatalog);
+  if (mergedCatalog) {
+    writeFileSync(CATALOG_DB_PATH, JSON.stringify(mergedCatalog, null, 2) + '\n', 'utf8');
+    console.log(`[export] wrote ${mergedCatalog.length} catalog entr(ies) to ${CATALOG_DB_PATH} (${fromMongoCatalog.size} from Mongo)`);
+  } else {
+    console.warn('[export] no Mongo docs carry catalog metadata — supplements-db.json left untouched. Run `npm run catalog:seed` first.');
+  }
+
+  // ── 2) Regenerate prices.json (affiliate prices/links) ───────────────────────
   const existing = (loadJson(PRICES_PATH) as PricesFile) ?? {};
   const merged: PricesFile = { ...existing };
   for (const [id, stores] of Object.entries(fromMongo)) {
     merged[id] = stores;
   }
 
-  const catalogIds = knownCatalogIds();
+  const catalogIds = new Set(
+    (mergedCatalog ?? existingCatalog).map((s) => s.id).filter(Boolean)
+  );
   const orphans = Object.keys(fromMongo).filter((id) => catalogIds.size > 0 && !catalogIds.has(id));
   for (const id of orphans) {
-    console.warn(`[export] "${id}" is not in supplements-db.json — it won't appear on the catalog until added there.`);
+    console.warn(`[export] "${id}" has prices but no catalog entry — it won't appear until its metadata is added.`);
   }
 
   writeFileSync(PRICES_PATH, JSON.stringify(merged, null, 2) + '\n', 'utf8');
 
   console.log('────────────────────────────────────────');
-  console.log(`[export] wrote ${Object.keys(fromMongo).length} supplement(s) from Mongo to ${PRICES_PATH}`);
+  console.log(`[export] wrote ${Object.keys(fromMongo).length} supplement price set(s) from Mongo to ${PRICES_PATH}`);
   console.log(`[export] affiliate links: ${applied} credited, ${notApplied} not credited`);
   if (orphans.length) console.log(`[export] ${orphans.length} id(s) not yet in the catalog — see warnings above.`);
 }

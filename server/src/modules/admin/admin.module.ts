@@ -4,7 +4,8 @@ import { ListUsersUseCase } from './application/use-cases/list-users.use-case.js
 import { UpdateUserRoleUseCase } from './application/use-cases/update-user-role.use-case.js';
 import { SuspendUserUseCase, UnsuspendUserUseCase } from './application/use-cases/suspend-user.use-case.js';
 import { AdminController } from './presentation/express/admin.controller.js';
-import { requireAuth, requireRole } from '../../shared/middleware/auth.middleware.js';
+import { AdminStatsController } from './presentation/express/admin-stats.controller.js';
+import { requireAdmin } from '../../shared/middleware/auth.middleware.js';
 
 export function initializeAdminModule(): Router {
   const router = Router();
@@ -23,12 +24,17 @@ export function initializeAdminModule(): Router {
     unsuspendUserUseCase,
   );
 
-  const adminGuard = [requireAuth, requireRole(['admin'])];
+  const statsController = new AdminStatsController();
 
-  router.get('/users', ...adminGuard, controller.listUsers);
-  router.patch('/users/:id/role', ...adminGuard, controller.updateRole);
-  router.post('/users/:id/suspend', ...adminGuard, controller.suspendUser);
-  router.delete('/users/:id/suspend', ...adminGuard, controller.unsuspendUser);
+  // requireAdmin runs requireAuth internally and enforces role=admin + the
+  // ADMIN_EMAILS allowlist (defense in depth). Single source of truth for the gate.
+  router.get('/stats', requireAdmin, statsController.getStats);
+  router.get('/subscribers', requireAdmin, statsController.listSubscribers);
+  router.get('/audit', requireAdmin, statsController.listAudit);
+  router.get('/users', requireAdmin, controller.listUsers);
+  router.patch('/users/:id/role', requireAdmin, controller.updateRole);
+  router.post('/users/:id/suspend', requireAdmin, controller.suspendUser);
+  router.delete('/users/:id/suspend', requireAdmin, controller.unsuspendUser);
 
   return router;
 }

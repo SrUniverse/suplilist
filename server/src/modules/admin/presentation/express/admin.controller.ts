@@ -3,6 +3,7 @@ import { ListUsersUseCase } from '../../application/use-cases/list-users.use-cas
 import { UpdateUserRoleUseCase } from '../../application/use-cases/update-user-role.use-case.js';
 import { SuspendUserUseCase, UnsuspendUserUseCase } from '../../application/use-cases/suspend-user.use-case.js';
 import { UserRole, UserStatus } from '../../../identity/domain/user-identity.entity.js';
+import { recordAudit } from '../../application/audit.service.js';
 
 export class AdminController {
   constructor(
@@ -40,6 +41,7 @@ export class AdminController {
 
     await this.updateUserRoleUseCase.execute(id, req.user!.id, role);
 
+    await recordAudit(req, { action: 'user.role.update', targetType: 'user', targetId: id, metadata: { role } });
     return res.status(200).json({ success: true });
   };
 
@@ -49,6 +51,7 @@ export class AdminController {
 
     await this.suspendUserUseCase.execute(id, req.user!.id, reason || 'No reason provided');
 
+    await recordAudit(req, { action: 'user.suspend', targetType: 'user', targetId: id, metadata: { reason: reason || 'No reason provided' } });
     return res.status(200).json({ success: true });
   };
 
@@ -57,6 +60,7 @@ export class AdminController {
 
     await this.unsuspendUserUseCase.execute(id);
 
+    await recordAudit(req, { action: 'user.unsuspend', targetType: 'user', targetId: id });
     return res.status(200).json({ success: true });
   };
 }

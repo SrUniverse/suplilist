@@ -171,6 +171,14 @@ const envSchema = z.object({
     .optional()
     .describe('Sentry DSN for backend error reporting'),
 
+  // Admin access allowlist — defense in depth on top of role=admin.
+  // When set, only these emails may pass requireAdmin (even if another account
+  // is promoted to role=admin in the database). Comma-separated, case-insensitive.
+  ADMIN_EMAILS: z
+    .string()
+    .optional()
+    .describe('Comma-separated allowlist of admin emails. When set, admin access requires the authenticated email to be in this list in addition to role=admin.'),
+
   // Development
   DEBUG: z
     .string()

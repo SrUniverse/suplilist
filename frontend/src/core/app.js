@@ -44,9 +44,12 @@ const routes = [
   { path: '/subscription/cancel',  load: () => import('../features/premium/subscription-result-page.js') },
   { path: '/faq',        load: () => import('../features/legal/faq-page.js') },
   { path: '/legal',      load: () => import('../features/legal/legal-page.js') },
-  { path: '/admin',          load: () => import('../features/admin/admin-products-page.js') },
-  { path: '/admin/products', load: () => import('../features/admin/admin-products-page.js') },
-  { path: '/admin/orders',   load: () => import('../features/admin/admin-orders-page.js') },
+  { path: '/admin',              load: () => import('../features/admin/admin-dashboard-page.js') },
+  { path: '/admin/products',     load: () => import('../features/admin/admin-products-page.js') },
+  { path: '/admin/subscriptions',load: () => import('../features/admin/admin-subscriptions-page.js') },
+  { path: '/admin/users',        load: () => import('../features/admin/admin-users-page.js') },
+  { path: '/admin/audit',        load: () => import('../features/admin/admin-audit-page.js') },
+  { path: '/admin/orders',       load: () => import('../features/admin/admin-orders-page.js') },
 ];
 
 const PAGE_METADATA = {

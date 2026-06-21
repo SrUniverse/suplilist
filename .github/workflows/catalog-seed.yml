@@ -1,20 +1,21 @@
-name: Catalog Sync (Mongo → prices.json)
+name: Catalog Seed (one-time bootstrap)
 
-# Regenerates frontend/public/data/prices.json from the MongoDB catalog so that
-# edits made in the admin panel (which write Mongo) reach the public site (which
-# reads the static prices.json). Commits the file when it changes; Vercel then
-# auto-deploys from main.
+# ONE-TIME (manual) bootstrap of the catalog metadata into MongoDB.
 #
-# Required repository secrets:
-#   MONGO_URI                  MongoDB Atlas connection string
-#   VITE_AMAZON_AFFILIATE_ID   e.g. suplilist01-20
-#   VITE_ML_AFFILIATE_ID       matt:<word>:<toolId>  (Mercado Livre)
-#   VITE_SHOPEE_AFFILIATE_ID   informational (Shopee credits via shortlink only)
+# Imports the curated entries from frontend/public/data/supplements-db.json into
+# the `supplements_data` collection (idempotent: only sets name/metadata,
+# preserves prices) and then regenerates the static catalog files. Run this once
+# so the existing supplements come under admin-panel management. After that, the
+# recurring "Catalog Sync" workflow keeps the static files in sync with Mongo.
+#
+# WARNING: do NOT add this seed step to the recurring sync workflow — re-seeding
+# would overwrite admin edits in Mongo with the static JSON on every run.
+#
+# Required repository secrets (same as catalog-sync):
+#   MONGO_URI, VITE_AMAZON_AFFILIATE_ID, VITE_ML_AFFILIATE_ID, VITE_SHOPEE_AFFILIATE_ID
 
 on:
-  schedule:
-    - cron: '0 8 * * *' # daily at 08:00 UTC
-  workflow_dispatch: {} # manual "Run workflow" button
+  workflow_dispatch: {} # manual "Run workflow" button only
 
 concurrency:
   group: catalog-sync
@@ -24,7 +25,7 @@ permissions:
   contents: write
 
 jobs:
-  sync:
+  seed:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +38,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate prices.json + supplements-db.json from Mongo
+      - name: Seed catalog metadata into Mongo
+        working-directory: server
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: npm run catalog:seed
+
+      - name: Regenerate static catalog files from Mongo
         working-directory: server
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
@@ -55,5 +62,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add frontend/public/data/prices.json frontend/public/data/supplements-db.json
-          git commit -m "chore(catalog): sync catalog from Mongo [skip ci]"
+          git commit -m "chore(catalog): one-time seed sync from Mongo [skip ci]"
           git push

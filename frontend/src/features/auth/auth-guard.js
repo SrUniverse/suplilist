@@ -29,7 +29,8 @@ export const authGuard = {
 
   // Rotas que exigem role === 'admin' (além de estar logado e verificado)
   adminRoutes: [
-    '/admin', '/admin/products', '/admin/orders',
+    '/admin', '/admin/products', '/admin/subscriptions',
+    '/admin/users', '/admin/audit', '/admin/orders',
   ],
 
   /**

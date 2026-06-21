@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import SupplementService from '../../application/supplement.service.js';
 import { SupplementDataModel } from '../../infrastructure/mongoose/supplement-data.model.js';
 import { logger } from '../../../../shared/utils/logger.js';
+import { recordAudit } from '../../../admin/application/audit.service.js';
 
 type AuthenticatedRequest = Request;
 
@@ -72,14 +73,47 @@ const httpUrl = z
 
 const priceEntry = z.object({ price: z.number().positive(), url: httpUrl });
 
+// Public catalog metadata — mirrors supplements-db.json. When present, the
+// catalog:export script regenerates supplements-db.json from it, so a supplement
+// created here appears on the public site with full data after export+deploy.
+const targetScore = z.number().min(0).max(1);
+const metadataSchema = z.object({
+  image: z.string().trim().max(300).optional(),
+  category: z.string().trim().min(1).max(100),
+  evidenceLevel: z.enum(['A', 'B', 'C', 'D']),
+  targets: z.object({
+    bulk: targetScore,
+    strength: targetScore,
+    cut: targetScore,
+    endurance: targetScore,
+    general: targetScore,
+  }),
+  restrictions: z.array(z.string().trim().max(80)).max(50).default([]),
+  dosage: z.object({
+    multiplier: z.number().min(0).max(1000),
+    unit: z.string().trim().min(1).max(20),
+    maintenance: z.number().min(0),
+    upperLimit: z.number().min(0),
+    loading: z.number().min(0).optional(),
+    timing: z.string().trim().max(200),
+  }),
+  pricePerGram: z.number().min(0),
+  safetyScore: z.number().min(0).max(100),
+  benefits: z.array(z.string().trim().max(200)).max(50).default([]),
+  warnings: z.array(z.string().trim().max(300)).max(50).default([]),
+  sideEffects: z.array(z.string().trim().max(300)).max(50).default([]),
+  interactions: z.array(z.string().trim().max(200)).max(50).default([]),
+});
+
 const createSupplementSchema = z.object({
-  supplementId: z.string().trim().min(1).max(100),
+  supplementId: z.string().trim().min(1).max(100).regex(/^[a-z0-9-]+$/, 'ID deve conter apenas letras minúsculas, números e hífens'),
   name: z.string().trim().min(1).max(200),
   prices: z.object({
     amazon: priceEntry.optional(),
     mercadolivre: priceEntry.optional(),
     shopee: priceEntry.optional(),
   }).optional(),
+  metadata: metadataSchema.optional(),
 });
 
 const updateSupplementSchema = createSupplementSchema.partial().omit({ supplementId: true });
@@ -236,7 +270,7 @@ export class SupplementController {
   async listSupplements(_req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const docs = await SupplementDataModel.find()
-        .select('supplementId name prices bestPrice bestPriceValue lastCrawled')
+        .select('supplementId name prices bestPrice bestPriceValue metadata lastCrawled')
         .sort({ name: 1 })
         .limit(1000)
         .lean();
@@ -260,7 +294,7 @@ export class SupplementController {
         return;
       }
 
-      const { supplementId, name, prices } = validation.data;
+      const { supplementId, name, prices, metadata } = validation.data;
       const existing = await SupplementDataModel.findOne({ supplementId }).lean();
       if (existing) {
         res.status(409).json({ success: false, error: 'conflict', message: 'Supplement with this ID already exists.' });
@@ -275,9 +309,11 @@ export class SupplementController {
         bestPrice: 'amazon',
         bestPriceValue: prices?.amazon?.price ?? prices?.mercadolivre?.price ?? prices?.shopee?.price ?? 0,
         priceHistory: [],
+        metadata,
         lastCrawled: new Date(),
       });
 
+      await recordAudit(req, { action: 'supplement.create', targetType: 'supplement', targetId: supplementId, metadata: { name, hasMetadata: !!metadata } });
       res.status(201).json({ success: true, data: doc });
     } catch (error) {
       next(error);
@@ -309,6 +345,7 @@ export class SupplementController {
         return;
       }
 
+      await recordAudit(req, { action: 'supplement.update', targetType: 'supplement', targetId: id, metadata: { fields: Object.keys(validation.data) } });
       res.json({ success: true, data: updated });
     } catch (error) {
       next(error);
@@ -329,6 +366,7 @@ export class SupplementController {
         return;
       }
 
+      await recordAudit(req, { action: 'supplement.delete', targetType: 'supplement', targetId: id });
       res.status(204).end();
     } catch (error) {
       next(error);

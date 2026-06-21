@@ -11,6 +11,7 @@
     "seed:stage1": "tsx src/scripts/seed-stage1.ts",
     "seed:stage2": "tsx src/scripts/seed-stage2.ts",
     "catalog:import": "tsx src/scripts/import-catalog.ts",
+    "catalog:seed": "tsx src/scripts/seed-catalog.ts",
     "catalog:export": "tsx src/scripts/export-catalog.ts",
     "catalog:drop-ttl": "tsx src/scripts/drop-catalog-ttl.ts",
     "make-admin": "tsx src/scripts/make-admin.ts",

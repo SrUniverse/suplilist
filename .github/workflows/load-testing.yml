@@ -1,14 +1,9 @@
 name: Load Testing and Performance Validation
 
 on:
-  schedule:
-    # Run daily normal load test at 2 AM UTC
-    - cron: '0 2 * * *'
-    # Run weekly peak load test on Sunday at 2 AM UTC
-    - cron: '0 2 * * 0'
-    # Run monthly stress test on 1st of month at 3 AM UTC
-    - cron: '0 3 1 * *'
-
+  # Manual-only: load tests need a deployed target environment, so they are not
+  # run automatically on a schedule (which previously marked main red daily).
+  # Trigger from the Actions tab when running against a real environment.
   workflow_dispatch:
     inputs:
       scenario:

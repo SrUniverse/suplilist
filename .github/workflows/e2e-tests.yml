@@ -1,10 +1,11 @@
 name: E2E Tests & Performance Check
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+  # Manual-only. These are full-stack validation tests (the api-tests project
+  # exercises Postgres/Redis/Prometheus/Grafana/BullMQ), so they are not run on
+  # every push/PR — the lightweight CI does not provision that stack. Trigger
+  # from the Actions tab when running against an environment that has it.
+  workflow_dispatch: {}
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -13,25 +14,6 @@ jobs:
   e2e-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - project: chromium
-            slug: chromium
-            browser: chromium
-          - project: firefox
-            slug: firefox
-            browser: firefox
-          - project: webkit
-            slug: webkit
-            browser: webkit
-          - project: Mobile Chrome
-            slug: mobile-chrome
-            browser: chromium
-          - project: Mobile Safari
-            slug: mobile-safari
-            browser: webkit
 
     steps:
     - uses: actions/checkout@v4
@@ -45,12 +27,6 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps ${{ matrix.browser }}
-
-    - name: Build frontend
-      run: npm run build -w @suplilist/frontend
-
     - name: Prepare Backend Environment
       run: |
         echo "NODE_ENV=test" > ./server/.env
@@ -58,7 +34,7 @@ jobs:
         echo "MONGO_URI=mongodb://127.0.0.1:27017/suplilist-test" >> ./server/.env
         echo "JWT_SECRET=super-secret-test-key-123456789012" >> ./server/.env
         echo "FRONTEND_ORIGIN=http://127.0.0.1:3000" >> ./server/.env
-        echo "REDIS_URI=redis://127.0.0.1:6379" >> ./server/.env
+        echo "REDIS_URL=redis://127.0.0.1:6379/0" >> ./server/.env
         echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> ./server/.env
 
     # Only start the databases via Docker — the API runs directly on the Ubuntu runner
@@ -72,32 +48,20 @@ jobs:
     - name: Wait for Backend
       run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs mongodb redis && exit 1)
 
-    - name: Start frontend preview
-      run: npx serve frontend/dist --listen 3000 --single &
-
-    - name: Wait for frontend
-      run: npx wait-on http://127.0.0.1:3000 --timeout 60000
-
     - name: Create screenshots directory
       run: mkdir -p e2e/screenshots
 
-    - name: Run E2E tests (${{ matrix.project }})
-      run: npx playwright test --project="${{ matrix.project }}"
+    # The playwright config defines a single API-only project ("api-tests").
+    - name: Run API E2E tests
+      run: npx playwright test --project=api-tests
+      env:
+        API_URL: http://127.0.0.1:5000
 
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-report-${{ matrix.slug }}
-        path: playwright-report/
-        retention-days: 7
-        if-no-files-found: warn
-
-    - name: Upload test videos
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-videos-${{ matrix.slug }}
+        name: playwright-report
         path: test-results/
         retention-days: 7
         if-no-files-found: warn
@@ -129,7 +93,7 @@ jobs:
         echo "MONGO_URI=mongodb://127.0.0.1:27017/suplilist-test" >> ./server/.env
         echo "JWT_SECRET=super-secret-test-key-123456789012" >> ./server/.env
         echo "FRONTEND_ORIGIN=http://127.0.0.1:3000" >> ./server/.env
-        echo "REDIS_URI=redis://127.0.0.1:6379" >> ./server/.env
+        echo "REDIS_URL=redis://127.0.0.1:6379/0" >> ./server/.env
         echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> ./server/.env
 
     - name: Start MongoDB & Redis

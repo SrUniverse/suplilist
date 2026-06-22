@@ -31,7 +31,7 @@
  * await profileService.updateProfile({ displayName: 'Ana P.' });
  */
 
-import { apiFetch } from '../../platform/api-client.js';
+import { apiFetch, ApiError } from '../../platform/api-client.js';
 import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 import { logger } from '../../utils/logger.js';
@@ -115,31 +115,58 @@ class ProfileService {
     eventBus.emit(EVENTS.PROFILE_UPDATED, { profile: data, optimistic: true });
 
     try {
-      const { data: confirmed, headers } = await apiFetch(API.ME, {
-        method: 'PATCH',
-        headers: this.#currentVersion ? { 'If-Match': `"${this.#currentVersion}"` } : {},
-        body: JSON.stringify(data),
-        returnHeaders: true
-      });
-
-      // Update the internal ETag version for subsequent updates
-      const eTag = headers.get('ETag');
-      if (eTag) {
-         this.#currentVersion = eTag.replace(/"/g, '');
+      return await this.#sendPatch(data);
+    } catch (err) {
+      // OCC self-heal: a 412 Precondition Failed means our cached ETag is
+      // stale — another writer (e.g. onboarding, a second tab, or a migration)
+      // advanced the server version while this long-lived PWA held an old one.
+      // Refetch the canonical profile to capture the fresh ETag, then retry
+      // the write exactly once. This mirrors settings-service's 409 recovery.
+      if (err instanceof ApiError && err.status === 412) {
+        logger.warn('[ProfileService] 412 OCC conflict — refetching profile and retrying once.');
+        try {
+          await this.getProfile(); // refreshes #currentVersion from the server ETag
+          return await this.#sendPatch(data);
+        } catch (retryErr) {
+          logger.error('[ProfileService] Retry after 412 conflict failed:', retryErr.error ?? retryErr.message);
+          throw retryErr;
+        }
       }
 
-      // 2. Re-apply server-confirmed data to state (handles server-side transformations)
-      this.#applyProfileToState(confirmed);
-      eventBus.emit(EVENTS.PROFILE_UPDATED, { profile: confirmed, optimistic: false });
-
-      logger.info('[ProfileService] Profile updated for', confirmed.userId);
-      return confirmed;
-    } catch (err) {
-      // 3. On failure, bubble up. Caller decides whether to rollback the
-      //    optimistic update (e.g., by calling getProfile() to re-fetch).
+      // Other failures bubble up. Caller decides whether to rollback the
+      // optimistic update (e.g., by calling getProfile() to re-fetch).
       logger.error('[ProfileService] Profile update failed:', err.error ?? err.message);
       throw err;
     }
+  }
+
+  /**
+   * Send a single PATCH /api/profile/me with the current OCC ETag, absorb the
+   * server-confirmed profile, and advance #currentVersion from the new ETag.
+   *
+   * @param {Partial<PrivateProfileDTO>} data
+   * @returns {Promise<PrivateProfileDTO>}
+   */
+  async #sendPatch(data) {
+    const { data: confirmed, headers } = await apiFetch(API.ME, {
+      method: 'PATCH',
+      headers: this.#currentVersion ? { 'If-Match': `"${this.#currentVersion}"` } : {},
+      body: JSON.stringify(data),
+      returnHeaders: true
+    });
+
+    // Update the internal ETag version for subsequent updates
+    const eTag = headers.get('ETag');
+    if (eTag) {
+      this.#currentVersion = eTag.replace(/"/g, '');
+    }
+
+    // Re-apply server-confirmed data to state (handles server-side transformations)
+    this.#applyProfileToState(confirmed);
+    eventBus.emit(EVENTS.PROFILE_UPDATED, { profile: confirmed, optimistic: false });
+
+    logger.info('[ProfileService] Profile updated for', confirmed.userId);
+    return confirmed;
   }
 
   /**

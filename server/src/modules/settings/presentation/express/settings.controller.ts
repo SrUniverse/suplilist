@@ -103,10 +103,10 @@ export class SettingsController {
         });
       }
 
-      return res.status(200).json({
-        success: true,
-        message: `Consentimento ${payload.action === 'granted' ? 'concedido' : 'revogado'} com sucesso.`,
-      });
+      // Return the fresh snapshot so the client absorbs a full SettingsResponseDTO,
+      // symmetric with revokeConsentByType — avoids a follow-up GET to re-sync.
+      const settings = await this.getSettingsUseCase.execute(userId);
+      return res.status(200).json({ success: true, data: settings });
     } catch (error) {
       next(error);
     }

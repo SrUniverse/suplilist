@@ -694,3 +694,64 @@ describe('POST /api/settings/consents — auth and CSRF guards', () => {
     expect(res.body.error).toBe('csrf_protection_triggered');
   });
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DELETE /api/settings/consents/:consentType — LGPD right to withdraw
+// ══════════════════════════════════════════════════════════════════════════════
+
+describe('DELETE /api/settings/consents/:consentType — revogação (LGPD)', () => {
+  it('revokes a granted consent: flips snapshot to false, appends a revoked audit entry, returns the settings DTO', async () => {
+    if (!mongoReady()) return;
+
+    await seedSettings(USER_ID, {
+      consents: { privacyPolicy: true, termsOfService: false, marketingEmails: false },
+    });
+
+    const res = await request(app)
+      .delete('/api/settings/consents/privacy_policy')
+      .set('Authorization', `Bearer ${bearerToken(USER_ID)}`)
+      .set('X-SupliList-Client', '1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    // Symmetric with grant: returns the full settings snapshot (not just a message)
+    expect(res.body.data).toBeTruthy();
+    expect(res.body.data.consents.privacyPolicy).toBe(false);
+
+    // Snapshot persisted as revoked
+    const after = await UserSettingsModel.findOne({
+      userId: new mongoose.Types.ObjectId(USER_ID),
+    }).lean();
+    expect(after!.consents.privacyPolicy).toBe(false);
+
+    // Immutable audit log gained a 'revoked' entry with the in-force version
+    const revoked = await UserConsentModel.find({
+      userId: new mongoose.Types.ObjectId(USER_ID),
+      type: 'privacy_policy',
+      action: 'revoked',
+    }).lean();
+    expect(revoked.length).toBe(1);
+    expect(revoked[0].version).toBe('2.0.0'); // current published privacy_policy version
+  });
+
+  it('returns 400 for an unknown consent type', async () => {
+    if (!mongoReady()) return;
+    await seedSettings(USER_ID);
+
+    const res = await request(app)
+      .delete('/api/settings/consents/not_a_real_type')
+      .set('Authorization', `Bearer ${bearerToken(USER_ID)}`)
+      .set('X-SupliList-Client', '1');
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('invalid_consent_type');
+  });
+
+  it('returns 401 when Authorization header is absent', async () => {
+    if (!mongoReady()) return;
+    const res = await request(app)
+      .delete('/api/settings/consents/privacy_policy')
+      .set('X-SupliList-Client', '1');
+    expect(res.status).toBe(401);
+  });
+});

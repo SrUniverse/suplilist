@@ -15,7 +15,7 @@
 export class MetaManager {
   static DEFAULT_META = {
     title: 'SupliList | Suplementos com Evidência Científica — Compare Preços e Doses',
-    description: 'Compare preços de creatina, whey protein, vitaminas e 57+ suplementos baratos na Amazon, Mercado Livre e Shopee. Calcule doses pelo seu peso. 100% gratuito.',
+    description: 'Compare preços de creatina, whey protein, vitaminas e 57+ suplementos baratos na Amazon, Mercado Livre e Shopee. Calcule doses pelo seu peso. Comece grátis.',
     image: 'https://suplilist.com/og-image.png',
     url: 'https://suplilist.com'
   };

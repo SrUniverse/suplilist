@@ -130,7 +130,7 @@ const TAB_CONTENTS = [
   <p>Nossa curadoria científica (evidências, dosagens, classificações) é totalmente independente das comissões. Não recomendamos produtos por pagarem comissões maiores. A seleção de suplementos é baseada exclusivamente em critérios científicos e de qualidade.</p>
 
   <h3>5. Por Que Isso Existe</h3>
-  <p>As comissões de afiliados nos permitem manter o SupliList 100% gratuito, sem anúncios invasivos e sem cobrar dos usuários. É um modelo que alinha os interesses de todos: você economiza, nós sustentamos o projeto.</p>
+  <p>As comissões de afiliados ajudam a manter o plano gratuito do SupliList acessível, sem anúncios invasivos. Existe também um plano PRO opcional para quem deseja recursos avançados — mas você nunca precisa pagar para usar o essencial. É um modelo que alinha os interesses de todos: você economiza, nós sustentamos o projeto.</p>
 
   <h3>6. Sua Liberdade de Escolha</h3>
   <p>Você é completamente livre para comprar onde preferir, com ou sem nossos links. A comparação de preços entre marketplaces existe justamente para que você possa tomar a melhor decisão, independentemente de qualquer comissão.</p>

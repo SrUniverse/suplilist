@@ -6,7 +6,7 @@ const FAQ_DATA = [
     items: [
       {
         q: 'O SupliList é gratuito?',
-        a: 'Sim, 100% gratuito. Sem plano pago, sem assinatura oculta, sem anúncios no app. As comissões de afiliados (opcionais) ajudam a manter o projeto.',
+        a: 'O essencial é gratuito: catálogo completo, calculadora de doses, stack pessoal, check-ins e histórico — sem precisar de conta. Existe um plano PRO opcional (a partir de R$ 9,90/mês) que desbloqueia histórico avançado, relatórios em Excel e remove os anúncios. As comissões de afiliados (opcionais) também ajudam a manter o plano gratuito.',
       },
       {
         q: 'Preciso criar uma conta?',

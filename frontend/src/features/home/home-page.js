@@ -177,7 +177,7 @@ export default class HomePage {
                 </h1>
                 <p class="lp-hero__sub lp-anim" style="--d:.16s">
                   Compare preços, calcule dosagens personalizadas e monitore sua adesão.
-                  100% offline, sem assinatura.
+                  100% offline. Grátis, com plano PRO opcional.
                 </p>
                 <div class="lp-hero__cta lp-anim" style="--d:.24s">
                   <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/onboarding" type="button">Começar Agora →</button>
@@ -257,7 +257,7 @@ export default class HomePage {
 
           <section class="lp-cta" aria-label="Comece agora">
             <h2 class="lp-cta__title">PARE DE ADIVINHAR.<br>COMECE COM CIÊNCIA.</h2>
-            <p class="lp-cta__sub">Sem cadastro. Sem assinatura. Tudo no seu dispositivo.</p>
+            <p class="lp-cta__sub">Sem cadastro. Grátis, com plano PRO opcional. Tudo no seu dispositivo.</p>
             <button class="lp-btn lp-btn--primary lp-btn--lg" data-nav="/list" type="button">Abrir o App →</button>
           </section>
 

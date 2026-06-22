@@ -45,6 +45,10 @@ export default class ListPage {
       this._search._objective = params.objective;
     }
 
+    // Deep-link: /suplemento/:slug opens the catalog and auto-opens the detail
+    // modal for that supplement once data has loaded. Invalid slugs no-op.
+    this._openSlug = params.slug || null;
+
     const state = stateManager.state;
     this._currentTier = state.user?.tier ?? 'free';
   }
@@ -93,6 +97,9 @@ export default class ListPage {
         const initialFiltered = this._search.getFiltered();
         this._grid.init(initialFiltered, this._prices);
         this._modal.init(supplements, this._prices);
+
+        // Deep-link open (no-op if slug is missing or unknown)
+        if (this._openSlug) this._modal.open(this._openSlug);
 
         // Inject ItemList schema for catalog SEO
         SchemaManager.insertSchema({
@@ -166,6 +173,9 @@ export default class ListPage {
         const fallbackFiltered = this._search.getFiltered();
         this._grid.init(fallbackFiltered, null);
         this._modal.init(SUPPLEMENTS_DB, null);
+
+        // Deep-link open also works against bundled fallback data
+        if (this._openSlug) this._modal.open(this._openSlug);
 
 
         // Show error notice above grid without breaking layout

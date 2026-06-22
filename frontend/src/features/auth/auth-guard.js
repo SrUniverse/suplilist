@@ -34,6 +34,17 @@ export const authGuard = {
   ],
 
   /**
+   * Rota pública? Aceita correspondência exata na allowlist OU o prefixo das
+   * páginas de suplemento (/suplemento/:slug) — são pontos de entrada de SEO do
+   * catálogo (estão no sitemap.xml) e precisam ser indexáveis e compartilháveis.
+   * @param {string} path Rota atual
+   * @returns {boolean}
+   */
+  isPublicRoute(path) {
+    return this.publicRoutes.includes(path) || path.startsWith('/suplemento/');
+  },
+
+  /**
    * Checa o acesso à rota atual com base no usuário logado
    * @param {string} currentPath Rota atual (ex: '/dashboard')
    * @param {Object|null} user O objeto user (com emailVerified, role, etc) ou null
@@ -43,7 +54,7 @@ export const authGuard = {
     const isAuth = user?.isAuthenticated;
 
     // 1. Usuário não logado tentando acessar rota protegida → login
-    if (!isAuth && !this.publicRoutes.includes(currentPath)) {
+    if (!isAuth && !this.isPublicRoute(currentPath)) {
       window.history.replaceState(null, null, '/login');
       window.dispatchEvent(new PopStateEvent('popstate'));
       return false;

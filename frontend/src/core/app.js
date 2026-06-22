@@ -33,6 +33,10 @@ const routes = [
   { path: '/home',       load: () => import('../features/home/home-page.js') },
   { path: '/list',       load: () => import('../features/supplements/list-page.js') },
   { path: '/lista',      load: () => import('../features/supplements/list-page.js') },
+  // Individual supplement landing pages (in sitemap.xml for SEO). Reuse the
+  // catalog page and auto-open the detail modal for the :slug. Without this
+  // route every /suplemento/<slug> URL rendered the client-side 404.
+  { path: '/suplemento/:slug', load: () => import('../features/supplements/list-page.js') },
   { path: '/my-stack',   load: () => import('../features/stack/my-stack-page.js') },
   { path: '/checkin',    load: () => import('../features/checkin/checkin-page.js') },
   { path: '/history',    load: () => import('../features/history/history-page.js') },

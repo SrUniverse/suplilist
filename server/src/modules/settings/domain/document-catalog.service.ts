@@ -25,5 +25,27 @@ export class DocumentCatalogService {
     if (!versions) return null;
     return versions[version] || null;
   }
+
+  /**
+   * Returns the current (highest SemVer) published version for a document type,
+   * or null if the type has no registered versions. Used when revoking consent
+   * without an explicit version: the revocation is recorded against the document
+   * currently in force.
+   */
+  getCurrentVersion(type: ConsentType): string | null {
+    const versions = this.catalog[type];
+    if (!versions) return null;
+    const keys = Object.keys(versions);
+    if (keys.length === 0) return null;
+    return keys.sort((a, b) => {
+      const pa = a.split('.').map(Number);
+      const pb = b.split('.').map(Number);
+      for (let i = 0; i < 3; i++) {
+        const diff = (pa[i] || 0) - (pb[i] || 0);
+        if (diff !== 0) return diff;
+      }
+      return 0;
+    })[keys.length - 1];
+  }
 }
 export default DocumentCatalogService;

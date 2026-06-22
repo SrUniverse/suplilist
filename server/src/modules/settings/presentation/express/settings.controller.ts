@@ -111,5 +111,38 @@ export class SettingsController {
       next(error);
     }
   }
+
+  /**
+   * Revoke a previously granted consent via DELETE /consents/:consentType (LGPD
+   * right to withdraw). The version is resolved server-side against the document
+   * currently in force, so the client only needs to name the consent type.
+   * Returns the fresh settings snapshot so the client can absorb it directly.
+   */
+  async revokeConsentByType(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    try {
+      const consentType = req.params.consentType;
+      const allowed = ['privacy_policy', 'terms_of_service', 'marketing_emails'] as const;
+      if (!allowed.includes(consentType as typeof allowed[number])) {
+        return res.status(400).json({ success: false, error: 'invalid_consent_type' });
+      }
+
+      const userId = req.user!.id;
+      const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || req.socket.remoteAddress || 'unknown';
+      const userAgent = req.headers['user-agent'] || 'unknown';
+
+      await this.revokeConsentUseCase.execute({
+        userId,
+        consentType: consentType as typeof allowed[number],
+        ipAddress,
+        userAgent,
+      });
+
+      // Return the updated snapshot so the client absorbs a full SettingsResponseDTO.
+      const settings = await this.getSettingsUseCase.execute(userId);
+      return res.status(200).json({ success: true, data: settings });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export default SettingsController;

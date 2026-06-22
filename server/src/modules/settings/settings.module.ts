@@ -57,6 +57,7 @@ export function initializeSettingsModule(): Router {
   router.patch('/locale', requireAuth, (req, res, next) => controller.updateLocale(req, res, next));
   router.get('/consents', requireAuth, (req, res, next) => controller.getConsentHistory(req, res, next));
   router.post('/consents', requireAuth, (req, res, next) => controller.submitConsent(req, res, next));
+  router.delete('/consents/:consentType', requireAuth, (req, res, next) => controller.revokeConsentByType(req, res, next));
 
   return router;
 }

@@ -1,8 +1,8 @@
 [
   {
     "id": "creatina-monohidratada",
-    "image": "/assets/creatina.webp",
     "name": "Creatina Monohidratada",
+    "image": "/assets/creatina.webp",
     "category": "Força & Performance",
     "evidenceLevel": "A",
     "targets": {
@@ -40,8 +40,8 @@
   },
   {
     "id": "whey-protein",
-    "image": "/assets/whey_protein.webp",
     "name": "Whey Protein",
+    "image": "/assets/whey_protein.webp",
     "category": "Proteínas",
     "evidenceLevel": "A",
     "targets": {
@@ -78,8 +78,8 @@
   },
   {
     "id": "cafeina-teanina",
-    "image": "/assets/cafeina_teanina.webp",
     "name": "Cafeína + L-Teanina",
+    "image": "/assets/cafeina_teanina.webp",
     "category": "Energéticos & Foco",
     "evidenceLevel": "A",
     "targets": {
@@ -123,8 +123,8 @@
   },
   {
     "id": "vitamina-d3",
-    "image": "/assets/vitamina_d3_k2.webp",
     "name": "Vitamina D3",
+    "image": "/assets/vitamina_d3_k2.webp",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
     "targets": {
@@ -136,9 +136,8 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
-      "maintenance": 2000,
       "unit": "UI",
+      "maintenance": 2000,
       "upperLimit": 10000,
       "timing": "Com a maior refeição do dia (gorduras solúveis)"
     },
@@ -159,8 +158,8 @@
   },
   {
     "id": "omega-3",
-    "image": "/assets/omega_3.webp",
     "name": "Ômega 3",
+    "image": "/assets/omega_3.webp",
     "category": "Saúde Cardiovascular",
     "evidenceLevel": "A",
     "targets": {
@@ -172,9 +171,8 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
-      "maintenance": 1000,
       "unit": "mg",
+      "maintenance": 1000,
       "upperLimit": 3000,
       "timing": "Com as principais refeições"
     },
@@ -195,8 +193,8 @@
   },
   {
     "id": "beta-alanina",
-    "image": "/assets/beta_alanina.webp",
     "name": "Beta-Alanina",
+    "image": "/assets/beta_alanina.webp",
     "category": "Força & Performance",
     "evidenceLevel": "A",
     "targets": {
@@ -231,8 +229,8 @@
   },
   {
     "id": "l-carnitina",
-    "image": "/assets/l_carnitina.webp",
     "name": "L-Carnitina Tartarato",
+    "image": "/assets/l_carnitina.webp",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "B",
     "targets": {
@@ -267,8 +265,8 @@
   },
   {
     "id": "magnesio-bisglicinato",
-    "image": "/assets/magnesio_glicinato.webp",
     "name": "Magnésio Bisglicinato",
+    "image": "/assets/magnesio_glicinato.webp",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
     "targets": {
@@ -280,9 +278,8 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
-      "maintenance": 350,
       "unit": "mg",
+      "maintenance": 350,
       "upperLimit": 500,
       "timing": "30-60 minutos antes de dormir"
     },
@@ -303,8 +300,8 @@
   },
   {
     "id": "vitamina-c",
-    "image": "/assets/vitamina_c.webp",
     "name": "Vitamina C",
+    "image": "/assets/vitamina_c.webp",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
     "targets": {
@@ -316,9 +313,8 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
-      "maintenance": 500,
       "unit": "mg",
+      "maintenance": 500,
       "upperLimit": 2000,
       "timing": "Pela manhã com refeição"
     },
@@ -339,8 +335,8 @@
   },
   {
     "id": "ashwagandha",
-    "image": "/assets/ashwagandha.webp",
     "name": "Ashwagandha KSM-66",
+    "image": "/assets/ashwagandha.webp",
     "category": "Adaptógenos & Foco",
     "evidenceLevel": "B",
     "targets": {
@@ -352,9 +348,8 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
-      "maintenance": 600,
       "unit": "mg",
+      "maintenance": 600,
       "upperLimit": 1000,
       "timing": "À noite com água ou refeição leve"
     },
@@ -376,8 +371,8 @@
   },
   {
     "id": "alpha-gpc",
-    "image": "/assets/alpha_gpc.webp",
     "name": "Alpha-GPC",
+    "image": "/assets/alpha_gpc.webp",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
     "targets": {
@@ -389,10 +384,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 300,
       "upperLimit": 600,
-      "unit": "mg",
       "timing": "30-60 min antes do treino ou pela manhã"
     },
     "pricePerGram": 6.6667,
@@ -412,8 +406,8 @@
   },
   {
     "id": "apigenina",
-    "image": "/assets/apigenina.webp",
     "name": "Apigenina",
+    "image": "/assets/apigenina.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -425,10 +419,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 50,
       "upperLimit": 120,
-      "unit": "mg",
       "timing": "30-60 min antes de dormir"
     },
     "pricePerGram": 23.4,
@@ -448,8 +441,8 @@
   },
   {
     "id": "bacopa-monnieri",
-    "image": "/assets/bacopa_monnieri.webp",
     "name": "Bacopa Monnieri",
+    "image": "/assets/bacopa_monnieri.webp",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
     "targets": {
@@ -461,10 +454,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 300,
       "upperLimit": 600,
-      "unit": "mg",
       "timing": "Com refeição — efeitos acumulam em 4-6 semanas de uso contínuo"
     },
     "pricePerGram": 4.7333,
@@ -486,8 +478,8 @@
   },
   {
     "id": "berberina",
-    "image": "/assets/berberina.webp",
     "name": "Berberina",
+    "image": "/assets/berberina.webp",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "B",
     "targets": {
@@ -499,10 +491,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1500,
-      "unit": "mg",
       "timing": "Antes das principais refeições (fracionado 2-3x/dia)"
     },
     "pricePerGram": 3.16,
@@ -529,8 +520,8 @@
   },
   {
     "id": "boro",
-    "image": "/assets/boro.webp",
     "name": "Boro",
+    "image": "/assets/boro.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -542,10 +533,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 3,
       "upperLimit": 10,
-      "unit": "mg",
       "timing": "Com refeição, pela manhã"
     },
     "pricePerGram": 250,
@@ -565,8 +555,8 @@
   },
   {
     "id": "calcio-citrato-d3",
-    "image": "/assets/calcio_citrato_d3.webp",
     "name": "Cálcio Citrato + D3",
+    "image": "/assets/calcio_citrato_d3.webp",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
     "targets": {
@@ -578,10 +568,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Com refeição — fracionado, máximo 500mg por dose"
     },
     "pricePerGram": 2,
@@ -602,8 +591,8 @@
   },
   {
     "id": "catuaba",
-    "image": "/assets/catuaba.webp",
     "name": "Catuaba",
+    "image": "/assets/catuaba.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -615,10 +604,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Pela manhã ou 60 min antes de atividade física"
     },
     "pricePerGram": 1.16,
@@ -638,8 +626,8 @@
   },
   {
     "id": "cha-verde",
-    "image": "/assets/cha_verde.webp",
     "name": "Chá Verde (EGCG)",
+    "image": "/assets/cha_verde.webp",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "B",
     "targets": {
@@ -651,10 +639,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 400,
       "upperLimit": 800,
-      "unit": "mg",
       "timing": "30 min antes do treino ou com refeições (forma extrato EGCG)"
     },
     "pricePerGram": 2.075,
@@ -681,8 +668,8 @@
   },
   {
     "id": "coenzima-q10",
-    "image": "/assets/coenzima_q10.webp",
     "name": "Coenzima Q10",
+    "image": "/assets/coenzima_q10.webp",
     "category": "Saúde Cardiovascular",
     "evidenceLevel": "B",
     "targets": {
@@ -694,10 +681,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 100,
       "upperLimit": 300,
-      "unit": "mg",
       "timing": "Com refeição rica em gorduras (lipossolúvel)"
     },
     "pricePerGram": 18.3,
@@ -718,8 +704,8 @@
   },
   {
     "id": "colageno",
-    "image": "/assets/colageno.webp",
     "name": "Colágeno Hidrolisado",
+    "image": "/assets/colageno.webp",
     "category": "Saúde Articular & Pele",
     "evidenceLevel": "B",
     "targets": {
@@ -731,10 +717,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 10000,
       "upperLimit": 15000,
-      "unit": "mg",
       "timing": "30-60 min antes do treino ou pela manhã com vitamina C"
     },
     "pricePerGram": 0.18,
@@ -755,8 +740,8 @@
   },
   {
     "id": "cranberry",
-    "image": "/assets/cranberry.webp",
     "name": "Cranberry",
+    "image": "/assets/cranberry.webp",
     "category": "Saúde Intestinal",
     "evidenceLevel": "B",
     "targets": {
@@ -768,10 +753,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 400,
       "upperLimit": 1200,
-      "unit": "mg",
       "timing": "Com água, preferencialmente com refeição"
     },
     "pricePerGram": 1.675,
@@ -791,8 +775,8 @@
   },
   {
     "id": "cromo-picolinato",
-    "image": "/assets/cromo_picolinato.webp",
     "name": "Cromo Picolinato",
+    "image": "/assets/cromo_picolinato.webp",
     "category": "Queima de Gordura & Recovery",
     "evidenceLevel": "C",
     "targets": {
@@ -804,10 +788,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mcg",
       "maintenance": 200,
       "upperLimit": 400,
-      "unit": "mcg",
       "timing": "Com refeição principal do dia"
     },
     "pricePerGram": 2500,
@@ -827,8 +810,8 @@
   },
   {
     "id": "curcumina",
-    "image": "/assets/curcumina.webp",
     "name": "Curcumina",
+    "image": "/assets/curcumina.webp",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
     "targets": {
@@ -840,10 +823,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1500,
-      "unit": "mg",
       "timing": "Com refeição gordurosa — combine com piperina para absorção"
     },
     "pricePerGram": 2.66,
@@ -863,8 +845,8 @@
   },
   {
     "id": "eaa",
-    "image": "/assets/eaa.webp",
     "name": "EAA (Aminoácidos Essenciais)",
+    "image": "/assets/eaa.webp",
     "category": "Proteínas",
     "evidenceLevel": "A",
     "targets": {
@@ -876,10 +858,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 10000,
       "upperLimit": 20000,
-      "unit": "mg",
       "timing": "Durante ou imediatamente pós-treino"
     },
     "pricePerGram": 0.33,
@@ -899,8 +880,8 @@
   },
   {
     "id": "ecdisterona",
-    "image": "/assets/ecdisterona.webp",
     "name": "Ecdisterona",
+    "image": "/assets/ecdisterona.webp",
     "category": "Força & Performance",
     "evidenceLevel": "C",
     "targets": {
@@ -912,10 +893,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Com refeição — pré ou pós-treino"
     },
     "pricePerGram": 4.34,
@@ -936,8 +916,8 @@
   },
   {
     "id": "feno-grego",
-    "image": "/assets/feno_grego.webp",
     "name": "Feno-Grego",
+    "image": "/assets/feno_grego.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -949,10 +929,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 600,
       "upperLimit": 1200,
-      "unit": "mg",
       "timing": "Com refeição, pela manhã"
     },
     "pricePerGram": 0.8333,
@@ -974,8 +953,8 @@
   },
   {
     "id": "ferro-bisglicinato",
-    "image": "/assets/ferro_bisglicinato.webp",
     "name": "Ferro Bisglicinato",
+    "image": "/assets/ferro_bisglicinato.webp",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
     "targets": {
@@ -987,10 +966,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 30,
       "upperLimit": 60,
-      "unit": "mg",
       "timing": "Longe de café, chá e laticínios — idealmente com vitamina C"
     },
     "pricePerGram": 22.3333,
@@ -1012,8 +990,8 @@
   },
   {
     "id": "glicina",
-    "image": "/assets/glicina.webp",
     "name": "Glicina",
+    "image": "/assets/glicina.webp",
     "category": "Sono & Recuperação",
     "evidenceLevel": "B",
     "targets": {
@@ -1025,10 +1003,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 3000,
       "upperLimit": 5000,
-      "unit": "mg",
       "timing": "30-60 min antes de dormir"
     },
     "pricePerGram": 0.13,
@@ -1048,8 +1025,8 @@
   },
   {
     "id": "glucosamina-condroitina",
-    "image": "/assets/glucosamina_condroitina.webp",
     "name": "Glucosamina + Condroitina",
+    "image": "/assets/glucosamina_condroitina.webp",
     "category": "Saúde Articular & Pele",
     "evidenceLevel": "B",
     "targets": {
@@ -1063,10 +1040,9 @@
       "shellfish"
     ],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 1500,
       "upperLimit": 3000,
-      "unit": "mg",
       "timing": "Com refeição — efeitos levam 4-8 semanas para aparecer"
     },
     "pricePerGram": 0.8867,
@@ -1088,8 +1064,8 @@
   },
   {
     "id": "hmb",
-    "image": "/assets/hmb.webp",
     "name": "HMB",
+    "image": "/assets/hmb.webp",
     "category": "Força & Performance",
     "evidenceLevel": "B",
     "targets": {
@@ -1101,10 +1077,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 3000,
       "upperLimit": 6000,
-      "unit": "mg",
       "timing": "Distribuído ao longo do dia — incluindo pré e pós-treino"
     },
     "pricePerGram": 0.5567,
@@ -1124,8 +1099,8 @@
   },
   {
     "id": "inositol",
-    "image": "/assets/inositol.webp",
     "name": "Inositol",
+    "image": "/assets/inositol.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "B",
     "targets": {
@@ -1137,10 +1112,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 2000,
       "upperLimit": 4000,
-      "unit": "mg",
       "timing": "Pode ser dividido ao longo do dia"
     },
     "pricePerGram": 0.2,
@@ -1160,8 +1134,8 @@
   },
   {
     "id": "lions-mane",
-    "image": "/assets/lions_mane.webp",
     "name": "Lion's Mane (Juba de Leão)",
+    "image": "/assets/lions_mane.webp",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
     "targets": {
@@ -1173,10 +1147,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Pela manhã com refeição — efeitos cognitivos acumulam em semanas"
     },
     "pricePerGram": 4,
@@ -1197,8 +1170,8 @@
   },
   {
     "id": "l-citrulina",
-    "image": "/assets/l_citrulina.webp",
     "name": "L-Citrulina",
+    "image": "/assets/l_citrulina.webp",
     "category": "Força & Performance",
     "evidenceLevel": "A",
     "targets": {
@@ -1210,10 +1183,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 6000,
       "upperLimit": 8000,
-      "unit": "mg",
       "timing": "30-60 min antes do treino"
     },
     "pricePerGram": 0.27,
@@ -1233,8 +1205,8 @@
   },
   {
     "id": "l-teanina",
-    "image": "/assets/l_teanina.webp",
     "name": "L-Teanina",
+    "image": "/assets/l_teanina.webp",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "A",
     "targets": {
@@ -1246,10 +1218,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 200,
       "upperLimit": 400,
-      "unit": "mg",
       "timing": "Pela manhã (sozinha ou com cafeína) ou antes de dormir"
     },
     "pricePerGram": 4.6,
@@ -1269,8 +1240,8 @@
   },
   {
     "id": "magnesio-treonato",
-    "image": "/assets/magnesio_treonato.webp",
     "name": "Magnésio Treonato",
+    "image": "/assets/magnesio_treonato.webp",
     "category": "Cognição & Neuroproteção",
     "evidenceLevel": "B",
     "targets": {
@@ -1282,10 +1253,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 144,
       "upperLimit": 288,
-      "unit": "mg",
       "timing": "1-2h antes de dormir"
     },
     "pricePerGram": 17.9167,
@@ -1306,8 +1276,8 @@
   },
   {
     "id": "marapuama",
-    "image": "/assets/marapuama.webp",
     "name": "Marapuama",
+    "image": "/assets/marapuama.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -1319,10 +1289,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 1000,
       "upperLimit": 2000,
-      "unit": "mg",
       "timing": "Pela manhã ou antes de atividade física"
     },
     "pricePerGram": 0.5,
@@ -1342,8 +1311,8 @@
   },
   {
     "id": "melatonina",
-    "image": "/assets/melatonina.webp",
     "name": "Melatonina",
+    "image": "/assets/melatonina.webp",
     "category": "Sono & Recuperação",
     "evidenceLevel": "A",
     "targets": {
@@ -1355,10 +1324,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 0.5,
       "upperLimit": 5,
-      "unit": "mg",
       "timing": "30-60 min antes de dormir no escuro total"
     },
     "pricePerGram": 1160,
@@ -1380,8 +1348,8 @@
   },
   {
     "id": "mucuna-pruriens",
-    "image": "/assets/mucuna_pruriens.webp",
     "name": "Mucuna Pruriens",
+    "image": "/assets/mucuna_pruriens.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -1393,10 +1361,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Pela manhã com estômago vazio para máxima absorção de L-DOPA"
     },
     "pricePerGram": 2.66,
@@ -1424,8 +1391,8 @@
   },
   {
     "id": "myco-defense-extra",
-    "image": "/assets/myco_defense_extra.webp",
     "name": "Myco Defense Extra",
+    "image": "/assets/myco_defense_extra.webp",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
     "targets": {
@@ -1437,10 +1404,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Pela manhã com refeição"
     },
     "pricePerGram": 4.84,
@@ -1460,8 +1426,8 @@
   },
   {
     "id": "nac",
-    "image": "/assets/nac.webp",
     "name": "NAC (N-Acetil-Cisteína)",
+    "image": "/assets/nac.webp",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
     "targets": {
@@ -1473,10 +1439,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 600,
       "upperLimit": 1800,
-      "unit": "mg",
       "timing": "Com refeição — longe do pré-treino imediato"
     },
     "pricePerGram": 1.95,
@@ -1498,8 +1463,8 @@
   },
   {
     "id": "oleo-de-primula",
-    "image": "/assets/oleo_de_primula.webp",
     "name": "Óleo de Prímula",
+    "image": "/assets/oleo_de_primula.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -1511,10 +1476,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 1000,
       "upperLimit": 3000,
-      "unit": "mg",
       "timing": "Com refeição gordurosa"
     },
     "pricePerGram": 0.92,
@@ -1535,8 +1499,8 @@
   },
   {
     "id": "panax-ginseng",
-    "image": "/assets/panax_ginseng.webp",
     "name": "Panax Ginseng",
+    "image": "/assets/panax_ginseng.webp",
     "category": "Adaptógenos & Foco",
     "evidenceLevel": "B",
     "targets": {
@@ -1548,10 +1512,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 400,
       "upperLimit": 800,
-      "unit": "mg",
       "timing": "Pela manhã — cicle 8 semanas on / 4 semanas off"
     },
     "pricePerGram": 3.95,
@@ -1574,8 +1537,8 @@
   },
   {
     "id": "probiotico",
-    "image": "/assets/probiotico.webp",
     "name": "Probiótico",
+    "image": "/assets/probiotico.webp",
     "category": "Saúde Intestinal",
     "evidenceLevel": "B",
     "targets": {
@@ -1587,10 +1550,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "bi UFC",
       "maintenance": 10,
       "upperLimit": 50,
-      "unit": "bi UFC",
       "timing": "Em jejum ou 30 min antes do café da manhã"
     },
     "pricePerGram": 0.3,
@@ -1611,8 +1573,8 @@
   },
   {
     "id": "psyllium",
-    "image": "/assets/psyllium.webp",
     "name": "Psyllium",
+    "image": "/assets/psyllium.webp",
     "category": "Saúde Intestinal",
     "evidenceLevel": "A",
     "targets": {
@@ -1624,10 +1586,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 5000,
       "upperLimit": 15000,
-      "unit": "mg",
       "timing": "30 min antes das refeições principais com bastante água (300ml ou mais)"
     },
     "pricePerGram": 0.12,
@@ -1649,8 +1610,8 @@
   },
   {
     "id": "quercetina",
-    "image": "/assets/quercetina.webp",
     "name": "Quercetina",
+    "image": "/assets/quercetina.webp",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
     "targets": {
@@ -1662,10 +1623,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Com refeição e vitamina C (aumenta biodisponibilidade)"
     },
     "pricePerGram": 2.84,
@@ -1685,8 +1645,8 @@
   },
   {
     "id": "resveratrol",
-    "image": "/assets/resveratrol.webp",
     "name": "Resveratrol",
+    "image": "/assets/resveratrol.webp",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "C",
     "targets": {
@@ -1698,10 +1658,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 250,
       "upperLimit": 500,
-      "unit": "mg",
       "timing": "Com refeição"
     },
     "pricePerGram": 6.68,
@@ -1722,8 +1681,8 @@
   },
   {
     "id": "rhodiola-rosea",
-    "image": "/assets/rhodiola_rosea.webp",
     "name": "Rhodiola Rosea",
+    "image": "/assets/rhodiola_rosea.webp",
     "category": "Adaptógenos & Foco",
     "evidenceLevel": "B",
     "targets": {
@@ -1735,10 +1694,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 400,
       "upperLimit": 600,
-      "unit": "mg",
       "timing": "Pela manhã em jejum — 30 min antes do café"
     },
     "pricePerGram": 3.95,
@@ -1760,8 +1718,8 @@
   },
   {
     "id": "saw-palmetto",
-    "image": "/assets/saw_palmetto.webp",
     "name": "Saw Palmetto",
+    "image": "/assets/saw_palmetto.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "B",
     "targets": {
@@ -1773,10 +1731,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 320,
       "upperLimit": 640,
-      "unit": "mg",
       "timing": "Com refeição principal do dia"
     },
     "pricePerGram": 4.1563,
@@ -1797,8 +1754,8 @@
   },
   {
     "id": "shatavari",
-    "image": "/assets/shatavari.webp",
     "name": "Shatavari",
+    "image": "/assets/shatavari.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "C",
     "targets": {
@@ -1810,10 +1767,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 1000,
-      "unit": "mg",
       "timing": "Com refeição, 1-2x ao dia"
     },
     "pricePerGram": 2,
@@ -1834,8 +1790,8 @@
   },
   {
     "id": "spirulina",
-    "image": "/assets/spirulina.webp",
     "name": "Spirulina",
+    "image": "/assets/spirulina.webp",
     "category": "Antioxidantes & Anti-inflamatórios",
     "evidenceLevel": "B",
     "targets": {
@@ -1847,10 +1803,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 3000,
       "upperLimit": 10000,
-      "unit": "mg",
       "timing": "Com refeição ou batido pré-treino"
     },
     "pricePerGram": 0.14,
@@ -1872,8 +1827,8 @@
   },
   {
     "id": "taurina",
-    "image": "/assets/taurina.webp",
     "name": "Taurina",
+    "image": "/assets/taurina.webp",
     "category": "Saúde Cardiovascular",
     "evidenceLevel": "B",
     "targets": {
@@ -1885,10 +1840,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 1000,
       "upperLimit": 3000,
-      "unit": "mg",
       "timing": "30-60 min antes do treino ou com refeição"
     },
     "pricePerGram": 0.1,
@@ -1908,8 +1862,8 @@
   },
   {
     "id": "tirosina",
-    "image": "/assets/tirosina.webp",
     "name": "Tirosina",
+    "image": "/assets/tirosina.webp",
     "category": "Energéticos & Foco",
     "evidenceLevel": "B",
     "targets": {
@@ -1921,10 +1875,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 500,
       "upperLimit": 2000,
-      "unit": "mg",
       "timing": "30-60 min antes do treino ou situações de alto estresse cognitivo"
     },
     "pricePerGram": 0.5,
@@ -1945,8 +1898,8 @@
   },
   {
     "id": "tongkat-ali",
-    "image": "/assets/tongkat_ali.webp",
     "name": "Tongkat Ali",
+    "image": "/assets/tongkat_ali.webp",
     "category": "Saúde Hormonal",
     "evidenceLevel": "B",
     "targets": {
@@ -1958,10 +1911,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 200,
       "upperLimit": 400,
-      "unit": "mg",
       "timing": "Pela manhã em jejum — use extrato 200:1"
     },
     "pricePerGram": 10,
@@ -1983,8 +1935,8 @@
   },
   {
     "id": "valeriana",
-    "image": "/assets/valeriana.webp",
     "name": "Valeriana",
+    "image": "/assets/valeriana.webp",
     "category": "Sono & Recuperação",
     "evidenceLevel": "B",
     "targets": {
@@ -1996,10 +1948,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 300,
       "upperLimit": 600,
-      "unit": "mg",
       "timing": "30-60 min antes de dormir"
     },
     "pricePerGram": 1.6667,
@@ -2027,8 +1978,8 @@
   },
   {
     "id": "zinco-bisglicinato",
-    "image": "/assets/zinco_bisglicinato.webp",
     "name": "Zinco Bisglicinato",
+    "image": "/assets/zinco_bisglicinato.webp",
     "category": "Vitaminas & Minerais",
     "evidenceLevel": "A",
     "targets": {
@@ -2040,10 +1991,9 @@
     },
     "restrictions": [],
     "dosage": {
-      "isFixed": true,
+      "unit": "mg",
       "maintenance": 15,
       "upperLimit": 40,
-      "unit": "mg",
       "timing": "Longe de ferro e cálcio — à noite ou entre refeições"
     },
     "pricePerGram": 44.6667,

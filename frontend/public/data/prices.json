@@ -7,334 +7,1599 @@
     "pricePerUnit_formula": "price / qty  (ex: 89.90 / 300g = 0.30 R$/g)",
     "last_updated": "2026-06-02"
   },
-
   "creatina-monohidratada": {
-    "amazon":       { "price": 89.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.30, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=creatina+monohidratada&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 79.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.27, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/creatina-monohidratada", "saving": 10 },
-    "shopee":       { "price": 74.50,  "qty": 300,  "unit": "g", "pricePerUnit": 0.25, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=creatina+monohidratada&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 89.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.3,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=creatina+monohidratada&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 79.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.27,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/creatina-monohidratada",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 74.5,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.25,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=creatina+monohidratada&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "whey-protein": {
-    "amazon":       { "price": 199.90, "qty": 900,  "unit": "g", "pricePerUnit": 0.22, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=whey+protein&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 179.90, "qty": 900,  "unit": "g", "pricePerUnit": 0.20, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/whey-protein", "saving": 20 },
-    "shopee":       { "price": 169.90, "qty": 900,  "unit": "g", "pricePerUnit": 0.19, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=whey+protein&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 199.9,
+      "qty": 900,
+      "unit": "g",
+      "pricePerUnit": 0.22,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=whey+protein&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 179.9,
+      "qty": 900,
+      "unit": "g",
+      "pricePerUnit": 0.2,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/whey-protein",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 169.9,
+      "qty": 900,
+      "unit": "g",
+      "pricePerUnit": 0.19,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=whey+protein&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "omega-3": {
-    "amazon":       { "price": 59.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.00, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=omega+3+fish+oil&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 49.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.83, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/omega-3", "saving": 10 },
-    "shopee":       { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=omega+3&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 59.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=omega+3+fish+oil&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 49.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.83,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/omega-3",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=omega+3&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "vitamina-d3": {
-    "amazon":       { "price": 39.90,  "qty": 120,  "unit": "caps", "pricePerUnit": 0.33, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=vitamina+d3+2000ui&tag=suplilist01-20&s=review-rank", "saving": 5 },
-    "mercadolivre": { "price": 44.90,  "qty": 120,  "unit": "caps", "pricePerUnit": 0.37, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/vitamina-d3", "saving": 0 },
-    "shopee":       { "price": 32.90,  "qty": 120,  "unit": "caps", "pricePerUnit": 0.27, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=vitamina+d3&sortBy=sales", "saving": 12 }
+    "amazon": {
+      "price": 39.9,
+      "qty": 120,
+      "unit": "caps",
+      "pricePerUnit": 0.33,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=vitamina+d3+2000ui&tag=suplilist01-20&s=review-rank",
+      "saving": 5
+    },
+    "mercadolivre": {
+      "price": 44.9,
+      "qty": 120,
+      "unit": "caps",
+      "pricePerUnit": 0.37,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/vitamina-d3",
+      "saving": 0
+    },
+    "shopee": {
+      "price": 32.9,
+      "qty": 120,
+      "unit": "caps",
+      "pricePerUnit": 0.27,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=vitamina+d3&sortBy=sales",
+      "saving": 12
+    }
   },
-
   "magnesio-bisglicinato": {
-    "amazon":       { "price": 89.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.50, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=magnesio+bisglicinato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 74.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.25, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/magnesio-bisglicinato", "saving": 15 },
-    "shopee":       { "price": 69.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.17, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=magnesio+bisglicinato&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 89.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.5,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=magnesio+bisglicinato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 74.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.25,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/magnesio-bisglicinato",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 69.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.17,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=magnesio+bisglicinato&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "ashwagandha": {
-    "amazon":       { "price": 129.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.17, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=ashwagandha+ksm-66&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 109.90, "qty": 60,   "unit": "caps", "pricePerUnit": 1.83, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/ashwagandha-ksm66", "saving": 20 },
-    "shopee":       { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=ashwagandha+ksm66&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 129.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.17,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=ashwagandha+ksm-66&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 109.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.83,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/ashwagandha-ksm66",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=ashwagandha+ksm66&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "cafeina-teanina": {
-    "amazon":       { "price": 49.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.83, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=cafeina+teanina&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 39.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.67, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/cafeina-teanina", "saving": 10 },
-    "shopee":       { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=cafeina+teanina&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 49.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.83,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=cafeina+teanina&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 39.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.67,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/cafeina-teanina",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=cafeina+teanina&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "melatonina": {
-    "amazon":       { "price": 49.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.83, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=melatonina+0.5mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 39.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.67, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/melatonina", "saving": 10 },
-    "shopee":       { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=melatonina&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 49.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.83,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=melatonina+0.5mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 39.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.67,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/melatonina",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=melatonina&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "l-citrulina": {
-    "amazon":       { "price": 99.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.33, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=l-citrulina+pura&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 84.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.28, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/l-citrulina", "saving": 15 },
-    "shopee":       { "price": 79.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.27, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=l-citrulina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 99.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.33,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=l-citrulina+pura&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 84.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.28,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/l-citrulina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 79.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.27,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=l-citrulina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "beta-alanina": {
-    "amazon":       { "price": 79.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.27, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=beta+alanina&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 64.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.22, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/beta-alanina", "saving": 15 },
-    "shopee":       { "price": 59.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.20, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=beta+alanina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 79.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.27,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=beta+alanina&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 64.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.22,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/beta-alanina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 59.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.2,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=beta+alanina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "zinco-bisglicinato": {
-    "amazon":       { "price": 54.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.92, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=zinco+bisglicinato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/zinco-bisglicinato", "saving": 10 },
-    "shopee":       { "price": 39.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.67, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=zinco+bisglicinato&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 54.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.92,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=zinco+bisglicinato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/zinco-bisglicinato",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 39.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.67,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=zinco+bisglicinato&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "vitamina-c": {
-    "amazon":       { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=vitamina+c+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 27.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.47, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/vitamina-c-500mg", "saving": 7 },
-    "shopee":       { "price": 24.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.42, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=vitamina+c+500mg&sortBy=sales", "saving": 10 }
+    "amazon": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=vitamina+c+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 27.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.47,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/vitamina-c-500mg",
+      "saving": 7
+    },
+    "shopee": {
+      "price": 24.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.42,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=vitamina+c+500mg&sortBy=sales",
+      "saving": 10
+    }
   },
-
   "l-carnitina": {
-    "amazon":       { "price": 89.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.50, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=l-carnitina+tartarato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 74.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.25, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/l-carnitina-tartarato", "saving": 15 },
-    "shopee":       { "price": 69.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.17, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=l-carnitina+tartarato&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 89.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.5,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=l-carnitina+tartarato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 74.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.25,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/l-carnitina-tartarato",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 69.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.17,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=l-carnitina+tartarato&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "colageno": {
-    "amazon":       { "price": 69.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.23, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=colageno+hidrolisado&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 59.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.20, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/colageno-hidrolisado", "saving": 10 },
-    "shopee":       { "price": 54.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.18, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=colageno+hidrolisado&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 69.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.23,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=colageno+hidrolisado&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 59.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.2,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/colageno-hidrolisado",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 54.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.18,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=colageno+hidrolisado&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "probiotico": {
-    "amazon":       { "price": 119.90, "qty": 30,   "unit": "caps", "pricePerUnit": 4.00, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=probiotico+10+bilhoes+ufc&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 99.90,  "qty": 30,   "unit": "caps", "pricePerUnit": 3.33, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/probiotico-10-bilhoes", "saving": 20 },
-    "shopee":       { "price": 89.90,  "qty": 30,   "unit": "caps", "pricePerUnit": 3.00, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=probiotico+10+bilhoes&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 119.9,
+      "qty": 30,
+      "unit": "caps",
+      "pricePerUnit": 4,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=probiotico+10+bilhoes+ufc&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 99.9,
+      "qty": 30,
+      "unit": "caps",
+      "pricePerUnit": 3.33,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/probiotico-10-bilhoes",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 89.9,
+      "qty": 30,
+      "unit": "caps",
+      "pricePerUnit": 3,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=probiotico+10+bilhoes&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "alpha-gpc": {
-    "amazon":       { "price": 149.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.50, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=alpha+gpc+300mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 129.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.17, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/alpha-gpc", "saving": 20 },
-    "shopee":       { "price": 119.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.00, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=alpha+gpc&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 149.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.5,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=alpha+gpc+300mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 129.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.17,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/alpha-gpc",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 119.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=alpha+gpc&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "apigenina": {
-    "amazon":       { "price": 89.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.50, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=apigenina+suplemento&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 74.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.25, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/apigenina", "saving": 15 },
-    "shopee":       { "price": 69.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.17, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=apigenina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 89.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.5,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=apigenina+suplemento&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 74.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.25,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/apigenina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 69.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.17,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=apigenina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "bacopa-monnieri": {
-    "amazon":       { "price": 109.90, "qty": 60,   "unit": "caps", "pricePerUnit": 1.83, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=bacopa+monnieri+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 89.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.50, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/bacopa-monnieri", "saving": 20 },
-    "shopee":       { "price": 84.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.42, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=bacopa+monnieri&sortBy=sales", "saving": 25 }
+    "amazon": {
+      "price": 109.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.83,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=bacopa+monnieri+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 89.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.5,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/bacopa-monnieri",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 84.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.42,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=bacopa+monnieri&sortBy=sales",
+      "saving": 25
+    }
   },
-
   "berberina": {
-    "amazon":       { "price": 119.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.00, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=berberina+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/berberina-500mg", "saving": 20 },
-    "shopee":       { "price": 94.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.58, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=berberina+500mg&sortBy=sales", "saving": 25 }
+    "amazon": {
+      "price": 119.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=berberina+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/berberina-500mg",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 94.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.58,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=berberina+500mg&sortBy=sales",
+      "saving": 25
+    }
   },
-
   "boro": {
-    "amazon":       { "price": 59.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.00, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=boro+suplemento+3mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 49.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.83, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/boro-suplemento", "saving": 10 },
-    "shopee":       { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=boro+suplemento&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 59.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=boro+suplemento+3mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 49.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.83,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/boro-suplemento",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=boro+suplemento&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "calcio-citrato-d3": {
-    "amazon":       { "price": 79.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.33, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=calcio+citrato+vitamina+d3&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 64.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.08, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/calcio-citrato-d3", "saving": 15 },
-    "shopee":       { "price": 59.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.00, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=calcio+citrato+d3&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 79.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.33,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=calcio+citrato+vitamina+d3&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 64.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.08,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/calcio-citrato-d3",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 59.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=calcio+citrato+d3&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "catuaba": {
-    "amazon":       { "price": 49.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.83, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=catuaba+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 39.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.67, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/catuaba", "saving": 10 },
-    "shopee":       { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=catuaba&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 49.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.83,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=catuaba+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 39.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.67,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/catuaba",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=catuaba&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "cha-verde": {
-    "amazon":       { "price": 64.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.08, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=cha+verde+egcg+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 54.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.92, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/cha-verde-egcg", "saving": 10 },
-    "shopee":       { "price": 49.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.83, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=cha+verde+egcg&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 64.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.08,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=cha+verde+egcg+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 54.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.92,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/cha-verde-egcg",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 49.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.83,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=cha+verde+egcg&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "coenzima-q10": {
-    "amazon":       { "price": 139.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.33, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=coenzima+q10+100mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 119.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.00, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/coenzima-q10", "saving": 20 },
-    "shopee":       { "price": 109.90, "qty": 60,   "unit": "caps", "pricePerUnit": 1.83, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=coenzima+q10&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 139.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.33,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=coenzima+q10+100mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 119.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/coenzima-q10",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 109.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.83,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=coenzima+q10&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "cranberry": {
-    "amazon":       { "price": 54.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.92, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=cranberry+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/cranberry", "saving": 10 },
-    "shopee":       { "price": 39.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.67, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=cranberry&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 54.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.92,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=cranberry+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/cranberry",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 39.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.67,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=cranberry&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "cromo-picolinato": {
-    "amazon":       { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=cromo+picolinato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/cromo-picolinato", "saving": 10 },
-    "shopee":       { "price": 29.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.50, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=cromo+picolinato&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=cromo+picolinato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/cromo-picolinato",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 29.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.5,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=cromo+picolinato&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "curcumina": {
-    "amazon":       { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=curcumina+piperina&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 84.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.42, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/curcumina-piperina", "saving": 15 },
-    "shopee":       { "price": 79.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.33, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=curcumina+piperina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=curcumina+piperina&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 84.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.42,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/curcumina-piperina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 79.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.33,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=curcumina+piperina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "eaa": {
-    "amazon":       { "price": 129.90, "qty": 300,  "unit": "g", "pricePerUnit": 0.43, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=eaa+aminoacidos+essenciais&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 109.90, "qty": 300,  "unit": "g", "pricePerUnit": 0.37, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/eaa-aminoacidos", "saving": 20 },
-    "shopee":       { "price": 99.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.33, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=eaa+aminoacidos&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 129.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.43,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=eaa+aminoacidos+essenciais&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 109.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.37,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/eaa-aminoacidos",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 99.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.33,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=eaa+aminoacidos&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "ecdisterona": {
-    "amazon":       { "price": 159.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.67, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=ecdisterona+suplemento&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 139.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.33, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/ecdisterona", "saving": 20 },
-    "shopee":       { "price": 129.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.17, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=ecdisterona&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 159.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.67,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=ecdisterona+suplemento&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 139.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.33,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/ecdisterona",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 129.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.17,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=ecdisterona&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "feno-grego": {
-    "amazon":       { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=feno+grego+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/feno-grego", "saving": 10 },
-    "shopee":       { "price": 29.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.50, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=feno+grego&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=feno+grego+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/feno-grego",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 29.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.5,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=feno+grego&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "ferro-bisglicinato": {
-    "amazon":       { "price": 54.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.92, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=ferro+bisglicinato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/ferro-bisglicinato", "saving": 10 },
-    "shopee":       { "price": 39.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.67, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=ferro+bisglicinato&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 54.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.92,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=ferro+bisglicinato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/ferro-bisglicinato",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 39.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.67,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=ferro+bisglicinato&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "glicina": {
-    "amazon":       { "price": 54.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.18, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=glicina+pura+po&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 44.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.15, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/glicina-pura", "saving": 10 },
-    "shopee":       { "price": 39.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.13, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=glicina+pura&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 54.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.18,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=glicina+pura+po&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 44.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.15,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/glicina-pura",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 39.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.13,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=glicina+pura&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "glucosamina-condroitina": {
-    "amazon":       { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=glucosamina+condroitina&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 84.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.42, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/glucosamina-condroitina", "saving": 15 },
-    "shopee":       { "price": 79.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.33, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=glucosamina+condroitina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=glucosamina+condroitina&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 84.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.42,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/glucosamina-condroitina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 79.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.33,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=glucosamina+condroitina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "hmb": {
-    "amazon":       { "price": 129.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.17, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=hmb+suplemento&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 109.90, "qty": 60,   "unit": "caps", "pricePerUnit": 1.83, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/hmb-suplemento", "saving": 20 },
-    "shopee":       { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=hmb+suplemento&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 129.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.17,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=hmb+suplemento&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 109.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.83,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/hmb-suplemento",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=hmb+suplemento&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "inositol": {
-    "amazon":       { "price": 79.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.27, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=inositol+myo+inositol&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 64.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.22, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/inositol", "saving": 15 },
-    "shopee":       { "price": 59.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.20, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=inositol&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 79.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.27,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=inositol+myo+inositol&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 64.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.22,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/inositol",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 59.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.2,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=inositol&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "lions-mane": {
-    "amazon":       { "price": 149.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.50, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=lions+mane+juba+de+leao&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 129.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.17, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/lions-mane", "saving": 20 },
-    "shopee":       { "price": 119.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.00, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=lions+mane&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 149.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.5,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=lions+mane+juba+de+leao&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 129.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.17,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/lions-mane",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 119.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=lions+mane&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "l-teanina": {
-    "amazon":       { "price": 69.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.17, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=l-teanina+200mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 59.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.00, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/l-teanina", "saving": 10 },
-    "shopee":       { "price": 54.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.92, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=l-teanina&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 69.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.17,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=l-teanina+200mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 59.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/l-teanina",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 54.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.92,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=l-teanina&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "magnesio-treonato": {
-    "amazon":       { "price": 189.90, "qty": 60,   "unit": "caps", "pricePerUnit": 3.17, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=magnesio+treonato+magtein&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 164.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.75, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/magnesio-treonato", "saving": 25 },
-    "shopee":       { "price": 154.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.58, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=magnesio+treonato&sortBy=sales", "saving": 35 }
+    "amazon": {
+      "price": 189.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 3.17,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=magnesio+treonato+magtein&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 164.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.75,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/magnesio-treonato",
+      "saving": 25
+    },
+    "shopee": {
+      "price": 154.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.58,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=magnesio+treonato&sortBy=sales",
+      "saving": 35
+    }
   },
-
   "marapuama": {
-    "amazon":       { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=marapuama+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/marapuama", "saving": 10 },
-    "shopee":       { "price": 29.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.50, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=marapuama&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=marapuama+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/marapuama",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 29.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.5,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=marapuama&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "mucuna-pruriens": {
-    "amazon":       { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=mucuna+pruriens+l-dopa&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 84.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.42, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/mucuna-pruriens", "saving": 15 },
-    "shopee":       { "price": 79.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.33, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=mucuna+pruriens&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=mucuna+pruriens+l-dopa&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 84.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.42,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/mucuna-pruriens",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 79.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.33,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=mucuna+pruriens&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "myco-defense-extra": {
-    "amazon":       { "price": 179.90, "qty": 60,   "unit": "caps", "pricePerUnit": 3.00, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=myco+defense+cogumelos&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 154.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.58, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/myco-defense", "saving": 25 },
-    "shopee":       { "price": 144.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.42, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=myco+defense+cogumelos&sortBy=sales", "saving": 35 }
+    "amazon": {
+      "price": 179.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 3,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=myco+defense+cogumelos&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 154.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.58,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/myco-defense",
+      "saving": 25
+    },
+    "shopee": {
+      "price": 144.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.42,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=myco+defense+cogumelos&sortBy=sales",
+      "saving": 35
+    }
   },
-
   "nac": {
-    "amazon":       { "price": 89.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.50, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=nac+n-acetil-cisteina&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 74.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.25, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/nac-n-acetil-cisteina", "saving": 15 },
-    "shopee":       { "price": 69.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.17, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=nac+n-acetil-cisteina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 89.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.5,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=nac+n-acetil-cisteina&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 74.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.25,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/nac-n-acetil-cisteina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 69.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.17,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=nac+n-acetil-cisteina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "oleo-de-primula": {
-    "amazon":       { "price": 69.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.17, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=oleo+primula+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 59.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.00, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/oleo-de-primula", "saving": 10 },
-    "shopee":       { "price": 54.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.92, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=oleo+primula&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 69.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.17,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=oleo+primula+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 59.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/oleo-de-primula",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 54.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.92,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=oleo+primula&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "panax-ginseng": {
-    "amazon":       { "price": 119.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.00, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=panax+ginseng+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/panax-ginseng", "saving": 20 },
-    "shopee":       { "price": 94.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.58, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=panax+ginseng&sortBy=sales", "saving": 25 }
+    "amazon": {
+      "price": 119.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=panax+ginseng+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/panax-ginseng",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 94.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.58,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=panax+ginseng&sortBy=sales",
+      "saving": 25
+    }
   },
-
   "psyllium": {
-    "amazon":       { "price": 49.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.17, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=psyllium+casca&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 39.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.13, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/psyllium", "saving": 10 },
-    "shopee":       { "price": 34.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.12, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=psyllium&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 49.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.17,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=psyllium+casca&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 39.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.13,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/psyllium",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 34.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.12,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=psyllium&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "quercetina": {
-    "amazon":       { "price": 109.90, "qty": 60,   "unit": "caps", "pricePerUnit": 1.83, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=quercetina+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 89.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.50, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/quercetina", "saving": 20 },
-    "shopee":       { "price": 84.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.42, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=quercetina&sortBy=sales", "saving": 25 }
+    "amazon": {
+      "price": 109.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.83,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=quercetina+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 89.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.5,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/quercetina",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 84.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.42,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=quercetina&sortBy=sales",
+      "saving": 25
+    }
   },
-
   "resveratrol": {
-    "amazon":       { "price": 129.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.17, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=resveratrol+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 109.90, "qty": 60,   "unit": "caps", "pricePerUnit": 1.83, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/resveratrol", "saving": 20 },
-    "shopee":       { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=resveratrol&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 129.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.17,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=resveratrol+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 109.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.83,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/resveratrol",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=resveratrol&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "rhodiola-rosea": {
-    "amazon":       { "price": 119.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.00, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=rhodiola+rosea+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/rhodiola-rosea", "saving": 20 },
-    "shopee":       { "price": 94.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.58, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=rhodiola+rosea&sortBy=sales", "saving": 25 }
+    "amazon": {
+      "price": 119.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=rhodiola+rosea+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/rhodiola-rosea",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 94.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.58,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=rhodiola+rosea&sortBy=sales",
+      "saving": 25
+    }
   },
-
   "saw-palmetto": {
-    "amazon":       { "price": 99.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.67, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=saw+palmetto+320mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 84.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.42, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/saw-palmetto", "saving": 15 },
-    "shopee":       { "price": 79.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.33, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=saw+palmetto&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 99.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.67,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=saw+palmetto+320mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 84.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.42,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/saw-palmetto",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 79.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.33,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=saw+palmetto&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "shatavari": {
-    "amazon":       { "price": 79.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.33, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=shatavari+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 64.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.08, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/shatavari", "saving": 15 },
-    "shopee":       { "price": 59.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 1.00, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=shatavari&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 79.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.33,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=shatavari+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 64.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1.08,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/shatavari",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 59.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 1,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=shatavari&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "spirulina": {
-    "amazon":       { "price": 69.90,  "qty": 120,  "unit": "caps", "pricePerUnit": 0.58, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=spirulina+500mg&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 54.90,  "qty": 120,  "unit": "caps", "pricePerUnit": 0.46, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/spirulina", "saving": 15 },
-    "shopee":       { "price": 49.90,  "qty": 120,  "unit": "caps", "pricePerUnit": 0.42, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=spirulina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 69.9,
+      "qty": 120,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=spirulina+500mg&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 54.9,
+      "qty": 120,
+      "unit": "caps",
+      "pricePerUnit": 0.46,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/spirulina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 49.9,
+      "qty": 120,
+      "unit": "caps",
+      "pricePerUnit": 0.42,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=spirulina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "taurina": {
-    "amazon":       { "price": 44.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.15, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=taurina+pura+po&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 34.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.12, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/taurina", "saving": 10 },
-    "shopee":       { "price": 29.90,  "qty": 300,  "unit": "g", "pricePerUnit": 0.10, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=taurina&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 44.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.15,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=taurina+pura+po&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 34.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.12,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/taurina",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 29.9,
+      "qty": 300,
+      "unit": "g",
+      "pricePerUnit": 0.1,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=taurina&sortBy=sales",
+      "saving": 15
+    }
   },
-
   "tirosina": {
-    "amazon":       { "price": 69.90,  "qty": 100,  "unit": "g", "pricePerUnit": 0.70, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=tirosina+l-tirosina&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 54.90,  "qty": 100,  "unit": "g", "pricePerUnit": 0.55, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/tirosina", "saving": 15 },
-    "shopee":       { "price": 49.90,  "qty": 100,  "unit": "g", "pricePerUnit": 0.50, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=tirosina&sortBy=sales", "saving": 20 }
+    "amazon": {
+      "price": 69.9,
+      "qty": 100,
+      "unit": "g",
+      "pricePerUnit": 0.7,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=tirosina+l-tirosina&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 54.9,
+      "qty": 100,
+      "unit": "g",
+      "pricePerUnit": 0.55,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/tirosina",
+      "saving": 15
+    },
+    "shopee": {
+      "price": 49.9,
+      "qty": 100,
+      "unit": "g",
+      "pricePerUnit": 0.5,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=tirosina&sortBy=sales",
+      "saving": 20
+    }
   },
-
   "tongkat-ali": {
-    "amazon":       { "price": 149.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.50, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=tongkat+ali+longjack&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 129.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.17, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/tongkat-ali", "saving": 20 },
-    "shopee":       { "price": 119.90, "qty": 60,   "unit": "caps", "pricePerUnit": 2.00, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=tongkat+ali&sortBy=sales", "saving": 30 }
+    "amazon": {
+      "price": 149.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.5,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=tongkat+ali+longjack&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 129.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2.17,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/tongkat-ali",
+      "saving": 20
+    },
+    "shopee": {
+      "price": 119.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 2,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=tongkat+ali&sortBy=sales",
+      "saving": 30
+    }
   },
-
   "valeriana": {
-    "amazon":       { "price": 44.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.75, "label": "Amazon",        "url": "https://www.amazon.com.br/s?k=valeriana+extrato&tag=suplilist01-20&s=review-rank", "saving": 0 },
-    "mercadolivre": { "price": 34.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.58, "label": "Mercado Livre", "url": "https://lista.mercadolivre.com.br/valeriana", "saving": 10 },
-    "shopee":       { "price": 29.90,  "qty": 60,   "unit": "caps", "pricePerUnit": 0.50, "label": "Shopee",        "url": "https://shopee.com.br/search?keyword=valeriana&sortBy=sales", "saving": 15 }
+    "amazon": {
+      "price": 44.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.75,
+      "label": "Amazon",
+      "url": "https://www.amazon.com.br/s?k=valeriana+extrato&tag=suplilist01-20&s=review-rank",
+      "saving": 0
+    },
+    "mercadolivre": {
+      "price": 34.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.58,
+      "label": "Mercado Livre",
+      "url": "https://lista.mercadolivre.com.br/valeriana",
+      "saving": 10
+    },
+    "shopee": {
+      "price": 29.9,
+      "qty": 60,
+      "unit": "caps",
+      "pricePerUnit": 0.5,
+      "label": "Shopee",
+      "url": "https://shopee.com.br/search?keyword=valeriana&sortBy=sales",
+      "saving": 15
+    }
   }
 }

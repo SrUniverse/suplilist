@@ -50,11 +50,14 @@ import { logger } from '../../utils/logger.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+// NOTE: The backend mounts these under /api/settings WITHOUT a /me segment
+// (see server settings.module.ts and settings.controller.test.ts). Using /me
+// here produced 404s in production. Keep these aligned with the server routes.
 const API = Object.freeze({
-  SETTINGS:      '/api/settings/me',
-  NOTIFICATIONS: '/api/settings/me/notifications',
-  LOCALE:        '/api/settings/me/locale',
-  CONSENTS:      '/api/settings/me/consents',
+  SETTINGS:      '/api/settings',
+  NOTIFICATIONS: '/api/settings/notifications',
+  LOCALE:        '/api/settings/locale',
+  CONSENTS:      '/api/settings/consents',
 });
 
 // ─── SettingsService ──────────────────────────────────────────────────────────

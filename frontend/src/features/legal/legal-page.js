@@ -22,7 +22,7 @@ const TAB_CONTENTS = [
   <p>Você se compromete a utilizar o SupliList exclusivamente para fins pessoais e lícitos, em conformidade com a legislação brasileira aplicável.</p>
 
   <h3>4. Dados do Usuário e Analytics</h3>
-  <p>O SupliList utiliza um sistema de analytics on-device que coleta dados completamente anonimizados, armazenados apenas no seu navegador. Nenhum dado pessoal é transmitido para servidores externos. O sistema de analytics pode ser desabilitado a qualquer momento em Configurações → Privacidade. Você pode exportar ou deletar todos os seus dados a qualquer momento. Consulte nossa <strong>Política de Privacidade (LGPD)</strong> para detalhes completos.</p>
+  <p>O SupliList utiliza um sistema de analytics on-device que coleta dados anonimizados armazenados localmente no seu navegador. Recursos com conta (autenticação, pagamentos e sincronização) tratam dados pessoais em servidores seguros, conforme detalhado na nossa <strong>Política de Privacidade (LGPD)</strong>. O analytics local pode ser desabilitado a qualquer momento em Configurações → Privacidade, e você pode exportar ou deletar seus dados locais a qualquer momento.</p>
 
   <h3>5. Isenção de Responsabilidade</h3>
   <p>As informações disponibilizadas têm caráter estritamente educativo e informativo. O SupliList não se responsabiliza por quaisquer decisões de saúde tomadas com base nas informações do aplicativo. Consulte sempre um profissional de saúde habilitado antes de iniciar, alterar ou interromper qualquer suplementação ou tratamento.</p>
@@ -47,10 +47,10 @@ const TAB_CONTENTS = [
   <p class="lg-subtitle">Como tratamos (ou melhor: não tratamos) seus dados.</p>
 
   <h3>1. Nosso Compromisso com a Privacidade</h3>
-  <p>O SupliList foi construído com o princípio de privacy-by-design. Nossa arquitetura foi deliberadamente projetada para eliminar a necessidade de coletar, transmitir ou armazenar dados pessoais em servidores.</p>
+  <p>O SupliList segue o princípio de minimização de dados: coletamos apenas o necessário para os serviços que você utiliza e boa parte da sua atividade funciona localmente no seu dispositivo. Quando você cria uma conta ou assina o plano PRO, alguns dados pessoais são processados em servidores, conforme descrito abaixo.</p>
 
   <h3>2. Quais Dados Coletamos</h3>
-  <p>Nenhum dado pessoalmente identificável (email, telefone, endereço, IP) é coletado ou transmitido. Todas as informações que você insere no SupliList (stack de suplementos, check-ins, perfil biométrico, preferências) ficam armazenadas exclusivamente no localStorage do seu navegador, no seu próprio dispositivo.</p>
+  <p>Coletamos informações de autenticação (e-mail), de processamento de pagamentos e preferências de perfil para o funcionamento dos serviços descritos, armazenados em servidores seguros. Se você utiliza o app de forma anônima, sem conta, o stack de suplementos, check-ins, perfil biométrico e preferências ficam armazenados localmente no seu navegador, no seu próprio dispositivo.</p>
 
   <h3>2.1. Analytics On-Device (Anônimo)</h3>
   <p>O SupliList inclui um sistema de analytics on-device que coleta dados <strong>completamente anonimizados</strong>, armazenados localmente no seu navegador. Este sistema:</p>
@@ -64,19 +64,19 @@ const TAB_CONTENTS = [
   <p><strong>Como desabilitar:</strong> Configurações → Privacidade → Desabilitar analytics. Dados históricos podem ser deletados em Configurações → Resetar dados.</p>
 
   <h3>3. Base Legal (Lei nº 13.709/2018 — LGPD)</h3>
-  <p>Como os dados estão no seu dispositivo e nenhum dado pessoal é transmitido para controladores externos, a LGPD, em seus aspectos relacionados ao controlador de dados, não se aplica diretamente. Você é o único controlador dos seus próprios dados. O SupliList atua como mero fornecedor de software local.</p>
+  <p>A LGPD se aplica aos dados pessoais que tratamos quando você usa recursos com conta (autenticação, pagamentos e sincronização). Nesses casos, o SupliList atua como controlador desses dados, com base na execução do contrato e no seu consentimento. Para a atividade utilizada de forma anônima e local, você permanece no controle direto dos dados no seu dispositivo.</p>
 
   <h3>4. Cookies e Rastreamento</h3>
   <p>Não utilizamos cookies de rastreamento, pixels de marketing, ferramentas de analytics invasivas (Google Analytics, Facebook Pixel, Hotjar, etc.) ou qualquer outro mecanismo de rastreamento de comportamento externo. O sistema de analytics local é transparente e anonimizado.</p>
 
   <h3>5. Seus Direitos (Art. 18, LGPD)</h3>
-  <p>Como seus dados estão no seu dispositivo, você já tem controle total: Acesso: visualize seus dados a qualquer momento no app. Exportação: Configurações → Exportar meus dados. Exclusão: Configurações → Resetar tudo.</p>
+  <p>Para os dados locais, você já tem controle total no app: Acesso (visualize a qualquer momento), Exportação (Configurações → Exportar meus dados) e Exclusão (Configurações → Resetar tudo). Para os dados tratados em servidores (conta e pagamentos), você pode solicitar acesso, correção ou exclusão pelo e-mail do Encarregado (DPO) indicado abaixo.</p>
 
   <h3>6. Compartilhamento de Dados</h3>
-  <p>Não compartilhamos dados com terceiros. Simplesmente não temos acesso a eles.</p>
+  <p>Para operar os recursos com conta, compartilhamos apenas os dados estritamente necessários com provedores que atuam como operadores: autenticação (Firebase/Google), processamento de pagamentos (Stripe) e infraestrutura de banco de dados. Não vendemos seus dados nem os compartilhamos para fins de publicidade.</p>
 
   <h3>7. Segurança</h3>
-  <p>A ausência de transmissão de dados elimina o risco de vazamento em servidores. Recomendamos proteger seu dispositivo com senha/biometria.</p>
+  <p>Utilizamos HTTPS em todas as transmissões e provedores que adotam práticas reconhecidas de segurança. Nenhum sistema é totalmente imune a incidentes; recomendamos também proteger seu dispositivo com senha/biometria.</p>
 
   <h3>8. Menores de Idade</h3>
   <p>O SupliList não é direcionado a pessoas menores de 18 anos e não coleta intencionalmente dados de crianças ou adolescentes.</p>

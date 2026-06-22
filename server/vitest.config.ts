@@ -46,6 +46,13 @@ export default defineConfig({
       JWT_SECRET: 'super_secret_ci_key_that_must_be_32_chars_long',
       ENCRYPTION_KEY: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
       FRONTEND_ORIGIN: 'http://localhost:3000',
+      // The local .env sets these Stripe keys to empty strings, which fail the
+      // env.config `.min(1)` rule (`.optional()` permits undefined, not ''), so
+      // env validation process.exit(1)'d at import and the whole integration
+      // suite could not boot. Vitest injects these before dotenv loads (dotenv
+      // does not override existing process.env), so dummy values keep them valid.
+      STRIPE_SECRET_KEY: 'sk_test_dummy_key_for_integration_tests',
+      STRIPE_WEBHOOK_SECRET: 'whsec_dummy_secret_for_integration_tests',
     },
   },
 });

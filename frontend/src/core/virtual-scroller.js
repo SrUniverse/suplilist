@@ -44,8 +44,15 @@ export class VirtualScroller {
   mount() {
     this._createContainer();
     this._attachListeners();
-    // Defer first render to next paint frame so the scroll container
-    // has been laid out and clientHeight is non-zero.
+    // Render immediately. If the scroll container is already laid out (the
+    // common SPA case) this paints the list right away. Relying ONLY on the
+    // rAF below is unsafe: rAF callbacks are throttled when the tab is not
+    // painting (background tab, or while a programmatic SPA navigation is in
+    // flight), which left the catalog permanently blank until a scroll/resize.
+    this._getContainerHeight();
+    this._render();
+    // Re-render on the next paint frame in case clientHeight was still 0 above
+    // (layout not yet flushed); this corrects the visible range once settled.
     requestAnimationFrame(() => {
       this._getContainerHeight();
       this._render();
@@ -220,7 +227,14 @@ export class VirtualScroller {
       window.addEventListener('resize', this._scrollHandler);
     } else {
       this.scrollElement.addEventListener('scroll', this._scrollHandler, { passive: true });
-      // TODO: ResizeObserver for scroll container
+      // Re-render when the scroll container is resized — critically, this fires
+      // when the container transitions from a collapsed 0 height (layout not yet
+      // settled at mount, or revealed after being hidden) to its real height,
+      // guaranteeing the list paints even if the initial renders ran too early.
+      if (typeof ResizeObserver !== 'undefined') {
+        this._resizeObserver = new ResizeObserver(() => this._render());
+        this._resizeObserver.observe(this.scrollElement);
+      }
     }
   }
 

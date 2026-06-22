@@ -41,6 +41,27 @@ function parseLines(value) {
     .filter(Boolean);
 }
 
+// Interactions are objects { supplement, severity, message }. In the form they
+// are edited one-per-line as "supplemento | severidade | mensagem".
+function interactionsToLines(arr) {
+  if (!Array.isArray(arr)) return '';
+  return arr
+    .map((i) => [i?.supplement ?? '', i?.severity ?? '', i?.message ?? ''].join(' | '))
+    .join('\n');
+}
+
+function parseInteractions(value) {
+  return String(value || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [supplement = '', severity = '', message = ''] = line.split('|').map((p) => p.trim());
+      return { supplement, severity, message };
+    })
+    .filter((i) => i.supplement || i.message);
+}
+
 /** Returns the inner HTML for the product form (without the surrounding <form>). */
 export function renderProductFormFields() {
   const categoryOptions = KNOWN_CATEGORIES.map((c) => `<option value="${escapeHtml(c)}"></option>`).join('');
@@ -128,8 +149,8 @@ export function renderProductFormFields() {
     <label class="form-label">Restrições (um por linha)
       <textarea class="form-input form-textarea" id="field-restrictions" rows="2"></textarea>
     </label>
-    <label class="form-label">Interações (um por linha)
-      <textarea class="form-input form-textarea" id="field-interactions" rows="2"></textarea>
+    <label class="form-label">Interações (uma por linha: suplemento | severidade | mensagem)
+      <textarea class="form-input form-textarea" id="field-interactions" rows="2" placeholder="cafeina | HIGH | Pode elevar a pressão arterial"></textarea>
     </label>
 
     <div class="form-section-title">Preços & links de afiliado</div>
@@ -181,7 +202,7 @@ export function populateProductForm(root, product) {
   set('#field-warnings', lines(m.warnings));
   set('#field-sideEffects', lines(m.sideEffects));
   set('#field-restrictions', lines(m.restrictions));
-  set('#field-interactions', lines(m.interactions));
+  set('#field-interactions', interactionsToLines(m.interactions));
   set('#field-amazon-price', p.amazon?.price);
   set('#field-amazon-url', p.amazon?.url);
   set('#field-ml-price', p.mercadolivre?.price);
@@ -252,7 +273,7 @@ export function collectProductPayload(root) {
       benefits: parseLines(val('#field-benefits')),
       warnings: parseLines(val('#field-warnings')),
       sideEffects: parseLines(val('#field-sideEffects')),
-      interactions: parseLines(val('#field-interactions')),
+      interactions: parseInteractions(val('#field-interactions')),
     };
     const loading = num('#field-d-loading');
     if (loading !== undefined) metadata.dosage.loading = loading;

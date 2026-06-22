@@ -18,6 +18,12 @@ export interface ISupplementPrice {
  * catalog:export script regenerates supplements-db.json from these fields, so
  * the admin panel becomes the single source of truth for the public catalog.
  */
+export interface ISupplementInteraction {
+  supplement: string;
+  severity: string;
+  message: string;
+}
+
 export interface ISupplementMetadata {
   image: string;
   category: string;
@@ -43,7 +49,7 @@ export interface ISupplementMetadata {
   benefits: string[];
   warnings: string[];
   sideEffects: string[];
-  interactions: string[];
+  interactions: ISupplementInteraction[];
 }
 
 export interface ISupplementData extends Document<string> {
@@ -77,6 +83,15 @@ const priceHistorySchema = new Schema<IPriceHistory>({
   source: { type: String, enum: ['amazon', 'mercadolivre', 'shopee'] },
 });
 
+const interactionSchema = new Schema<ISupplementInteraction>(
+  {
+    supplement: String,
+    severity: String,
+    message: String,
+  },
+  { _id: false }
+);
+
 const metadataSchema = new Schema<ISupplementMetadata>(
   {
     image: String,
@@ -103,7 +118,7 @@ const metadataSchema = new Schema<ISupplementMetadata>(
     benefits: { type: [String], default: [] },
     warnings: { type: [String], default: [] },
     sideEffects: { type: [String], default: [] },
-    interactions: { type: [String], default: [] },
+    interactions: { type: [interactionSchema], default: [] },
   },
   { _id: false }
 );

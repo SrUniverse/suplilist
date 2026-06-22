@@ -102,7 +102,11 @@ const metadataSchema = z.object({
   benefits: z.array(z.string().trim().max(200)).max(50).default([]),
   warnings: z.array(z.string().trim().max(300)).max(50).default([]),
   sideEffects: z.array(z.string().trim().max(300)).max(50).default([]),
-  interactions: z.array(z.string().trim().max(200)).max(50).default([]),
+  interactions: z.array(z.object({
+    supplement: z.string().trim().max(100),
+    severity: z.string().trim().max(20),
+    message: z.string().trim().max(300),
+  })).max(50).default([]),
 });
 
 const createSupplementSchema = z.object({

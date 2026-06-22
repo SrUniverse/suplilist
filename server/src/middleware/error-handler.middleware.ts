@@ -77,6 +77,18 @@ function parseError(error: unknown, requestId?: string): AppError {
       );
     }
 
+    // Application/domain layer convention: use cases across admin, identity and
+    // settings throw plain Errors prefixed with the error class, expecting the
+    // handler to map them. Their `error.name` is just 'Error', so the checks
+    // above miss them and they would otherwise surface as 500 — masking client
+    // errors (invalid input, missing resource) as server errors.
+    if (message.startsWith('EntityNotFoundError')) {
+      return new AppError(message, ErrorCode.NOT_FOUND, 404, metadata, requestId);
+    }
+    if (message.startsWith('ValidationError')) {
+      return new AppError(message, ErrorCode.VALIDATION_ERROR, 400, metadata, requestId);
+    }
+
     // Default to internal server error
     return new AppError(message, ErrorCode.INTERNAL_SERVER_ERROR, 500, metadata, requestId);
   }

@@ -6,6 +6,7 @@ import {
   populateProductForm,
   collectProductPayload,
 } from './admin-product-form.js';
+import { describeAdminError } from './admin-error.js';
 
 
 export default class AdminProductsPage {
@@ -37,7 +38,7 @@ export default class AdminProductsPage {
       this._products = Array.isArray(data?.data) ? data.data : [];
     } catch (err) {
       this._products = [];
-      this._showError('Erro ao carregar catálogo: ' + (err?.message ?? 'Tente novamente.'));
+      this._showError(describeAdminError(err));
     } finally {
       this._setTableLoading(false);
       this._renderTable();
@@ -221,7 +222,13 @@ export default class AdminProductsPage {
         try {
           await this._saveProduct(payload);
         } catch (err) {
-          this._showModalError(err?.message ?? 'Erro ao salvar. Tente novamente.');
+          // Keep server validation messages (400) verbatim; give clear access
+          // guidance for auth failures so a denied save isn't a mystery.
+          this._showModalError(
+            (err?.status === 401 || err?.status === 403)
+              ? describeAdminError(err)
+              : (err?.message ?? 'Erro ao salvar. Tente novamente.')
+          );
         } finally {
           btn.disabled = false;
           btn.textContent = 'Salvar';

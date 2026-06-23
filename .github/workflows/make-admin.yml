@@ -1,0 +1,48 @@
+name: Make Admin (promote a user)
+
+# One-click admin promotion from the GitHub UI — no local terminal or secrets
+# needed. Open Actions → "Make Admin (promote a user)" → Run workflow, type the
+# account's e-mail, and it flips that user's role to admin (status active) in
+# MongoDB. The account must have logged in at least once so it exists in the DB.
+#
+# After promotion, also make sure the Vercel env var ADMIN_EMAILS is either unset
+# or includes this e-mail — when set, admin access requires both role=admin AND
+# the e-mail on the allowlist.
+#
+# Required repository secret:
+#   MONGO_URI   MongoDB Atlas connection string (same one catalog-sync uses)
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'E-mail of the account to promote to admin'
+        required: true
+        type: string
+
+concurrency:
+  group: make-admin
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Promote user to admin
+        working-directory: server
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          # Passed via env (not inline interpolation) to avoid command injection
+          # from the workflow input.
+          ADMIN_EMAIL: ${{ inputs.email }}
+        run: npm run make-admin -- "$ADMIN_EMAIL"

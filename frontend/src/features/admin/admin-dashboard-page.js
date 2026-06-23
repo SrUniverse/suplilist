@@ -1,6 +1,7 @@
 import { apiFetch } from '../../platform/api-client.js';
 import { escapeHtml } from '../../utils/escape.js';
 import { renderAdminSidebar, bindAdminSidebar, injectAdminStyles } from './admin-shell.js';
+import { describeAdminError } from './admin-error.js';
 
 const BRL = (n) => `R$ ${Number(n || 0).toFixed(2)}`;
 
@@ -26,7 +27,7 @@ export default class AdminDashboardPage {
       const data = await apiFetch('/api/admin/stats');
       this._stats = data?.data ?? null;
     } catch (err) {
-      this._showError('Erro ao carregar métricas: ' + (err?.message ?? 'Tente novamente.'));
+      this._showError(describeAdminError(err));
       return;
     }
     this._renderStats();
@@ -77,5 +78,9 @@ export default class AdminDashboardPage {
     if (!el) return;
     el.textContent = msg;
     el.style.display = 'block';
+    // Clear the "Carregando…" placeholder so the panel doesn't look stuck
+    // loading while the error is shown above it.
+    const cards = this.container.querySelector('#stat-cards');
+    if (cards) cards.innerHTML = '';
   }
 }

@@ -54,11 +54,65 @@ vi.mock('rate-limit-redis', async () => {
   return { RedisStore, default: RedisStore };
 });
 
+// firebase-admin/auth — requireAuth verifies Firebase ID tokens. Globally mock
+// getAuth().verifyIdToken with a shared vi.fn() (see firebase-auth.mock.ts). A
+// default implementation is installed in beforeEach below; suites that need
+// custom decoded tokens import { verifyIdToken } and override per-test.
+vi.mock('firebase-admin/auth', () => import('./mocks/firebase-auth.mock.js'));
+
 // ── MongoDB lifecycle (Mongoose per-worker connection) ────────────────────────
 
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import { verifyIdToken } from './mocks/firebase-auth.mock.js';
+import { UserIdentityModel } from '../../modules/identity/infrastructure/mongoose/user-identity.model.js';
 
 const uri = process.env.MONGO_TEST_URI;
+
+// ── Default Firebase auth behaviour (shared) ──────────────────────────────────
+// Suites authenticate by signing a JWT with JWT_SECRET whose `sub` is the user's
+// Mongo ObjectId (the established `bearerToken(id)` convention). The default
+// verifyIdToken: decodes that token (throws on missing/garbage → preserves 401),
+// best-effort provisions a synced UserIdentity when `sub` is a 24-hex ObjectId so
+// requireAuth resolves req.user.id = sub, and honours role/status/emailVerified
+// claims embedded in the token. Suites with bespoke needs (literal tokens,
+// non-ObjectId uids, provider linking) override verifyIdToken per-file.
+const TEST_JWT_SECRET = process.env.JWT_SECRET || 'super_secret_ci_key_that_must_be_32_chars_long';
+const OBJECT_ID_RE = /^[0-9a-fA-F]{24}$/;
+
+beforeEach(() => {
+  verifyIdToken.mockImplementation(async (token: string) => {
+    const decoded = jwt.verify(token, TEST_JWT_SECRET) as Record<string, any>;
+    const uid: string = decoded.sub;
+    const email: string = decoded.email || `${uid}@test.com`;
+
+    if (mongoose.connection.readyState === 1 && OBJECT_ID_RE.test(uid)) {
+      await UserIdentityModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(uid) },
+        {
+          $setOnInsert: {
+            email,
+            emailVerified: decoded.email_verified ?? true,
+            status: decoded.status || 'active',
+            role: decoded.role || 'user',
+            tier: decoded.tier || 'free',
+            providers: [{ provider: 'password', providerId: uid, providerEmail: email, linkedAt: new Date() }],
+          },
+        },
+        { upsert: true },
+      );
+    }
+
+    return {
+      uid,
+      email,
+      name: decoded.name || '',
+      picture: decoded.picture || '',
+      email_verified: decoded.email_verified ?? true,
+      firebase: { sign_in_provider: decoded.sign_in_provider || 'password' },
+    };
+  });
+});
 
 beforeAll(async () => {
   if (!uri) {

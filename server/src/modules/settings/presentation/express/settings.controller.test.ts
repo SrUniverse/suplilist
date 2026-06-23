@@ -35,25 +35,20 @@
  *  - Redis:   InMemoryRedis (ioredis alias) — requireAuth blocklist check.
  *  - Express: full app via createApp() — registers all event listeners on import.
  */
-import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
-// requireAuth now verifies a Firebase ID token via getAuth().verifyIdToken (the
-// auth migration). Mock it: the mock decodes the JWT that bearerToken() signs and
-// idempotently provisions a synced UserIdentity whose _id equals the token sub,
-// so requireAuth populates req.user.id = sub. This keeps every existing
-// `bearerToken(id)` call site working without changes.
-const verifyIdToken = vi.fn();
-vi.mock('firebase-admin/auth', () => ({ getAuth: () => ({ verifyIdToken }) }));
+// firebase-admin/auth is mocked globally in src/shared/test/setup.ts: the default
+// verifyIdToken decodes the JWT that bearerToken() signs and provisions a synced
+// identity for `sub`. No per-file mock needed — bearerToken(id) just works.
 
 import { createApp } from '../../../../app.js';
 import { eventBus } from '../../../../shared/infrastructure/event-bus/in-memory-event-bus.js';
 import { UserRegisteredEvent } from '../../../identity/domain/events/user-registered.event.js';
 import { UserSettingsModel } from '../../infrastructure/mongoose/user-settings.model.js';
 import { UserConsentModel } from '../../infrastructure/mongoose/user-consent.model.js';
-import { UserIdentityModel } from '../../../identity/infrastructure/mongoose/user-identity.model.js';
 
 /**
  * Official hashes from DocumentCatalogService — used to verify that the backend
@@ -110,37 +105,6 @@ async function seedSettings(userId: string, overrides: Record<string, unknown> =
 }
 
 const USER_ID = new mongoose.Types.ObjectId().toHexString();
-
-// Decode the bearer JWT and provision a matching synced identity for every
-// authenticated request, so requireAuth resolves req.user.id = the token sub.
-beforeEach(() => {
-  verifyIdToken.mockImplementation(async (token: string) => {
-    const decoded = jwt.verify(token, JWT_SECRET) as { sub: string };
-    const uid = decoded.sub;
-    await UserIdentityModel.updateOne(
-      { _id: new mongoose.Types.ObjectId(uid) },
-      {
-        $setOnInsert: {
-          email: `${uid}@test.com`,
-          emailVerified: true,
-          status: 'active',
-          role: 'user',
-          tier: 'free',
-          providers: [{ provider: 'password', providerId: uid, providerEmail: `${uid}@test.com`, linkedAt: new Date() }],
-        },
-      },
-      { upsert: true },
-    );
-    return {
-      uid,
-      email: `${uid}@test.com`,
-      name: '',
-      picture: '',
-      email_verified: true,
-      firebase: { sign_in_provider: 'password' },
-    };
-  });
-});
 
 // ══════════════════════════════════════════════════════════════════════════════
 // PILLAR 1 — Reactive Initialization via UserRegisteredEvent

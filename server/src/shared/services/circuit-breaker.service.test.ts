@@ -330,7 +330,9 @@ describe('CircuitBreaker', () => {
 
   describe('CircuitBreakerRegistry', () => {
     beforeEach(() => {
-      circuitBreakerRegistry.resetAll();
+      // clear() removes membership; resetAll() only resets state and left
+      // breakers from prior tests registered, leaking into getAllStatus().
+      circuitBreakerRegistry.clear();
     });
 
     it('should create and retrieve circuit breakers', () => {

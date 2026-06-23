@@ -239,6 +239,15 @@ export class CircuitBreakerRegistry {
   }
 
   /**
+   * Remove all registered breakers from the registry (membership, not just
+   * state). Use for shutdown/teardown and test isolation — resetAll() only
+   * resets each breaker's state and leaves it registered.
+   */
+  clear(): void {
+    this.breakers.clear();
+  }
+
+  /**
    * Reset a specific circuit breaker
    */
   reset(name: string): boolean {

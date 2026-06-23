@@ -29,8 +29,8 @@ import mongoose from 'mongoose';
 import {
   buildAffiliateLink,
   type Marketplace,
-  type AffiliateCodes,
 } from '../shared/services/affiliate-link.builder.js';
+import { resolveAffiliateCodes } from '../shared/services/affiliate-codes.js';
 import {
   SupplementDataModel,
   type ISupplementMetadata,
@@ -121,13 +121,9 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const codes: AffiliateCodes = {
-    amazon: process.env.VITE_AMAZON_AFFILIATE_ID ?? '',
-    mercadolivre: process.env.VITE_ML_AFFILIATE_ID ?? '',
-    shopee: process.env.VITE_SHOPEE_AFFILIATE_ID ?? '',
-  };
-  if (!codes.amazon) console.warn('[export] VITE_AMAZON_AFFILIATE_ID not set — Amazon links will not credit.');
-  if (!codes.mercadolivre.startsWith('matt:')) console.warn('[export] VITE_ML_AFFILIATE_ID is not in "matt:<word>:<toolId>" format — Mercado Livre links will not credit.');
+  const codes = resolveAffiliateCodes(process.env);
+  if (!codes.amazon) console.warn('[export] No Amazon affiliate id set (AFFILIATE_CODE_AMAZON or VITE_AMAZON_AFFILIATE_ID) — Amazon links will not credit.');
+  if (!codes.mercadolivre.startsWith('matt:')) console.warn('[export] Mercado Livre affiliate code not in "matt:<word>:<toolId>" format (AFFILIATE_CODE_MERCADOLIVRE or VITE_ML_AFFILIATE_ID) — ML links will not credit.');
 
   console.log('[export] connecting to MongoDB…');
   await mongoose.connect(mongoUri);

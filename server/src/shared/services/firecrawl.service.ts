@@ -6,6 +6,7 @@
 
 import axios from 'axios';
 import { buildAffiliateLink, isDirectProductUrl, type Marketplace } from './affiliate-link.builder.js';
+import { resolveAffiliateCodes } from './affiliate-codes.js';
 import { circuitBreakerRegistry, CircuitState } from './circuit-breaker.service.js';
 import { metricsService } from './metrics.service.js';
 import { logger } from '../utils/logger.js';
@@ -73,25 +74,18 @@ export class FirecrawlService {
     }
     this.apiKey = apiKey || '';
 
-    // Load affiliate codes from environment variables
-    const amazonCode = process.env.AFFILIATE_CODE_AMAZON;
-    const mercadolivreCode = process.env.AFFILIATE_CODE_MERCADOLIVRE;
-    const shopeeCode = process.env.AFFILIATE_CODE_SHOPEE;
+    // Load affiliate codes from the environment. resolveAffiliateCodes accepts
+    // both the AFFILIATE_CODE_* and VITE_*_AFFILIATE_ID naming conventions so a
+    // single Vercel configuration credits both the runtime and export paths.
+    // useDefaults keeps the previous behaviour of always emitting Amazon/ML codes.
+    this.affiliateCodes = resolveAffiliateCodes(process.env, { useDefaults: true });
 
-    if (!amazonCode || !mercadolivreCode || !shopeeCode) {
+    if (!process.env.AFFILIATE_CODE_SHOPEE && !process.env.VITE_SHOPEE_AFFILIATE_ID) {
       logger.warn(
-        '[FirecrawlService] ⚠️ WARNING: One or more affiliate codes are missing in environment variables. ' +
-        'Affiliate tracking may not work correctly. Required: AFFILIATE_CODE_AMAZON, AFFILIATE_CODE_MERCADOLIVRE, AFFILIATE_CODE_SHOPEE'
+        '[FirecrawlService] Shopee affiliate code missing — Shopee links will not credit ' +
+        '(crediting requires the Affiliate API generateShortLink with App ID + Secret).'
       );
     }
-
-    this.affiliateCodes = {
-      amazon: amazonCode || 'suplilist01-20',
-      // Format: "matt:<word>:<toolId>" — appended as ?matt_word=&matt_tool= to ML product URLs
-      mercadolivre: mercadolivreCode || 'matt:suplilist:35217033',
-      // Shopee requires generateShortLink API (App ID + Secret) — leave empty until configured
-      shopee: shopeeCode || '',
-    };
 
     // Initialize circuit breaker with state change logging
     const circuitBreaker = circuitBreakerRegistry.getOrCreate(

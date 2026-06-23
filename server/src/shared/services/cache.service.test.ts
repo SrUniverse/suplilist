@@ -30,8 +30,10 @@ describe('CacheService', () => {
       quit: vi.fn().mockResolvedValue('OK'),
     };
 
-    // Mock the Redis constructor
-    (Redis as any).mockImplementation(() => mockRedis);
+    // Mock the Redis constructor. Must be a regular function (not an arrow): the
+    // service calls `new Redis(...)`, and an arrow function cannot be constructed
+    // ("is not a constructor"). Returning an object from a constructor yields it.
+    (Redis as any).mockImplementation(function (this: any) { return mockRedis; });
 
     // Set Redis URI to enable initialization
     process.env.REDIS_URI = 'redis://localhost:6379';

@@ -29,8 +29,9 @@ export default class AdminSubscriptionsPage {
     this._setLoading();
     try {
       const data = await apiFetch(`/api/admin/subscribers?page=${page}&limit=${this._limit}`);
-      this._rows = data?.data?.subscribers ?? [];
-      this._total = data?.data?.total ?? 0;
+      // apiFetch already unwraps { success, data } — read fields off data directly.
+      this._rows = data?.subscribers ?? [];
+      this._total = data?.total ?? 0;
     } catch (err) {
       this._rows = [];
       this._showError('Erro ao carregar assinaturas: ' + (err?.message ?? 'Tente novamente.'));

@@ -35,8 +35,9 @@ export default class AdminUsersPage {
     this._setLoading();
     try {
       const data = await apiFetch(`/api/admin/users?page=${page}&limit=${this._limit}`);
-      this._users = data?.data?.users ?? [];
-      this._total = data?.data?.total ?? 0;
+      // apiFetch already unwraps { success, data } — read fields off data directly.
+      this._users = data?.users ?? [];
+      this._total = data?.total ?? 0;
     } catch (err) {
       this._users = [];
       this._showError('Erro ao carregar usuários: ' + (err?.message ?? 'Tente novamente.'));

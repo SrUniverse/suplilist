@@ -35,9 +35,11 @@ export default class AdminOrdersPage {
     this._page = page;
     this._setTableLoading(true);
     try {
-      const data = await apiFetch(`/api/payments?page=${page}&limit=${this._limit}`);
-      this._orders = Array.isArray(data?.data) ? data.data : [];
-      this._total  = data?.meta?.total ?? 0;
+      // apiFetch already unwraps { success, data }, so this IS the array.
+      // (meta.total is dropped by the unwrap; fall back to the page length.)
+      const orders = await apiFetch(`/api/payments?page=${page}&limit=${this._limit}`);
+      this._orders = Array.isArray(orders) ? orders : [];
+      this._total  = this._orders.length;
     } catch (err) {
       this._orders = [];
       this._showError('Erro ao carregar pedidos: ' + (err?.message ?? 'Tente novamente.'));

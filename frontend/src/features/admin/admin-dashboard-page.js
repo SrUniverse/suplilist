@@ -24,8 +24,10 @@ export default class AdminDashboardPage {
 
   async _load() {
     try {
-      const data = await apiFetch('/api/admin/stats');
-      this._stats = data?.data ?? null;
+      // apiFetch already unwraps the { success, data } envelope, so this IS the
+      // stats object — do NOT read .data again (that was always undefined and
+      // left the panel stuck on "Carregando…").
+      this._stats = await apiFetch('/api/admin/stats') ?? null;
     } catch (err) {
       this._showError(describeAdminError(err));
       return;

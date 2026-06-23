@@ -34,8 +34,9 @@ export default class AdminProductsPage {
   async _loadProducts() {
     this._setTableLoading(true);
     try {
-      const data = await apiFetch('/api/supplements');
-      this._products = Array.isArray(data?.data) ? data.data : [];
+      // apiFetch already unwraps { success, data }, so this IS the array.
+      const products = await apiFetch('/api/supplements');
+      this._products = Array.isArray(products) ? products : [];
     } catch (err) {
       this._products = [];
       this._showError(describeAdminError(err));

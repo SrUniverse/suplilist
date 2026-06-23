@@ -30,8 +30,9 @@ export default class AdminAuditPage {
 
   async _load() {
     try {
-      const data = await apiFetch('/api/admin/audit?limit=200');
-      this._rows = Array.isArray(data?.data) ? data.data : [];
+      // apiFetch already unwraps { success, data }, so this IS the array.
+      const rows = await apiFetch('/api/admin/audit?limit=200');
+      this._rows = Array.isArray(rows) ? rows : [];
     } catch (err) {
       this._rows = [];
       this._showError('Erro ao carregar auditoria: ' + (err?.message ?? 'Tente novamente.'));

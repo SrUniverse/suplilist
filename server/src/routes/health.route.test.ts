@@ -60,7 +60,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const liveHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/live'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (liveHandler) {
         liveHandler(mockReq as Request, mockRes as Response);
@@ -72,7 +72,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const liveHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/live'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (liveHandler) {
         liveHandler(mockReq as Request, mockRes as Response);
@@ -88,7 +88,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const liveHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/live'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (liveHandler) {
         liveHandler(mockReq as Request, mockRes as Response);
@@ -104,7 +104,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const liveHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/live'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (liveHandler) {
         // Should complete synchronously without awaiting dependencies
@@ -118,7 +118,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const liveHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/live'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (liveHandler) {
         liveHandler(mockReq as Request, mockRes as Response);
@@ -132,7 +132,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const liveHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/live'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (liveHandler) {
         liveHandler(mockReq as Request, mockRes as Response);
@@ -153,7 +153,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -162,16 +162,20 @@ describe('Health Routes', () => {
     });
 
     it('should return 503 when dependencies are down', async () => {
-      (mongoose.connection.readyState as any) = 0; // disconnected
+      // readyState is a getter — assignment is a no-op. Spy the getter so the
+      // probe genuinely sees MongoDB as disconnected.
+      const stateSpy = vi.spyOn(mongoose.connection, 'readyState', 'get').mockReturnValue(0);
+      try {
+        const testRouter = createHealthRouter();
+        const readyHandler = (testRouter as any).stack.find(
+          (layer: any) => layer.route?.path === '/ready'
+        )?.route?.stack?.[0]?.handle;
 
-      const testRouter = createHealthRouter();
-      const readyHandler = (testRouter as any).stack.find(
-        (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
-
-      if (readyHandler) {
+        expect(readyHandler).toBeTypeOf('function');
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
         expect(mockRes.status).toHaveBeenCalledWith(503);
+      } finally {
+        stateSpy.mockRestore();
       }
     });
 
@@ -182,7 +186,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -203,7 +207,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -224,7 +228,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -239,22 +243,23 @@ describe('Health Routes', () => {
     });
 
     it('should return degraded if one dependency fails', async () => {
-      (mongoose.connection.readyState as any) = 0; // disconnected
-      vi.mocked(redisClient.ping).mockResolvedValue('PONG');
+      // MongoDB up (connected via global setup), Redis down → degraded but still
+      // serviceable (200). Redis is the non-critical dependency; MongoDB down is
+      // unhealthy (503), covered by the test above.
+      vi.mocked(redisClient.ping).mockRejectedValue(new Error('redis down'));
 
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
-      if (readyHandler) {
-        await readyHandler(mockReq as Request, mockRes as Response, mockNext);
-        expect(mockRes.json).toHaveBeenCalledWith(
-          expect.objectContaining({
-            status: 'degraded',
-          })
-        );
-      }
+      expect(readyHandler).toBeTypeOf('function');
+      await readyHandler(mockReq as Request, mockRes as Response, mockNext);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'degraded',
+        })
+      );
     });
 
     it('should include latency metrics', async () => {
@@ -264,7 +269,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -287,7 +292,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -308,7 +313,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -329,7 +334,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -350,7 +355,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -373,7 +378,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -396,7 +401,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -419,7 +424,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const healthHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (healthHandler) {
         await healthHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -433,7 +438,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const healthHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (healthHandler) {
         await healthHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -447,7 +452,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const healthHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (healthHandler) {
         await healthHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -470,7 +475,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -485,7 +490,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);
@@ -504,7 +509,7 @@ describe('Health Routes', () => {
       const testRouter = createHealthRouter();
       const readyHandler = (testRouter as any).stack.find(
         (layer: any) => layer.route?.path === '/ready'
-      )?.route?.methods?.get;
+      )?.route?.stack?.[0]?.handle;
 
       if (readyHandler) {
         await readyHandler(mockReq as Request, mockRes as Response, mockNext);

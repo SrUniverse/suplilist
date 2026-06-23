@@ -81,11 +81,13 @@ export const createHealthRouter = (): Router => {
           result.checks.mongodb = { status: 'up', latency: mongoLatency };
         } else {
           result.checks.mongodb = { status: 'down', latency: mongoLatency };
-          result.status = 'degraded';
+          // MongoDB is critical: without it the instance cannot serve data — mark
+          // unhealthy so the readiness probe returns 503 and traffic is drained.
+          result.status = 'unhealthy';
         }
       } catch (error) {
         result.checks.mongodb = { status: 'down', latency: 0 };
-        result.status = 'degraded';
+        result.status = 'unhealthy';
       }
 
       // Check Redis connection

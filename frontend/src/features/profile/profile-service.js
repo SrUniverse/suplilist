@@ -228,11 +228,12 @@ class ProfileService {
     if (profile.displayName !== undefined) statePayload.name = profile.displayName;
 
     // Physical stats (if the server ever returns them merged into profile)
-    if (profile.weight     !== undefined) statePayload.weight     = profile.weight;
-    if (profile.height     !== undefined) statePayload.height     = profile.height;
-    if (profile.age        !== undefined) statePayload.age        = profile.age;
-    if (profile.objective  !== undefined) statePayload.objective  = profile.objective;
-    if (profile.budget     !== undefined) statePayload.budget     = profile.budget;
+    if (profile.weight        !== undefined) statePayload.weight        = profile.weight;
+    if (profile.height        !== undefined) statePayload.height        = profile.height;
+    if (profile.age           !== undefined) statePayload.age           = profile.age;
+    if (profile.objective     !== undefined) statePayload.objective     = profile.objective;
+    if (profile.budget        !== undefined) statePayload.budget        = profile.budget;
+    if (profile.biologicalSex !== undefined) statePayload.biologicalSex = profile.biologicalSex;
 
     if (profile.trainingFrequency !== undefined) statePayload.trainingFrequency = profile.trainingFrequency;
     if (profile.trainingAge       !== undefined) statePayload.trainingAge       = profile.trainingAge;

@@ -27,16 +27,20 @@ export function reducer(state, action) {
         'trainingFrequency', 'trainingAge', 'objective',
         'restrictions', 'budget',
       ];
+      // Filtra: apenas chaves whitelisted E com valor !== undefined
+      // (undefined não deve sobrescrever valores existentes no estado)
       const sanitized = Object.fromEntries(
-        Object.entries(action.payload ?? {}).filter(([k]) => ALLOWED_PROFILE_KEYS.includes(k))
+        Object.entries(action.payload ?? {})
+          .filter(([k, v]) => ALLOWED_PROFILE_KEYS.includes(k) && v !== undefined)
       );
 
-      // PATCH 2: Validate types
+      // PATCH 2: Validate types — campos inválidos são removidos do sanitized
+      // para que o state.user original (que pode ter null ou valor válido) seja mantido
       if (sanitized.weight !== undefined && (typeof sanitized.weight !== 'number' || sanitized.weight <= 0)) {
         logger.warn('[StateManager] Invalid weight:', sanitized.weight);
         delete sanitized.weight;
       }
-      if (sanitized.biologicalSex !== undefined && !['male', 'female'].includes(sanitized.biologicalSex)) {
+      if (sanitized.biologicalSex !== undefined && sanitized.biologicalSex !== null && !['male', 'female'].includes(sanitized.biologicalSex)) {
         logger.warn('[StateManager] Invalid biologicalSex:', sanitized.biologicalSex);
         delete sanitized.biologicalSex;
       }

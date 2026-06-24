@@ -18,6 +18,7 @@ import { requireAuth, requirePreAuth } from '../../shared/middleware/auth.middle
 import authSyncRoute from './presentation/express/auth-sync.route.js';
 import accountRoute from './presentation/express/account.route.js';
 import revokeSessionsRoute from './presentation/express/revoke-sessions.route.js';
+import verifyEmailCodeRoute from './presentation/express/verify-email-code.route.js';
 
 export function initializeIdentityModule(): Router {
   const router = Router();
@@ -42,6 +43,9 @@ export function initializeIdentityModule(): Router {
 
   // Rota de gerenciamento de conta (ex: deletar conta)
   router.use(accountRoute);
+
+  // Rotas de verificação de e-mail por código OTP
+  router.use(verifyEmailCodeRoute);
 
   return router;
 }

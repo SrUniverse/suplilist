@@ -14,6 +14,7 @@
 import { stateManager } from '../../state/state-manager.js';
 import { eventBus, EVENTS } from '../../core/event-bus.js';
 
+
 const DISMISS_KEY = 'suplilist:emailBannerDismissed';
 const BANNER_ID = 'email-verification-banner';
 
@@ -44,7 +45,7 @@ function renderBanner() {
 
   bar.innerHTML = `
     <span style="opacity:0.95;">Confirme seu e-mail para proteger sua conta e habilitar a recuperação de acesso.</span>
-    <button id="evb-verify" type="button" style="background:#fff;color:var(--color-brand,#8b5cf6);border:none;border-radius:6px;padding:0.35rem 0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;">Verificar agora</button>
+    <button id="evb-verify" type="button" style="text-decoration:none;background:#fff;color:var(--color-brand,#8b5cf6);border:none;border-radius:6px;padding:0.35rem 0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;display:inline-block;">Verificar agora</button>
     <button id="evb-dismiss" type="button" aria-label="Dispensar" style="background:transparent;border:none;color:#fff;font-size:1.1rem;line-height:1;cursor:pointer;padding:0.25rem 0.4rem;">×</button>
   `;
 
@@ -54,6 +55,7 @@ function renderBanner() {
   bar.querySelector('#evb-verify')?.addEventListener('click', () => {
     eventBus.emit(EVENTS.ROUTER_NAVIGATE, { path: '/verify-email' });
   });
+
   bar.querySelector('#evb-dismiss')?.addEventListener('click', () => {
     sessionStorage.setItem(DISMISS_KEY, '1');
     removeBanner();

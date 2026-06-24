@@ -166,7 +166,11 @@ export const DEFAULT_STATE = Object.freeze({
     name: null,
     email: null,
     photo: null,          // Profile photo URL (NEW)
+    avatarUrl: null,      // Remote avatar URL (from server)
+    avatarStatus: 'none', // 'none' | 'pending' | 'approved' | 'rejected'
     weight: null,         // kg
+    height: null,         // cm
+    age: null,            // years
     biologicalSex: null,  // 'male' | 'female'
     trainingFrequency: null, // days/week
     trainingAge: null,    // years

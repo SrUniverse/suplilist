@@ -584,17 +584,27 @@ export default class ProfilePage {
           try {
             btnNameConfirm.disabled = true;
             btnNameConfirm.style.opacity = '0.5';
-            
+
+            // Atualiza localmente no state (para persistir entre navegações)
+            stateManager.dispatch(ACTIONS.SET_USER_PROFILE, { name: val });
+
+            // Envia para o servidor (profileService também chama applyProfileToState)
             await profileService.updateProfile({ displayName: val });
-            
+
             this._form.name = val;
             nameText.textContent = val;
             const avatarEl = this.container.querySelector('#profile-avatar-initial');
             if (avatarEl) avatarEl.textContent = val[0].toUpperCase();
-            
+
             eventBus.emit('toast:show', { message: 'Nome atualizado!', type: 'success' });
           } catch (_err) {
-            eventBus.emit('toast:show', { message: 'Erro ao atualizar nome.', type: 'error' });
+            // Fallback: mantém o nome no state local mesmo se o servidor falhar
+            stateManager.dispatch(ACTIONS.SET_USER_PROFILE, { name: val });
+            this._form.name = val;
+            nameText.textContent = val;
+            const avatarEl = this.container.querySelector('#profile-avatar-initial');
+            if (avatarEl) avatarEl.textContent = val[0].toUpperCase();
+            eventBus.emit('toast:show', { message: 'Nome salvo localmente.', type: 'info' });
           } finally {
             btnNameConfirm.disabled = false;
             btnNameConfirm.style.opacity = '1';
@@ -629,28 +639,51 @@ export default class ProfilePage {
       const ageEl = this.container.querySelector('#field-age');
       const objectiveEl = this.container.querySelector('#field-objective');
 
-      btnSaveBio.addEventListener('click', () => {
+      btnSaveBio.addEventListener('click', async () => {
         const _num = v => { const n = parseFloat(v); return isNaN(n) ? undefined : n; };
-        this._form.weight = _num(weightEl.value);
-        this._form.biologicalSex = sexEl.value || undefined;
-        this._form.height = _num(heightEl.value);
-        this._form.age = _num(ageEl.value);
-        this._form.objective = objectiveEl.value;
+        this._form.weight        = _num(weightEl.value);
+        // Usa null (não undefined) para que o reducer aceite limpar o campo
+        this._form.biologicalSex = sexEl.value || null;
+        this._form.height        = _num(heightEl.value);
+        this._form.age           = _num(ageEl.value);
+        this._form.objective     = objectiveEl.value;
 
-        stateManager.dispatch(ACTIONS.SET_USER_PROFILE, {
-          name: this._form.name,
-          weight: this._form.weight,
+        const bioPayload = {
+          name:          this._form.name,
+          weight:        this._form.weight,
           biologicalSex: this._form.biologicalSex,
-          height: this._form.height,
-          age: this._form.age,
-          objective: this._form.objective,
-        });
+          height:        this._form.height,
+          age:           this._form.age,
+          objective:     this._form.objective,
+        };
 
-        eventBus.emit('toast:show', { message: 'Dados biométricos salvos!', type: 'success' });
+        // Salva localmente no state (persistência offline / localStorage)
+        stateManager.dispatch(ACTIONS.SET_USER_PROFILE, bioPayload);
 
-        // Update objective badge
+        // Update objective badge imediatamente
         const badge = this.container.querySelector('#profile-objective-badge');
         if (badge) badge.textContent = this._getObjectiveLabel();
+
+        // Sincroniza com o servidor via profileService
+        btnSaveBio.disabled = true;
+        btnSaveBio.textContent = 'Salvando...';
+        try {
+          await profileService.updateProfile({
+            displayName:   this._form.name,
+            weight:        this._form.weight,
+            biologicalSex: this._form.biologicalSex,
+            height:        this._form.height,
+            age:           this._form.age,
+            objective:     this._form.objective,
+          });
+          eventBus.emit('toast:show', { message: 'Dados biométricos salvos!', type: 'success' });
+        } catch (_err) {
+          // Falha no servidor: dados já persistidos localmente, informe o usuário
+          eventBus.emit('toast:show', { message: 'Salvos localmente. Sincronização pendente.', type: 'info' });
+        } finally {
+          btnSaveBio.disabled = false;
+          btnSaveBio.textContent = 'Salvar';
+        }
       });
     }
 

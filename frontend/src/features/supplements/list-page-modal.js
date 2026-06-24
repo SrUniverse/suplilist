@@ -85,7 +85,7 @@ export class ListPageModal {
     const affLinks = affiliateEngine.getLinks(item.name, item.id);
     let priceRowsHtml = '';
     const priceKey = item.id;
-    if (this._prices && this._prices[priceKey]) {
+    if (this._prices && this._prices[priceKey] && Object.keys(this._prices[priceKey]).length > 0) {
       const stores = this._prices[priceKey];
       const bestStoreKey = Object.entries(stores).reduce((best, [k, s]) =>
         getEffectiveCost(s) < getEffectiveCost(stores[best]) ? k : best,

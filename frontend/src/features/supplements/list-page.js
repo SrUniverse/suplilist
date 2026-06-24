@@ -130,21 +130,28 @@ export default class ListPage {
             if (apiResponse.success && apiResponse.data) {
               Object.entries(apiResponse.data).forEach(([id, supplement]) => {
                 if (supplement && supplement.prices) {
-                  prices[id] = {};
+                  const stores = {};
                   ['amazon', 'mercadolivre', 'shopee'].forEach(source => {
                     const sourceData = supplement.prices[source];
                     // Only surface a store when it has a real (affiliate) URL.
                     // Never fabricate a search link — that would be uncredited and
                     // often broken, and would overwrite the good static price link.
                     if (sourceData && sourceData.url) {
-                      prices[id][source] = {
+                      stores[source] = {
                         price: sourceData.price,
+                        qty: sourceData.qty,
+                        unit: sourceData.unit,
+                        pricePerUnit: sourceData.pricePerUnit,
                         url: sourceData.url,
-                        label: source.charAt(0).toUpperCase() + source.slice(1),
-                        saving: supplement.bestPrice?.source === source ? 0 : 10
+                        label: sourceData.label ?? (source.charAt(0).toUpperCase() + source.slice(1)),
+                        saving: sourceData.saving ?? 0
                       };
                     }
                   });
+                  // Only overwrite static entry if API returned at least one store
+                  if (Object.keys(stores).length > 0) {
+                    prices[id] = stores;
+                  }
                 }
               });
             }

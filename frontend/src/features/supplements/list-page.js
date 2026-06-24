@@ -156,12 +156,14 @@ export default class ListPage {
               });
             }
 
-            // Only update if the API returned real data (may have fresher prices)
+            // Only update if the API returned real data (may have fresher prices).
+            // Merge over static prices — never discard static entries not in the API response.
             if (Object.keys(prices).length > 0) {
-              this._prices = prices;
-              this._search._prices = prices;
-              this._grid.updatePrices(prices);
-              this._modal._prices = prices;
+              const merged = { ...this._prices, ...prices };
+              this._prices = merged;
+              this._search._prices = merged;
+              this._grid.updatePrices(merged);
+              this._modal._prices = merged;
             }
           })
           .catch(err => {

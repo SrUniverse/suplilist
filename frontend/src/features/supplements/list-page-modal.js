@@ -107,7 +107,7 @@ export class ListPageModal {
             <span class="lp-price-row-amount">${formatPrice(store.price)}</span>
             ${store.saving ? `<span class="lp-price-row-saving">−R$&nbsp;${escapeHtml(String(store.saving))}</span>` : ''}
             <a class="lp-price-row-link"
-               href="${sanitizeUrl(isProductUrl(store.url) ? store.url : affLinks[storeKey])}"
+               href="${sanitizeUrl(store.url || affLinks[storeKey])}"
                target="_blank"
                rel="noopener noreferrer"
                aria-label="Ver ${escapeHtml(String(store.label ?? storeKey))} — ${escapeHtml(item.name)}"

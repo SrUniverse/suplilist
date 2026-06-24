@@ -705,13 +705,13 @@
   },
   "cranberry": {
     "amazon": {
-      "price": 21.31,
+      "price": 24.9,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 0.3552,
+      "pricePerUnit": 0.415,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/dp/B09YY5RG8P?tag=suplilist01-20",
-      "saving": 9.39
+      "url": "https://www.amazon.com.br/dp/B09RNCF852?tag=suplilist01-20",
+      "saving": 5.8
     },
     "mercadolivre": {
       "price": 30.7,

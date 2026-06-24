@@ -5,17 +5,17 @@
     "ml_affiliate": "Gerar link meli.la via painel ML Afiliados (tag: suplilist)",
     "shopee_affiliate": "Gerar link via painel Shopee Afiliados",
     "pricePerUnit_formula": "price / qty  (ex: 89.90 / 300g = 0.30 R$/g)",
-    "last_updated": "2026-06-02"
+    "last_updated": "2026-06-24"
   },
   "creatina-monohidratada": {
     "amazon": {
-      "price": 89.9,
+      "price": 29.25,
       "qty": 300,
       "unit": "g",
-      "pricePerUnit": 0.3,
+      "pricePerUnit": 0.0975,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=creatina+monohidratada&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B07L5VS2HJ?tag=suplilist01-20",
+      "saving": 50.65
     },
     "mercadolivre": {
       "price": 79.9,
@@ -24,7 +24,7 @@
       "pricePerUnit": 0.27,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/creatina-monohidratada",
-      "saving": 10
+      "saving": 0
     },
     "shopee": {
       "price": 74.5,
@@ -38,13 +38,13 @@
   },
   "whey-protein": {
     "amazon": {
-      "price": 199.9,
+      "price": 55.16,
       "qty": 900,
       "unit": "g",
-      "pricePerUnit": 0.22,
+      "pricePerUnit": 0.0613,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=whey+protein&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0BHL6FKYY?tag=suplilist01-20",
+      "saving": 124.74
     },
     "mercadolivre": {
       "price": 179.9,
@@ -53,7 +53,7 @@
       "pricePerUnit": 0.2,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/whey-protein",
-      "saving": 20
+      "saving": 0
     },
     "shopee": {
       "price": 169.9,
@@ -67,13 +67,13 @@
   },
   "omega-3": {
     "amazon": {
-      "price": 59.9,
-      "qty": 60,
+      "price": 37.39,
+      "qty": 120,
       "unit": "caps",
-      "pricePerUnit": 1,
+      "pricePerUnit": 0.3116,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=omega+3+fish+oil&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B08MY5ZQ1N?tag=suplilist01-20",
+      "saving": 12.51
     },
     "mercadolivre": {
       "price": 49.9,
@@ -82,7 +82,7 @@
       "pricePerUnit": 0.83,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/omega-3",
-      "saving": 10
+      "saving": 0
     },
     "shopee": {
       "price": 44.9,
@@ -96,13 +96,13 @@
   },
   "vitamina-d3": {
     "amazon": {
-      "price": 39.9,
+      "price": 18.9,
       "qty": 120,
       "unit": "caps",
-      "pricePerUnit": 0.33,
+      "pricePerUnit": 0.1575,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=vitamina+d3+2000ui&tag=suplilist01-20&s=review-rank",
-      "saving": 5
+      "url": "https://www.amazon.com.br/dp/B07TJ98CS3?tag=suplilist01-20",
+      "saving": 26
     },
     "mercadolivre": {
       "price": 44.9,
@@ -125,13 +125,13 @@
   },
   "magnesio-bisglicinato": {
     "amazon": {
-      "price": 89.9,
-      "qty": 60,
+      "price": 25.31,
+      "qty": 90,
       "unit": "caps",
-      "pricePerUnit": 1.5,
+      "pricePerUnit": 0.2812,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=magnesio+bisglicinato&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0CSXPH81D?tag=suplilist01-20",
+      "saving": 49.59
     },
     "mercadolivre": {
       "price": 74.9,
@@ -140,7 +140,7 @@
       "pricePerUnit": 1.25,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/magnesio-bisglicinato",
-      "saving": 15
+      "saving": 0
     },
     "shopee": {
       "price": 69.9,
@@ -154,13 +154,13 @@
   },
   "ashwagandha": {
     "amazon": {
-      "price": 129.9,
+      "price": 26.6,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 2.17,
+      "pricePerUnit": 0.4433,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=ashwagandha+ksm-66&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/s?k=ashwagandha%20ksm66%20500mg%2060%20capsulas&tag=suplilist01-20&s=review-rank",
+      "saving": 83.3
     },
     "mercadolivre": {
       "price": 109.9,
@@ -169,7 +169,7 @@
       "pricePerUnit": 1.83,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/ashwagandha-ksm66",
-      "saving": 20
+      "saving": 0
     },
     "shopee": {
       "price": 99.9,
@@ -183,13 +183,13 @@
   },
   "cafeina-teanina": {
     "amazon": {
-      "price": 49.9,
-      "qty": 60,
+      "price": 17.17,
+      "qty": 120,
       "unit": "caps",
-      "pricePerUnit": 0.83,
+      "pricePerUnit": 0.1431,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=cafeina+teanina&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0BSLXBGX3?tag=suplilist01-20",
+      "saving": 22.73
     },
     "mercadolivre": {
       "price": 39.9,
@@ -198,7 +198,7 @@
       "pricePerUnit": 0.67,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/cafeina-teanina",
-      "saving": 10
+      "saving": 0
     },
     "shopee": {
       "price": 34.9,
@@ -212,13 +212,13 @@
   },
   "melatonina": {
     "amazon": {
-      "price": 49.9,
+      "price": 21.5,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 0.83,
+      "pricePerUnit": 0.3583,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=melatonina+0.5mg&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B09T5Q8MNM?tag=suplilist01-20",
+      "saving": 18.4
     },
     "mercadolivre": {
       "price": 39.9,
@@ -227,7 +227,7 @@
       "pricePerUnit": 0.67,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/melatonina",
-      "saving": 10
+      "saving": 0
     },
     "shopee": {
       "price": 34.9,
@@ -270,13 +270,13 @@
   },
   "beta-alanina": {
     "amazon": {
-      "price": 79.9,
-      "qty": 300,
+      "price": 29.9,
+      "qty": 150,
       "unit": "g",
-      "pricePerUnit": 0.27,
+      "pricePerUnit": 0.1993,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=beta+alanina&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0C28TGPZS?tag=suplilist01-20",
+      "saving": 35
     },
     "mercadolivre": {
       "price": 64.9,
@@ -285,7 +285,7 @@
       "pricePerUnit": 0.22,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/beta-alanina",
-      "saving": 15
+      "saving": 0
     },
     "shopee": {
       "price": 59.9,
@@ -299,13 +299,13 @@
   },
   "zinco-bisglicinato": {
     "amazon": {
-      "price": 54.9,
+      "price": 19.99,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 0.92,
+      "pricePerUnit": 0.3332,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=zinco+bisglicinato&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B09SMZB5YC?tag=suplilist01-20",
+      "saving": 24.91
     },
     "mercadolivre": {
       "price": 44.9,
@@ -314,7 +314,7 @@
       "pricePerUnit": 0.75,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/zinco-bisglicinato",
-      "saving": 10
+      "saving": 0
     },
     "shopee": {
       "price": 39.9,
@@ -328,13 +328,13 @@
   },
   "vitamina-c": {
     "amazon": {
-      "price": 34.9,
+      "price": 14.84,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 0.58,
+      "pricePerUnit": 0.2473,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=vitamina+c+500mg&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B07Y56HT1Y?tag=suplilist01-20",
+      "saving": 13.06
     },
     "mercadolivre": {
       "price": 27.9,
@@ -343,7 +343,7 @@
       "pricePerUnit": 0.47,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/vitamina-c-500mg",
-      "saving": 7
+      "saving": 0
     },
     "shopee": {
       "price": 24.9,
@@ -357,13 +357,13 @@
   },
   "l-carnitina": {
     "amazon": {
-      "price": 89.9,
+      "price": 32.77,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 1.5,
+      "pricePerUnit": 0.5462,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=l-carnitina+tartarato&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0C1HGNL4L?tag=suplilist01-20",
+      "saving": 42.13
     },
     "mercadolivre": {
       "price": 74.9,
@@ -372,7 +372,7 @@
       "pricePerUnit": 1.25,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/l-carnitina-tartarato",
-      "saving": 15
+      "saving": 0
     },
     "shopee": {
       "price": 69.9,
@@ -676,13 +676,13 @@
   },
   "coenzima-q10": {
     "amazon": {
-      "price": 139.9,
+      "price": 34.8,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 2.33,
+      "pricePerUnit": 0.58,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=coenzima+q10+100mg&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0FNRV643T?tag=suplilist01-20",
+      "saving": 85.1
     },
     "mercadolivre": {
       "price": 119.9,
@@ -691,7 +691,7 @@
       "pricePerUnit": 2,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/coenzima-q10",
-      "saving": 20
+      "saving": 0
     },
     "shopee": {
       "price": 109.9,
@@ -1053,13 +1053,13 @@
   },
   "l-teanina": {
     "amazon": {
-      "price": 69.9,
+      "price": 24.9,
       "qty": 60,
       "unit": "caps",
-      "pricePerUnit": 1.17,
+      "pricePerUnit": 0.415,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=l-teanina+200mg&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0977FXRKW?tag=suplilist01-20",
+      "saving": 35
     },
     "mercadolivre": {
       "price": 59.9,
@@ -1068,7 +1068,7 @@
       "pricePerUnit": 1,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/l-teanina",
-      "saving": 10
+      "saving": 0
     },
     "shopee": {
       "price": 54.9,
@@ -1459,13 +1459,13 @@
   },
   "spirulina": {
     "amazon": {
-      "price": 69.9,
+      "price": 33.62,
       "qty": 120,
       "unit": "caps",
-      "pricePerUnit": 0.58,
+      "pricePerUnit": 0.2802,
       "label": "Amazon",
-      "url": "https://www.amazon.com.br/s?k=spirulina+500mg&tag=suplilist01-20&s=review-rank",
-      "saving": 0
+      "url": "https://www.amazon.com.br/dp/B0FHLW51PM?tag=suplilist01-20",
+      "saving": 21.28
     },
     "mercadolivre": {
       "price": 54.9,
@@ -1474,7 +1474,7 @@
       "pricePerUnit": 0.46,
       "label": "Mercado Livre",
       "url": "https://lista.mercadolivre.com.br/spirulina",
-      "saving": 15
+      "saving": 0
     },
     "shopee": {
       "price": 49.9,

@@ -180,6 +180,7 @@ export default class VerifyEmailPage {
     this._clearMessages();
     if (isResend) this._render();
 
+    let skipPostProcess = false;
     try {
       await apiFetch('/api/auth/send-verification-code', { method: 'POST' });
       this._codeSent = true;
@@ -192,14 +193,18 @@ export default class VerifyEmailPage {
         this._errorMessage = 'Aguarde 60 segundos antes de solicitar um novo código.';
       } else if (code === 'already_verified') {
         this._syncVerifiedState();
-        return;
+        skipPostProcess = true;
       } else {
         this._errorMessage = errorHandler.getUserFriendlyMessage(err);
       }
-      this._codeSent = isResend ? this._codeSent : false;
+      if (!skipPostProcess) {
+        this._codeSent = isResend ? this._codeSent : false;
+      }
     } finally {
       this._isSending = false;
-      if (!this._isMounted) return;
+    }
+
+    if (!skipPostProcess && this._isMounted) {
       this._render();
       this._startCooldown();
     }

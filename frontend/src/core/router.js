@@ -116,15 +116,17 @@ export class Router {
     const { route, params } = match;
 
     // ── Auth guard ──────────────────────────────────────
-    // Fast path: session probe already settled — no need to await.
-    if (!identityService.isInitializing()) {
+    // Fast path: session probe settled OR the route is public (no auth needed).
+    // Public routes cover ~95% of this local-first app — render them immediately
+    // without waiting for Firebase, eliminating the "Verificando sessão…" delay.
+    if (!identityService.isInitializing() || authGuard.isPublicRoute(pathname)) {
       const user = stateManager.get('user');
       if (!authGuard.checkAccess(pathname, user)) {
         return;
       }
     } else {
-      // Slow path: session probe is still in-flight.
-      // Show a skeleton so the user sees something, then await the probe result.
+      // Slow path: session probe is still in-flight AND route requires auth.
+      // Only admin/profile routes hit this branch on cold start.
       this._renderAuthSkeleton();
 
       await identityService.isReady();

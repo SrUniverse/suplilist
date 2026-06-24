@@ -44,19 +44,7 @@ export class VirtualScroller {
   mount() {
     this._createContainer();
     this._attachListeners();
-    // Render immediately. If the scroll container is already laid out (the
-    // common SPA case) this paints the list right away. Relying ONLY on the
-    // rAF below is unsafe: rAF callbacks are throttled when the tab is not
-    // painting (background tab, or while a programmatic SPA navigation is in
-    // flight), which left the catalog permanently blank until a scroll/resize.
-    this._getContainerHeight();
     this._render();
-    // Re-render on the next paint frame in case clientHeight was still 0 above
-    // (layout not yet flushed); this corrects the visible range once settled.
-    requestAnimationFrame(() => {
-      this._getContainerHeight();
-      this._render();
-    });
   }
 
 
@@ -78,7 +66,7 @@ export class VirtualScroller {
     this.items = items;
     this.visibleStartIndex = 0;
     this.visibleEndIndex = 0;
-    this._render();
+    this._reset();
   }
 
   /**
@@ -121,7 +109,9 @@ export class VirtualScroller {
   }
 
   /**
-   * Render visible items — supports multi-column grid layout.
+   * Render visible items — incremental DOM updates only.
+   * Existing rows in the viewport are never destroyed, so cached images
+   * are never evicted and re-fetched (eliminating the image flash).
    */
   _render() {
     this._getContainerHeight();
@@ -132,21 +122,36 @@ export class VirtualScroller {
     const totalRows = Math.ceil(this.items.length / cols);
     const rowHeight = this.itemHeight + gap;
 
-    // Total height (virtual)
+    // Keep virtual height correct so the scrollbar tracks properly
     const totalHeight = totalRows === 0 ? 0 : totalRows * rowHeight - gap;
     this.listElement.style.height = totalHeight + 'px';
 
-    // Render visible rows
-    const html = [];
     const startRow = this.visibleStartIndex;
     const endRow = this.visibleEndIndex;
 
+    // Index currently-rendered rows by their data-row attribute
+    const rendered = new Map();
+    for (const el of this.listElement.children) {
+      const row = parseInt(el.dataset.row, 10);
+      if (!isNaN(row)) rendered.set(row, el);
+    }
+
+    // Remove rows that scrolled out of the viewport
+    for (const [row, el] of rendered) {
+      if (row < startRow || row > endRow) {
+        el.remove();
+        rendered.delete(row);
+      }
+    }
+
+    // Add only the rows that aren't in the DOM yet
     for (let row = startRow; row <= endRow; row++) {
+      if (rendered.has(row)) continue;
+
       const offsetTop = row * rowHeight;
       const startItem = row * cols;
       const endItem = Math.min(startItem + cols, this.items.length);
 
-      // Build row items
       let rowItems = '';
       for (let i = startItem; i < endItem; i++) {
         const item = this.items[i];
@@ -154,29 +159,29 @@ export class VirtualScroller {
           rowItems += `<div class="virtual-col" style="flex:1;min-width:0;display:flex;flex-direction:column;">${this.renderItem(item, i)}</div>`;
         }
       }
-      // Fill remaining columns in partial rows with invisible placeholders
-      // so flex:1 distributes evenly and the last item doesn't stretch full-width
+      // Placeholder columns so flex:1 distributes evenly on partial last rows
       for (let i = endItem; i < startItem + cols; i++) {
         rowItems += `<div class="virtual-col" style="flex:1;min-width:0;" aria-hidden="true"></div>`;
       }
 
-      html.push(`
-        <div class="virtual-item" data-row="${row}" style="
-          position: absolute;
-          top: ${offsetTop}px;
-          left: 0; right: 0;
-          height: ${this.itemHeight}px;
-          display: flex;
-          gap: ${gap}px;
-          align-items: stretch;
-        ">
-          ${rowItems}
-        </div>
-      `);
+      const rowEl = document.createElement('div');
+      rowEl.className = 'virtual-item';
+      rowEl.dataset.row = String(row);
+      rowEl.style.cssText = `position:absolute;top:${offsetTop}px;left:0;right:0;height:${this.itemHeight}px;display:flex;gap:${gap}px;align-items:stretch;`;
+      rowEl.innerHTML = rowItems;
+      this.listElement.appendChild(rowEl);
     }
 
-    this.listElement.innerHTML = html.join('');
     this.itemElements = this.listElement.querySelectorAll('.virtual-item');
+  }
+
+  /**
+   * Wipe all rendered rows and re-render from scratch.
+   * Called by updateItems() when the data set changes entirely.
+   */
+  _reset() {
+    this.listElement.innerHTML = '';
+    this._render();
   }
 
   /**

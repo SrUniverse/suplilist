@@ -8,6 +8,7 @@ import { redisClient } from '../../../../shared/infrastructure/redis/redis.clien
 import { IdentityEmailService } from '../services/identity-email.service.js';
 import { logSecurityEvent } from '../../../../shared/infrastructure/logging/security-event-logger.js';
 import { env } from '../../../../shared/config/env.config.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 const loginInputSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -103,7 +104,7 @@ export class LoginUseCase {
         // Generate a new OTP, save in Redis, send email
         const newCode = crypto.randomInt(100000, 999999).toString();
         await redisClient.set(`otp:device:${user.email}`, newCode, 'EX', 900); // 15 min expiry
-        this.emailService.sendDeviceVerificationEmail(user.email, newCode).catch(console.error);
+        this.emailService.sendDeviceVerificationEmail(user.email, newCode).catch((err: unknown) => logger.error('[LoginUseCase] Failed to send device verification email', { err }));
 
         return {
           status: 'device_verification_required',

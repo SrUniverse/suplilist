@@ -10,6 +10,7 @@ import { Profile } from '../../../profile/domain/entities/profile.entity.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
 import { IdentityEmailService } from '../services/identity-email.service.js';
 import { env } from '../../../../shared/config/env.config.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'your-google-client-id';
 const JWT_SECRET = env.JWT_SECRET;
@@ -169,7 +170,7 @@ export class GoogleAuthUseCase {
         // Generate a new OTP, save in Redis, send email
         const newCode = crypto.randomInt(100000, 999999).toString();
         await redisClient.set(`otp:device:${user.email}`, newCode, 'EX', 900); // 15 min expiry
-        this.emailService.sendDeviceVerificationEmail(user.email, newCode).catch(console.error);
+        this.emailService.sendDeviceVerificationEmail(user.email, newCode).catch((err: unknown) => logger.error('[GoogleAuthUseCase] Failed to send device verification email', { err }));
 
         return {
           status: 'device_verification_required',

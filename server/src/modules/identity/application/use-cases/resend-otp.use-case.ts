@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { IUserIdentityRepository } from '../../repositories/user-identity.repository.js';
 import { redisClient } from '../../../../shared/infrastructure/redis/redis.client.js';
 import { IdentityEmailService } from '../services/identity-email.service.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 const resendOtpSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -40,7 +41,7 @@ export class ResendOtpUseCase {
     await redisClient.set(rateLimitKey, '1', 'EX', 60);
 
     // Dispara e-mail
-    this.emailService.sendVerificationEmail(email, newCode).catch(console.error);
+    this.emailService.sendVerificationEmail(email, newCode).catch((err: unknown) => logger.error('[ResendOtpUseCase] Failed to send verification email', { err }));
 
     return { success: true };
   }

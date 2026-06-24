@@ -7,7 +7,7 @@ import { stateManager, ACTIONS } from '../../state/state-manager.js';
 import { escapeHtml } from '../../utils/escape.js';
 import affiliateEngine from '../../monetization/affiliate-engine.js';
 import { CheckoutModal } from '../premium/checkout-modal.js';
-import { sanitizeUrl, isProductUrl, formatPrice, getPriceLabel, getEffectiveCost } from './list-page-utils.js';
+import { sanitizeUrl, formatPrice, getPriceLabel, getEffectiveCost } from './list-page-utils.js';
 import { getImageObjectPosition } from './image-focus.js';
 import { SchemaManager } from '../../platform/schema-manager.js';
 

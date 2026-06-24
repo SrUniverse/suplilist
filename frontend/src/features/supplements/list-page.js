@@ -158,11 +158,15 @@ export default class ListPage {
 
             // Only update if the API returned real data (may have fresher prices).
             // Merge over static prices — never discard static entries not in the API response.
+            // Do NOT patch existing card DOM elements: prices.json is already correct and
+            // any visible difference would cause a jarring price-change flash in front of
+            // the user. The updated prices object is used for any future renders (filter
+            // changes, virtual-scroll reveals, modal opens).
             if (Object.keys(prices).length > 0) {
               const merged = { ...this._prices, ...prices };
               this._prices = merged;
               this._search._prices = merged;
-              this._grid.updatePrices(merged);
+              this._grid._prices = merged;
               this._modal._prices = merged;
             }
           })

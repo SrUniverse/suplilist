@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, signOut, sendPasswordResetEmail, confirmPasswordReset, sendEmailVerification, signInWithPhoneNumber, linkWithPhoneNumber, RecaptchaVerifier, PhoneAuthProvider } from 'firebase/auth';
+import { logger } from '../../utils/logger.js';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,7 +20,7 @@ try {
   const app = initializeApp(firebaseConfig);
   resolvedAuth = getAuth(app);
 } catch (error) {
-  console.error('[Firebase] Auth indisponível:', error?.code || error);
+  logger.error('[Firebase] Auth indisponível:', error?.code || error);
   throw error;
 }
 

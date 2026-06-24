@@ -23,7 +23,7 @@ on:
 
 env:
   NODE_VERSION: '24'
-  BASE_URL: 'http://localhost:3000'
+  BASE_URL: 'http://localhost:5000'
 
 jobs:
   setup:
@@ -120,24 +120,21 @@ jobs:
       - name: Build server
         run: npm run build -w @suplilist/server
 
-      - name: Start server
+      - name: Prepare Backend Environment
         run: |
-          npm run dev:server &
-          sleep 30
-          curl -f http://localhost:3000/health || echo "Server health check failed"
+          echo "NODE_ENV=test" > ./server/.env
+          echo "PORT=5000" >> ./server/.env
+          echo "MONGO_URI=mongodb://127.0.0.1:27017/suplilist-loadtest" >> ./server/.env
+          echo "JWT_SECRET=super-secret-load-test-key-123456789012" >> ./server/.env
+          echo "FRONTEND_ORIGIN=http://127.0.0.1:5000" >> ./server/.env
+          echo "REDIS_URL=redis://127.0.0.1:6379/0" >> ./server/.env
+          echo "ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" >> ./server/.env
+
+      - name: Start server
+        run: npm run dev:server &
 
       - name: Wait for server readiness
-        run: |
-          timeout=0
-          while ! curl -sf http://localhost:3000/health > /dev/null 2>&1; do
-            timeout=$((timeout + 1))
-            if [ $timeout -ge 30 ]; then
-              echo "Server did not become ready in time"
-              exit 1
-            fi
-            echo "Waiting for server... ($timeout/30)"
-            sleep 2
-          done
+        run: npx wait-on http://127.0.0.1:5000/health --timeout 60000 || (docker compose logs mongodb redis && exit 1)
 
       - name: Run load test - ${{ needs.setup.outputs.scenario }}
         run: |

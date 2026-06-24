@@ -8,6 +8,7 @@ import { IUnitOfWork } from '../../../../shared/application/unit-of-work.interfa
 import { IEventBus } from '../../../../shared/application/event-bus/event-bus.interface.js';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event.js';
 import { IdentityEmailService } from '../services/identity-email.service.js';
+import { logger } from '../../../../shared/utils/logger.js';
 
 const registerInputSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
@@ -41,7 +42,7 @@ export class RegisterUseCase {
       if (existingUser) {
         // Dispara e-mail de aviso para segurança e evitar Account Enumeration
         // Background task (não usar await no controller principal se quisermos performance, mas dentro da transação é melhor fazer fire-and-forget de forma segura)
-        this.emailService.sendDuplicateRegistrationWarning(existingUser.email).catch(console.error);
+        this.emailService.sendDuplicateRegistrationWarning(existingUser.email).catch((err: unknown) => logger.error('[RegisterUseCase] Failed to send duplicate registration warning', { err }));
         
         // Retorna sucesso simulado para evitar Account Enumeration sem tocar no banco
         return {
@@ -115,7 +116,7 @@ export class RegisterUseCase {
       // TTL de 15 minutos (900 segundos)
       await redisClient.set(`otp:email:${savedUser.email}`, otpCode, 'EX', 900);
 
-      this.emailService.sendVerificationEmail(savedUser.email, otpCode).catch(console.error);
+      this.emailService.sendVerificationEmail(savedUser.email, otpCode).catch((err: unknown) => logger.error('[RegisterUseCase] Failed to send verification email', { err }));
 
       return {
         userId: savedUser.id,

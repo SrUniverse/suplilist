@@ -64,6 +64,9 @@ scrape.js
 scrape_*.js
 scrape_*.py
 
+# Scripts de debug local (não pertencem ao repo)
+frontend/test-crawler.js
+
 # Imagens não utilizadas/temporárias
 assets/banner.jpeg
 assets/logo.jpeg
